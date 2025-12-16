@@ -1,10 +1,10 @@
-![메인 베너](https://github.com/user-attachments/assets/0eee203c-ce97-4bc6-84b4-958c415f1393)
+![메인 베너](https://github.com/user-attachments/assets/e8da719a-3215-46d3-9154-d31f8d7c8a63)
 <br>
 <div align="center">
 
 [팀 노션]() | [BackLog]() | [피그마]()
  | [위키](https://github.com/boostcampwm2025/web09-dopamine/wiki) 
- 
+
 </div>
 
 
