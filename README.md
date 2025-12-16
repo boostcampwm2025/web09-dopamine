@@ -1,4 +1,11 @@
 ![메인 베너](https://github.com/user-attachments/assets/0eee203c-ce97-4bc6-84b4-958c415f1393)
+<br>
+<div align="center">
+
+[팀 노션]() | [BackLog]() | [피그마]()
+ | [위키](https://github.com/boostcampwm2025/web09-dopamine/wiki) 
+ 
+</div>
 
 
 <h1 id="옥토독스소개">Murphy 서비스 소개 </h1>
