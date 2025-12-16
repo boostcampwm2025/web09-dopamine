@@ -1,2 +1,3 @@
-# web09-dopamine
-Web09 도파민 팀 입니다!
+## web09-dopamine
+
+도파민 팀입니다!!
