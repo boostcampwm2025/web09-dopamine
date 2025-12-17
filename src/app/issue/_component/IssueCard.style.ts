@@ -54,10 +54,33 @@ const Badge = styled.div`
 `;
 
 const Content = styled.h3`
-  margin-bottom: 12px;
+  height: 48px;
   font-size: 20px;
   font-weight: 700;
   color: #111827;
+`;
+
+const EditableInput = styled.textarea`
+  width: 100%;
+  height: auto;
+  border: none;
+  outline: none;
+  resize: none;
+  font-size: 20px;
+  font-weight: 700;
+  color: #111827;
+  background: transparent;
+  font-family: inherit;
+  line-height: 1.2;
+  letter-spacing: 0;
+  padding: 0;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+
+  &::placeholder {
+    color: rgba(17, 24, 39, 0.4);
+    font-weight: 700;
+  }
 `;
 
 const Meta = styled.div`
@@ -147,4 +170,5 @@ const VoteButton = styled.button<{
   }
 `;
 
-export { Card, Header, Content, Meta, AuthorPill, IconButton, Divider, Footer, VoteButton, Badge };
+export { Card, Header, Content, EditableInput, Meta, AuthorPill, IconButton, Divider, Footer, VoteButton, Badge };
+

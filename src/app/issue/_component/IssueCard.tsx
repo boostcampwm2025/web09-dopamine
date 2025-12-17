@@ -6,6 +6,7 @@ import {
   Badge,
   Card,
   Content,
+  EditableInput,
   Divider,
   Footer,
   Header,
@@ -22,6 +23,8 @@ interface IssueCardProps {
   agreeCount?: number;
   disagreeCount?: number;
   needDiscussion?: boolean;
+  editable?: boolean;
+  onSave?: (content: string) => void;
 }
 
 export default function IssueCard(props: IssueCardProps) {
@@ -32,6 +35,14 @@ export default function IssueCard(props: IssueCardProps) {
   const [userVote, setUserVote] = useState<'agree' | 'disagree' | null>(null);
   const [agreeCountState, setAgreeCountState] = useState<number>(props.agreeCount ?? 0);
   const [disagreeCountState, setDisagreeCountState] = useState<number>(props.disagreeCount ?? 0);
+  const [isEditing, setIsEditing] = useState<boolean>(!!props.editable);
+  const [editValue, setEditValue] = useState<string>(props.content ?? '');
+  const [displayContent, setDisplayContent] = useState<string>(props.content ?? '');
+
+  useEffect(() => {
+    setEditValue(props.content ?? '');
+    setDisplayContent(props.content ?? '');
+  }, [props.content]);
 
   const handleAgree = () => {
     if (userVote === 'agree') {
@@ -55,6 +66,22 @@ export default function IssueCard(props: IssueCardProps) {
     setUserVote('disagree');
     setDisagreeCountState((c) => c + 1);
     if (userVote === 'agree') setAgreeCountState((c) => Math.max(0, c - 1));
+  };
+
+  const submitEdit = () => {
+    const trimmed = editValue.trim();
+    if (!trimmed) return;
+    // optimistic update locally
+    setDisplayContent(trimmed);
+    setIsEditing(false);
+    if (props.onSave) props.onSave(trimmed);
+  };
+
+  const handleKeyDownEdit = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      submitEdit();
+    }
   };
 
   useEffect(() => {
@@ -84,7 +111,17 @@ export default function IssueCard(props: IssueCardProps) {
         </Badge>
       )}
       <Header>
-        <Content>{props.content}</Content>
+        {isEditing ? (
+          <EditableInput
+            value={editValue}
+            onChange={(e) => setEditValue(e.target.value)}
+            onKeyDown={handleKeyDownEdit}
+            autoFocus
+            placeholder="아이디어를 입력해주세요."
+          />
+        ) : (
+          <Content onDoubleClick={() => props.onSave && setIsEditing(true)}>{displayContent}</Content>
+        )}
         <Meta>
           <AuthorPill>{props.author}</AuthorPill>
           {props.isVotePhrase ? (
