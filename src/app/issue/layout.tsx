@@ -1,6 +1,6 @@
-import Sidebar from '@/common/Sidebar/Sidebar';
-import SidebarItem from '@/common/Sidebar/SidebarItem';
-import * as S from '@/common/Sidebar/styles';
+import Sidebar from '@/components/Sidebar/Sidebar';
+import SidebarItem from '@/components/Sidebar/SidebarItem';
+import * as S from '@/components/Sidebar/styles';
 
 const ISSUE_LIST = [
   { title: 'new issue', href: '#', status: 'open' },
