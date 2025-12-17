@@ -14,6 +14,7 @@ import {
   Meta,
   VoteButton,
 } from './IssueCard.style';
+import useIssueCard from './useIssueCard';
 
 interface IssueCardProps {
   content?: string;
@@ -28,75 +29,28 @@ interface IssueCardProps {
 }
 
 export default function IssueCard(props: IssueCardProps) {
-  const [status, setStatus] = useState<'needDiscussion' | 'selected' | 'default'>('default');
+  const {
+    status,
+    userVote,
+    agreeCountState,
+    disagreeCountState,
+    isEditing,
+    editValue,
+    displayContent,
+    setEditValue,
+    handleAgree,
+    handleDisagree,
+    handleKeyDownEdit,
+  } = useIssueCard({
+    content: props.content,
+    agreeCount: props.agreeCount,
+    disagreeCount: props.disagreeCount,
+    isSelected: props.isSelected,
+    needDiscussion: props.needDiscussion,
+    editable: !!props.editable,
+    onSave: props.onSave,
+  });
 
-  const { needDiscussion = false, isSelected = false } = props;
-
-  const [userVote, setUserVote] = useState<'agree' | 'disagree' | null>(null);
-  const [agreeCountState, setAgreeCountState] = useState<number>(props.agreeCount ?? 0);
-  const [disagreeCountState, setDisagreeCountState] = useState<number>(props.disagreeCount ?? 0);
-  const [isEditing, setIsEditing] = useState<boolean>(!!props.editable);
-  const [editValue, setEditValue] = useState<string>(props.content ?? '');
-  const [displayContent, setDisplayContent] = useState<string>(props.content ?? '');
-
-  useEffect(() => {
-    setEditValue(props.content ?? '');
-    setDisplayContent(props.content ?? '');
-  }, [props.content]);
-
-  const handleAgree = () => {
-    if (userVote === 'agree') {
-      setUserVote(null);
-      setAgreeCountState((c) => Math.max(0, c - 1));
-      return;
-    }
-
-    setUserVote('agree');
-    setAgreeCountState((c) => c + 1);
-    if (userVote === 'disagree') setDisagreeCountState((c) => Math.max(0, c - 1));
-  };
-
-  const handleDisagree = () => {
-    if (userVote === 'disagree') {
-      setUserVote(null);
-      setDisagreeCountState((c) => Math.max(0, c - 1));
-      return;
-    }
-
-    setUserVote('disagree');
-    setDisagreeCountState((c) => c + 1);
-    if (userVote === 'agree') setAgreeCountState((c) => Math.max(0, c - 1));
-  };
-
-  const submitEdit = () => {
-    const trimmed = editValue.trim();
-    if (!trimmed) return;
-    // optimistic update locally
-    setDisplayContent(trimmed);
-    setIsEditing(false);
-    if (props.onSave) props.onSave(trimmed);
-  };
-
-  const handleKeyDownEdit = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      submitEdit();
-    }
-  };
-
-  useEffect(() => {
-    if (isSelected) {
-      setStatus('selected');
-      return;
-    }
-
-    if (needDiscussion) {
-      setStatus('needDiscussion');
-      return;
-    }
-
-    setStatus('default');
-  }, [isSelected, needDiscussion]);
 
   return (
     <Card status={status}>
@@ -120,7 +74,7 @@ export default function IssueCard(props: IssueCardProps) {
             placeholder="아이디어를 입력해주세요."
           />
         ) : (
-          <Content onDoubleClick={() => props.onSave && setIsEditing(true)}>{displayContent}</Content>
+          <Content>{displayContent}</Content>
         )}
         <Meta>
           <AuthorPill>{props.author}</AuthorPill>

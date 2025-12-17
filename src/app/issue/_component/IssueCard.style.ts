@@ -54,7 +54,7 @@ const Badge = styled.div`
 `;
 
 const Content = styled.h3`
-  height: 48px;
+  height: 45px;
   font-size: 20px;
   font-weight: 700;
   color: #111827;
@@ -71,7 +71,6 @@ const EditableInput = styled.textarea`
   color: #111827;
   background: transparent;
   font-family: inherit;
-  line-height: 1.2;
   letter-spacing: 0;
   padding: 0;
   margin: 0;
