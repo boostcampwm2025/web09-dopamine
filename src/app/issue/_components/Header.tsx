@@ -18,8 +18,8 @@ const HeaderContainer = styled.div`
 const LeftSection = styled.div`
   gap: 12px;
   display: flex;
-  font-size: ${theme.fontSizes.body2};
-  font-weight: ${theme.fontWeights.semibold};
+  font-size: ${theme.font.size.body2};
+  font-weight: ${theme.font.weight.semibold};
   color: black;
   align-items: center;
 `;
