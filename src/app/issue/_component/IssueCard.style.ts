@@ -1,12 +1,33 @@
-
 import styled from '@emotion/styled';
 
-const Card = styled.article`
-  background: #ffffff; 
+const Card = styled.article<{ status?: 'needDiscussion' | 'selected' | 'default' }>`
+  position: relative;
   border-radius: 12px;
-  padding: 25px;
+  padding: 35px;
   box-shadow: 0 4px 10px rgba(31, 41, 55, 0.06);
-  border: 1px solid rgba(31,41,55,0.04);
+  ${({ status }) => {
+    switch (status) {
+      case 'needDiscussion':
+        return `
+        border: 2px solid #EC0000;
+        background: #ffffff; 
+        box-shadow: 0 4px 10px rgba(236, 0, 0, 0.77);
+        `;
+      case 'selected':
+        return `
+        border: 2px solid #fccf1cff;
+        background: #FEFCE8;
+        box-shadow: 0 4px 10px rgba(250, 204, 21, 0.86);
+        `;
+      case 'default':
+      default:
+        return `
+        border: 1px solid #E5E7EB;
+        background: #ffffff; 
+        box-shadow: 0 4px 10px rgba(31, 41, 55, 0.06);
+        `;
+    }
+  }}
   max-width: 30em;
 `;
 
@@ -15,6 +36,21 @@ const Header = styled.div`
   flex-direction: column;
   gap: 12px;
   width: 100%;
+`;
+
+const Badge = styled.div`
+  position: absolute;
+  top: -20px;
+  right: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 10px 16px;
+  background: #facc15;
+  color: #ffffff;
+  border-radius: 24px;
+  box-shadow: 0 6px 18px rgba(18, 18, 14, 0.18);
+  font-weight: 800;
 `;
 
 const Content = styled.h3`
@@ -34,8 +70,8 @@ const Meta = styled.div`
 
 const AuthorPill = styled.span`
   background: #f3f4f6;
-  color: #374151;
-  padding: 6px 12px;
+  color: #9ca3af;
+  padding: 8px 14px;
   border-radius: 999px;
   font-weight: 600;
   font-size: 13px;
@@ -43,7 +79,7 @@ const AuthorPill = styled.span`
 
 const IconButton = styled.button`
   background: #ffffff;
-  border: 1px solid rgba(31,41,55,0.06);
+  border: 1px solid #e5e7eb;
   width: 42px;
   height: 42px;
   border-radius: 10px;
@@ -54,9 +90,10 @@ const IconButton = styled.button`
 
 const Divider = styled.hr`
   border: none;
+
   height: 1px;
   background: #f3f4f6;
-  margin: 16px 0;
+  margin: 20px 0;
 `;
 
 const Footer = styled.div`
@@ -64,7 +101,11 @@ const Footer = styled.div`
   gap: 12px;
 `;
 
-const VoteButton = styled.button<{ variant?: 'primary' | 'secondary' }>`
+const VoteButton = styled.button<{
+  kind: 'agree' | 'disagree';
+  active?: boolean;
+  cardStatus?: 'needDiscussion' | 'selected' | 'default';
+}>`
   flex: 1;
   padding: 14px 18px;
   border-radius: 12px;
@@ -72,27 +113,38 @@ const VoteButton = styled.button<{ variant?: 'primary' | 'secondary' }>`
   font-weight: 700;
   font-size: 16px;
   cursor: pointer;
-  ${({ variant }) =>
-    variant === 'primary'
-      ? `background: #F0FDF4; hover: #059669 ; color: #059669; box-shadow: inset 0 -2px 0 rgba(5,150,105,0.08);`
-      : `background: #f3f4f6; color: #6b7280;`}
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease,
+    box-shadow 160ms ease;
+
+  ${({ kind, active, cardStatus }) => {
+    if (kind === 'agree') {
+      if (cardStatus === 'selected') {
+        return `background: #FEF9C3; color: #A16207; box-shadow: inset 0 -2px 0 rgba(250,204,21,0.15);`;
+      }
+      if (active) {
+        return `background: #059669; color: #ffffff;`;
+      }
+      return `background: #F0FDF4; color: #059669;`;
+    }
+
+    if (active) {
+      return `background: #DC2626; color: #ffffff;`;
+    }
+    return `background: #f3f4f6; color: #6b7280;`;
+  }}
+
   &:hover {
-    ${({ variant }) =>
-      variant === 'primary'
-        ? `background: #059669; color: #fff; box-shadow: inset 0 -2px 0 rgba(5,150,105,0.08);`
-        : `background: #e5e7eb; color: #374151;`}
+    ${({ kind, active, cardStatus }) => {
+      if (active || cardStatus === 'selected') return '';
+      if (kind === 'agree') return `background: #059669; color: #ffffff;`;
+      return `background: #e5e7eb; color: #374151;`;
+    }}
   }
 `;
 
-export {
-    Card,
-    Header,
-    Content,
-    Meta,
-    AuthorPill,
-    IconButton,
-    Divider,
-    Footer,
-    VoteButton
-
-}
+export { Card, Header, Content, Meta, AuthorPill, IconButton, Divider, Footer, VoteButton, Badge };
