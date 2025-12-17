@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import styled from '@emotion/styled';
 import { IssueStatusType } from './types';
@@ -14,6 +15,42 @@ export const Sidebar = styled.aside`
   background-color: ${({ theme }) => theme.colors.white};
   color: ${({ theme }) => theme.colors.gray[400]};
   box-shadow: 2px 0 2px -1px rgba(0, 0, 0, 0.1);
+`;
+
+export const InputWrapper = styled.div`
+  display: flex;
+  padding: 0 16px;
+  position: relative;
+
+  &:has(input:focus) img {
+    visibility: hidden;
+  }
+`;
+
+export const InputIcon = styled(Image)`
+  position: absolute;
+  top: 50%;
+  left: 16px;
+  transform: translateY(-50%);
+`;
+
+//TODO: global css로 분리 필요
+export const SrOnly = styled.label`
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border-width: 0;
+`;
+export const Sidebarinput = styled.input`
+  width: 100%;
+  padding: 8px;
+  border: none;
+  border-bottom: 1px solid ${({ theme }) => theme.colors.gray[200]};
 `;
 
 export const SidebarTitle = styled.span`
