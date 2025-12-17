@@ -26,6 +26,7 @@ interface IssueCardProps {
   needDiscussion?: boolean;
   editable?: boolean;
   onSave?: (content: string) => void;
+  onClick?: () => void;
 }
 
 export default function IssueCard(props: IssueCardProps) {
@@ -53,7 +54,7 @@ export default function IssueCard(props: IssueCardProps) {
 
 
   return (
-    <Card status={status}>
+    <Card status={status} onClick={props.onClick}>
       {status === 'selected' && (
         <Badge>
           <img
