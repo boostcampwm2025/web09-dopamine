@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import styled from '@emotion/styled';
+import { IssueStatusType } from './types';
 
 export const Sidebar = styled.aside`
   display: flex;
@@ -36,7 +37,7 @@ export const ListItemLink = styled(Link)`
   display: flex;
   flex-flow: row nowrap;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: space-between;
   width: 100%;
   height: 36px;
   padding: 0 24px;
@@ -50,4 +51,18 @@ export const ListItemLink = styled(Link)`
   &:focus {
     background-color: ${({ theme }) => theme.colors.gray[200]};
   }
+`;
+
+export const StatusLabel = styled.span<{
+  status: IssueStatusType;
+}>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+  font-size: ${({ theme }) => theme.font.size.small};
+  color: ${({ theme, status }) => theme.status[status].color};
+  background-color: ${({ theme }) => theme.colors.white};
+  border: 1px solid ${({ theme, status }) => theme.status[status].color};
+  border-radius: ${({ theme }) => theme.radius.large};
 `;
