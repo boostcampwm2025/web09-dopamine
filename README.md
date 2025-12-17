@@ -72,7 +72,7 @@ Murphy는 팀의 의사결정 과정을 구조화하고, 흩어진 아이디어�
     <td align="center">
       <img src="https://avatars.githubusercontent.com/u/76949011?v=4" width="200px;" /><br />
       <b>김건우</b><br/>
-      J232<br/>
+      J302<br/>
       <a href="https://github.com/KimGeonWoo-p">GitHub</a>
     </td>
   </tr>
