@@ -55,10 +55,11 @@ export const Sidebarinput = styled.input`
 `;
 
 export const SidebarTitle = styled.span`
+  position: relative;
+  padding: 0 16px;
   font-size: ${({ theme }) => theme.font.size.medium};
   font-weight: 700;
   letter-spacing: 1px;
-  padding: 0 16px;
 `;
 
 export const SidebarList = styled.ul`
@@ -78,8 +79,7 @@ export const ListItemLink = styled(Link)`
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  height: 36px;
-  padding: 0 24px;
+  padding: 10px 16px 10px 24px;
   background-color: ${({ theme }) => theme.colors.white};
   font-size: ${({ theme }) => theme.font.size.medium};
   color: ${({ theme }) => theme.colors.gray[700]};
