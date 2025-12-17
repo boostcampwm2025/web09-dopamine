@@ -3,6 +3,8 @@ name: Deploy to Docker Hub
 on:
   push:
     branches: [ "main" ] # main 브랜치에 푸시될 때만 실행
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
   build:
