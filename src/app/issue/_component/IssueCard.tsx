@@ -1,6 +1,16 @@
 'use client';
 
-import { AuthorPill, Card, Content, Divider, Header, IconButton, Meta } from './IssueCard.style';
+import {
+  AuthorPill,
+  Card,
+  Content,
+  Divider,
+  Footer,
+  Header,
+  IconButton,
+  Meta,
+  VoteButton,
+} from './IssueCard.style';
 
 export default function IssueCard() {
   return (
@@ -18,6 +28,10 @@ export default function IssueCard() {
         </Meta>
       </Header>
       <Divider />
+      <Footer>
+        <VoteButton variant="primary">찬성</VoteButton>
+        <VoteButton variant="secondary">반대</VoteButton>
+      </Footer>
     </Card>
   );
 }

@@ -4,7 +4,7 @@ import styled from '@emotion/styled';
 const Card = styled.article`
   background: #ffffff; 
   border-radius: 12px;
-  padding: 20px;
+  padding: 25px;
   box-shadow: 0 4px 10px rgba(31, 41, 55, 0.06);
   border: 1px solid rgba(31,41,55,0.04);
   max-width: 30em;
@@ -18,7 +18,7 @@ const Header = styled.div`
 `;
 
 const Content = styled.h3`
-  margin: 0 0 12px 0;
+  margin-bottom: 12px;
   font-size: 20px;
   font-weight: 700;
   color: #111827;
@@ -42,7 +42,7 @@ const AuthorPill = styled.span`
 `;
 
 const IconButton = styled.button`
-  background: #fff;
+  background: #ffffff;
   border: 1px solid rgba(31,41,55,0.06);
   width: 42px;
   height: 42px;
@@ -59,6 +59,31 @@ const Divider = styled.hr`
   margin: 16px 0;
 `;
 
+const Footer = styled.div`
+  display: flex;
+  gap: 12px;
+`;
+
+const VoteButton = styled.button<{ variant?: 'primary' | 'secondary' }>`
+  flex: 1;
+  padding: 14px 18px;
+  border-radius: 12px;
+  border: none;
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+  ${({ variant }) =>
+    variant === 'primary'
+      ? `background: #F0FDF4; hover: #059669 ; color: #059669; box-shadow: inset 0 -2px 0 rgba(5,150,105,0.08);`
+      : `background: #f3f4f6; color: #6b7280;`}
+  &:hover {
+    ${({ variant }) =>
+      variant === 'primary'
+        ? `background: #059669; color: #fff; box-shadow: inset 0 -2px 0 rgba(5,150,105,0.08);`
+        : `background: #e5e7eb; color: #374151;`}
+  }
+`;
+
 export {
     Card,
     Header,
@@ -67,4 +92,7 @@ export {
     AuthorPill,
     IconButton,
     Divider,
+    Footer,
+    VoteButton
+
 }
