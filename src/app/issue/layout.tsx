@@ -18,6 +18,7 @@ export default function layout() {
         <S.SidebarList>
           {ISSUE_LIST.map((issue) => (
             <SidebarItem
+              key={issue.title}
               title={issue.title}
               href={issue.href}
               status={issue.status}
