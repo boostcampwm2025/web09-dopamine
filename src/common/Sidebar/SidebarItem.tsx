@@ -1,9 +1,16 @@
 import * as S from './styles';
 
-export default function SidebarItem() {
+interface SidebarItemProps {
+  title: string;
+  href: string;
+  status?: string;
+}
+
+export default function SidebarItem({ title, href, status }: SidebarItemProps) {
   return (
     <S.SidebarListItem>
-      <S.ListItemLink href="#">홍보 플랫폼 설정</S.ListItemLink>
+      <S.ListItemLink href={href}>{title}</S.ListItemLink>
+      {status ?? <span>{status}</span>}
     </S.SidebarListItem>
   );
 }
