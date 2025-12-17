@@ -8,6 +8,7 @@ import { IssueStatusType } from './types';
 export const Sidebar = styled.aside`
   display: flex;
   flex-flow: column nowrap;
+  gap: 16px;
   justify-self: left;
   height: 100%;
   width: 256px;
@@ -57,7 +58,7 @@ export const SidebarTitle = styled.span`
   font-size: ${({ theme }) => theme.font.size.medium};
   font-weight: 700;
   letter-spacing: 1px;
-  padding: 16px;
+  padding: 0 16px;
 `;
 
 export const SidebarList = styled.ul`
