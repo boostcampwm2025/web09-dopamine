@@ -15,6 +15,8 @@ export const global = css`
       'Noto Sans KR',
       system-ui,
       sans-serif;
+    height: 100vh;
+    overflow: hidden;
   }
 
   html {
