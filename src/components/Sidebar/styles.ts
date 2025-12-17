@@ -47,7 +47,7 @@ export const SrOnly = styled.label`
   white-space: nowrap;
   border-width: 0;
 `;
-export const Sidebarinput = styled.input`
+export const SidebarInput = styled.input`
   width: 100%;
   padding: 8px;
   border: none;

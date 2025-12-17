@@ -12,7 +12,7 @@ export default function Sidebar({ children }: { children: React.ReactNode }) {
           height={16}
         />
         <S.SrOnly htmlFor="sidebar">사이드바 입력창</S.SrOnly>
-        <S.Sidebarinput
+        <S.SidebarInput
           id="sidebar"
           type="text"
         />
