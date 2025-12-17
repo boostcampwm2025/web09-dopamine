@@ -24,6 +24,17 @@ declare module '@emotion/react' {
         small: string;
       };
     };
+    status: {
+      open: {
+        color: string;
+      };
+      voting: {
+        color: string;
+      };
+      closed: {
+        color: string;
+      };
+    };
   }
 }
 
