@@ -11,7 +11,7 @@ interface UseIssueCardProps {
   onClick?: () => void;
 }
 
-export default function useIssueCard(props: UseIssueCardProps) {
+export default function useIdeaCard(props: UseIssueCardProps) {
   // props에서 초기값을 분해합니다.
   const { content = '', agreeCount = 0, disagreeCount = 0, isSelected = false, needDiscussion = false, editable = false, onSave } = props;
 

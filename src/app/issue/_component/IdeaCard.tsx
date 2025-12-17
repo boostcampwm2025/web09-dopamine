@@ -13,8 +13,8 @@ import {
   IconButton,
   Meta,
   VoteButton,
-} from './IssueCard.style';
-import useIssueCard from './useIssueCard';
+} from './IdeaCard.style';
+import useIssueCard from './useIdeaCard';
 
 interface IssueCardProps {
   content?: string;
@@ -29,7 +29,7 @@ interface IssueCardProps {
   onClick?: () => void;
 }
 
-export default function IssueCard(props: IssueCardProps) {
+export default function IdeaCard(props: IssueCardProps) {
   const {
     status,
     userVote,
