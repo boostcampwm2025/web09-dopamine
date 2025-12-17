@@ -64,6 +64,7 @@ export const SidebarTitle = styled.span`
 export const SidebarList = styled.ul`
   display: flex;
   flex-flow: column nowrap;
+  overflow-y: auto;
 `;
 export const SidebarListItem = styled.li`
   display: flex;
