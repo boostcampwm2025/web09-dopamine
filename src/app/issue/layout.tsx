@@ -1,6 +1,7 @@
 import Sidebar from '@/components/Sidebar/Sidebar';
 import SidebarItem from '@/components/Sidebar/SidebarItem';
 import * as S from '@/components/Sidebar/styles';
+import IssueGraphLink from './IssueGraphLink';
 
 const ISSUE_LIST = [
   { title: 'new issue', href: '#', status: 'open' },
@@ -13,7 +14,7 @@ export default function layout() {
     <>
       <header>header</header>
       <Sidebar>
-        <S.SidebarTitle>ISSUE MAP</S.SidebarTitle>
+        <IssueGraphLink />
         <S.SidebarTitle>ISSUE LIST</S.SidebarTitle>
         <S.SidebarList>
           {ISSUE_LIST.map((issue) => (
