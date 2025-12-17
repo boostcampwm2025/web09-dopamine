@@ -11,6 +11,7 @@ type CategorySectionProps = {
   droppableId?: string;
   onItemDrop?: (payload: DragItemPayload) => void;
   children?: React.ReactNode;
+  onRemove?: () => void;
 };
 
 type ThemeColors = {
@@ -36,7 +37,7 @@ const color = <K extends keyof ThemeColors>(
   fallback: string,
 ) => theme?.colors?.[key] ?? fallback;
 
-const StyledCategorySection = styled.section<{ muted?: boolean }>`
+const StyledCategorySection = styled.section<{ muted?: boolean; isOver?: boolean }>`
   display: flex;
   flex-direction: column;
   gap: 11px;
@@ -58,6 +59,7 @@ const Header = styled.header<{ muted?: boolean }>`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
   color: ${({ muted, theme }) =>
     muted
       ? color(theme, 'textMuted', '#9a9a9a')
@@ -70,6 +72,11 @@ const HeaderLeft = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
+`;
+
+const Actions = styled.div`
+  display: inline-flex;
+  gap: 6px;
 `;
 
 const Dot = styled.span<{ muted?: boolean }>`
@@ -97,7 +104,7 @@ const Input = styled.input`
   color: #111827;
 `;
 
-const EditButton = styled.button<{ muted?: boolean }>`
+const Btn = styled.button<{ muted?: boolean }>`
   display: ${({ muted }) => (muted ? 'none' : 'inline-flex')};
   align-items: center;
   justify-content: center;
@@ -109,6 +116,12 @@ const EditButton = styled.button<{ muted?: boolean }>`
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
+`;
+
+const DangerBtn = styled(Btn)`
+  border-color: #FBD6D0;
+  background: #FFFFFF;
+  color: #EF5944;
 `;
 
 const ChildrenWrapper = styled.div`
@@ -123,10 +136,11 @@ export default function CategorySection({
   droppableId,
   onItemDrop,
   children,
+  onRemove,
 }: CategorySectionProps) {
   const [curTitle, setCurTitle] = useState<string>(title);
   const [draft, setDraft] = useState<string>(title);
-  const [isEditing, setIsEditing] = useState<boolean>(false);   // 제목 수정 중 여부
+  const [isEditing, setIsEditing] = useState<boolean>(false);
 
   useEffect(() => {
     setCurTitle(title);
@@ -160,10 +174,7 @@ export default function CategorySection({
           const payload = JSON.parse(raw) as DragItemPayload;
           onItemDrop(payload);
         } catch {
-          /**
-           * To Do
-           * 페이로드 처리 실패 시 UI 핸들링
-           */
+          // ignore malformed payload
         }
       },
     };
@@ -194,9 +205,16 @@ export default function CategorySection({
           )}
         </HeaderLeft>
         {!isEditing && (
-          <EditButton onClick={() => setIsEditing(true)} muted={muted}>
-            수정
-          </EditButton>
+          <Actions>
+            <Btn onClick={() => setIsEditing(true)} muted={muted}>
+              수정
+            </Btn>
+            {onRemove && (
+              <DangerBtn onClick={() => onRemove()} muted={muted}>
+                삭제
+              </DangerBtn>
+            )}
+          </Actions>
         )}
       </Header>
       <ChildrenWrapper>{children}</ChildrenWrapper>
