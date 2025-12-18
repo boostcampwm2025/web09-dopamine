@@ -2,11 +2,6 @@
 
 import Image from 'next/image';
 import styled from '@emotion/styled';
-import CheckIcon from '@/assets/check_icon.svg';
-import GithubIcon from '@/assets/github_icon.svg';
-import GoogleIcon from '@/assets/google_icon.svg';
-import KakaoIcon from '@/assets/kakao_icon.svg';
-import NaverIcon from '@/assets/naver_icon.svg';
 import Background from './components/Background/Background';
 
 const BaseFlex = styled.div`
@@ -17,7 +12,6 @@ const BaseFlex = styled.div`
 `;
 
 const Container = styled(BaseFlex)`
-  margin-top: 120px;
   gap: 24px;
   width: 100%;
   height: 100%;
@@ -98,10 +92,10 @@ const HorizontalLine = styled.div`
 `;
 
 const SOCIAL_ICONS = [
-  { src: GithubIcon, alt: 'github' },
-  { src: GoogleIcon, alt: 'google' },
-  { src: KakaoIcon, alt: 'kakao' },
-  { src: NaverIcon, alt: 'naver' },
+  { src: '/github.svg', alt: 'github' },
+  { src: '/google.svg', alt: 'google' },
+  { src: '/kakao.svg', alt: 'kakao' },
+  { src: '/naver.svg', alt: 'naver' },
 ];
 
 export default function HomePage() {
@@ -120,7 +114,7 @@ export default function HomePage() {
           <Title>
             수렴은 <Highlight color="#00A94F">확실하게</Highlight>
             <Image
-              src={CheckIcon}
+              src={'/check.svg'}
               alt="check"
               width={35}
               height={35}
