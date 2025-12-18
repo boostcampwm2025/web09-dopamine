@@ -21,33 +21,45 @@ const color = <K extends keyof ThemeColors>(
   fallback: string,
 ) => theme?.colors?.[key] ?? fallback;
 
-export const StyledCategoryCard = styled.section<{ muted?: boolean; isOver?: boolean }>`
+export const StyledCategoryCard = styled.section<{ $muted?: boolean; isOver?: boolean; theme?: Theme }>`
   display: flex;
   flex-direction: column;
   gap: 11px;
-  background: ${({ muted, theme }) =>
-    muted
+  background: ${({ $muted, theme }) =>
+    $muted
       ? color(theme, 'surfaceMuted', '#fafafa')
       : color(theme, 'surface', '#f0fdf4')};
   border: 2px dashed
-    ${({ muted, theme }) =>
-      muted
+    ${({ $muted, theme }) =>
+      $muted
         ? color(theme, 'borderMuted', '#e5e7eb')
         : color(theme, 'border', '#bbf7d0')};
   border-radius: 24px;
   padding: 16px;
-  width: fit-content;
-  min-width: 400px;
-  max-width: 800px;
+  /* width와 height는 inline style로 동적 설정 */
+
+  /* 등장 애니메이션 */
+  @keyframes categoryAppear {
+    from {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  animation: categoryAppear 0.4s ease-out;
 `;
 
-export const Header = styled.header<{ muted?: boolean }>`
+export const Header = styled.header<{ $muted?: boolean; theme?: Theme }>`
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  color: ${({ muted, theme }) =>
-    muted
+  color: ${({ $muted, theme }) =>
+    $muted
       ? color(theme, 'textMuted', '#9a9a9a')
       : color(theme, 'text', '#222222')};
   font-weight: 600;
@@ -65,19 +77,19 @@ export const Actions = styled.div`
   gap: 6px;
 `;
 
-export const Dot = styled.span<{ muted?: boolean }>`
+export const Dot = styled.span<{ $muted?: boolean; theme?: Theme }>`
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: ${({ muted, theme }) =>
-    muted
+  background: ${({ $muted, theme }) =>
+    $muted
       ? color(theme, 'accentMuted', '#c9c9c9')
       : color(theme, 'accent', '#00a94f')};
 `;
 
-export const Title = styled.span<{ muted?: boolean }>`
-  color: ${({ muted, theme }) =>
-    muted
+export const Title = styled.span<{ $muted?: boolean; theme?: Theme }>`
+  color: ${({ $muted, theme }) =>
+    $muted
       ? color(theme, 'textMuted', '#9ca3af')
       : color(theme, 'text', '#00a94f')};
 `;
@@ -90,8 +102,8 @@ export const Input = styled.input`
   color: #111827;
 `;
 
-export const Btn = styled.button<{ muted?: boolean }>`
-  display: ${({ muted }) => (muted ? 'none' : 'inline-flex')};
+export const Btn = styled.button<{ $muted?: boolean }>`
+  display: ${({ $muted }) => ($muted ? 'none' : 'inline-flex')};
   align-items: center;
   justify-content: center;
   padding: 4px 8px;

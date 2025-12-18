@@ -5,6 +5,7 @@ import type { Position } from '../types/idea';
 
 interface UseDraggableProps {
   initialPosition: Position;
+  onDragStart?: () => void; // 드래그 시작
   onDragEnd?: (position: Position) => void;
   onDrag?: (position: Position, delta: { dx: number; dy: number }) => void; // 드래그 중 실시간 업데이트
   disabled?: boolean;
@@ -13,6 +14,7 @@ interface UseDraggableProps {
 
 export const useDraggable = ({
   initialPosition,
+  onDragStart,
   onDragEnd,
   onDrag,
   disabled = false,
@@ -22,6 +24,7 @@ export const useDraggable = ({
   const [isDragging, setIsDragging] = useState(false);
   const dragStartPos = useRef<Position>({ x: 0, y: 0 });
   const elementStartPos = useRef<Position>(initialPosition);
+  const lastDelta = useRef({ dx: 0, dy: 0 }); // 이전 프레임의 delta 저장
 
   // 외부에서 position이 변경되면 동기화
   useEffect(() => {
@@ -39,8 +42,10 @@ export const useDraggable = ({
       setIsDragging(true);
       dragStartPos.current = { x: e.clientX, y: e.clientY };
       elementStartPos.current = position;
+      lastDelta.current = { dx: 0, dy: 0 }; // delta 초기화
+      onDragStart?.(); // 드래그 시작 콜백
     },
-    [position, disabled]
+    [position, disabled, onDragStart]
   );
 
   /**
@@ -61,8 +66,14 @@ export const useDraggable = ({
 
       setPosition(newPosition);
       
-      // 실시간 delta 전달 (카테고리 드래그 시 내부 아이디어도 함께 이동)
-      onDrag?.(newPosition, { dx: deltaX, dy: deltaY });
+      // 이전 프레임과의 차이만 전달 (증분 delta)
+      const incrementalDelta = {
+        dx: deltaX - lastDelta.current.dx,
+        dy: deltaY - lastDelta.current.dy,
+      };
+      
+      lastDelta.current = { dx: deltaX, dy: deltaY };
+      onDrag?.(newPosition, incrementalDelta);
     },
     [isDragging, scale, onDrag]
   );

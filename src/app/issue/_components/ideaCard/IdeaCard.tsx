@@ -31,6 +31,7 @@ interface IdeaCardProps {
   needDiscussion?: boolean;
   editable?: boolean;
   categoryId?: string | null;
+  isBeingDraggedByCategory?: boolean; // 카테고리에 의해 끌려가는 중
   onSave?: (content: string) => void;
   onClick?: () => void;
   onPositionChange?: (id: string, position: Position) => void;
@@ -54,19 +55,20 @@ export default function IdeaCard(props: IdeaCardProps) {
 
   // 드래그 로직
   const inCategory = !!props.categoryId;
-  const canDrag = !inCategory && props.position && props.id && props.onPositionChange;
+  const canDrag = props.position && props.id && props.onPositionChange;
 
-  const draggable = canDrag
-    ? useDraggable({
-        initialPosition: props.position!,
-        scale,
-        onDragEnd: (newPosition) => {
-          if (props.id && props.onPositionChange) {
-            props.onPositionChange(props.id, newPosition);
-          }
-        },
-      })
-    : null;
+  const draggable = useDraggable({
+    initialPosition: props.position || { x: 0, y: 0 },
+    scale,
+    onDragEnd: (newPosition) => {
+      if (props.id && props.onPositionChange) {
+        props.onPositionChange(props.id, newPosition);
+      }
+    },
+  });
+
+  // canDrag가 false면 드래그 기능 비활성화
+  const draggableOrNull = canDrag ? draggable : null;
 
   // 비즈니스 로직 (투표, 편집 등)
   const {
@@ -95,20 +97,22 @@ export default function IdeaCard(props: IdeaCardProps) {
   const cardStyle = props.position
     ? {
         position: 'absolute' as const,
-        left: draggable ? draggable.position.x : props.position.x,
-        top: draggable ? draggable.position.y : props.position.y,
-        cursor: draggable?.isDragging ? 'grabbing' : canDrag ? 'grab' : 'default',
+        left: draggableOrNull ? draggableOrNull.position.x : props.position.x,
+        top: draggableOrNull ? draggableOrNull.position.y : props.position.y,
+        cursor: draggableOrNull?.isDragging ? 'grabbing' : canDrag ? 'grab' : 'default',
         userSelect: 'none' as const,
-        zIndex: draggable?.isDragging ? 1000 : 1,
+        zIndex: draggableOrNull?.isDragging ? 1000 : 1,
       }
     : undefined;
 
   return (
     <Card
       status={status}
-      isDragging={draggable?.isDragging ?? false}
+      isDragging={draggableOrNull?.isDragging ?? false}
+      $isBeingDraggedByCategory={props.isBeingDraggedByCategory ?? false}
+      $inCategory={inCategory}
       onClick={props.onClick}
-      onMouseDown={draggable?.handleMouseDown}
+      onMouseDown={draggableOrNull?.handleMouseDown}
       style={cardStyle}
     >
       {status === 'selected' && (

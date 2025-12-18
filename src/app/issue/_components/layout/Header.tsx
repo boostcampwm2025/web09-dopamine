@@ -10,6 +10,7 @@ type Phase = 'ideation' | 'voting' | 'discussion';
 interface IssueHeaderProps {
   currentPhase: Phase;
   onPhaseChange: (phase: Phase) => void;
+  onAIStructure?: () => void;
 }
 
 const HeaderContainer = styled.div`
@@ -37,7 +38,7 @@ const RightSection = styled.div`
   align-items: center;
 `;
 
-const IssueHeader = ({ currentPhase, onPhaseChange }: IssueHeaderProps) => {
+const IssueHeader = ({ currentPhase, onPhaseChange, onAIStructure }: IssueHeaderProps) => {
   const handleVoteStart = () => {
     if (currentPhase === 'ideation') {
       onPhaseChange('voting');
@@ -70,7 +71,7 @@ const IssueHeader = ({ currentPhase, onPhaseChange }: IssueHeaderProps) => {
           width={18}
           height={18}
         />
-        초기 이슈 편성
+        서비스 홍보 방안
       </LeftSection>
       <RightSection>
         <HeaderButton
@@ -89,6 +90,7 @@ const IssueHeader = ({ currentPhase, onPhaseChange }: IssueHeaderProps) => {
         <HeaderButton
           imageSrc="/stick.svg"
           text="AI 구조화"
+          onClick={onAIStructure}
         />
         <HeaderButton imageSrc="/share.svg" />
         <HeaderButton

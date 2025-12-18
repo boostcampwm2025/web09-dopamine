@@ -17,12 +17,6 @@ interface CanvasProps {
   onDoubleClick?: (position: { x: number; y: number }) => void;
 }
 
-/**
- * Figjam 스타일의 무한 캔버스 컴포넌트
- * - 그리드 배경
- * - 줌/패닝 기능
- * - 마우스 휠 및 단축키 지원
- */
 export default function Canvas({ children, onDoubleClick }: CanvasProps) {
   const canvasRef = useRef<HTMLDivElement>(null);
 

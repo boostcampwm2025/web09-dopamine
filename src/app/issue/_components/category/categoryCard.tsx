@@ -26,6 +26,8 @@ interface CategoryCardProps {
   onRemove?: () => void;
   onPositionChange?: (id: string, position: Position) => void;
   onDrag?: (id: string, position: Position, delta: { dx: number; dy: number }) => void;
+  onDragStart?: () => void;
+  onDragEnd?: () => void;
 }
 
 export default function CategoryCard({
@@ -38,6 +40,8 @@ export default function CategoryCard({
   onRemove,
   onPositionChange,
   onDrag,
+  onDragStart,
+  onDragEnd,
 }: CategoryCardProps) {
   const { scale } = useCanvasContext();
 
@@ -46,6 +50,7 @@ export default function CategoryCard({
     ? useDraggable({
         initialPosition: position,
         scale,
+        onDragStart: onDragStart,
         onDrag: onDrag
           ? (newPosition, delta) => {
               onDrag(id, newPosition, delta);
@@ -53,6 +58,7 @@ export default function CategoryCard({
           : undefined,
         onDragEnd: (newPosition) => {
           onPositionChange(id, newPosition);
+          onDragEnd?.();
         },
       })
     : null;
@@ -69,7 +75,7 @@ export default function CategoryCard({
 
   return (
     <StyledCategoryCard
-      muted={muted}
+      $muted={muted}
       aria-label={`${curTitle} 카테고리`}
       onMouseDown={draggable?.handleMouseDown}
       style={draggable ? {
@@ -80,15 +86,15 @@ export default function CategoryCard({
         height,
         cursor: draggable.isDragging ? 'grabbing' : 'grab',
         userSelect: 'none',
-        zIndex: draggable.isDragging ? 1000 : 1,
+        zIndex: 0, // 항상 아이디어 카드보다 낮게
       } : {
         width,
         height,
       }}
     >
-      <Header muted={muted}>
+      <Header $muted={muted}>
         <HeaderLeft>
-          <Dot muted={muted} />
+          <Dot $muted={muted} />
           {isEditing ? (
             <Input
               value={draftTitle}
@@ -101,21 +107,21 @@ export default function CategoryCard({
               autoFocus
             />
           ) : (
-            <Title muted={muted}>{curTitle}</Title>
+            <Title $muted={muted}>{curTitle}</Title>
           )}
         </HeaderLeft>
         {!isEditing && (
           <Actions>
             <Btn
               onClick={() => setIsEditing(true)}
-              muted={muted}
+              $muted={muted}
             >
               수정
             </Btn>
             {onRemove && (
               <DangerBtn
                 onClick={() => onRemove()}
-                muted={muted}
+                $muted={muted}
               >
                 삭제
               </DangerBtn>
