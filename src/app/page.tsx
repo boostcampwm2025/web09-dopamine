@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import styled from '@emotion/styled';
 import Background from './components/Background/Background';
 
@@ -99,6 +100,8 @@ const SOCIAL_ICONS = [
 ];
 
 export default function HomePage() {
+  const router = useRouter();
+
   return (
     <>
       <Background />
@@ -136,7 +139,7 @@ export default function HomePage() {
           <Text>길을 안내합니다.</Text>
         </SubTitleContainer>
         <BtnContainer>
-          <StartButton>빠르게 시작하기</StartButton>
+          <StartButton onClick={() => router.push('/issue')}>빠르게 시작하기</StartButton>
         </BtnContainer>
         <HorizontalLine />
         <SocialLoginContainer>
