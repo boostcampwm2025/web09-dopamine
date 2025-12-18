@@ -2,7 +2,14 @@
 
 import { useCallback, useRef, useState } from 'react';
 import Image from 'next/image';
-import { CanvasContainer, CanvasViewport, ZoomButton, ZoomControls, BottomMessage } from './Canvas.style';
+import {
+  BottomMessage,
+  CanvasContainer,
+  CanvasViewport,
+  ZoomButton,
+  ZoomControls,
+} from './Canvas.style';
+import { CanvasContext } from './CanvasContext';
 
 interface CanvasProps {
   children?: React.ReactNode;
@@ -30,16 +37,16 @@ export default function Canvas({ children }: CanvasProps) {
    */
   const handleWheel = useCallback((e: React.WheelEvent) => {
     if (e.ctrlKey || e.metaKey) {
+      // 줌 기능
+      e.preventDefault();
+      const delta = -e.deltaY * 0.001;
+      setScale((prev) => Math.min(Math.max(0.3, prev + delta), 3));
+    } else {
       // 패닝 기능
       setOffset((prev) => ({
         x: prev.x - e.deltaX,
         y: prev.y - e.deltaY,
       }));
-    } else {
-      // 줌 기능
-      e.preventDefault();
-      const delta = -e.deltaY * 0.001;
-      setScale((prev) => Math.min(Math.max(0.3, prev + delta), 3));
     }
   }, []);
 
@@ -116,7 +123,9 @@ export default function Canvas({ children }: CanvasProps) {
             transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
           }}
         >
-          {children}
+          <CanvasContext.Provider value={{ scale }}>
+            {children}
+          </CanvasContext.Provider>
         </CanvasViewport>
       </CanvasContainer>
 
@@ -150,9 +159,7 @@ export default function Canvas({ children }: CanvasProps) {
           />
         </ZoomButton>
       </ZoomControls>
-      <BottomMessage>
-        배경을 더블클릭하여 새로운 아이디어를 작성할 수 있습니다.
-      </BottomMessage>
+      <BottomMessage>배경을 더블클릭하여 새로운 아이디어를 작성할 수 있습니다.</BottomMessage>
     </>
   );
 }
