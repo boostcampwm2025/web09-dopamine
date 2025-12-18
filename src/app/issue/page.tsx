@@ -5,15 +5,21 @@ import Canvas from '@/app/issue/_components/canvas/Canvas';
 import IdeaCard from '@/app/issue/_components/ideaCard/IdeaCard';
 import Header from '@/app/issue/_components/layout/Header';
 import { mockIdeasWithPosition } from '@/app/issue/data/mockIdeas';
+import { mockCategories } from '@/app/issue/data/mockCategories';
 import type { IdeaWithPosition, Position } from '@/app/issue/types/idea';
+import type { Category } from '@/app/issue/types/category';
 import TopicIssueLayout from '@/components/TopicIssueLayout';
 import CategoryCard from './_components/category/categoryCard';
 
+/**
+ * 현재 이슈의 단계
+ */
 export type Phase = 'ideation' | 'voting' | 'discussion';
 
 const IssuePage = () => {
   const [currentPhase, setCurrentPhase] = useState<Phase>('ideation');
-  const [ideas, setIdeas] = useState<IdeaWithPosition[]>(mockIdeasWithPosition);
+  const [ideas, setIdeas] = useState<IdeaWithPosition[]>(mockIdeasWithPosition); // 아이디어 목록
+  const [categories, setCategories] = useState<Category[]>(mockCategories); // 카테고리 목록
 
   /**
    * 아이디어 카드 위치 업데이트
@@ -21,6 +27,15 @@ const IssuePage = () => {
   const handleIdeaPositionChange = (id: string, position: Position) => {
     setIdeas((prevIdeas) =>
       prevIdeas.map((idea) => (idea.id === id ? { ...idea, position } : idea)),
+    );
+  };
+
+  /**
+   * 카테고리 위치 업데이트
+   */
+  const handleCategoryPositionChange = (id: string, position: Position) => {
+    setCategories((prevCategories) =>
+      prevCategories.map((cat) => (cat.id === id ? { ...cat, position } : cat)),
     );
   };
 
@@ -51,27 +66,59 @@ const IssuePage = () => {
       }
     >
       <Canvas onDoubleClick={handleCreateIdea}>
-        <CategoryCard
-          title="예시 카테고리"
-          onItemDrop={() => {}}
-        >
-          {ideas.map((idea) => (
+        {/* 캔버스 위 자유 배치 아이디어들 */}
+        {ideas
+          .filter((idea) => !idea.categoryId)
+          .map((idea) => (
             <IdeaCard
               key={idea.id}
               id={idea.id}
-              content={idea.content} // 내용
-              author={idea.author} // 작성자
-              position={idea.position} // 위치
-              isSelected={idea.isSelected} // 선택 여부
-              isVotePhrase={currentPhase === 'voting' || currentPhase === 'discussion'}  // 투표 구간 여부
-              agreeCount={idea.agreeCount} // 찬성 수
-              disagreeCount={idea.disagreeCount} // 반대 수
-              needDiscussion={idea.needDiscussion} // 토론 필요 여부
-              editable={idea.editable} // 편집 가능 여부
+              content={idea.content}
+              author={idea.author}
+              categoryId={idea.categoryId}
+              position={idea.position}
+              isSelected={idea.isSelected}
+              isVotePhrase={currentPhase === 'voting' || currentPhase === 'discussion'}
+              agreeCount={idea.agreeCount}
+              disagreeCount={idea.disagreeCount}
+              needDiscussion={idea.needDiscussion}
+              editable={idea.editable}
               onPositionChange={handleIdeaPositionChange}
             />
           ))}
-        </CategoryCard>
+
+        {/* 카테고리들 */}
+        {categories.map((category) => {
+          const categoryIdeas = ideas.filter((idea) => idea.categoryId === category.id);
+          return (
+            <CategoryCard
+              key={category.id}
+              id={category.id}
+              title={category.title}
+              position={category.position}
+              muted={category.muted}
+              onItemDrop={() => {}}
+              onPositionChange={handleCategoryPositionChange}
+            >
+              {categoryIdeas.map((idea) => (
+                <IdeaCard
+                  key={idea.id}
+                  id={idea.id}
+                  content={idea.content}
+                  author={idea.author}
+                  categoryId={idea.categoryId}
+                  position={idea.position}
+                  isSelected={idea.isSelected}
+                  isVotePhrase={currentPhase === 'voting' || currentPhase === 'discussion'}
+                  agreeCount={idea.agreeCount}
+                  disagreeCount={idea.disagreeCount}
+                  needDiscussion={idea.needDiscussion}
+                  editable={idea.editable}
+                />
+              ))}
+            </CategoryCard>
+          );
+        })}
       </Canvas>
     </TopicIssueLayout>
   );
