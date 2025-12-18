@@ -1,6 +1,5 @@
 import { useEffect, useState, useMemo, useCallback, useReducer } from 'react';
 import { DragItemPayload } from './IdeaCard';
-import { on } from 'events';
 
 interface UseCategoryProps {
   title: string;

@@ -1,22 +1,19 @@
 import styled from '@emotion/styled';
-import type { Theme } from '@emotion/react';
 
-declare module '@emotion/react' {
-  export interface Theme {
-    colors?: Partial<ThemeColors>;
-  }
-}
-
-type ThemeColors = {
-  surface: string;
-  surfaceMuted: string;
-  border: string;
-  borderMuted: string;
-  accent: string;
-  accentMuted: string;
-  text: string;
-  textMuted: string;
+type Theme = {
+  colors?: {
+    surface: string;
+    surfaceMuted: string;
+    border: string;
+    borderMuted: string;
+    accent: string;
+    accentMuted: string;
+    text: string;
+    textMuted: string;
+  },
 };
+
+type ThemeColors = NonNullable<Theme['colors']>;
 
 const color = <K extends keyof ThemeColors>(
   theme: Theme,
