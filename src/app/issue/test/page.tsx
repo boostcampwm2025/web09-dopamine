@@ -1,31 +1,67 @@
 'use client';
 
 import { useState } from 'react';
-import CategorySection from '../_component/categorySection';
-import MockIdea, { Idea, DragItemPayload } from '../_component/mockIdea';
+import CategoryCard from '../_component/categoryCard';
+import IdeaCard from '../_component/IdeaCard';
+import { categoryMocks, CategoryMock } from './mockCategory';
+import { ideaCardMocks, IdeaCardMock } from './mockIdea';
 
-type ColumnSection = {
-  key: string;
-  title: string;
-  muted?: boolean;
+type DragItemPayload = {
+  id: string;
+  fromColumn: string;
 };
 
-type ColumnMap = Record<string, Idea[]>;
+type ColumnSection = CategoryMock;
+type ColumnMap = Record<string, IdeaCardMock[]>;
 
-const initialSections: ColumnSection[] = [
-  { key: 'withCategory', title: '커뮤니티 바이럴' },
-  { key: 'withCategory2', title: '무과금 홍보' },
-  { key: 'noCategory', title: '분류 없음', muted: true },
-];
+const initialSections: ColumnSection[] = categoryMocks;
 
-const initialData: ColumnMap = {
-  withCategory: [
-    { id: '1', title: '커뮤니티에 기술 블로그로 홍보글 작성', author: 'John' },
-    { id: '2', title: '에브리타임 대학생 홍보 게시판 활용', author: 'Sarah' },
-  ],
-  withCategory2: [],
-  noCategory: [{ id: '3', title: '인스타 인플루언서에게 협찬 문의 DM 발송', author: 'Mike' }],
+const buildInitialColumns = (
+  sections: ColumnSection[],
+  ideas: IdeaCardMock[],
+): ColumnMap => {
+  const keys = sections.map((s) => s.key);
+  return ideas.reduce((acc, idea, idx) => {
+    const key = keys[idx % keys.length];
+    const list = acc[key] ?? [];
+    acc[key] = [...list, idea];
+    return acc;
+  }, {} as ColumnMap);
 };
+
+const initialData: ColumnMap = buildInitialColumns(initialSections, ideaCardMocks);
+
+function DraggableIdea({
+  idea,
+  fromColumn,
+}: {
+  idea: IdeaCardMock;
+  fromColumn: string;
+}) {
+  return (
+    <div
+      draggable
+      onDragStart={(e) => {
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData(
+          'application/json',
+          JSON.stringify({ id: idea.id, fromColumn } as DragItemPayload),
+        );
+      }}
+    >
+      <IdeaCard
+        content={idea.content}
+        author={idea.author}
+        isSelected={idea.isSelected}
+        isVotePhrase={idea.isVotePhrase}
+        agreeCount={idea.agreeCount}
+        disagreeCount={idea.disagreeCount}
+        needDiscussion={idea.needDiscussion}
+        editable={idea.editable}
+      />
+    </div>
+  );
+}
 
 export default function Page() {
   const [sections, setSections] = useState<ColumnSection[]>(initialSections);
@@ -57,7 +93,7 @@ export default function Page() {
   return (
     <div style={{ display: 'flex', gap: 24, padding: 32, backgroundColor: 'white' }}>
       {sections.map((section) => (
-        <CategorySection
+        <CategoryCard
           key={section.key}
           title={section.title}
           muted={section.muted}
@@ -66,9 +102,9 @@ export default function Page() {
           onRemove={() => handleRemove(section.key)}
         >
           {(columns[section.key] ?? []).map((idea) => (
-            <MockIdea key={idea.id} idea={idea} fromColumn={section.key} />
+            <DraggableIdea key={idea.id} idea={idea} fromColumn={section.key} />
           ))}
-        </CategorySection>
+        </CategoryCard>
       ))}
     </div>
   );
