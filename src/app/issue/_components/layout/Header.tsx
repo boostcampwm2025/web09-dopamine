@@ -5,6 +5,13 @@ import styled from '@emotion/styled';
 import { theme } from '@/styles/theme';
 import HeaderButton from './HeaderButton';
 
+type Phase = 'ideation' | 'voting' | 'discussion';
+
+interface IssueHeaderProps {
+  currentPhase: Phase;
+  onPhaseChange: (phase: Phase) => void;
+}
+
 const HeaderContainer = styled.div`
   height: 56px;
   padding-inline: 16px;
@@ -30,7 +37,30 @@ const RightSection = styled.div`
   align-items: center;
 `;
 
-const IssueHeader = () => {
+const IssueHeader = ({ currentPhase, onPhaseChange }: IssueHeaderProps) => {
+  const handleVoteStart = () => {
+    if (currentPhase === 'ideation') {
+      onPhaseChange('voting');
+      return;
+    } 
+    if (currentPhase === 'voting') {
+      onPhaseChange('discussion');
+      return;
+    }
+  };
+
+  const getVoteButtonText = () => {
+    switch (currentPhase) {
+      case 'ideation':
+        return '투표 시작';
+      case 'voting':
+        return '토론 시작';
+      case 'discussion':
+        return '토론 중';
+      default:
+        return '투표 시작';
+    }
+  };
   return (
     <HeaderContainer>
       <LeftSection>
@@ -49,7 +79,8 @@ const IssueHeader = () => {
         />
         <HeaderButton
           imageSrc="/good.svg"
-          text="투표 시작"
+          text={getVoteButtonText()}
+          onClick={currentPhase !== 'discussion' ? handleVoteStart : undefined}
         />
         <HeaderButton
           imageSrc="/folder.svg"
