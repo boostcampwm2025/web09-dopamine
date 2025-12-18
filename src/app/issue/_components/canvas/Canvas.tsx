@@ -3,6 +3,7 @@
 import { useCallback, useRef, useState } from 'react';
 import Image from 'next/image';
 import {
+  AddIdeaButton,
   BottomMessage,
   CanvasContainer,
   CanvasViewport,
@@ -13,6 +14,7 @@ import { CanvasContext } from './CanvasContext';
 
 interface CanvasProps {
   children?: React.ReactNode;
+  onDoubleClick?: (position: { x: number; y: number }) => void;
 }
 
 /**
@@ -21,7 +23,7 @@ interface CanvasProps {
  * - 줌/패닝 기능
  * - 마우스 휠 및 단축키 지원
  */
-export default function Canvas({ children }: CanvasProps) {
+export default function Canvas({ children, onDoubleClick }: CanvasProps) {
   const canvasRef = useRef<HTMLDivElement>(null);
 
   // 패닝(드래그 이동) 상태 관리
@@ -105,6 +107,22 @@ export default function Canvas({ children }: CanvasProps) {
     setOffset({ x: 0, y: 0 });
   };
 
+  const handleCanvasDoubleClick = useCallback(
+    (e: React.MouseEvent) => {
+      if (!onDoubleClick) return;
+
+      const rect = canvasRef.current?.getBoundingClientRect();
+      if (!rect) return;
+
+      // 클릭 위치를 캔버스 좌표계로 변환
+      const x = (e.clientX - rect.left - offset.x) / scale;
+      const y = (e.clientY - rect.top - offset.y) / scale;
+
+      onDoubleClick({ x, y });
+    },
+    [onDoubleClick, offset, scale],
+  );
+
   return (
     <>
       <CanvasContainer
@@ -114,6 +132,7 @@ export default function Canvas({ children }: CanvasProps) {
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
+        onDoubleClick={handleCanvasDoubleClick}
         style={{
           cursor: isPanning ? 'grabbing' : 'default',
         }}
@@ -123,9 +142,7 @@ export default function Canvas({ children }: CanvasProps) {
             transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
           }}
         >
-          <CanvasContext.Provider value={{ scale }}>
-            {children}
-          </CanvasContext.Provider>
+          <CanvasContext.Provider value={{ scale }}>{children}</CanvasContext.Provider>
         </CanvasViewport>
       </CanvasContainer>
 
@@ -159,6 +176,7 @@ export default function Canvas({ children }: CanvasProps) {
           />
         </ZoomButton>
       </ZoomControls>
+      <AddIdeaButton>아이디어 추가</AddIdeaButton>
       <BottomMessage>배경을 더블클릭하여 새로운 아이디어를 작성할 수 있습니다.</BottomMessage>
     </>
   );

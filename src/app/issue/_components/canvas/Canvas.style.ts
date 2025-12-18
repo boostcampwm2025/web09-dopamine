@@ -26,7 +26,7 @@ export const CanvasViewport = styled.div`
 
 export const ZoomControls = styled.div`
   position: fixed;
-  bottom: 30px;
+  top: 80px;
   right: 30px;
   display: flex;
   flex-direction: column;
@@ -74,3 +74,25 @@ export const BottomMessage = styled.div`
   border-radius: ${theme.radius.medium};
   font-size: 15px;
 `
+
+export const AddIdeaButton = styled.button`
+  position: fixed;
+  bottom: 50px;
+  right: 30px;
+  padding: 12px 24px;
+  background-color: ${theme.colors.green[600]};
+  color: white;
+  border: none;
+  border-radius: ${theme.radius.large};
+  font-size: 16px;
+  font-weight: ${theme.font.weight.bold};
+  cursor: pointer;
+  box-shadow: 0 12px 16px rgba(0, 0, 0, 0.3);
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+`;

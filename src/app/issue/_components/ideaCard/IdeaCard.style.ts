@@ -28,6 +28,7 @@ const Card = styled.article<{ status?: 'needDiscussion' | 'selected' | 'default'
         `;
     }
   }}
+  min-width: 30em;
   max-width: 30em;
 `;
 

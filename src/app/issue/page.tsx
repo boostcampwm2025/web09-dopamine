@@ -25,11 +25,27 @@ const IssuePage = () => {
     );
   };
 
+  /**
+   * 새 아이디어 카드 생성
+   */
+  const handleCreateIdea = (position: Position) => {
+    const newIdea: IdeaWithPosition = {
+      id: `idea-${Date.now()}`,
+      content: '',
+      author: '나',
+      position,
+      editable: true,
+      isVotePhrase: false,
+    };
+
+    setIdeas((prevIdeas) => [...prevIdeas, newIdea]);
+  };
+
   return (
     <TopicIssueLayout
       header={<Header currentPhase={currentPhase} onPhaseChange={setCurrentPhase} />}
     >
-      <Canvas>
+      <Canvas onDoubleClick={handleCreateIdea}>
         {ideas.map((idea) => (
           <IdeaCard
             key={idea.id}
@@ -38,7 +54,7 @@ const IssuePage = () => {
             author={idea.author}
             position={idea.position}
             isSelected={idea.isSelected}
-            isVotePhrase={idea.isVotePhrase}
+            isVotePhrase= {currentPhase === 'voting' || currentPhase === 'discussion'}
             agreeCount={idea.agreeCount}
             disagreeCount={idea.disagreeCount}
             needDiscussion={idea.needDiscussion}
