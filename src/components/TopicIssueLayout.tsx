@@ -9,7 +9,7 @@ interface TopicIssueLayoutProps {
   header: ReactNode;
 }
 
-const HeaderContainer = styled.div`
+const LayoutContainer = styled.div`
   display: flex;
   flex-direction: column;
 `;
@@ -20,13 +20,13 @@ const BodyContainer = styled.div`
 
 const TopicIssueLayout = ({ children, header }: TopicIssueLayoutProps) => {
   return (
-    <HeaderContainer>
+    <LayoutContainer>
       {header}
       <BodyContainer>
         <SideBar />
         {children}
       </BodyContainer>
-    </HeaderContainer>
+    </LayoutContainer>
   );
 };
 
