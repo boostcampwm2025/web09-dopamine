@@ -15,10 +15,15 @@ import {
   VoteButton,
 } from './IdeaCard.style';
 import useIdeaCard from './useIdeaCard';
+import { useDraggable } from '../../hooks/useDraggable';
+import { useCanvasContext } from '../canvas/CanvasContext';
+import type { Position } from '../../types/idea';
 
 interface IdeaCardProps {
+  id?: string;
   content?: string;
   author?: string;
+  position?: Position;
   isSelected?: boolean;
   isVotePhrase?: boolean;
   agreeCount?: number;
@@ -27,6 +32,7 @@ interface IdeaCardProps {
   editable?: boolean;
   onSave?: (content: string) => void;
   onClick?: () => void;
+  onPositionChange?: (id: string, position: Position) => void;
 }
 
 export type DragItemPayload = {
@@ -43,6 +49,22 @@ export type DragItemPayload = {
 };
 
 export default function IdeaCard(props: IdeaCardProps) {
+  // 캔버스 scale 가져오기
+  const { scale } = useCanvasContext();
+
+  // 드래그 기능 (position이 제공된 경우에만)
+  const draggable = props.position && props.id && props.onPositionChange
+    ? useDraggable({
+        initialPosition: props.position,
+        scale,
+        onDragEnd: (newPosition) => {
+          if (props.id && props.onPositionChange) {
+            props.onPositionChange(props.id, newPosition);
+          }
+        },
+      })
+    : null;
+
   const {
     status,
     userVote,
@@ -69,6 +91,15 @@ export default function IdeaCard(props: IdeaCardProps) {
     <Card
       status={status}
       onClick={props.onClick}
+      onMouseDown={draggable?.handleMouseDown}
+      style={draggable ? {
+        position: 'absolute',
+        left: draggable.position.x,
+        top: draggable.position.y,
+        cursor: draggable.isDragging ? 'grabbing' : 'grab',
+        userSelect: 'none',
+        zIndex: draggable.isDragging ? 1000 : 1,
+      } : undefined}
     >
       {status === 'selected' && (
         <Badge>
