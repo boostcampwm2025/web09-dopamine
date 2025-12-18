@@ -14,9 +14,9 @@ import {
   Meta,
   VoteButton,
 } from './IdeaCard.style';
-import useIssueCard from './useIdeaCard';
+import useIdeaCard from './useIdeaCard';
 
-interface IssueCardProps {
+interface IdeaCardProps {
   content?: string;
   author?: string;
   isSelected?: boolean;
@@ -42,7 +42,7 @@ export type DragItemPayload = {
   editable?: boolean;
 };
 
-export default function IdeaCard(props: IssueCardProps) {
+export default function IdeaCard(props: IdeaCardProps) {
   const {
     status,
     userVote,
@@ -55,7 +55,7 @@ export default function IdeaCard(props: IssueCardProps) {
     handleAgree,
     handleDisagree,
     handleKeyDownEdit,
-  } = useIssueCard({
+  } = useIdeaCard({
     content: props.content,
     agreeCount: props.agreeCount,
     disagreeCount: props.disagreeCount,

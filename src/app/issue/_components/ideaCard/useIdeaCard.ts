@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 
-interface UseIssueCardProps {
+interface UseIdeaCardProps {
   content?: string;
   agreeCount?: number;
   disagreeCount?: number;
@@ -11,7 +11,7 @@ interface UseIssueCardProps {
   onClick?: () => void;
 }
 
-export default function useIdeaCard(props: UseIssueCardProps) {
+export default function useIdeaCard(props: UseIdeaCardProps) {
   // props에서 초기값을 분해합니다.
   const { content = '', agreeCount = 0, disagreeCount = 0, isSelected = false, needDiscussion = false, editable = false, onSave } = props;
 
