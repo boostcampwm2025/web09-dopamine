@@ -30,6 +30,7 @@ interface IdeaCardProps {
   disagreeCount?: number;
   needDiscussion?: boolean;
   editable?: boolean;
+  categoryId?: string;
   onSave?: (content: string) => void;
   onClick?: () => void;
   onPositionChange?: (id: string, position: Position) => void;
