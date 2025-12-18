@@ -36,7 +36,9 @@ export const StyledCategoryCard = styled.section<{ muted?: boolean; isOver?: boo
         : color(theme, 'border', '#bbf7d0')};
   border-radius: 24px;
   padding: 16px;
-  width: 400px;
+  width: fit-content;
+  min-width: 400px;
+  max-width: 800px;
 `;
 
 export const Header = styled.header<{ muted?: boolean }>`
