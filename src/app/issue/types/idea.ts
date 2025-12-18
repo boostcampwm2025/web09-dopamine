@@ -7,7 +7,8 @@ export interface IdeaWithPosition {
   id: string;
   content: string;
   author: string;
-  position: Position;
+  categoryId: string | null;
+  position: Position | null;
   isSelected?: boolean;
   isVotePhrase?: boolean;
   agreeCount?: number;
