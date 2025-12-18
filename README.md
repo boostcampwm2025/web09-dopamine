@@ -10,7 +10,8 @@
 
 <h1 id="Murphy 소개">Murphy 서비스 소개 </h1>
 <div align="center" >
-<h3> 발산은 <span style="color:#3B82F6;">자유롭게,</span> 수렴은 <span style="color:#00A94F;">명확하게!</span></h3>
+<h3> 발산은 $\color{#3B82F6}{\text{자유롭게,}}$ 
+    수렴은 $\color{#00A94F}{\text{명확하게!}}$</h3>
 <div>
 Murphy는 팀의 의사결정 과정을 구조화하고, 흩어진 아이디어를 AI로 정리하여<br>최적의 합의를 이끌어내는 협업 솔루션입니다.
 </div>
