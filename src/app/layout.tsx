@@ -1,9 +1,7 @@
-
-import ThemeProvider from '@/providers/ThemeProvider';
 import 'pretendard/dist/web/static/pretendard.css';
+import ThemeProvider from '@/providers/ThemeProvider';
 import EmotionRegistry from '@/styles/EmotionRegistry';
 import GlobalStyle from '@/styles/globalStyles';
-
 
 export default function RootLayout({
   children,
@@ -15,8 +13,8 @@ export default function RootLayout({
       <body>
         <EmotionRegistry>
           <ThemeProvider>
-          <GlobalStyle />
-          {children}
+            <GlobalStyle />
+            {children}
           </ThemeProvider>
         </EmotionRegistry>
       </body>

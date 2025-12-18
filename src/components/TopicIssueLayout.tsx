@@ -2,7 +2,7 @@
 
 import { ReactNode } from 'react';
 import styled from '@emotion/styled';
-import SideBar from './Sidebar';
+import IssueSidebar from '@/app/issue/_components/layout/IssueSidebar';
 
 interface TopicIssueLayoutProps {
   children: ReactNode;
@@ -23,7 +23,7 @@ const TopicIssueLayout = ({ children, header }: TopicIssueLayoutProps) => {
     <LayoutContainer>
       {header}
       <BodyContainer>
-        <SideBar />
+        <IssueSidebar />
         {children}
       </BodyContainer>
     </LayoutContainer>

@@ -1,5 +1,5 @@
-import { useEffect, useState, useMemo, useCallback, useReducer } from 'react';
-import { DragItemPayload } from './IdeaCard';
+import { useCallback, useEffect, useMemo, useReducer, useState } from 'react';
+import { DragItemPayload } from '../ideaCard/IdeaCard';
 
 interface UseCategoryProps {
   title: string;
@@ -14,8 +14,8 @@ export default function useCategory(props: UseCategoryProps) {
   const [isEditing, setIsEditing] = useState<boolean>(false);
 
   const initialState = {
-    curTitle: "",
-    draftTitle: "",
+    curTitle: '',
+    draftTitle: '',
     isEditing: false,
   };
 
@@ -31,17 +31,17 @@ export default function useCategory(props: UseCategoryProps) {
           ...state,
           curTitle: action.payload,
         };
-        case 'SET_DRAFT_TITLE':
+      case 'SET_DRAFT_TITLE':
         return {
           ...state,
           draftTitle: action.payload,
         };
-        case 'SET_IS_EDITING':
+      case 'SET_IS_EDITING':
         return {
           ...state,
           isEditing: action.payload,
         };
-        default:
+      default:
         return state;
     }
   };
@@ -54,31 +54,37 @@ export default function useCategory(props: UseCategoryProps) {
     dispatch({ type: 'SET_IS_EDITING', payload: false });
   }, [title]);
 
-  const submitEditedTitle = useCallback((nextTitle: string) => {
-    const value = nextTitle.trim();
-    setCurTitle(value || curTitle);
-    setDraftTitle(value || curTitle);
-    setIsEditing(false);
+  const submitEditedTitle = useCallback(
+    (nextTitle: string) => {
+      const value = nextTitle.trim();
+      setCurTitle(value || curTitle);
+      setDraftTitle(value || curTitle);
+      setIsEditing(false);
 
-    /**
-     * To Do
-     * 서버에 변경사항 전달
-     */
-  }, [curTitle]);
+      /**
+       * To Do
+       * 서버에 변경사항 전달
+       */
+    },
+    [curTitle],
+  );
 
   const cancelEditingTitle = () => {
     setDraftTitle(curTitle);
     setIsEditing(false);
   };
 
-  const submitEditedItems = useCallback((payload: DragItemPayload) => {
-    onItemDrop(payload);
-    
-    /**
-     * To Do
-     * 서버에 변경사항 전달
-     */
-  }, [onItemDrop]);
+  const submitEditedItems = useCallback(
+    (payload: DragItemPayload) => {
+      onItemDrop(payload);
+
+      /**
+       * To Do
+       * 서버에 변경사항 전달
+       */
+    },
+    [onItemDrop],
+  );
 
   const dropHandlers = useMemo(() => {
     if (!droppableId) return {};

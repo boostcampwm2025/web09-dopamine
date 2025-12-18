@@ -1,10 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import CategoryCard from '../_component/categoryCard';
-import IdeaCard from '../_component/IdeaCard';
-import { categoryMocks, CategoryMock } from './mockCategory';
-import { ideaCardMocks, IdeaCardMock } from './mockIdea';
+import CategoryCard from '../_components/category/categoryCard';
+import IdeaCard from '../_components/ideaCard/IdeaCard';
+import { CategoryMock, categoryMocks } from './mockCategory';
+import { IdeaCardMock, ideaCardMocks } from './mockIdea';
 
 type DragItemPayload = {
   id: string;
@@ -16,10 +16,7 @@ type ColumnMap = Record<string, IdeaCardMock[]>;
 
 const initialSections: ColumnSection[] = categoryMocks;
 
-const buildInitialColumns = (
-  sections: ColumnSection[],
-  ideas: IdeaCardMock[],
-): ColumnMap => {
+const buildInitialColumns = (sections: ColumnSection[], ideas: IdeaCardMock[]): ColumnMap => {
   const keys = sections.map((s) => s.key);
   return ideas.reduce((acc, idea, idx) => {
     const key = keys[idx % keys.length];
@@ -31,13 +28,7 @@ const buildInitialColumns = (
 
 const initialData: ColumnMap = buildInitialColumns(initialSections, ideaCardMocks);
 
-function DraggableIdea({
-  idea,
-  fromColumn,
-}: {
-  idea: IdeaCardMock;
-  fromColumn: string;
-}) {
+function DraggableIdea({ idea, fromColumn }: { idea: IdeaCardMock; fromColumn: string }) {
   return (
     <div
       draggable
@@ -102,7 +93,11 @@ export default function Page() {
           onRemove={() => handleRemove(section.key)}
         >
           {(columns[section.key] ?? []).map((idea) => (
-            <DraggableIdea key={idea.id} idea={idea} fromColumn={section.key} />
+            <DraggableIdea
+              key={idea.id}
+              idea={idea}
+              fromColumn={section.key}
+            />
           ))}
         </CategoryCard>
       ))}

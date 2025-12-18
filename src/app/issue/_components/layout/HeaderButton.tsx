@@ -22,8 +22,8 @@ const ButtonContainer = styled.button<{ variant: Variant }>`
   align-items: center;
   gap: 8px;
   cursor: pointer;
-  font-weight: ${theme.fontWeights.bold};
-  font-size: ${theme.fontSizes.body4};
+  font-weight: ${theme.font.weight.bold};
+  font-size: ${theme.font.size.medium};
 
   ${({ variant }) =>
     variant === 'dark'
