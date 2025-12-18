@@ -24,7 +24,7 @@ const color = <K extends keyof ThemeColors>(
   fallback: string,
 ) => theme?.colors?.[key] ?? fallback;
 
-export const StyledCategoryCar = styled.section<{ muted?: boolean; isOver?: boolean }>`
+export const StyledCategoryCard = styled.section<{ muted?: boolean; isOver?: boolean }>`
   display: flex;
   flex-direction: column;
   gap: 11px;

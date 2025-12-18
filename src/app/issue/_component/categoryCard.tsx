@@ -3,7 +3,7 @@
 import useCategory from './useCategoryCard';
 import type { DragItemPayload } from './IdeaCard';
 import {
-  StyledCategoryCar,
+  StyledCategoryCard,
   Header,
   HeaderLeft,
   Actions,
@@ -17,7 +17,7 @@ import {
 
 
 
-interface CategoryCarProps {
+interface CategoryCardProps {
   title: string;
   muted?: boolean;
   droppableId?: string;
@@ -26,14 +26,14 @@ interface CategoryCarProps {
   onRemove?: () => void;
 }
 
-export default function CategoryCar({
+export default function CategoryCard({
   title,
   muted = false,
   droppableId,
   onItemDrop,
   children,
   onRemove,
-}: CategoryCarProps) {
+}: CategoryCardProps) {
   const {
     curTitle,
     isEditing,
@@ -46,7 +46,7 @@ export default function CategoryCar({
   } = useCategory({ title, droppableId, onItemDrop });
 
   return (
-    <StyledCategoryCar
+    <StyledCategoryCard
       muted={muted}
       aria-label={`${curTitle} 카테고리`}
       {...dropHandlers}
@@ -83,6 +83,6 @@ export default function CategoryCar({
         )}
       </Header>
       <ChildrenWrapper>{children}</ChildrenWrapper>
-    </StyledCategoryCar>
+    </StyledCategoryCard>
   );
 }
