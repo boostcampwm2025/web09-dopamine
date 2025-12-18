@@ -1,14 +1,14 @@
 ![메인 베너](https://github.com/user-attachments/assets/e8da719a-3215-46d3-9154-d31f8d7c8a63)
 <br>
+
 <div align="center">
 
-[팀 노션]() | [BackLog]() | [피그마]()
- | [위키](https://github.com/boostcampwm2025/web09-dopamine/wiki) 
+[팀 노션]() | [BackLog](https://github.com/orgs/boostcampwm2025/projects/257) | [피그마](https://www.figma.com/design/hFx7ysCIjz5cXFpHTK24kA/Web09?node-id=0-1&t=h7DOJVONEL17ZzYn-1)
+| [위키](https://github.com/boostcampwm2025/web09-dopamine/wiki)
 
 </div>
 
-
-<h1 id="옥토독스소개">Murphy 서비스 소개 </h1>
+<h1 id="Murphy 소개">Murphy 서비스 소개 </h1>
 <div align="center" >
 <h3> 발산은 <span style="color:#3B82F6;">자유롭게,</span> 수렴은 <span style="color:#00A94F;">명확하게!</span></h3>
 <div>
@@ -18,6 +18,7 @@ Murphy는 팀의 의사결정 과정을 구조화하고, 흩어진 아이디어�
 </div>
 
 ### AI 기반 카테고리화
+
 무질서하게 발산된 수많은 아이디어 카드를 AI가 문맥을 분석하여 자동으로 클러스터링합니다.<br>
 버튼 한 번으로 비슷한 의견끼리 묶이고, 드래그 앤 드롭으로 수동 조정도 가능합니다.
 
@@ -36,13 +37,50 @@ Murphy는 팀의 의사결정 과정을 구조화하고, 흩어진 아이디어�
 
 ![의사결정 흐름의 시각화(이미지 추가 예정)]()
 
-## 프로젝트 구조
+## 🔗 [배포 링크](http://223.130.162.102/)
+
+## ⚙️ 프로젝트 실행 방법
+
+```
+yarn install
+yarn dev
+```
+
+## 📂 프로젝트 구조
+
 추가 예정
 
-## 기술 스택
-추가 예정
+## 🛠️ 기술 스택
+
+### 💻 Frontend & Language
+
+<img src="https://img.shields.io/badge/NextJS-6EE7B7?style=flat&logo=nextdotjs&logoColor=white"/>
+<img src="https://img.shields.io/badge/typescript-6EE7B7?style=flat&logo=typescript&logoColor=white"/>
+
+<img src="https://img.shields.io/badge/Emotion-6EE7B7?style=flat"/>
+
+### 🗄️ Data & State Management
+
+<img src="https://img.shields.io/badge/tanstack-3FAF8B?style=flat&logo=tanstack&logoColor=white"/>
+<img src="https://img.shields.io/badge/Zusatnd-3FAF8B?style=flat"/>
+<img src="https://img.shields.io/badge/mysql-3FAF8B?style=flat&logo=mysql&logoColor=white"/>
+<img src="https://img.shields.io/badge/redis-3FAF8B?style=flat&logo=redis&logoColor=white"/>
+
+### 🚀 Infrastructure & DevOps
+
+<img src="https://img.shields.io/badge/NaverCloudPlatform-2E6B57?style=flat&logo=naver&logoColor=white"/>
+<img src="https://img.shields.io/badge/nginx-2E6B57?style=flat&logo=nginx&logoColor=white"/>
+<img src="https://img.shields.io/badge/docker-2E6B57?style=flat&logo=docker&logoColor=white"/>
+<img src="https://img.shields.io/badge/githubactions-2E6B57?style=flat&logo=githubactions&logoColor=white"/>
+
+### 🤝 Design & Collaboration
+
+<img src="https://img.shields.io/badge/figma-1F3A32?style=flat&logo=figma&logoColor=white"/>
+<img src="https://img.shields.io/badge/notion-1F3A32?style=flat&logo=notion&logoColor=white"/>
+<img src="https://img.shields.io/badge/slack-1F3A32?style=flat"/>
 
 ## TEAM Dopamine 소개
+
 <table>
   <tr>
     <td align="center">
