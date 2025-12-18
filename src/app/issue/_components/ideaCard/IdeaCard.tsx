@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import useIssueCard from '../../_component/useIdeaCard';
+import Image from 'next/image';
 import {
   AuthorPill,
   Badge,
@@ -15,6 +14,7 @@ import {
   Meta,
   VoteButton,
 } from './IdeaCard.style';
+import useIssueCard from './useIdeaCard';
 
 interface IssueCardProps {
   content?: string;
@@ -72,10 +72,11 @@ export default function IdeaCard(props: IssueCardProps) {
     >
       {status === 'selected' && (
         <Badge>
-          <img
+          <Image
             src="/crown.svg"
             alt="채택 아이콘"
-            height={'20px'}
+            width={20}
+            height={20}
           />
           <span>채택</span>
         </Badge>
@@ -96,16 +97,20 @@ export default function IdeaCard(props: IssueCardProps) {
           <AuthorPill>{props.author}</AuthorPill>
           {props.isVotePhrase ? (
             <IconButton aria-label="comment">
-              <img
+              <Image
                 src="/comment.svg"
                 alt="댓글"
+                width={14}
+                height={14}
               />
             </IconButton>
           ) : (
             <IconButton aria-label="delete">
-              <img
+              <Image
                 src="/trash.svg"
                 alt="삭제"
+                width={14}
+                height={14}
               />
             </IconButton>
           )}
