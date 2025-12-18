@@ -114,13 +114,13 @@ const IssuePage = () => {
       {
         id: 'cat-2',
         title: '콘텐츠 제작',
-        position: { x: 800, y: 100 },
+        position: { x: 700, y: 100 },
         muted: false,
       },
       {
         id: 'cat-3',
         title: '커뮤니티 활동',
-        position: { x: 1500, y: 100 },
+        position: { x: 500, y: 1000 },
         muted: false,
       },
     ];
