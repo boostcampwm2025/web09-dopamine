@@ -1,6 +1,9 @@
+
+import ThemeProvider from '@/providers/ThemeProvider';
 import 'pretendard/dist/web/static/pretendard.css';
 import EmotionRegistry from '@/styles/EmotionRegistry';
 import GlobalStyle from '@/styles/globalStyles';
+
 
 export default function RootLayout({
   children,
@@ -11,8 +14,10 @@ export default function RootLayout({
     <html lang="ko">
       <body>
         <EmotionRegistry>
+          <ThemeProvider>
           <GlobalStyle />
           {children}
+          </ThemeProvider>
         </EmotionRegistry>
       </body>
     </html>
