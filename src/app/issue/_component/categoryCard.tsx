@@ -15,13 +15,11 @@ import {
   ChildrenWrapper,
 } from './categoryCard.style';
 
-
-
 interface CategoryCardProps {
   title: string;
   muted?: boolean;
   droppableId?: string;
-  onItemDrop?: (payload: DragItemPayload) => void;
+  onItemDrop: (payload: DragItemPayload) => void;
   children: React.ReactNode;
   onRemove?: () => void;
 }
@@ -40,8 +38,8 @@ export default function CategoryCard({
     setIsEditing,
     draftTitle,
     setDraftTitle,
-    save,
-    cancel,
+    submitEditedTitle,
+    cancelEditingTitle,
     dropHandlers,
   } = useCategory({ title, droppableId, onItemDrop });
 
@@ -58,10 +56,10 @@ export default function CategoryCard({
             <Input
               value={draftTitle}
               onChange={(e) => setDraftTitle(e.target.value)}
-              onBlur={() => save(draftTitle)}
+              onBlur={() => submitEditedTitle(draftTitle)}
               onKeyDown={(e) => {
-                if (e.key === 'Enter') save(draftTitle);
-                if (e.key === 'Escape') cancel();
+                if (e.key === 'Enter') submitEditedTitle(draftTitle);
+                if (e.key === 'Escape') cancelEditingTitle();
               }}
               autoFocus
             />
