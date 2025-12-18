@@ -1,13 +1,11 @@
 'use client';
 
-import type { DragItemPayload } from '../ideaCard/IdeaCard';
 import type { Position } from '../../types/idea';
 import { useDraggable } from '../../hooks/useDraggable';
 import { useCanvasContext } from '../canvas/CanvasContext';
 import {
   Actions,
   Btn,
-  ChildrenWrapper,
   DangerBtn,
   Dot,
   Header,
@@ -22,10 +20,9 @@ interface CategoryCardProps {
   id: string;
   title: string;
   position: Position;
+  width?: number;
+  height?: number;
   muted?: boolean;
-  droppableId?: string;
-  onItemDrop: (payload: DragItemPayload) => void;
-  children: React.ReactNode;
   onRemove?: () => void;
   onPositionChange?: (id: string, position: Position) => void;
 }
@@ -34,10 +31,9 @@ export default function CategoryCard({
   id,
   title,
   position,
+  width = 650,
+  height = 400,
   muted = false,
-  droppableId,
-  onItemDrop,
-  children,
   onRemove,
   onPositionChange,
 }: CategoryCardProps) {
@@ -62,8 +58,7 @@ export default function CategoryCard({
     setDraftTitle,
     submitEditedTitle,
     cancelEditingTitle,
-    dropHandlers,
-  } = useCategory({ title, droppableId, onItemDrop });
+  } = useCategory({ title });
 
   return (
     <StyledCategoryCard
@@ -74,11 +69,15 @@ export default function CategoryCard({
         position: 'absolute',
         left: draggable.position.x,
         top: draggable.position.y,
+        width,
+        height,
         cursor: draggable.isDragging ? 'grabbing' : 'grab',
         userSelect: 'none',
         zIndex: draggable.isDragging ? 1000 : 1,
-      } : undefined}
-      {...dropHandlers}
+      } : {
+        width,
+        height,
+      }}
     >
       <Header muted={muted}>
         <HeaderLeft>
@@ -117,7 +116,6 @@ export default function CategoryCard({
           </Actions>
         )}
       </Header>
-      <ChildrenWrapper>{children}</ChildrenWrapper>
     </StyledCategoryCard>
   );
 }

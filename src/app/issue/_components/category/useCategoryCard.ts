@@ -1,14 +1,11 @@
-import { useCallback, useEffect, useMemo, useReducer, useState } from 'react';
-import { DragItemPayload } from '../ideaCard/IdeaCard';
+import { useCallback, useEffect, useReducer, useState } from 'react';
 
 interface UseCategoryProps {
   title: string;
-  onItemDrop: (payload: DragItemPayload) => void;
-  droppableId?: string;
 }
 
 export default function useCategory(props: UseCategoryProps) {
-  const { title, onItemDrop, droppableId } = props;
+  const { title } = props;
   const [curTitle, setCurTitle] = useState<string>(title);
   const [draftTitle, setDraftTitle] = useState<string>(title);
   const [isEditing, setIsEditing] = useState<boolean>(false);
@@ -74,38 +71,6 @@ export default function useCategory(props: UseCategoryProps) {
     setIsEditing(false);
   };
 
-  const submitEditedItems = useCallback(
-    (payload: DragItemPayload) => {
-      onItemDrop(payload);
-
-      /**
-       * To Do
-       * 서버에 변경사항 전달
-       */
-    },
-    [onItemDrop],
-  );
-
-  const dropHandlers = useMemo(() => {
-    if (!droppableId) return {};
-    return {
-      onDragOver: (e: React.DragEvent) => {
-        e.preventDefault();
-      },
-      onDrop: (e: React.DragEvent) => {
-        e.preventDefault();
-        const raw = e.dataTransfer.getData('application/json');
-        if (!raw) return;
-        try {
-          const payload = JSON.parse(raw) as DragItemPayload;
-          submitEditedItems(payload);
-        } catch {
-          // ignore malformed payload
-        }
-      },
-    };
-  }, [droppableId, onItemDrop]);
-
   return {
     curTitle,
     isEditing,
@@ -115,6 +80,5 @@ export default function useCategory(props: UseCategoryProps) {
     setIsEditing,
     submitEditedTitle,
     cancelEditingTitle,
-    dropHandlers,
   };
 }

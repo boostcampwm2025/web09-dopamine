@@ -66,59 +66,36 @@ const IssuePage = () => {
       }
     >
       <Canvas onDoubleClick={handleCreateIdea}>
-        {/* 캔버스 위 자유 배치 아이디어들 */}
-        {ideas
-          .filter((idea) => !idea.categoryId)
-          .map((idea) => (
-            <IdeaCard
-              key={idea.id}
-              id={idea.id}
-              content={idea.content}
-              author={idea.author}
-              categoryId={idea.categoryId}
-              position={idea.position}
-              isSelected={idea.isSelected}
-              isVotePhrase={currentPhase === 'voting' || currentPhase === 'discussion'}
-              agreeCount={idea.agreeCount}
-              disagreeCount={idea.disagreeCount}
-              needDiscussion={idea.needDiscussion}
-              editable={idea.editable}
-              onPositionChange={handleIdeaPositionChange}
-            />
-          ))}
+        {/* 카테고리들 (빈 프레임) */}
+        {categories.map((category) => (
+          <CategoryCard
+            key={category.id}
+            id={category.id}
+            title={category.title}
+            position={category.position}
+            muted={category.muted}
+            onPositionChange={handleCategoryPositionChange}
+          />
+        ))}
 
-        {/* 카테고리들 */}
-        {categories.map((category) => {
-          const categoryIdeas = ideas.filter((idea) => idea.categoryId === category.id);
-          return (
-            <CategoryCard
-              key={category.id}
-              id={category.id}
-              title={category.title}
-              position={category.position}
-              muted={category.muted}
-              onItemDrop={() => {}}
-              onPositionChange={handleCategoryPositionChange}
-            >
-              {categoryIdeas.map((idea) => (
-                <IdeaCard
-                  key={idea.id}
-                  id={idea.id}
-                  content={idea.content}
-                  author={idea.author}
-                  categoryId={idea.categoryId}
-                  position={idea.position}
-                  isSelected={idea.isSelected}
-                  isVotePhrase={currentPhase === 'voting' || currentPhase === 'discussion'}
-                  agreeCount={idea.agreeCount}
-                  disagreeCount={idea.disagreeCount}
-                  needDiscussion={idea.needDiscussion}
-                  editable={idea.editable}
-                />
-              ))}
-            </CategoryCard>
-          );
-        })}
+        {/* 모든 아이디어 카드들 (카테고리 상관없이 Canvas 직계 자식) */}
+        {ideas.map((idea) => (
+          <IdeaCard
+            key={idea.id}
+            id={idea.id}
+            content={idea.content}
+            author={idea.author}
+            categoryId={idea.categoryId}
+            position={idea.position}
+            isSelected={idea.isSelected}
+            isVotePhrase={currentPhase === 'voting' || currentPhase === 'discussion'}
+            agreeCount={idea.agreeCount}
+            disagreeCount={idea.disagreeCount}
+            needDiscussion={idea.needDiscussion}
+            editable={idea.editable}
+            onPositionChange={handleIdeaPositionChange}
+          />
+        ))}
       </Canvas>
     </TopicIssueLayout>
   );
