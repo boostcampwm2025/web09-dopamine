@@ -40,6 +40,36 @@ const IssuePage = () => {
   };
 
   /**
+   * 카테고리 드래그 중 - 내부 아이디어도 함께 이동
+   */
+  const handleCategoryDrag = (
+    categoryId: string,
+    position: Position,
+    delta: { dx: number; dy: number }
+  ) => {
+    // 카테고리 위치 업데이트
+    setCategories((prevCategories) =>
+      prevCategories.map((cat) => (cat.id === categoryId ? { ...cat, position } : cat)),
+    );
+
+    // 카테고리에 속한 아이디어들도 delta만큼 이동
+    setIdeas((prevIdeas) =>
+      prevIdeas.map((idea) => {
+        if (idea.categoryId === categoryId && idea.position) {
+          return {
+            ...idea,
+            position: {
+              x: idea.position.x + delta.dx,
+              y: idea.position.y + delta.dy,
+            },
+          };
+        }
+        return idea;
+      })
+    );
+  };
+
+  /**
    * 새 아이디어 카드 생성
    */
   const handleCreateIdea = (position: Position) => {
@@ -75,6 +105,7 @@ const IssuePage = () => {
             position={category.position}
             muted={category.muted}
             onPositionChange={handleCategoryPositionChange}
+            onDrag={handleCategoryDrag}
           />
         ))}
 

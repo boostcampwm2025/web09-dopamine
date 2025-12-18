@@ -6,6 +6,7 @@ import type { Position } from '../types/idea';
 interface UseDraggableProps {
   initialPosition: Position;
   onDragEnd?: (position: Position) => void;
+  onDrag?: (position: Position, delta: { dx: number; dy: number }) => void; // 드래그 중 실시간 업데이트
   disabled?: boolean;
   scale?: number; // 캔버스 확대/축소 비율
 }
@@ -13,6 +14,7 @@ interface UseDraggableProps {
 export const useDraggable = ({
   initialPosition,
   onDragEnd,
+  onDrag,
   disabled = false,
   scale = 1,
 }: UseDraggableProps) => {
@@ -58,8 +60,11 @@ export const useDraggable = ({
       };
 
       setPosition(newPosition);
+      
+      // 실시간 delta 전달 (카테고리 드래그 시 내부 아이디어도 함께 이동)
+      onDrag?.(newPosition, { dx: deltaX, dy: deltaY });
     },
-    [isDragging, scale]
+    [isDragging, scale, onDrag]
   );
 
   /**

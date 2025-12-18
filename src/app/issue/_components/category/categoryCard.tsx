@@ -25,6 +25,7 @@ interface CategoryCardProps {
   muted?: boolean;
   onRemove?: () => void;
   onPositionChange?: (id: string, position: Position) => void;
+  onDrag?: (id: string, position: Position, delta: { dx: number; dy: number }) => void;
 }
 
 export default function CategoryCard({
@@ -36,6 +37,7 @@ export default function CategoryCard({
   muted = false,
   onRemove,
   onPositionChange,
+  onDrag,
 }: CategoryCardProps) {
   const { scale } = useCanvasContext();
 
@@ -44,6 +46,11 @@ export default function CategoryCard({
     ? useDraggable({
         initialPosition: position,
         scale,
+        onDrag: onDrag
+          ? (newPosition, delta) => {
+              onDrag(id, newPosition, delta);
+            }
+          : undefined,
         onDragEnd: (newPosition) => {
           onPositionChange(id, newPosition);
         },
