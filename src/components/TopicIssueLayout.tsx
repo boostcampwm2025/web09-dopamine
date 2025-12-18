@@ -2,7 +2,7 @@
 
 import { ReactNode } from 'react';
 import styled from '@emotion/styled';
-import IssueSidebar from '@/app/issue/_components/IssueSidebar';
+import IssueSidebar from '@/app/issue/_components/layout/IssueSidebar';
 
 interface TopicIssueLayoutProps {
   children: ReactNode;

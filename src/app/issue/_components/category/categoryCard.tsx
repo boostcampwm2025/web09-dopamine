@@ -1,19 +1,19 @@
 'use client';
 
-import useCategory from './useCategoryCard';
-import type { DragItemPayload } from './IdeaCard';
+import type { DragItemPayload } from '../ideaCard/IdeaCard';
 import {
-  StyledCategoryCard,
+  Actions,
+  Btn,
+  ChildrenWrapper,
+  DangerBtn,
+  Dot,
   Header,
   HeaderLeft,
-  Actions,
-  Dot,
-  Title,
   Input,
-  Btn,
-  DangerBtn,
-  ChildrenWrapper,
+  StyledCategoryCard,
+  Title,
 } from './categoryCard.style';
+import useCategory from './useCategoryCard';
 
 interface CategoryCardProps {
   title: string;
@@ -69,11 +69,17 @@ export default function CategoryCard({
         </HeaderLeft>
         {!isEditing && (
           <Actions>
-            <Btn onClick={() => setIsEditing(true)} muted={muted}>
+            <Btn
+              onClick={() => setIsEditing(true)}
+              muted={muted}
+            >
               수정
             </Btn>
             {onRemove && (
-              <DangerBtn onClick={() => onRemove()} muted={muted}>
+              <DangerBtn
+                onClick={() => onRemove()}
+                muted={muted}
+              >
                 삭제
               </DangerBtn>
             )}

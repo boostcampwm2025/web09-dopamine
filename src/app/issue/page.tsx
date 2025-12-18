@@ -1,6 +1,6 @@
 'use client';
 
-import Header from '@/app/issue/_components/Header';
+import Header from '@/app/issue/_components/layout/Header';
 import TopicIssueLayout from '@/components/TopicIssueLayout';
 
 const IssuePage = () => {

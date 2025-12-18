@@ -1,20 +1,20 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import useIssueCard from '../../_component/useIdeaCard';
 import {
   AuthorPill,
   Badge,
   Card,
   Content,
-  EditableInput,
   Divider,
+  EditableInput,
   Footer,
   Header,
   IconButton,
   Meta,
   VoteButton,
 } from './IdeaCard.style';
-import useIssueCard from './useIdeaCard';
 
 interface IssueCardProps {
   content?: string;
@@ -65,15 +65,17 @@ export default function IdeaCard(props: IssueCardProps) {
     onSave: props.onSave,
   });
 
-
   return (
-    <Card status={status} onClick={props.onClick}>
+    <Card
+      status={status}
+      onClick={props.onClick}
+    >
       {status === 'selected' && (
         <Badge>
           <img
             src="/crown.svg"
             alt="채택 아이콘"
-            height={"20px"}
+            height={'20px'}
           />
           <span>채택</span>
         </Badge>
