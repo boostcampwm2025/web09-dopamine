@@ -15,7 +15,8 @@ import {
   VoteButton,
 } from './IdeaCard.style';
 import useIdeaCard from './useIdeaCard';
-import { useIdeaCardLayout } from './useIdeaCardLayout';
+import { useDraggable } from '../../hooks/useDraggable';
+import { useCanvasContext } from '../canvas/CanvasContext';
 import type { Position } from '../../types/idea';
 
 interface IdeaCardProps {
@@ -49,13 +50,23 @@ export type DragItemPayload = {
 };
 
 export default function IdeaCard(props: IdeaCardProps) {
-  // 레이아웃 로직 (드래그, 위치 등)
-  const layout = useIdeaCardLayout({
-    id: props.id,
-    categoryId: props.categoryId,
-    position: props.position,
-    onPositionChange: props.onPositionChange,
-  });
+  const { scale } = useCanvasContext();
+
+  // 드래그 로직
+  const inCategory = !!props.categoryId;
+  const canDrag = !inCategory && props.position && props.id && props.onPositionChange;
+
+  const draggable = canDrag
+    ? useDraggable({
+        initialPosition: props.position!,
+        scale,
+        onDragEnd: (newPosition) => {
+          if (props.id && props.onPositionChange) {
+            props.onPositionChange(props.id, newPosition);
+          }
+        },
+      })
+    : null;
 
   // 비즈니스 로직 (투표, 편집 등)
   const {
@@ -80,12 +91,25 @@ export default function IdeaCard(props: IdeaCardProps) {
     onSave: props.onSave,
   });
 
+  // 스타일 계산
+  const cardStyle = props.position
+    ? {
+        position: 'absolute' as const,
+        left: draggable ? draggable.position.x : props.position.x,
+        top: draggable ? draggable.position.y : props.position.y,
+        cursor: draggable?.isDragging ? 'grabbing' : canDrag ? 'grab' : 'default',
+        userSelect: 'none' as const,
+        zIndex: draggable?.isDragging ? 1000 : 1,
+      }
+    : undefined;
+
   return (
     <Card
       status={status}
+      isDragging={draggable?.isDragging ?? false}
       onClick={props.onClick}
-      onMouseDown={layout.handleMouseDown}
-      style={layout.style}
+      onMouseDown={draggable?.handleMouseDown}
+      style={cardStyle}
     >
       {status === 'selected' && (
         <Badge>

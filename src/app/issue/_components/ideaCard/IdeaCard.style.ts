@@ -1,6 +1,9 @@
 import styled from '@emotion/styled';
 
-const Card = styled.article<{ status?: 'needDiscussion' | 'selected' | 'default' }>`
+const Card = styled.article<{ 
+  status?: 'needDiscussion' | 'selected' | 'default';
+  isDragging?: boolean;
+}>`
   position: relative;
   border-radius: 12px;
   padding: 35px;
@@ -30,6 +33,12 @@ const Card = styled.article<{ status?: 'needDiscussion' | 'selected' | 'default'
   }}
   min-width: 30em;
   max-width: 30em;
+  
+  /* 드래그 중이 아닐 때만 position 변경 시 부드러운 애니메이션 */
+  ${({ isDragging }) => !isDragging && `
+    transition: left 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
+                top 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  `}
 `;
 
 const Header = styled.div`
