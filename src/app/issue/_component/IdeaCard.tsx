@@ -29,6 +29,19 @@ interface IssueCardProps {
   onClick?: () => void;
 }
 
+export type DragItemPayload = {
+  id: string;
+  fromColumn: string;
+  content?: string;
+  author?: string;
+  isSelected?: boolean;
+  isVotePhrase?: boolean;
+  agreeCount?: number;
+  disagreeCount?: number;
+  needDiscussion?: boolean;
+  editable?: boolean;
+};
+
 export default function IdeaCard(props: IssueCardProps) {
   const {
     status,
