@@ -3,14 +3,20 @@
 
 <div align="center">
 
+
 [팀 노션](https://ethereal-canidae-ba8.notion.site/web09-2cafec439d3681bd8068f91e8dd8bae5?source=copy_link) | [BackLog](https://github.com/orgs/boostcampwm2025/projects/257) | [피그마](https://www.figma.com/design/hFx7ysCIjz5cXFpHTK24kA/Web09?node-id=0-1&t=h7DOJVONEL17ZzYn-1)
 | [위키](https://github.com/boostcampwm2025/web09-dopamine/wiki)
+
+
+[🔗 배포 링크](http://223.130.162.102/)
+
+<br />
 
 </div>
 
 <h1 id="Murphy 소개">Murphy 서비스 소개 </h1>
 <div align="center" >
-<h3> 발산은 $\color{#3B82F6}{\text{자유롭게,}}$ 
+<h3> 발산은 $\color{#3B82F6}{\text{자유롭게,}}$
     수렴은 $\color{#00A94F}{\text{명확하게!}}$</h3>
 <div>
 Murphy는 팀의 의사결정 과정을 구조화하고, 흩어진 아이디어를 AI로 정리하여<br>최적의 합의를 이끌어내는 협업 솔루션입니다.
@@ -31,15 +37,13 @@ Murphy는 팀의 의사결정 과정을 구조화하고, 흩어진 아이디어�
 투표 결과는 의사결정을 위한 핵심 지표로 활용됩니다.<br>
 최다 득표 아이디어를 시각적으로 강조하여 보여주며, 이를 바탕으로 사용자가 합리적인 최종 결정을 내릴 수 있도록 지원합니다.
 
-<img width="1440" height="900" alt="투표와 의사결정" src="https://github.com/user-attachments/assets/f0cefee0-1799-4779-b7ac-1e58a793466c" />
+<img width="1440" height="840" alt="투표와 의사결정" src="https://github.com/user-attachments/assets/37afdc15-ead7-4229-9b69-097e41f58101" />
 
 ### 의사결정 흐름의 시각화
 
 이슈 간의 관계를 노드 형태로 시각화하여 의사결정 흐름을 한눈에 파악할 수 있습니다.
 
 <img width="1440" height="900" alt="의사결정 흐름의 시각화" src="https://github.com/user-attachments/assets/44fb7914-4036-403d-bb2a-459fc1d41694" />
-
-## 🔗 [배포 링크](http://223.130.162.102/)
 
 ## ⚙️ 프로젝트 실행 방법
 
