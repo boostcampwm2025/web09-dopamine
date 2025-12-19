@@ -1,10 +1,11 @@
 'use client';
 
-import type { DragItemPayload } from '../ideaCard/IdeaCard';
+import type { Position } from '../../types/idea';
+import { useDraggable } from '../../hooks/useDraggable';
+import { useCanvasContext } from '../canvas/CanvasContext';
 import {
   Actions,
   Btn,
-  ChildrenWrapper,
   DangerBtn,
   Dot,
   Header,
@@ -16,22 +17,52 @@ import {
 import useCategory from './useCategoryCard';
 
 interface CategoryCardProps {
+  id: string;
   title: string;
-  muted?: boolean;
-  droppableId?: string;
-  onItemDrop: (payload: DragItemPayload) => void;
-  children: React.ReactNode;
+  position: Position;
+  width?: number;
+  height?: number;
+  isMuted?: boolean;
   onRemove?: () => void;
+  onPositionChange?: (id: string, position: Position) => void;
+  onDrag?: (id: string, position: Position, delta: { dx: number; dy: number }) => void;
+  onDragStart?: () => void;
+  onDragEnd?: () => void;
 }
 
 export default function CategoryCard({
+  id,
   title,
-  muted = false,
-  droppableId,
-  onItemDrop,
-  children,
+  position,
+  width = 650,
+  height = 400,
+  isMuted = false,
   onRemove,
+  onPositionChange,
+  onDrag,
+  onDragStart,
+  onDragEnd,
 }: CategoryCardProps) {
+  const { scale } = useCanvasContext();
+
+  // 카테고리 드래그 기능
+  const draggable = onPositionChange
+    ? useDraggable({
+        initialPosition: position,
+        scale,
+        onDragStart: onDragStart,
+        onDrag: onDrag
+          ? (newPosition, delta) => {
+              onDrag(id, newPosition, delta);
+            }
+          : undefined,
+        onDragEnd: (newPosition) => {
+          onPositionChange(id, newPosition);
+          onDragEnd?.();
+        },
+      })
+    : null;
+
   const {
     curTitle,
     isEditing,
@@ -40,18 +71,30 @@ export default function CategoryCard({
     setDraftTitle,
     submitEditedTitle,
     cancelEditingTitle,
-    dropHandlers,
-  } = useCategory({ title, droppableId, onItemDrop });
+  } = useCategory({ title });
 
   return (
     <StyledCategoryCard
-      muted={muted}
+      isMuted={isMuted}
       aria-label={`${curTitle} 카테고리`}
-      {...dropHandlers}
+      onMouseDown={draggable?.handleMouseDown}
+      style={draggable ? {
+        position: 'absolute',
+        left: draggable.position.x,
+        top: draggable.position.y,
+        width,
+        height,
+        cursor: draggable.isDragging ? 'grabbing' : 'grab',
+        userSelect: 'none',
+        zIndex: 0, // 항상 아이디어 카드보다 낮게
+      } : {
+        width,
+        height,
+      }}
     >
-      <Header muted={muted}>
+      <Header isMuted={isMuted}>
         <HeaderLeft>
-          <Dot muted={muted} />
+          <Dot isMuted={isMuted} />
           {isEditing ? (
             <Input
               value={draftTitle}
@@ -64,21 +107,21 @@ export default function CategoryCard({
               autoFocus
             />
           ) : (
-            <Title muted={muted}>{curTitle}</Title>
+            <Title isMuted={isMuted}>{curTitle}</Title>
           )}
         </HeaderLeft>
         {!isEditing && (
           <Actions>
             <Btn
               onClick={() => setIsEditing(true)}
-              muted={muted}
+              isMuted={isMuted}
             >
               수정
             </Btn>
             {onRemove && (
               <DangerBtn
                 onClick={() => onRemove()}
-                muted={muted}
+                isMuted={isMuted}
               >
                 삭제
               </DangerBtn>
@@ -86,7 +129,6 @@ export default function CategoryCard({
           </Actions>
         )}
       </Header>
-      <ChildrenWrapper>{children}</ChildrenWrapper>
     </StyledCategoryCard>
   );
 }

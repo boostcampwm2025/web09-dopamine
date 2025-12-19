@@ -1,6 +1,11 @@
 import styled from '@emotion/styled';
 
-const Card = styled.article<{ status?: 'needDiscussion' | 'selected' | 'default' }>`
+const Card = styled.article<{ 
+  status?: 'needDiscussion' | 'selected' | 'default';
+  isDragging?: boolean;
+  inCategory?: boolean;
+  isBeingDraggedByCategory?: boolean;
+}>`
   position: relative;
   border-radius: 12px;
   padding: 35px;
@@ -28,7 +33,32 @@ const Card = styled.article<{ status?: 'needDiscussion' | 'selected' | 'default'
         `;
     }
   }}
+  min-width: 30em;
   max-width: 30em;
+  
+  /* 등장 애니메이션 */
+  @keyframes ideaCardAppear {
+    0% {
+      opacity: 0;
+      transform: scale(0.3);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.05);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  
+  animation: ideaCardAppear 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  
+  /* 드래그 중이거나 카테고리에 의해 끌려가는 중이 아닐 때만 애니메이션 */
+  ${({ isDragging, isBeingDraggedByCategory }) => !isDragging && !isBeingDraggedByCategory && `
+    transition: left 0.5s cubic-bezier(0.34, 1.2, 0.64, 1),
+                top 0.5s cubic-bezier(0.34, 1.2, 0.64, 1);
+  `}
 `;
 
 const Header = styled.div`

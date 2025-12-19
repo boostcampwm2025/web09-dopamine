@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 
-interface UseIssueCardProps {
+interface UseIdeaCardProps {
   content?: string;
   agreeCount?: number;
   disagreeCount?: number;
@@ -11,11 +11,9 @@ interface UseIssueCardProps {
   onClick?: () => void;
 }
 
-export default function useIdeaCard(props: UseIssueCardProps) {
-  // props에서 초기값을 분해합니다.
+export default function useIdeaCard(props: UseIdeaCardProps) {
   const { content = '', agreeCount = 0, disagreeCount = 0, isSelected = false, needDiscussion = false, editable = false, onSave } = props;
 
-  // 카드 상태: 기본/토론필요/채택
   const [status, setStatus] = useState<'needDiscussion' | 'selected' | 'default'>('default');
 
   // 투표 관련 로컬 상태
