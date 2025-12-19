@@ -146,7 +146,7 @@ export default function Canvas({ children, onDoubleClick }: CanvasProps) {
           title="확대"
         >
           <Image
-            src="/plus.svg"
+            src="/add.svg"
             alt="확대"
             width={20}
             height={20}

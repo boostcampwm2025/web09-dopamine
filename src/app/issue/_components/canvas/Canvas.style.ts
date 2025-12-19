@@ -44,7 +44,7 @@ export const ZoomButton = styled.button`
   font-size: 14px;
   
   font-weight: ${theme.font.weight.bold};
-  color: ${theme.colors.gray[800]};
+  color: ${theme.colors.gray[900]};
   cursor: pointer;
   transition:
     transform 0.2s ease,
