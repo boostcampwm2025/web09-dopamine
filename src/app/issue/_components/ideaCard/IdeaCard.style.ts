@@ -3,8 +3,8 @@ import styled from '@emotion/styled';
 const Card = styled.article<{ 
   status?: 'needDiscussion' | 'selected' | 'default';
   isDragging?: boolean;
-  $inCategory?: boolean;
-  $isBeingDraggedByCategory?: boolean;
+  inCategory?: boolean;
+  isBeingDraggedByCategory?: boolean;
 }>`
   position: relative;
   border-radius: 12px;
@@ -55,7 +55,7 @@ const Card = styled.article<{
   animation: ideaCardAppear 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
   
   /* 드래그 중이거나 카테고리에 의해 끌려가는 중이 아닐 때만 애니메이션 */
-  ${({ isDragging, $isBeingDraggedByCategory }) => !isDragging && !$isBeingDraggedByCategory && `
+  ${({ isDragging, isBeingDraggedByCategory }) => !isDragging && !isBeingDraggedByCategory && `
     transition: left 0.5s cubic-bezier(0.34, 1.2, 0.64, 1),
                 top 0.5s cubic-bezier(0.34, 1.2, 0.64, 1);
   `}

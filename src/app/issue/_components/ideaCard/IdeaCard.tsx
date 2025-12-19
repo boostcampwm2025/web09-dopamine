@@ -109,8 +109,8 @@ export default function IdeaCard(props: IdeaCardProps) {
     <Card
       status={status}
       isDragging={draggableOrNull?.isDragging ?? false}
-      $isBeingDraggedByCategory={props.isBeingDraggedByCategory ?? false}
-      $inCategory={inCategory}
+      isBeingDraggedByCategory={props.isBeingDraggedByCategory ?? false}
+      inCategory={inCategory}
       onClick={props.onClick}
       onMouseDown={draggableOrNull?.handleMouseDown}
       style={cardStyle}

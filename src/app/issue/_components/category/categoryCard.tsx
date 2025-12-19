@@ -22,7 +22,7 @@ interface CategoryCardProps {
   position: Position;
   width?: number;
   height?: number;
-  muted?: boolean;
+  isMuted?: boolean;
   onRemove?: () => void;
   onPositionChange?: (id: string, position: Position) => void;
   onDrag?: (id: string, position: Position, delta: { dx: number; dy: number }) => void;
@@ -36,7 +36,7 @@ export default function CategoryCard({
   position,
   width = 650,
   height = 400,
-  muted = false,
+  isMuted = false,
   onRemove,
   onPositionChange,
   onDrag,
@@ -75,7 +75,7 @@ export default function CategoryCard({
 
   return (
     <StyledCategoryCard
-      $muted={muted}
+      isMuted={isMuted}
       aria-label={`${curTitle} 카테고리`}
       onMouseDown={draggable?.handleMouseDown}
       style={draggable ? {
@@ -92,9 +92,9 @@ export default function CategoryCard({
         height,
       }}
     >
-      <Header $muted={muted}>
+      <Header isMuted={isMuted}>
         <HeaderLeft>
-          <Dot $muted={muted} />
+          <Dot isMuted={isMuted} />
           {isEditing ? (
             <Input
               value={draftTitle}
@@ -107,21 +107,21 @@ export default function CategoryCard({
               autoFocus
             />
           ) : (
-            <Title $muted={muted}>{curTitle}</Title>
+            <Title isMuted={isMuted}>{curTitle}</Title>
           )}
         </HeaderLeft>
         {!isEditing && (
           <Actions>
             <Btn
               onClick={() => setIsEditing(true)}
-              $muted={muted}
+              isMuted={isMuted}
             >
               수정
             </Btn>
             {onRemove && (
               <DangerBtn
                 onClick={() => onRemove()}
-                $muted={muted}
+                isMuted={isMuted}
               >
                 삭제
               </DangerBtn>

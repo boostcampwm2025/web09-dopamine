@@ -4,5 +4,5 @@ export interface Category {
   id: string;
   title: string;
   position: Position;
-  muted?: boolean;
+  isMuted?: boolean;
 }
