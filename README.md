@@ -3,7 +3,7 @@
 
 <div align="center">
 
-[팀 노션]() | [BackLog](https://github.com/orgs/boostcampwm2025/projects/257) | [피그마](https://www.figma.com/design/hFx7ysCIjz5cXFpHTK24kA/Web09?node-id=0-1&t=h7DOJVONEL17ZzYn-1)
+[팀 노션](https://ethereal-canidae-ba8.notion.site/web09-2cafec439d3681bd8068f91e8dd8bae5?source=copy_link) | [BackLog](https://github.com/orgs/boostcampwm2025/projects/257) | [피그마](https://www.figma.com/design/hFx7ysCIjz5cXFpHTK24kA/Web09?node-id=0-1&t=h7DOJVONEL17ZzYn-1)
 | [위키](https://github.com/boostcampwm2025/web09-dopamine/wiki)
 
 </div>
