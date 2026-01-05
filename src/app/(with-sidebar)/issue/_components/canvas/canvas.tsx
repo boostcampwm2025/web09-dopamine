@@ -24,7 +24,7 @@ export default function Canvas({ children, onDoubleClick }: CanvasProps) {
   const [isPanning, setIsPanning] = useState(false); // 현재 패닝 중인지 여부
   const [panStart, setPanStart] = useState({ x: 0, y: 0 }); // 패닝 시작 지점
   const [offset, setOffset] = useState({ x: 0, y: 0 }); // 캔버스 이동 오프셋
-  const [scale, setScale] = useState(1); // 확대/축소 비율 (0.3 ~ 3.0)
+  const [scale, setScale] = useState(0.7); // 확대/축소 비율 (0.3 ~ 3.0), 기본 70%
 
   /**
    * 마우스 휠 이벤트 핸들러
