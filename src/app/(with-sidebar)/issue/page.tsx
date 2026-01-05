@@ -190,11 +190,9 @@ const IssuePage = () => {
 
   return (
     <Canvas onDoubleClick={handleCreateIdea}>
+      {/* 카테고리들 - 내부에 아이디어 카드들을 children으로 전달 */}
       {categories.map((category) => {
-        // 카테고리에 속한 아이디어 수 계산
-        const ideasInCategory = ideas.filter((idea) => idea.categoryId === category.id).length;
-        // 동적 크기 계산
-        const { width, height } = calculateCategorySize(ideasInCategory);
+        const categoryIdeas = ideas.filter((idea) => idea.categoryId === category.id);
 
         return (
           <CategoryCard
@@ -203,34 +201,51 @@ const IssuePage = () => {
             title={category.title}
             position={category.position}
             isMuted={category.isMuted}
-            width={width}
-            height={height}
             onPositionChange={handleCategoryPositionChange}
             onDrag={handleCategoryDrag}
             onDragStart={() => handleCategoryDragStart(category.id)}
             onDragEnd={handleCategoryDragEnd}
-          />
+          >
+            {categoryIdeas.map((idea) => (
+              <IdeaCard
+                key={idea.id}
+                id={idea.id}
+                content={idea.content}
+                author={idea.author}
+                categoryId={idea.categoryId}
+                position={null} // 카테고리 내부는 position 불필요
+                isSelected={idea.isSelected}
+                isVotePhrase={currentPhase === 'voting' || currentPhase === 'discussion'}
+                agreeCount={idea.agreeCount}
+                disagreeCount={idea.disagreeCount}
+                needDiscussion={idea.needDiscussion}
+                editable={idea.editable}
+              />
+            ))}
+          </CategoryCard>
         );
       })}
 
-      {ideas.map((idea) => (
-        <IdeaCard
-          key={idea.id}
-          id={idea.id}
-          content={idea.content}
-          author={idea.author}
-          categoryId={idea.categoryId}
-          position={idea.position}
-          isSelected={idea.isSelected}
-          isVotePhrase={currentPhase === 'voting' || currentPhase === 'discussion'}
-          agreeCount={idea.agreeCount}
-          disagreeCount={idea.disagreeCount}
-          needDiscussion={idea.needDiscussion}
-          editable={idea.editable}
-          isBeingDraggedByCategory={idea.categoryId === draggingCategoryId}
-          onPositionChange={handleIdeaPositionChange}
-        />
-      ))}
+      {/* 자유 배치 아이디어들 (categoryId === null) */}
+      {ideas
+        .filter((idea) => idea.categoryId === null)
+        .map((idea) => (
+          <IdeaCard
+            key={idea.id}
+            id={idea.id}
+            content={idea.content}
+            author={idea.author}
+            categoryId={idea.categoryId}
+            position={idea.position}
+            isSelected={idea.isSelected}
+            isVotePhrase={currentPhase === 'voting' || currentPhase === 'discussion'}
+            agreeCount={idea.agreeCount}
+            disagreeCount={idea.disagreeCount}
+            needDiscussion={idea.needDiscussion}
+            editable={idea.editable}
+            onPositionChange={handleIdeaPositionChange}
+          />
+        ))}
     </Canvas>
   );
 };
