@@ -32,6 +32,7 @@ interface IdeaCardProps {
   editable?: boolean;
   categoryId?: string | null;
   onSave?: (content: string) => void;
+  onDelete?: () => void;
   onClick?: () => void;
   onPositionChange?: (id: string, position: Position) => void;
 }
@@ -82,6 +83,7 @@ export default function IdeaCard(props: IdeaCardProps) {
     handleAgree,
     handleDisagree,
     handleKeyDownEdit,
+    startEditing,
   } = useIdeaCard({
     content: props.content,
     agreeCount: props.agreeCount,
@@ -94,16 +96,22 @@ export default function IdeaCard(props: IdeaCardProps) {
 
   // 스타일 계산
   // 자유 배치 모드(categoryId === null)면 absolute positioning
-  const cardStyle = !inCategory && draggable
-    ? {
-        position: 'absolute' as const,
-        left: draggable.position.x,
-        top: draggable.position.y,
-        cursor: draggable.isDragging ? 'grabbing' : 'grab',
-        userSelect: 'none' as const,
-        zIndex: draggable.isDragging ? 1000 : 1,
-      }
-    : {};
+  const cardStyle =
+    !inCategory && draggable
+      ? {
+          position: 'absolute' as const,
+          left: draggable.position.x,
+          top: draggable.position.y,
+          cursor: draggable.isDragging ? 'grabbing' : 'grab',
+          userSelect: 'none' as const,
+          zIndex: draggable.isDragging ? 1000 : 1,
+        }
+      : {};
+
+  const handleDoubleClickToEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    startEditing();
+  };
 
   return (
     <Card
@@ -112,6 +120,7 @@ export default function IdeaCard(props: IdeaCardProps) {
       inCategory={inCategory}
       onClick={props.onClick}
       onMouseDown={draggable?.handleMouseDown}
+      onDoubleClick={handleDoubleClickToEdit}
       style={cardStyle}
     >
       {status === 'selected' && (
@@ -131,6 +140,7 @@ export default function IdeaCard(props: IdeaCardProps) {
             value={editValue}
             onChange={(e) => setEditValue(e.target.value)}
             onKeyDown={handleKeyDownEdit}
+            onMouseDown={(e) => e.stopPropagation()} 
             autoFocus
             placeholder="아이디어를 입력해주세요."
           />
@@ -149,7 +159,15 @@ export default function IdeaCard(props: IdeaCardProps) {
               />
             </IconButton>
           ) : (
-            <IconButton aria-label="delete">
+            <IconButton
+              aria-label="delete"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (!draggable?.hasMoved) {
+                  props.onDelete?.();
+                }
+              }}
+            >
               <Image
                 src="/trash.svg"
                 alt="삭제"
