@@ -7,6 +7,7 @@ import { useCanvasContext } from '../canvas/canvas-context';
 import {
   Actions,
   Btn,
+  ChildrenWrapper,
   DangerBtn,
   Dot,
   Header,
@@ -20,9 +21,8 @@ interface CategoryCardProps {
   id: string;
   title: string;
   position: Position;
-  width?: number;
-  height?: number;
   isMuted?: boolean;
+  children?: React.ReactNode;
   onRemove?: () => void;
   onPositionChange?: (id: string, position: Position) => void;
   onDrag?: (id: string, position: Position, delta: { dx: number; dy: number }) => void;
@@ -34,9 +34,8 @@ export default function CategoryCard({
   id,
   title,
   position,
-  width = 650,
-  height = 400,
   isMuted = false,
+  children,
   onRemove,
   onPositionChange,
   onDrag,
@@ -81,19 +80,14 @@ export default function CategoryCard({
       style={
         draggable
           ? {
-              position: 'absolute',
+              position: 'absolute' as const,
               left: draggable.position.x,
               top: draggable.position.y,
-              width,
-              height,
               cursor: draggable.isDragging ? 'grabbing' : 'grab',
-              userSelect: 'none',
+              userSelect: 'none' as const,
               zIndex: 0, // 항상 아이디어 카드보다 낮게
             }
-          : {
-              width,
-              height,
-            }
+          : {}
       }
     >
       <Header isMuted={isMuted}>
@@ -133,6 +127,7 @@ export default function CategoryCard({
           </Actions>
         )}
       </Header>
+      {children && <ChildrenWrapper>{children}</ChildrenWrapper>}
     </StyledCategoryCard>
   );
 }
