@@ -1,21 +1,16 @@
 'use client';
 
 import { useState } from 'react';
-import Canvas from '@/app/issue/_components/canvas/Canvas';
-import IdeaCard from '@/app/issue/_components/ideaCard/IdeaCard';
-import Header from '@/app/issue/_components/layout/Header';
-import { mockCategories } from '@/app/issue/data/mockCategories';
-import { mockIdeasWithPosition } from '@/app/issue/data/mockIdeas';
-import type { Category } from '@/app/issue/types/category';
-import type { IdeaWithPosition, Position } from '@/app/issue/types/idea';
-import TopicIssueLayout from '@/components/TopicIssueLayout';
+import Canvas from '@/app/(with-sidebar)/issue/_components/canvas/Canvas';
+import IdeaCard from '@/app/(with-sidebar)/issue/_components/ideaCard/IdeaCard';
+import { mockCategories } from '@/app/(with-sidebar)/issue/data/mockCategories';
+import { mockIdeasWithPosition } from '@/app/(with-sidebar)/issue/data/mockIdeas';
+import type { Category } from '@/app/(with-sidebar)/issue/types/category';
+import type { IdeaWithPosition, Position } from '@/app/(with-sidebar)/issue/types/idea';
 import CategoryCard from './_components/category/categoryCard';
 import { calculateCategorySize, calculateGridPosition } from './utils/categoryGrid';
 
-export type Phase = 'ideation' | 'voting' | 'discussion';
-
 const IssuePage = () => {
-  const [currentPhase, setCurrentPhase] = useState<Phase>('ideation');
   const [ideas, setIdeas] = useState<IdeaWithPosition[]>(mockIdeasWithPosition); // 아이디어 목록
   const [categories, setCategories] = useState<Category[]>(mockCategories); // 카테고리 목록
   const [draggingCategoryId, setDraggingCategoryId] = useState<string | null>(null); // 드래그 중인 카테고리 ID
@@ -171,59 +166,49 @@ const IssuePage = () => {
   };
 
   return (
-    <TopicIssueLayout
-      header={
-        <Header
-          currentPhase={currentPhase}
-          onPhaseChange={setCurrentPhase}
-          onAIStructure={handleAIStructure}
-        />
-      }
-    >
-      <Canvas onDoubleClick={handleCreateIdea}>
-        {categories.map((category) => {
-          // 카테고리에 속한 아이디어 수 계산
-          const ideasInCategory = ideas.filter((idea) => idea.categoryId === category.id).length;
-          // 동적 크기 계산
-          const { width, height } = calculateCategorySize(ideasInCategory);
+    <Canvas onDoubleClick={handleCreateIdea}>
+      {categories.map((category) => {
+        // 카테고리에 속한 아이디어 수 계산
+        const ideasInCategory = ideas.filter((idea) => idea.categoryId === category.id).length;
+        // 동적 크기 계산
+        const { width, height } = calculateCategorySize(ideasInCategory);
 
-          return (
-            <CategoryCard
-              key={category.id}
-              id={category.id}
-              title={category.title}
-              position={category.position}
-              isMuted={category.isMuted}
-              width={width}
-              height={height}
-              onPositionChange={handleCategoryPositionChange}
-              onDrag={handleCategoryDrag}
-              onDragStart={() => handleCategoryDragStart(category.id)}
-              onDragEnd={handleCategoryDragEnd}
-            />
-          );
-        })}
-
-        {ideas.map((idea) => (
-          <IdeaCard
-            key={idea.id}
-            id={idea.id}
-            content={idea.content}
-            author={idea.author}
-            categoryId={idea.categoryId}
-            position={idea.position}
-            isSelected={idea.isSelected}
-            isVotePhrase={currentPhase === 'voting' || currentPhase === 'discussion'}
-            agreeCount={idea.agreeCount}
-            disagreeCount={idea.disagreeCount}
-            needDiscussion={idea.needDiscussion}
-            editable={idea.editable}
-            isBeingDraggedByCategory={idea.categoryId === draggingCategoryId}
-            onPositionChange={handleIdeaPositionChange}
+        return (
+          <CategoryCard
+            key={category.id}
+            id={category.id}
+            title={category.title}
+            position={category.position}
+            isMuted={category.isMuted}
+            width={width}
+            height={height}
+            onPositionChange={handleCategoryPositionChange}
+            onDrag={handleCategoryDrag}
+            onDragStart={() => handleCategoryDragStart(category.id)}
+            onDragEnd={handleCategoryDragEnd}
           />
-        ))}
-      </Canvas>
-    </TopicIssueLayout>
+        );
+      })}
+
+      {ideas.map((idea) => (
+        <IdeaCard
+          key={idea.id}
+          id={idea.id}
+          content={idea.content}
+          author={idea.author}
+          categoryId={idea.categoryId}
+          position={idea.position}
+          isSelected={idea.isSelected}
+          isVotePhrase={false}
+          agreeCount={idea.agreeCount}
+          disagreeCount={idea.disagreeCount}
+          needDiscussion={idea.needDiscussion}
+          editable={idea.editable}
+          isBeingDraggedByCategory={idea.categoryId === draggingCategoryId}
+          onPositionChange={handleIdeaPositionChange}
+        />
+      ))}
+    </Canvas>
   );
 };
 

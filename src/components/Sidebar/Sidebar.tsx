@@ -1,4 +1,4 @@
-import * as S from './styles';
+import * as S from './sidebar.styles';
 
 //TODO: input에 이벤트 연결 필요
 export default function Sidebar({ children }: { children: React.ReactNode }) {

@@ -1,6 +1,6 @@
-import Sidebar from '@/components/Sidebar/Sidebar';
-import SidebarItem from '@/components/Sidebar/SidebarItem';
-import * as S from '@/components/Sidebar/styles';
+import Sidebar from '@/components/sidebar/sidebar';
+import SidebarItem from '@/components/sidebar/sidebar-item';
+import * as S from '@/components/sidebar/sidebar.styles';
 import IssueGraphLink from './IssueGraphLink';
 import NewIssueButton from './NewIssueButton';
 
