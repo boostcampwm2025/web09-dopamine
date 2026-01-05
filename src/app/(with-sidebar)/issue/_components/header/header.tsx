@@ -48,10 +48,12 @@ const Header = ({ currentPhase, onPhaseChange, onAIStructure }: IssueHeaderProps
           <>
             <HeaderButton
               imageSrc="/folder.svg"
+              alt="카테고리 추가"
               text="카테고리 추가"
             />
             <HeaderButton
               imageSrc="/stick.svg"
+              alt="AI 구조화"
               text="AI 구조화"
               onClick={onAIStructure}
             />
@@ -61,6 +63,7 @@ const Header = ({ currentPhase, onPhaseChange, onAIStructure }: IssueHeaderProps
         return (
           <HeaderButton
             imageSrc="/good.svg"
+            alt="투표하기"
             text={getVoteButtonText()}
             onClick={currentPhase !== 'discussion' ? handleVoteStart : undefined}
           />
@@ -100,8 +103,12 @@ const Header = ({ currentPhase, onPhaseChange, onAIStructure }: IssueHeaderProps
         <HeaderButton
           imageSrc="/timer.svg"
           imageSize={16}
+          alt="타이머"
         />
-        <HeaderButton imageSrc="/share.svg" />
+        <HeaderButton
+          imageSrc="/share.svg"
+          alt="공유하기"
+        />
       </S.RightSection>
     </S.HeaderContainer>
   );
