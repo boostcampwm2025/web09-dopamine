@@ -117,7 +117,6 @@ export default function useIdeaCard(props: UseIdeaCardProps) {
     if (onSave) onSave(trimmed);
   }, [editValue, onSave]);
 
-  // 편집 textarea에서 Enter(Shift 미누름) 시 제출
   const handleKeyDownEdit = useCallback(
     (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
       if (e.key === 'Enter' && !e.shiftKey) {
@@ -127,6 +126,12 @@ export default function useIdeaCard(props: UseIdeaCardProps) {
     },
     [submitEdit],
   );
+
+  const startEditing = useCallback(() => {
+    if (!isEditing && displayContent) {
+      setIsEditing(true);
+    }
+  }, [isEditing, displayContent]);
 
   return {
     status,
@@ -141,5 +146,6 @@ export default function useIdeaCard(props: UseIdeaCardProps) {
     handleDisagree,
     submitEdit,
     handleKeyDownEdit,
+    startEditing,
   };
 }
