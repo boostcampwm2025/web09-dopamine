@@ -85,9 +85,9 @@ export const theme = {
     size: {
       large: '28px',
       medium: '14px',
-      small: '10px',
+      small: '12px',
+      xs: '10px',
       body2: '18px',
-      body5: '12px',
     },
     weight: {
       regular: 400,
