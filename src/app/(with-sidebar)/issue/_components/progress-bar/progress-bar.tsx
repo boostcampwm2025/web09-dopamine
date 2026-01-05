@@ -18,6 +18,14 @@ const ProgressBar = () => {
 
         return (
           <S.StepWrapper key={step}>
+            {showLine && (
+              <S.LineWrapper>
+                <S.ActiveLineBar
+                  isActive={isLineActive}
+                  duration={PROGRESS_BAR_DURATION}
+                />
+              </S.LineWrapper>
+            )}
             <S.Circle
               isActive={isActive}
               delay={PROGRESS_BAR_DURATION}
@@ -30,14 +38,6 @@ const ProgressBar = () => {
                 {STATUS_LABEL[step]}
               </S.Label>
             </S.Circle>
-            {showLine && (
-              <S.LineWrapper>
-                <S.ActiveLineBar
-                  isActive={isLineActive}
-                  duration={PROGRESS_BAR_DURATION}
-                />
-              </S.LineWrapper>
-            )}
           </S.StepWrapper>
         );
       })}

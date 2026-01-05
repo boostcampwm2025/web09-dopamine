@@ -71,7 +71,9 @@ const Header = ({ onAIStructure }: IssueHeaderProps) => {
         />
         서비스 홍보 방안
       </S.LeftSection>
-      <ProgressBar />
+      <S.CenterSection>
+        <ProgressBar />
+      </S.CenterSection>
       <S.RightSection>
         {issueState.status !== ISSUE_STATUS.SELECT && (
           <HeaderButton

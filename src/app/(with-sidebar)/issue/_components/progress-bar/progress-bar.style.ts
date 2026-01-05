@@ -4,16 +4,20 @@ import { theme } from '@/styles/theme';
 export const Container = styled.div`
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  width: 50%;
+  width: 100%;
   margin-top: 16px;
 `;
 
 export const StepWrapper = styled.div`
   position: relative;
   display: flex;
+  flex-flow: row nowrap;
   align-items: center;
-  width: 100%;
+  flex: 1;
+  &:last-of-type {
+    flex: 0;
+    width: auto;
+  }
 `;
 
 export const Circle = styled.div<{ isActive: boolean; delay: number }>`
