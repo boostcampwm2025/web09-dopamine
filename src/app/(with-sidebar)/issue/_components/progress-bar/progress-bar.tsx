@@ -1,7 +1,8 @@
-import styled from '@emotion/styled';
 import { STATUS_LABEL, STEP_FLOW } from '@/constants/issue';
 import { useIssueStore } from '@/store/issue';
-import { theme } from '@/styles/theme';
+import * as S from './progress-bar.style';
+
+const PROGRESS_BAR_DURATION = 0.3;
 
 const ProgressBar = () => {
   const status = useIssueStore((state) => state.status);
@@ -9,69 +10,35 @@ const ProgressBar = () => {
   const currentIndex = STEP_FLOW.indexOf(status);
 
   return (
-    <Container>
+    <S.Container>
       {steps.map((step, index) => {
         const isActive = index <= currentIndex;
         const isLineActive = index < currentIndex;
         return (
-          <StepWrapper>
-            <Circle isActive={isActive}>
+          <S.StepWrapper key={step}>
+            <S.Circle
+              isActive={isActive}
+              delay={PROGRESS_BAR_DURATION}
+            >
               {index + 1}
-              <Label isActive={isActive}>{STATUS_LABEL[step]}</Label>
-            </Circle>
-            <Line isActive={isLineActive} />
-          </StepWrapper>
+              <S.Label
+                isActive={isActive}
+                delay={PROGRESS_BAR_DURATION}
+              >
+                {STATUS_LABEL[step]}
+              </S.Label>
+            </S.Circle>
+            <S.LineWrapper>
+              <S.ActiveLineBar
+                isActive={isLineActive}
+                duration={PROGRESS_BAR_DURATION}
+              />
+            </S.LineWrapper>
+          </S.StepWrapper>
         );
       })}
-    </Container>
+    </S.Container>
   );
 };
 
 export default ProgressBar;
-
-const Container = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 50%;
-  margin-top: 16px;
-`;
-
-const StepWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  flex: 1;
-
-  &:last-child {
-    flex: 0;
-  }
-`;
-
-const Circle = styled.div<{ isActive: boolean }>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  width: 28px;
-  height: 28px;
-  color: ${({ theme }) => theme.colors.white};
-  border: none;
-  border-radius: ${({ theme }) => theme.radius.half};
-  background-color: ${({ theme, isActive }) =>
-    isActive ? theme.colors.green[600] : theme.colors.gray[300]};
-`;
-
-const Label = styled.span<{ isActive: boolean }>`
-  position: absolute;
-  top: -65%;
-  white-space: nowrap;
-  font-size: ${theme.font.size.small};
-  color: ${({ theme, isActive }) => (isActive ? theme.colors.green[600] : theme.colors.gray[400])};
-`;
-
-const Line = styled.div<{ isActive: boolean }>`
-  flex-grow: 1;
-  height: 6px;
-  background-color: ${({ theme, isActive }) =>
-    isActive ? theme.colors.green[600] : theme.colors.gray[300]};
-`;
