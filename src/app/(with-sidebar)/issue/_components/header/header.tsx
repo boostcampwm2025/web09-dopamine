@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { useShallow } from 'zustand/shallow';
 import { ISSUE_STATUS } from '@/constants/issue';
 import { useIssueStore } from '@/store/issue';
+import ProgressBar from '../progress-bar/progress-bar';
 import HeaderButton from './header-button';
 import * as S from './header.styles';
 
@@ -70,7 +71,7 @@ const Header = ({ onAIStructure }: IssueHeaderProps) => {
         />
         서비스 홍보 방안
       </S.LeftSection>
-      {issueState.status}
+      <ProgressBar />
       <S.RightSection>
         {issueState.status !== ISSUE_STATUS.SELECT && (
           <HeaderButton

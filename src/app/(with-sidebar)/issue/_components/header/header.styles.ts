@@ -4,7 +4,7 @@ import styled from '@emotion/styled';
 import { theme } from '@/styles/theme';
 
 export const HeaderContainer = styled.div`
-  height: 56px;
+  height: 64px;
   padding-inline: 16px;
   background-color: white;
   display: flex;
