@@ -4,19 +4,16 @@ import { theme } from '@/styles/theme';
 export const Container = styled.div`
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   width: 50%;
   margin-top: 16px;
 `;
 
 export const StepWrapper = styled.div`
+  position: relative;
   display: flex;
   align-items: center;
-  flex: 1;
-
-  &:last-child {
-    flex: 0;
-  }
+  width: 100%;
 `;
 
 export const Circle = styled.div<{ isActive: boolean; delay: number }>`
@@ -33,6 +30,8 @@ export const Circle = styled.div<{ isActive: boolean; delay: number }>`
     isActive ? theme.colors.green[600] : theme.colors.gray[300]};
   transition: all 0.3s ease;
   transition-delay: ${({ delay }) => `${delay}s`};
+  box-shadow: 2px 0 2px -1px rgba(0, 0, 0, 0.2);
+  z-index: 2;
 `;
 
 export const Label = styled.span<{ isActive: boolean; delay: number }>`
@@ -46,10 +45,14 @@ export const Label = styled.span<{ isActive: boolean; delay: number }>`
 `;
 
 export const LineWrapper = styled.div`
-  position: relative;
-  flex-grow: 1;
+  position: absolute;
+  top: 50%;
+  left: 2px;
+  transform: translateY(-50%);
+  width: 100%;
   height: 6px;
   background-color: ${theme.colors.gray[300]};
+  box-shadow: 2px 2px 1px -1px rgba(0, 0, 0, 0.2);
 `;
 
 export const ActiveLineBar = styled.div<{ isActive: boolean; duration: number }>`

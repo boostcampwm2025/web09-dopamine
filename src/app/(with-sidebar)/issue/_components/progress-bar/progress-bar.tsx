@@ -14,6 +14,8 @@ const ProgressBar = () => {
       {steps.map((step, index) => {
         const isActive = index <= currentIndex;
         const isLineActive = index < currentIndex;
+        const showLine = index < steps.length - 1;
+
         return (
           <S.StepWrapper key={step}>
             <S.Circle
@@ -28,12 +30,14 @@ const ProgressBar = () => {
                 {STATUS_LABEL[step]}
               </S.Label>
             </S.Circle>
-            <S.LineWrapper>
-              <S.ActiveLineBar
-                isActive={isLineActive}
-                duration={PROGRESS_BAR_DURATION}
-              />
-            </S.LineWrapper>
+            {showLine && (
+              <S.LineWrapper>
+                <S.ActiveLineBar
+                  isActive={isLineActive}
+                  duration={PROGRESS_BAR_DURATION}
+                />
+              </S.LineWrapper>
+            )}
           </S.StepWrapper>
         );
       })}
