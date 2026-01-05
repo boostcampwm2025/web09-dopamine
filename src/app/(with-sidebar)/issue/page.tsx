@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Canvas from '@/app/(with-sidebar)/issue/_components/canvas/canvas';
 import IdeaCard from '@/app/(with-sidebar)/issue/_components/idea-card/idea-card';
 import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
+import { useIdeaCardStackStore } from '@/app/(with-sidebar)/issue/store/use-idea-card-stack-store';
 import type { Category } from '@/app/(with-sidebar)/issue/types/category';
 import type { IdeaWithPosition, Position } from '@/app/(with-sidebar)/issue/types/idea';
 import CategoryCard from './_components/category/category-card';
@@ -17,6 +18,7 @@ const IssuePage = () => {
 
   const { ideas, addIdea, updateIdeaContent, updateIdeaPosition, deleteIdea, setIdeas } =
     useIdeaStore(issueId);
+  const { addCard, removeCard } = useIdeaCardStackStore(issueId);
   
   const [categories, setCategories] = useState<Category[]>([]);
   const [currentPhase, setCurrentPhase] = useState<Phase>('ideation');
@@ -43,6 +45,7 @@ const IssuePage = () => {
     };
 
     addIdea(newIdea);
+    addCard(newIdea.id);
   };
 
   const handleSaveIdea = (id: string, content: string) => {
@@ -51,6 +54,7 @@ const IssuePage = () => {
 
   const handleDeleteIdea = (id: string) => {
     deleteIdea(id);
+    removeCard(id);
   };
 
   const handleAIStructure = () => {
@@ -94,6 +98,12 @@ const IssuePage = () => {
     setIdeas(categorizedIdeas);
   };
 
+  useEffect(() => {
+    ideas.forEach((idea) => {
+      addCard(idea.id);
+    });
+  }, []);
+
   // AI 구조화 이벤트 리스너
   useEffect(() => {
     const handleAIStructureEvent = () => {
@@ -133,6 +143,7 @@ const IssuePage = () => {
               <IdeaCard
                 key={idea.id}
                 id={idea.id}
+                issueId={issueId}
                 content={idea.content}
                 author={idea.author}
                 categoryId={idea.categoryId}
@@ -158,6 +169,7 @@ const IssuePage = () => {
           <IdeaCard
             key={idea.id}
             id={idea.id}
+            issueId={issueId}
             content={idea.content}
             author={idea.author}
             categoryId={idea.categoryId}

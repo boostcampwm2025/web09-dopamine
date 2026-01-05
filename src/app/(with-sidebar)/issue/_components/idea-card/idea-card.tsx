@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import useIdeaCard from '@/app/(with-sidebar)/issue/hooks/use-idea-card';
 import { useDraggable } from '../../hooks/use-draggable';
+import { useIdeaCardStackStore } from '../../store/use-idea-card-stack-store';
 import type { Position } from '../../types/idea';
 import { useCanvasContext } from '../canvas/canvas-context';
 import {
@@ -21,6 +22,7 @@ import {
 
 interface IdeaCardProps {
   id?: string;
+  issueId?: string;
   content?: string;
   author?: string;
   position?: Position | null;
@@ -52,6 +54,9 @@ export type DragItemPayload = {
 
 export default function IdeaCard(props: IdeaCardProps) {
   const { scale } = useCanvasContext();
+
+  const { bringToFront, getZIndex } = useIdeaCardStackStore(props.issueId);
+  const zIndex = props.id ? getZIndex(props.id) : 0;
 
   // 드래그 로직
   const inCategory = !!props.categoryId;
@@ -104,7 +109,7 @@ export default function IdeaCard(props: IdeaCardProps) {
           top: draggable.position.y,
           cursor: draggable.isDragging ? 'grabbing' : 'grab',
           userSelect: 'none' as const,
-          zIndex: draggable.isDragging ? 1000 : 1,
+          zIndex: draggable.isDragging ? 1000 : zIndex,
         }
       : {};
 
@@ -113,12 +118,19 @@ export default function IdeaCard(props: IdeaCardProps) {
     startEditing();
   };
 
+  const handleCardClick = (e: React.MouseEvent) => {
+    if (props.id && !inCategory) {
+      bringToFront(props.id);
+    }
+    props.onClick?.();
+  };
+
   return (
     <Card
       status={status}
       isDragging={draggable?.isDragging ?? false}
       inCategory={inCategory}
-      onClick={props.onClick}
+      onClick={handleCardClick}
       onMouseDown={draggable?.handleMouseDown}
       onDoubleClick={handleDoubleClickToEdit}
       style={cardStyle}
