@@ -97,10 +97,10 @@ export default function Canvas({ children, onDoubleClick }: CanvasProps) {
   const handleZoomOut = () => {
     setScale((prev) => Math.max(prev - 0.1, 0.3));
   };
-기본값으로 복귀) */
+  /** 기본값으로 복귀 */
   const handleResetZoom = () => {
     setScale(DEFAULT_ZOOM_SCALE);
-    setOffset(DEFAULT_OFFSET
+    setOffset(DEFAULT_OFFSET)
     setOffset({ x: 0, y: 0 });
   };
 
