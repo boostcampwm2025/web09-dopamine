@@ -1,4 +1,4 @@
-import * as S from './styles';
+import * as S from './sidebar.styles';
 import { IssueStatusType } from './types';
 
 interface SidebarItemProps {

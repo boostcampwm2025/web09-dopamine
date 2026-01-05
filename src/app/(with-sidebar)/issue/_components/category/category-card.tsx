@@ -1,8 +1,9 @@
 'use client';
 
+import useCategory from '@/app/(with-sidebar)/issue/hooks/use-category-card';
+import { useDraggable } from '../../hooks/use-draggable';
 import type { Position } from '../../types/idea';
-import { useDraggable } from '../../hooks/useDraggable';
-import { useCanvasContext } from '../canvas/CanvasContext';
+import { useCanvasContext } from '../canvas/canvas-context';
 import {
   Actions,
   Btn,
@@ -13,8 +14,7 @@ import {
   Input,
   StyledCategoryCard,
   Title,
-} from './categoryCard.style';
-import useCategory from './useCategoryCard';
+} from './category-card.styles';
 
 interface CategoryCardProps {
   id: string;
@@ -78,19 +78,23 @@ export default function CategoryCard({
       isMuted={isMuted}
       aria-label={`${curTitle} 카테고리`}
       onMouseDown={draggable?.handleMouseDown}
-      style={draggable ? {
-        position: 'absolute',
-        left: draggable.position.x,
-        top: draggable.position.y,
-        width,
-        height,
-        cursor: draggable.isDragging ? 'grabbing' : 'grab',
-        userSelect: 'none',
-        zIndex: 0, // 항상 아이디어 카드보다 낮게
-      } : {
-        width,
-        height,
-      }}
+      style={
+        draggable
+          ? {
+              position: 'absolute',
+              left: draggable.position.x,
+              top: draggable.position.y,
+              width,
+              height,
+              cursor: draggable.isDragging ? 'grabbing' : 'grab',
+              userSelect: 'none',
+              zIndex: 0, // 항상 아이디어 카드보다 낮게
+            }
+          : {
+              width,
+              height,
+            }
+      }
     >
       <Header isMuted={isMuted}>
         <HeaderLeft>

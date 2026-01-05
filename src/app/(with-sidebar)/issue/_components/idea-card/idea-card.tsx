@@ -1,6 +1,10 @@
 'use client';
 
 import Image from 'next/image';
+import useIdeaCard from '@/app/(with-sidebar)/issue/hooks/use-idea-card';
+import { useDraggable } from '../../hooks/use-draggable';
+import type { Position } from '../../types/idea';
+import { useCanvasContext } from '../canvas/canvas-context';
 import {
   AuthorPill,
   Badge,
@@ -13,11 +17,7 @@ import {
   IconButton,
   Meta,
   VoteButton,
-} from './IdeaCard.style';
-import useIdeaCard from './useIdeaCard';
-import { useDraggable } from '../../hooks/useDraggable';
-import { useCanvasContext } from '../canvas/CanvasContext';
-import type { Position } from '../../types/idea';
+} from './idea-card.styles';
 
 interface IdeaCardProps {
   id?: string;
