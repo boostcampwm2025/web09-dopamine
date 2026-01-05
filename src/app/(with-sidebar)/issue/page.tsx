@@ -8,7 +8,6 @@ import { mockIdeasWithPosition } from '@/app/(with-sidebar)/issue/data/mock-idea
 import type { Category } from '@/app/(with-sidebar)/issue/types/category';
 import type { IdeaWithPosition, Position } from '@/app/(with-sidebar)/issue/types/idea';
 import CategoryCard from './_components/category/category-card';
-import { calculateCategorySize, calculateGridPosition } from './utils/category-grid';
 
 type Phase = 'ideation' | 'voting' | 'discussion';
 
@@ -79,42 +78,15 @@ const IssuePage = () => {
     ];
 
     // 2. 아이디어 분류 로직 (임시로 단순 분배)
-    // 먼저 각 카테고리에 할당될 아이디어 개수 파악
-    const ideasPerCategory = ideas.reduce(
-      (acc, idea, index) => {
-        const categoryIndex = index % 3;
-        const categoryId = newCategories[categoryIndex].id;
-        acc[categoryId] = (acc[categoryId] || 0) + 1;
-        return acc;
-      },
-      {} as Record<string, number>,
-    );
-
-    // 카테고리별 인덱스 추적
-    const categoryIndexTracker: Record<string, number> = {};
-
     const categorizedIdeas = ideas.map((idea, index) => {
       // 3개 카테고리에 순서대로 분배
       const categoryIndex = index % 3;
-      const targetCategory = newCategories[categoryIndex];
-      const categoryId = targetCategory.id;
-
-      // 해당 카테고리 내에서 몇 번째 아이디어인지
-      const indexInCategory = categoryIndexTracker[categoryId] || 0;
-      categoryIndexTracker[categoryId] = indexInCategory + 1;
-
-      // Grid 위치 계산 (카테고리 절대 좌표 + 해당 카테고리의 총 아이디어 개수)
-      const totalInCategory = ideasPerCategory[categoryId];
-      const targetPosition = calculateGridPosition(
-        targetCategory.position,
-        indexInCategory,
-        totalInCategory,
-      );
+      const categoryId = newCategories[categoryIndex].id;
 
       return {
         ...idea,
         categoryId,
-        position: targetPosition,
+        position: null, // 카테고리 내부는 position 불필요 (CSS Grid가 처리)
       };
     });
 
