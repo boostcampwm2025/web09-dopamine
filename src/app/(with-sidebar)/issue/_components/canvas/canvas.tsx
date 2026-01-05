@@ -100,7 +100,7 @@ export default function Canvas({ children, onDoubleClick }: CanvasProps) {
   /** 기본값으로 복귀 */
   const handleResetZoom = () => {
     setScale(DEFAULT_ZOOM_SCALE);
-    setOffset(DEFAULT_OFFSET)
+    setOffset(DEFAULT_OFFSET);
     setOffset({ x: 0, y: 0 });
   };
 
@@ -119,6 +119,21 @@ export default function Canvas({ children, onDoubleClick }: CanvasProps) {
     },
     [onDoubleClick, offset, scale],
   );
+
+  const handleAddIdeaClick = useCallback(() => {
+    if (!onDoubleClick) return;
+
+    const rect = canvasRef.current?.getBoundingClientRect();
+    if (!rect) return;
+
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2 + 200;
+
+    const x = (centerX - offset.x) / scale;
+    const y = (centerY - offset.y) / scale;
+
+    onDoubleClick({ x, y });
+  }, [onDoubleClick, offset, scale]);
 
   return (
     <>
@@ -173,7 +188,7 @@ export default function Canvas({ children, onDoubleClick }: CanvasProps) {
           />
         </ZoomButton>
       </ZoomControls>
-      <AddIdeaButton>아이디어 추가</AddIdeaButton>
+      <AddIdeaButton onClick={handleAddIdeaClick}>아이디어 추가</AddIdeaButton>
       <BottomMessage>배경을 더블클릭하여 새로운 아이디어를 작성할 수 있습니다.</BottomMessage>
     </>
   );
