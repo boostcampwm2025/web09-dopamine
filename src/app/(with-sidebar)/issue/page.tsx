@@ -10,10 +10,13 @@ import type { IdeaWithPosition, Position } from '@/app/(with-sidebar)/issue/type
 import CategoryCard from './_components/category/category-card';
 import { calculateCategorySize, calculateGridPosition } from './utils/category-grid';
 
+type Phase = 'ideation' | 'voting' | 'discussion';
+
 const IssuePage = () => {
   const [ideas, setIdeas] = useState<IdeaWithPosition[]>(mockIdeasWithPosition); // 아이디어 목록
   const [categories, setCategories] = useState<Category[]>(mockCategories); // 카테고리 목록
   const [draggingCategoryId, setDraggingCategoryId] = useState<string | null>(null); // 드래그 중인 카테고리 ID
+  const [currentPhase, setCurrentPhase] = useState<Phase>('ideation'); // 현재 단계
 
   /**
    * 아이디어 카드 위치 업데이트
@@ -175,6 +178,16 @@ const IssuePage = () => {
     return () => window.removeEventListener('aiStructure', handleAIStructureEvent);
   }, [ideas]); // ideas가 변경될 때마다 리스너 재등록
 
+  // Phase 변경 이벤트 리스너
+  useEffect(() => {
+    const handlePhaseChangeEvent = (e: CustomEvent<Phase>) => {
+      setCurrentPhase(e.detail);
+    };
+
+    window.addEventListener('phaseChange', handlePhaseChangeEvent as EventListener);
+    return () => window.removeEventListener('phaseChange', handlePhaseChangeEvent as EventListener);
+  }, []);
+
   return (
     <Canvas onDoubleClick={handleCreateIdea}>
       {categories.map((category) => {
@@ -209,7 +222,7 @@ const IssuePage = () => {
           categoryId={idea.categoryId}
           position={idea.position}
           isSelected={idea.isSelected}
-          isVotePhrase={false}
+          isVotePhrase={currentPhase === 'voting' || currentPhase === 'discussion'}
           agreeCount={idea.agreeCount}
           disagreeCount={idea.disagreeCount}
           needDiscussion={idea.needDiscussion}

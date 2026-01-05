@@ -35,13 +35,19 @@ export default function WithSidebarLayout({ children }: { children: ReactNode })
     window.dispatchEvent(new CustomEvent('aiStructure'));
   };
 
+  // Phase 변경 이벤트 발생
+  const handlePhaseChange = (phase: Phase) => {
+    setCurrentPhase(phase);
+    window.dispatchEvent(new CustomEvent('phaseChange', { detail: phase }));
+  };
+
   // 경로에 따라 다른 헤더 렌더링
   const renderHeader = () => {
     if (pathname?.startsWith('/issue')) {
       return (
         <IssueHeader
           currentPhase={currentPhase}
-          onPhaseChange={setCurrentPhase}
+          onPhaseChange={handlePhaseChange}
           onAIStructure={handleAIStructure}
         />
       );
