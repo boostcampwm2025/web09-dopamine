@@ -54,8 +54,8 @@ export default function IdeaCard(props: IdeaCardProps) {
 
   // 드래그 로직
   const inCategory = !!props.categoryId;
-  // position이 있을 때만(자유 배치) 드래그 가능
-  const canDrag = !inCategory && props.position && props.id && props.onPositionChange;
+  // 카테고리에 속하지 않은 자유 배치 아이디어만 드래그 가능
+  const canDrag = !inCategory && props.id && props.onPositionChange;
 
   const draggable = canDrag
     ? useDraggable({
@@ -93,8 +93,8 @@ export default function IdeaCard(props: IdeaCardProps) {
   });
 
   // 스타일 계산
-  // position이 있으면 자유 배치 모드(absolute), 없으면 카테고리 내부 모드(static)
-  const cardStyle = props.position && draggable
+  // 자유 배치 모드(categoryId === null)면 absolute positioning
+  const cardStyle = !inCategory && draggable
     ? {
         position: 'absolute' as const,
         left: draggable.position.x,
