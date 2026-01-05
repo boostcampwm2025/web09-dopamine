@@ -3,8 +3,7 @@
 import { useEffect, useState } from 'react';
 import Canvas from '@/app/(with-sidebar)/issue/_components/canvas/canvas';
 import IdeaCard from '@/app/(with-sidebar)/issue/_components/idea-card/idea-card';
-import { mockCategories } from '@/app/(with-sidebar)/issue/data/mock-categories';
-import { mockIdeasWithPosition } from '@/app/(with-sidebar)/issue/data/mock-ideas';
+import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
 import type { Category } from '@/app/(with-sidebar)/issue/types/category';
 import type { IdeaWithPosition, Position } from '@/app/(with-sidebar)/issue/types/idea';
 import CategoryCard from './_components/category/category-card';
@@ -12,31 +11,26 @@ import CategoryCard from './_components/category/category-card';
 type Phase = 'ideation' | 'voting' | 'discussion';
 
 const IssuePage = () => {
-  const [ideas, setIdeas] = useState<IdeaWithPosition[]>(mockIdeasWithPosition); // 아이디어 목록
-  const [categories, setCategories] = useState<Category[]>(mockCategories); // 카테고리 목록
-  const [currentPhase, setCurrentPhase] = useState<Phase>('ideation'); // 현재 단계
+  // TODO: URL 파라미터나 props에서 실제 issueId 가져오기
+  // 예: const { issueId } = useParams() 또는 props.issueId
+  const issueId = 'default'; // 임시 기본값
 
-  /**
-   * 아이디어 카드 위치 업데이트
-   */
+  const { ideas, addIdea, updateIdeaContent, updateIdeaPosition, deleteIdea, setIdeas } =
+    useIdeaStore(issueId);
+  
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [currentPhase, setCurrentPhase] = useState<Phase>('ideation');
+
   const handleIdeaPositionChange = (id: string, position: Position) => {
-    setIdeas((prevIdeas) =>
-      prevIdeas.map((idea) => (idea.id === id ? { ...idea, position } : idea)),
-    );
+    updateIdeaPosition(id, position);
   };
 
-  /**
-   * 카테고리 위치 업데이트
-   */
   const handleCategoryPositionChange = (id: string, position: Position) => {
     setCategories((prevCategories) =>
       prevCategories.map((cat) => (cat.id === id ? { ...cat, position } : cat)),
     );
   };
 
-  /**
-   * 새 아이디어 카드 생성
-   */
   const handleCreateIdea = (position: Position) => {
     const newIdea: IdeaWithPosition = {
       id: `idea-${Date.now()}`,
@@ -48,12 +42,17 @@ const IssuePage = () => {
       isVotePhrase: false,
     };
 
-    setIdeas((prevIdeas) => [...prevIdeas, newIdea]);
+    addIdea(newIdea);
   };
 
-  /**
-   * AI 구조화 - 카테고리 생성 + 아이디어 자동 분류
-   */
+  const handleSaveIdea = (id: string, content: string) => {
+    updateIdeaContent(id, content);
+  };
+
+  const handleDeleteIdea = (id: string) => {
+    deleteIdea(id);
+  };
+
   const handleAIStructure = () => {
     // 1. 새 카테고리 생성 (임시로 3개)
     const newCategories: Category[] = [
@@ -144,6 +143,8 @@ const IssuePage = () => {
                 disagreeCount={idea.disagreeCount}
                 needDiscussion={idea.needDiscussion}
                 editable={idea.editable}
+                onSave={(content) => handleSaveIdea(idea.id, content)}
+                onDelete={() => handleDeleteIdea(idea.id)}
               />
             ))}
           </CategoryCard>
@@ -168,6 +169,8 @@ const IssuePage = () => {
             needDiscussion={idea.needDiscussion}
             editable={idea.editable}
             onPositionChange={handleIdeaPositionChange}
+            onSave={(content) => handleSaveIdea(idea.id, content)}
+            onDelete={() => handleDeleteIdea(idea.id)}
           />
         ))}
     </Canvas>
