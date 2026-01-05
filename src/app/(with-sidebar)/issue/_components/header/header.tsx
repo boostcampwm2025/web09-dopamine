@@ -1,6 +1,8 @@
 'use client';
 
 import Image from 'next/image';
+import { ISSUE_STATUS } from '@/constants/issue';
+import { useIssueStore } from '@/store/issue';
 import HeaderButton from './header-button';
 import * as S from './header.styles';
 
@@ -13,6 +15,8 @@ interface IssueHeaderProps {
 }
 
 const Header = ({ currentPhase, onPhaseChange, onAIStructure }: IssueHeaderProps) => {
+  const { status, next } = useIssueStore();
+
   const handleVoteStart = () => {
     if (currentPhase === 'ideation') {
       onPhaseChange('voting');
@@ -36,6 +40,41 @@ const Header = ({ currentPhase, onPhaseChange, onAIStructure }: IssueHeaderProps
         return '투표 시작';
     }
   };
+
+  const renderActionButtons = () => {
+    switch (status) {
+      case ISSUE_STATUS.CATEGORIZE:
+        return (
+          <>
+            <HeaderButton
+              imageSrc="/folder.svg"
+              text="카테고리 추가"
+            />
+            <HeaderButton
+              imageSrc="/stick.svg"
+              text="AI 구조화"
+              onClick={onAIStructure}
+            />
+          </>
+        );
+      case ISSUE_STATUS.VOTE:
+        return (
+          <HeaderButton
+            imageSrc="/good.svg"
+            text={getVoteButtonText()}
+            onClick={currentPhase !== 'discussion' ? handleVoteStart : undefined}
+          />
+        );
+      case ISSUE_STATUS.SELECT:
+        return (
+          <HeaderButton
+            text="이슈 종료"
+            variant="dark"
+          />
+        );
+    }
+  };
+
   return (
     <S.HeaderContainer>
       <S.LeftSection>
@@ -47,30 +86,22 @@ const Header = ({ currentPhase, onPhaseChange, onAIStructure }: IssueHeaderProps
         />
         서비스 홍보 방안
       </S.LeftSection>
+      {status}
       <S.RightSection>
+        {status !== ISSUE_STATUS.SELECT && (
+          <HeaderButton
+            text="다음"
+            onClick={next}
+          />
+        )}
+
+        {renderActionButtons()}
+
         <HeaderButton
           imageSrc="/timer.svg"
           imageSize={16}
         />
-        <HeaderButton
-          imageSrc="/good.svg"
-          text={getVoteButtonText()}
-          onClick={currentPhase !== 'discussion' ? handleVoteStart : undefined}
-        />
-        <HeaderButton
-          imageSrc="/folder.svg"
-          text="카테고리 추가"
-        />
-        <HeaderButton
-          imageSrc="/stick.svg"
-          text="AI 구조화"
-          onClick={onAIStructure}
-        />
         <HeaderButton imageSrc="/share.svg" />
-        <HeaderButton
-          text="이슈 종료"
-          variant="dark"
-        />
       </S.RightSection>
     </S.HeaderContainer>
   );
