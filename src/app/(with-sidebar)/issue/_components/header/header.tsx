@@ -19,6 +19,7 @@ const Header = ({ onAIStructure }: IssueHeaderProps) => {
       isVoteActive: state.isVoteActive,
       next: state.next,
       toggleVoteActvie: state.toggleVoteActvie,
+      closeIssue: state.closeIssue,
     })),
   );
 
@@ -55,6 +56,7 @@ const Header = ({ onAIStructure }: IssueHeaderProps) => {
           <HeaderButton
             text="이슈 종료"
             variant="dark"
+            onClick={issueState.closeIssue}
           />
         );
     }

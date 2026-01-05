@@ -6,6 +6,7 @@ interface IssueStore {
   status: IssueStatus;
   isVoteActive: boolean;
   next: () => void;
+  closeIssue: () => void;
   toggleVoteActvie: () => void;
 }
 
@@ -18,5 +19,6 @@ export const useIssueStore = create<IssueStore>((set) => ({
       const nextStatus = STEP_FLOW[currentIndex + 1];
       return { status: nextStatus };
     }),
+  closeIssue: () => set(() => ({ status: ISSUE_STATUS.CLOSE })),
   toggleVoteActvie: () => set((state) => ({ isVoteActive: !state.isVoteActive })),
 }));
