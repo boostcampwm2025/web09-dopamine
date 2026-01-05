@@ -1,48 +1,28 @@
 'use client';
 
 import Image from 'next/image';
+import { useShallow } from 'zustand/shallow';
 import { ISSUE_STATUS } from '@/constants/issue';
 import { useIssueStore } from '@/store/issue';
 import HeaderButton from './header-button';
 import * as S from './header.styles';
 
-type Phase = 'ideation' | 'voting' | 'discussion';
-
 interface IssueHeaderProps {
-  currentPhase: Phase;
-  onPhaseChange: (phase: Phase) => void;
   onAIStructure?: () => void;
 }
 
-const Header = ({ currentPhase, onPhaseChange, onAIStructure }: IssueHeaderProps) => {
-  const { status, next } = useIssueStore();
-
-  const handleVoteStart = () => {
-    if (currentPhase === 'ideation') {
-      onPhaseChange('voting');
-      return;
-    }
-    if (currentPhase === 'voting') {
-      onPhaseChange('discussion');
-      return;
-    }
-  };
-
-  const getVoteButtonText = () => {
-    switch (currentPhase) {
-      case 'ideation':
-        return '투표 시작';
-      case 'voting':
-        return '토론 시작';
-      case 'discussion':
-        return '토론 중';
-      default:
-        return '투표 시작';
-    }
-  };
+const Header = ({ onAIStructure }: IssueHeaderProps) => {
+  const issueState = useIssueStore(
+    useShallow((state) => ({
+      status: state.status,
+      isVoteActive: state.isVoteActive,
+      next: state.next,
+      toggleVoteActvie: state.toggleVoteActvie,
+    })),
+  );
 
   const renderActionButtons = () => {
-    switch (status) {
+    switch (issueState.status) {
       case ISSUE_STATUS.CATEGORIZE:
         return (
           <>
@@ -64,8 +44,9 @@ const Header = ({ currentPhase, onPhaseChange, onAIStructure }: IssueHeaderProps
           <HeaderButton
             imageSrc="/good.svg"
             alt="투표하기"
-            text={getVoteButtonText()}
-            onClick={currentPhase !== 'discussion' ? handleVoteStart : undefined}
+            text={issueState.isVoteActive ? '투표 종료' : '투표 시작'}
+            variant={issueState.isVoteActive ? 'dark' : undefined}
+            onClick={issueState.toggleVoteActvie}
           />
         );
       case ISSUE_STATUS.SELECT:
@@ -89,12 +70,12 @@ const Header = ({ currentPhase, onPhaseChange, onAIStructure }: IssueHeaderProps
         />
         서비스 홍보 방안
       </S.LeftSection>
-      {status}
+      {issueState.status}
       <S.RightSection>
-        {status !== ISSUE_STATUS.SELECT && (
+        {issueState.status !== ISSUE_STATUS.SELECT && (
           <HeaderButton
             text="다음"
-            onClick={next}
+            onClick={issueState.next}
           />
         )}
 
