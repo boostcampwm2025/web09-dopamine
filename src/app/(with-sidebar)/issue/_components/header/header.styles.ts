@@ -8,10 +8,9 @@ export const HeaderContainer = styled.div`
   padding-inline: 16px;
   background-color: white;
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: 1fr 2fr 1.2fr;
   align-items: center;
   border-bottom: 1px solid ${theme.colors.gray[100]};
-  /* justify-content: space-between; */
 `;
 
 export const LeftSection = styled.div`
@@ -26,9 +25,7 @@ export const LeftSection = styled.div`
 
 export const CenterSection = styled.div`
   justify-self: center;
-  min-width: 20rem;
-  width: 500px;
-  max-width: 40rem;
+  width: clamp(10rem, 100%, 40rem);
 `;
 
 export const RightSection = styled.div`
