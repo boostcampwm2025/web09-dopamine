@@ -3,8 +3,8 @@
 import { ReactNode } from 'react';
 import { usePathname } from 'next/navigation';
 import styled from '@emotion/styled';
-import IssueHeader from '@/app/(with-sidebar)/issue/_components/layout/IssueHeader';
-import IssueSidebar from '@/app/(with-sidebar)/issue/_components/layout/IssueSidebar';
+import IssueHeader from '@/app/(with-sidebar)/issue/_components/layout/issue-header';
+import IssueSidebar from '@/app/(with-sidebar)/issue/_components/layout/issue-sidebar';
 
 const LayoutContainer = styled.div`
   display: flex;

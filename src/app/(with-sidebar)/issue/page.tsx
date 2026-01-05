@@ -1,13 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import Canvas from '@/app/(with-sidebar)/issue/_components/canvas/Canvas';
-import IdeaCard from '@/app/(with-sidebar)/issue/_components/ideaCard/IdeaCard';
+import Canvas from '@/app/(with-sidebar)/issue/_components/canvas/canvas-temp';
+import IdeaCard from '@/app/(with-sidebar)/issue/_components/ideaCard/idea-card';
 import { mockCategories } from '@/app/(with-sidebar)/issue/data/mockCategories';
 import { mockIdeasWithPosition } from '@/app/(with-sidebar)/issue/data/mockIdeas';
 import type { Category } from '@/app/(with-sidebar)/issue/types/category';
 import type { IdeaWithPosition, Position } from '@/app/(with-sidebar)/issue/types/idea';
-import CategoryCard from './_components/category/categoryCard';
+import CategoryCard from './_components/category/category-card';
 import { calculateCategorySize, calculateGridPosition } from './utils/categoryGrid';
 
 const IssuePage = () => {

@@ -1,8 +1,8 @@
 import Sidebar from '@/components/sidebar/sidebar';
 import SidebarItem from '@/components/sidebar/sidebar-item';
 import * as S from '@/components/sidebar/sidebar.styles';
-import IssueGraphLink from './IssueGraphLink';
-import NewIssueButton from './NewIssueButton';
+import IssueGraphLink from './issue-graph-link';
+import NewIssueButton from './new-issue-button';
 
 const ISSUE_LIST = [
   { title: 'new issue', href: '#', status: 'open' },

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import Header from './Header';
+import Header from './header-temp';
 
 export type Phase = 'ideation' | 'voting' | 'discussion';
 
