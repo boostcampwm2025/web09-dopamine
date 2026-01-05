@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Position } from '../types/idea';
 
 interface UseDraggableProps {
@@ -45,7 +45,7 @@ export const useDraggable = ({
       lastDelta.current = { dx: 0, dy: 0 }; // delta 초기화
       onDragStart?.(); // 드래그 시작 콜백
     },
-    [position, disabled, onDragStart]
+    [position, disabled, onDragStart],
   );
 
   /**
@@ -65,17 +65,17 @@ export const useDraggable = ({
       };
 
       setPosition(newPosition);
-      
+
       // 이전 프레임과의 차이만 전달 (증분 delta)
       const incrementalDelta = {
         dx: deltaX - lastDelta.current.dx,
         dy: deltaY - lastDelta.current.dy,
       };
-      
+
       lastDelta.current = { dx: deltaX, dy: deltaY };
       onDrag?.(newPosition, incrementalDelta);
     },
-    [isDragging, scale, onDrag]
+    [isDragging, scale, onDrag],
   );
 
   /**

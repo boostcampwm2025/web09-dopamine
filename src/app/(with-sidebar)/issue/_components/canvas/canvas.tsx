@@ -2,6 +2,7 @@
 
 import { useCallback, useRef, useState } from 'react';
 import Image from 'next/image';
+import { CanvasContext } from './canvas-context';
 import {
   AddIdeaButton,
   BottomMessage,
@@ -9,8 +10,7 @@ import {
   CanvasViewport,
   ZoomButton,
   ZoomControls,
-} from './Canvas.style';
-import { CanvasContext } from './CanvasContext';
+} from './canvas.styles';
 
 interface CanvasProps {
   children?: React.ReactNode;

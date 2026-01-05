@@ -1,10 +1,10 @@
 import Image from 'next/image';
-import * as S from './styles';
+import * as S from './issue-graph-link.styles';
 
 export default function IssueGraphLink() {
   return (
     <S.Wrapper>
-      <S.IssueGraphLink href="#">
+      <S.StyledIssueGraphLink href="#">
         <Image
           src="/map.svg"
           alt="지도 이미지"
@@ -12,7 +12,7 @@ export default function IssueGraphLink() {
           height={16}
         />
         이슈 그래프 보기
-      </S.IssueGraphLink>
+      </S.StyledIssueGraphLink>
     </S.Wrapper>
   );
 }

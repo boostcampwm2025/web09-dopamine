@@ -1,9 +1,8 @@
 'use client';
 
 import Image from 'next/image';
-import styled from '@emotion/styled';
-import { theme } from '@/styles/theme';
-import HeaderButton from './HeaderButton';
+import HeaderButton from './header-button';
+import * as S from './header.styles';
 
 type Phase = 'ideation' | 'voting' | 'discussion';
 
@@ -13,37 +12,12 @@ interface IssueHeaderProps {
   onAIStructure?: () => void;
 }
 
-const HeaderContainer = styled.div`
-  height: 56px;
-  padding-inline: 16px;
-  background-color: white;
-  display: flex;
-  align-items: center;
-  border-bottom: 1px solid ${theme.colors.gray[100]};
-  justify-content: space-between;
-`;
-
-const LeftSection = styled.div`
-  gap: 12px;
-  display: flex;
-  font-size: ${theme.font.size.body2};
-  font-weight: ${theme.font.weight.semibold};
-  color: black;
-  align-items: center;
-`;
-
-const RightSection = styled.div`
-  gap: 8px;
-  display: flex;
-  align-items: center;
-`;
-
-const IssueHeader = ({ currentPhase, onPhaseChange, onAIStructure }: IssueHeaderProps) => {
+const Header = ({ currentPhase, onPhaseChange, onAIStructure }: IssueHeaderProps) => {
   const handleVoteStart = () => {
     if (currentPhase === 'ideation') {
       onPhaseChange('voting');
       return;
-    } 
+    }
     if (currentPhase === 'voting') {
       onPhaseChange('discussion');
       return;
@@ -63,8 +37,8 @@ const IssueHeader = ({ currentPhase, onPhaseChange, onAIStructure }: IssueHeader
     }
   };
   return (
-    <HeaderContainer>
-      <LeftSection>
+    <S.HeaderContainer>
+      <S.LeftSection>
         <Image
           src="/leftArrow.svg"
           alt="뒤로가기"
@@ -72,8 +46,8 @@ const IssueHeader = ({ currentPhase, onPhaseChange, onAIStructure }: IssueHeader
           height={18}
         />
         서비스 홍보 방안
-      </LeftSection>
-      <RightSection>
+      </S.LeftSection>
+      <S.RightSection>
         <HeaderButton
           imageSrc="/timer.svg"
           imageSize={16}
@@ -97,9 +71,9 @@ const IssueHeader = ({ currentPhase, onPhaseChange, onAIStructure }: IssueHeader
           text="이슈 종료"
           variant="dark"
         />
-      </RightSection>
-    </HeaderContainer>
+      </S.RightSection>
+    </S.HeaderContainer>
   );
 };
 
-export default IssueHeader;
+export default Header;

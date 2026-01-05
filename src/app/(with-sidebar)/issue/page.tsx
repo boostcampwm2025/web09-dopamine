@@ -1,14 +1,14 @@
 'use client';
 
-import { useState } from 'react';
-import Canvas from '@/app/(with-sidebar)/issue/_components/canvas/canvas-temp';
-import IdeaCard from '@/app/(with-sidebar)/issue/_components/ideaCard/idea-card';
-import { mockCategories } from '@/app/(with-sidebar)/issue/data/mockCategories';
-import { mockIdeasWithPosition } from '@/app/(with-sidebar)/issue/data/mockIdeas';
+import { useEffect, useState } from 'react';
+import Canvas from '@/app/(with-sidebar)/issue/_components/canvas/canvas';
+import IdeaCard from '@/app/(with-sidebar)/issue/_components/idea-card/idea-card';
+import { mockCategories } from '@/app/(with-sidebar)/issue/data/mock-categories';
+import { mockIdeasWithPosition } from '@/app/(with-sidebar)/issue/data/mock-ideas';
 import type { Category } from '@/app/(with-sidebar)/issue/types/category';
 import type { IdeaWithPosition, Position } from '@/app/(with-sidebar)/issue/types/idea';
 import CategoryCard from './_components/category/category-card';
-import { calculateCategorySize, calculateGridPosition } from './utils/categoryGrid';
+import { calculateCategorySize, calculateGridPosition } from './utils/category-grid';
 
 const IssuePage = () => {
   const [ideas, setIdeas] = useState<IdeaWithPosition[]>(mockIdeasWithPosition); // 아이디어 목록
@@ -164,6 +164,16 @@ const IssuePage = () => {
     setCategories(newCategories);
     setIdeas(categorizedIdeas);
   };
+
+  // AI 구조화 이벤트 리스너
+  useEffect(() => {
+    const handleAIStructureEvent = () => {
+      handleAIStructure();
+    };
+
+    window.addEventListener('aiStructure', handleAIStructureEvent);
+    return () => window.removeEventListener('aiStructure', handleAIStructureEvent);
+  }, [ideas]); // ideas가 변경될 때마다 리스너 재등록
 
   return (
     <Canvas onDoubleClick={handleCreateIdea}>

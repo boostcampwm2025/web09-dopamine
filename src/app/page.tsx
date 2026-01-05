@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import styled from '@emotion/styled';
-import Background from '@/components/background/background-temp';
+import Background from '@/components/background/background';
 
 const BaseFlex = styled.div`
   display: flex;
