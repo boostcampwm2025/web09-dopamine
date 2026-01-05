@@ -6,11 +6,8 @@ export const CanvasContainer = styled.div`
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background: linear-gradient(
-      90deg,
-      ${theme.colors.gray[50]} 1px,
-      transparent 1px
-    ),
+  background:
+    linear-gradient(90deg, ${theme.colors.gray[50]} 1px, transparent 1px),
     linear-gradient(${theme.colors.gray[50]} 1px, transparent 1px);
   background-size: 40px 40px;
   background-position: 0 0;
@@ -42,7 +39,7 @@ export const ZoomButton = styled.button`
   background: ${theme.colors.white};
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
   font-size: 14px;
-  
+
   font-weight: ${theme.font.weight.bold};
   color: ${theme.colors.gray[900]};
   cursor: pointer;
@@ -73,12 +70,13 @@ export const BottomMessage = styled.div`
   padding: 8px 16px;
   border-radius: ${theme.radius.medium};
   font-size: 15px;
-`
+`;
 
 export const AddIdeaButton = styled.button`
   position: fixed;
   bottom: 50px;
-  right: 30px;
+  left: 50%;
+  transform: translateX(-50%);
   padding: 12px 24px;
   background-color: ${theme.colors.green[600]};
   color: white;
@@ -93,6 +91,6 @@ export const AddIdeaButton = styled.button`
     transform 0.2s ease;
 
   &:hover {
-    transform: scale(1.05);
+    transform: translateX(-50%) scale(1.05);
   }
 `;
