@@ -15,7 +15,6 @@ type Phase = 'ideation' | 'voting' | 'discussion';
 const IssuePage = () => {
   const [ideas, setIdeas] = useState<IdeaWithPosition[]>(mockIdeasWithPosition); // 아이디어 목록
   const [categories, setCategories] = useState<Category[]>(mockCategories); // 카테고리 목록
-  const [draggingCategoryId, setDraggingCategoryId] = useState<string | null>(null); // 드래그 중인 카테고리 ID
   const [currentPhase, setCurrentPhase] = useState<Phase>('ideation'); // 현재 단계
 
   /**
@@ -33,50 +32,6 @@ const IssuePage = () => {
   const handleCategoryPositionChange = (id: string, position: Position) => {
     setCategories((prevCategories) =>
       prevCategories.map((cat) => (cat.id === id ? { ...cat, position } : cat)),
-    );
-  };
-
-  /**
-   * 카테고리 드래그 시작
-   */
-  const handleCategoryDragStart = (categoryId: string) => {
-    setDraggingCategoryId(categoryId);
-  };
-
-  /**
-   * 카테고리 드래그 종료
-   */
-  const handleCategoryDragEnd = () => {
-    setDraggingCategoryId(null);
-  };
-
-  /**
-   * 카테고리 드래그 중 - 내부 아이디어도 함께 이동
-   */
-  const handleCategoryDrag = (
-    categoryId: string,
-    position: Position,
-    delta: { dx: number; dy: number },
-  ) => {
-    // 카테고리 위치 업데이트
-    setCategories((prevCategories) =>
-      prevCategories.map((cat) => (cat.id === categoryId ? { ...cat, position } : cat)),
-    );
-
-    // 카테고리에 속한 아이디어들도 동일한 delta만큼 이동
-    setIdeas((prevIdeas) =>
-      prevIdeas.map((idea) => {
-        if (idea.categoryId === categoryId && idea.position) {
-          return {
-            ...idea,
-            position: {
-              x: idea.position.x + delta.dx,
-              y: idea.position.y + delta.dy,
-            },
-          };
-        }
-        return idea;
-      }),
     );
   };
 
@@ -202,9 +157,6 @@ const IssuePage = () => {
             position={category.position}
             isMuted={category.isMuted}
             onPositionChange={handleCategoryPositionChange}
-            onDrag={handleCategoryDrag}
-            onDragStart={() => handleCategoryDragStart(category.id)}
-            onDragEnd={handleCategoryDragEnd}
           >
             {categoryIdeas.map((idea) => (
               <IdeaCard
