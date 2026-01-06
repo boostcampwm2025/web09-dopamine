@@ -33,16 +33,12 @@ const createIdeaStore = (issueId: string) => {
 
         updateIdeaPosition: (id, position) =>
           set((state) => ({
-            ideas: state.ideas.map((idea) =>
-              idea.id === id ? { ...idea, position } : idea,
-            ),
+            ideas: state.ideas.map((idea) => (idea.id === id ? { ...idea, position } : idea)),
           })),
 
         updateIdeaEditable: (id, editable) =>
           set((state) => ({
-            ideas: state.ideas.map((idea) =>
-              idea.id === id ? { ...idea, editable } : idea,
-            ),
+            ideas: state.ideas.map((idea) => (idea.id === id ? { ...idea, editable } : idea)),
           })),
 
         deleteIdea: (id) =>
@@ -69,4 +65,3 @@ export const useIdeaStore = (issueId: string = 'default') => {
   }
   return storeCache.get(issueId)!();
 };
-

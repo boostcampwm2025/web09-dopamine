@@ -57,42 +57,87 @@ const IssuePage = () => {
     removeCard(id);
   };
 
-  const handleAIStructure = () => {
-    // 1. 새 카테고리 생성 (임시로 3개)
-    // const newCategories: Category[] = [
-    //   {
-    //     id: 'cat-1',
-    //     title: 'SNS 마케팅',
-    //     position: { x: 100, y: 100 },
-    //     isMuted: false,
-    //   },
-    //   {
-    //     id: 'cat-2',
-    //     title: '콘텐츠 제작',
-    //     position: { x: 700, y: 100 },
-    //     isMuted: false,
-    //   },
-    //   {
-    //     id: 'cat-3',
-    //     title: '커뮤니티 활동',
-    //     position: { x: 500, y: 1000 },
-    //     isMuted: false,
-    //   },
-    // ];
-    // // 2. 아이디어 분류 로직 (임시로 단순 분배)
-    // const categorizedIdeas = ideas.map((idea, index) => {
-    //   // 3개 카테고리에 순서대로 분배
-    //   const categoryIndex = index % 3;
-    //   const categoryId = newCategories[categoryIndex].id;
-    //   return {
-    //     ...idea,
-    //     categoryId,
-    //     position: null, // 카테고리 내부는 position 불필요 (CSS Grid가 처리)
-    //   };
-    // });
-    // // 3. State 업데이트 (transition 트리거)
-    // setCategories(newCategories);
-    // setIdeas(categorizedIdeas);
+  const handleAIStructure = async () => {
+    // 빈 content를 가진 아이디어는 제외
+    const validIdeas = ideas
+      .filter((idea) => idea.content.trim().length > 0)
+      .map((idea) => ({
+        id: idea.id,
+        content: idea.content,
+      }));
+
+    // 유효한 아이디어가 없으면 조기 리턴
+    if (validIdeas.length === 0) {
+      alert('분류할 아이디어가 없습니다.');
+      return;
+    }
+
+    const payload = {
+      issueId,
+      ideas: validIdeas,
+    };
+
+    try {
+      const res = await fetch('/api/categorize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        throw new Error('AI 분류 실패');
+      }
+
+      const data = await res.json();
+
+      const content = data.result?.message?.content;
+      if (!content) {
+        throw new Error('AI 응답 형식이 올바르지 않습니다.');
+      }
+
+      const aiResponse = JSON.parse(content);
+      console.log('파싱된 AI 응답:', aiResponse);
+
+      // AI 응답 처리
+      if (aiResponse.categories && Array.isArray(aiResponse.categories)) {
+        // 1. 카테고리 생성
+        const newCategories: Category[] = aiResponse.categories.map(
+          (cat: { title: string; ideaIds: string[] }, index: number) => ({
+            id: `category-${Date.now()}-${index}`,
+            title: cat.title,
+            position: {
+              x: 100 + index * 600,
+              y: 100,
+            },
+            isMuted: false,
+          }),
+        );
+
+        setCategories(newCategories);
+
+        // 2. 각 아이디어의 categoryId 업데이트
+        const updatedIdeas = ideas.map((idea) => {
+          const categoryIndex = aiResponse.categories.findIndex((cat: any) =>
+            cat.ideaIds.includes(idea.id),
+          );
+
+          if (categoryIndex !== -1) {
+            return {
+              ...idea,
+              categoryId: newCategories[categoryIndex].id,
+              position: { x: 0, y: 0 },
+            };
+          }
+
+          return idea;
+        });
+
+        setIdeas(updatedIdeas);
+      }
+    } catch (error) {
+      console.error('AI 구조화 오류:', error);
+      alert('AI 구조화 중 오류가 발생했습니다.');
+    }
   };
 
   useEffect(() => {
