@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { useShallow } from 'zustand/shallow';
 import { ISSUE_STATUS } from '@/constants/issue';
-import { useIssueStore } from '@/store/issue';
+import { useIsNextButtonVisible, useIssueStore } from '@/store/issue';
 import ProgressBar from '../progress-bar/progress-bar';
 import HeaderButton from './header-button';
 import * as S from './header.styles';
@@ -17,11 +17,12 @@ const Header = ({ onAIStructure }: IssueHeaderProps) => {
     useShallow((state) => ({
       status: state.status,
       isVoteActive: state.isVoteActive,
-      next: state.next,
-      toggleVoteActvie: state.toggleVoteActvie,
-      closeIssue: state.closeIssue,
     })),
   );
+
+  const { next, closeIssue, toggleVoteActvie } = useIssueStore((state) => state.actions);
+
+  const isVisible = useIsNextButtonVisible();
 
   const renderActionButtons = () => {
     switch (issueState.status) {
@@ -48,7 +49,7 @@ const Header = ({ onAIStructure }: IssueHeaderProps) => {
             alt="투표하기"
             text={issueState.isVoteActive ? '투표 종료' : '투표 시작'}
             variant={issueState.isVoteActive ? 'dark' : undefined}
-            onClick={issueState.toggleVoteActvie}
+            onClick={toggleVoteActvie}
           />
         );
       case ISSUE_STATUS.SELECT:
@@ -56,7 +57,7 @@ const Header = ({ onAIStructure }: IssueHeaderProps) => {
           <HeaderButton
             text="이슈 종료"
             variant="dark"
-            onClick={issueState.closeIssue}
+            onClick={closeIssue}
           />
         );
     }
@@ -77,10 +78,10 @@ const Header = ({ onAIStructure }: IssueHeaderProps) => {
         <ProgressBar />
       </S.CenterSection>
       <S.RightSection>
-        {issueState.status !== ISSUE_STATUS.SELECT && (
+        {isVisible && (
           <HeaderButton
             text="다음"
-            onClick={issueState.next}
+            onClick={next}
           />
         )}
 
