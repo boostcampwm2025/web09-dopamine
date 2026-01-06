@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import CategorizedListClient from './categorized-list';
-import NormalListClient from './normal-list';
 import {
   Card,
   BtnContainer,

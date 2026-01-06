@@ -1,5 +1,4 @@
-import NormalList from "../(with-sidebar)/issue/_components/summary/normal-list";
-import CategorizedList from "../(with-sidebar)/issue/_components/summary/categorized-list";
+import RankingList from "../(with-sidebar)/issue/_components/summary/ranking-list";
 
 export default function TestPage() {
   return (
@@ -12,7 +11,7 @@ export default function TestPage() {
         gap: 16,
       }}
     >
-      <NormalList/>
+      <RankingList/>
     </main>
   );
 }
