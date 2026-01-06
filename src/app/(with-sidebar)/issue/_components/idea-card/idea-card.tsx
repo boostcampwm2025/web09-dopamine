@@ -119,6 +119,13 @@ export default function IdeaCard(props: IdeaCardProps) {
     props.onClick?.();
   };
 
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!draggable?.hasMoved) {
+      props.onDelete?.();
+    }
+  };
+
   return (
     <Card
       status={status}
@@ -166,12 +173,7 @@ export default function IdeaCard(props: IdeaCardProps) {
           ) : (
             <IconButton
               aria-label="delete"
-              onClick={(e) => {
-                e.stopPropagation();
-                if (!draggable?.hasMoved) {
-                  props.onDelete?.();
-                }
-              }}
+              onClick={handleDeleteClick}
             >
               <Image
                 src="/trash.svg"
