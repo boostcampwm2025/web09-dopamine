@@ -3,8 +3,8 @@
 import { useEffect, useState } from 'react';
 import Canvas from '@/app/(with-sidebar)/issue/_components/canvas/canvas';
 import IdeaCard from '@/app/(with-sidebar)/issue/_components/idea-card/idea-card';
-import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
 import { useIdeaCardStackStore } from '@/app/(with-sidebar)/issue/store/use-idea-card-stack-store';
+import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
 import type { Category } from '@/app/(with-sidebar)/issue/types/category';
 import type { IdeaWithPosition, Position } from '@/app/(with-sidebar)/issue/types/idea';
 import CategoryCard from './_components/category/category-card';
@@ -19,7 +19,7 @@ const IssuePage = () => {
   const { ideas, addIdea, updateIdeaContent, updateIdeaPosition, deleteIdea, setIdeas } =
     useIdeaStore(issueId);
   const { addCard, removeCard } = useIdeaCardStackStore(issueId);
-  
+
   const [categories, setCategories] = useState<Category[]>([]);
   const [currentPhase, setCurrentPhase] = useState<Phase>('ideation');
 
@@ -59,43 +59,40 @@ const IssuePage = () => {
 
   const handleAIStructure = () => {
     // 1. 새 카테고리 생성 (임시로 3개)
-    const newCategories: Category[] = [
-      {
-        id: 'cat-1',
-        title: 'SNS 마케팅',
-        position: { x: 100, y: 100 },
-        isMuted: false,
-      },
-      {
-        id: 'cat-2',
-        title: '콘텐츠 제작',
-        position: { x: 700, y: 100 },
-        isMuted: false,
-      },
-      {
-        id: 'cat-3',
-        title: '커뮤니티 활동',
-        position: { x: 500, y: 1000 },
-        isMuted: false,
-      },
-    ];
-
-    // 2. 아이디어 분류 로직 (임시로 단순 분배)
-    const categorizedIdeas = ideas.map((idea, index) => {
-      // 3개 카테고리에 순서대로 분배
-      const categoryIndex = index % 3;
-      const categoryId = newCategories[categoryIndex].id;
-
-      return {
-        ...idea,
-        categoryId,
-        position: null, // 카테고리 내부는 position 불필요 (CSS Grid가 처리)
-      };
-    });
-
-    // 3. State 업데이트 (transition 트리거)
-    setCategories(newCategories);
-    setIdeas(categorizedIdeas);
+    // const newCategories: Category[] = [
+    //   {
+    //     id: 'cat-1',
+    //     title: 'SNS 마케팅',
+    //     position: { x: 100, y: 100 },
+    //     isMuted: false,
+    //   },
+    //   {
+    //     id: 'cat-2',
+    //     title: '콘텐츠 제작',
+    //     position: { x: 700, y: 100 },
+    //     isMuted: false,
+    //   },
+    //   {
+    //     id: 'cat-3',
+    //     title: '커뮤니티 활동',
+    //     position: { x: 500, y: 1000 },
+    //     isMuted: false,
+    //   },
+    // ];
+    // // 2. 아이디어 분류 로직 (임시로 단순 분배)
+    // const categorizedIdeas = ideas.map((idea, index) => {
+    //   // 3개 카테고리에 순서대로 분배
+    //   const categoryIndex = index % 3;
+    //   const categoryId = newCategories[categoryIndex].id;
+    //   return {
+    //     ...idea,
+    //     categoryId,
+    //     position: null, // 카테고리 내부는 position 불필요 (CSS Grid가 처리)
+    //   };
+    // });
+    // // 3. State 업데이트 (transition 트리거)
+    // setCategories(newCategories);
+    // setIdeas(categorizedIdeas);
   };
 
   useEffect(() => {
