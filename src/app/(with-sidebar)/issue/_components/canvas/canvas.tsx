@@ -126,11 +126,11 @@ export default function Canvas({ children, onDoubleClick }: CanvasProps) {
     const rect = canvasRef.current?.getBoundingClientRect();
     if (!rect) return;
 
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2 + 200;
+    const viewportCenterX = rect.width / 2;
+    const viewportCenterY = rect.height / 2;
 
-    const x = (centerX - offset.x) / scale;
-    const y = (centerY - offset.y) / scale;
+    const x = (viewportCenterX - offset.x) / scale;
+    const y = (viewportCenterY - offset.y) / scale;
 
     onDoubleClick({ x, y });
   }, [onDoubleClick, offset, scale]);
