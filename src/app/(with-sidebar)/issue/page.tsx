@@ -3,85 +3,36 @@
 import { useEffect, useState } from 'react';
 import Canvas from '@/app/(with-sidebar)/issue/_components/canvas/canvas';
 import IdeaCard from '@/app/(with-sidebar)/issue/_components/idea-card/idea-card';
-import { mockCategories } from '@/app/(with-sidebar)/issue/data/mock-categories';
-import { mockIdeasWithPosition } from '@/app/(with-sidebar)/issue/data/mock-ideas';
+import { useIdeaCardStackStore } from '@/app/(with-sidebar)/issue/store/use-idea-card-stack-store';
+import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
 import type { Category } from '@/app/(with-sidebar)/issue/types/category';
 import type { IdeaWithPosition, Position } from '@/app/(with-sidebar)/issue/types/idea';
 import { useIssueStore } from '@/store/issue';
 import CategoryCard from './_components/category/category-card';
-import { calculateCategorySize, calculateGridPosition } from './utils/category-grid';
 
 const IssuePage = () => {
-  const [ideas, setIdeas] = useState<IdeaWithPosition[]>(mockIdeasWithPosition); // 아이디어 목록
-  const [categories, setCategories] = useState<Category[]>(mockCategories); // 카테고리 목록
-  const [draggingCategoryId, setDraggingCategoryId] = useState<string | null>(null); // 드래그 중인 카테고리 ID
+  // TODO: URL 파라미터나 props에서 실제 issueId 가져오기
+  // 예: const { issueId } = useParams() 또는 props.issueId
+  const issueId = 'default'; // 임시 기본값
+
+  const { ideas, addIdea, updateIdeaContent, updateIdeaPosition, deleteIdea, setIdeas } =
+    useIdeaStore(issueId);
+  const { addCard, removeCard } = useIdeaCardStackStore(issueId);
+
   const isVoteActive = useIssueStore((state) => state.isVoteActive);
 
-  /**
-   * 아이디어 카드 위치 업데이트
-   */
+  const [categories, setCategories] = useState<Category[]>([]);
+
   const handleIdeaPositionChange = (id: string, position: Position) => {
-    setIdeas((prevIdeas) =>
-      prevIdeas.map((idea) => (idea.id === id ? { ...idea, position } : idea)),
-    );
+    updateIdeaPosition(id, position);
   };
 
-  /**
-   * 카테고리 위치 업데이트
-   */
   const handleCategoryPositionChange = (id: string, position: Position) => {
     setCategories((prevCategories) =>
       prevCategories.map((cat) => (cat.id === id ? { ...cat, position } : cat)),
     );
   };
 
-  /**
-   * 카테고리 드래그 시작
-   */
-  const handleCategoryDragStart = (categoryId: string) => {
-    setDraggingCategoryId(categoryId);
-  };
-
-  /**
-   * 카테고리 드래그 종료
-   */
-  const handleCategoryDragEnd = () => {
-    setDraggingCategoryId(null);
-  };
-
-  /**
-   * 카테고리 드래그 중 - 내부 아이디어도 함께 이동
-   */
-  const handleCategoryDrag = (
-    categoryId: string,
-    position: Position,
-    delta: { dx: number; dy: number },
-  ) => {
-    // 카테고리 위치 업데이트
-    setCategories((prevCategories) =>
-      prevCategories.map((cat) => (cat.id === categoryId ? { ...cat, position } : cat)),
-    );
-
-    // 카테고리에 속한 아이디어들도 동일한 delta만큼 이동
-    setIdeas((prevIdeas) =>
-      prevIdeas.map((idea) => {
-        if (idea.categoryId === categoryId && idea.position) {
-          return {
-            ...idea,
-            position: {
-              x: idea.position.x + delta.dx,
-              y: idea.position.y + delta.dy,
-            },
-          };
-        }
-        return idea;
-      }),
-    );
-  };
-
-  /**
-   * 새 아이디어 카드 생성
-   */
   const handleCreateIdea = (position: Position) => {
     const newIdea: IdeaWithPosition = {
       id: `idea-${Date.now()}`,
@@ -93,12 +44,19 @@ const IssuePage = () => {
       isVotePhrase: false,
     };
 
-    setIdeas((prevIdeas) => [...prevIdeas, newIdea]);
+    addIdea(newIdea);
+    addCard(newIdea.id);
   };
 
-  /**
-   * AI 구조화 - 카테고리 생성 + 아이디어 자동 분류
-   */
+  const handleSaveIdea = (id: string, content: string) => {
+    updateIdeaContent(id, content);
+  };
+
+  const handleDeleteIdea = (id: string) => {
+    deleteIdea(id);
+    removeCard(id);
+  };
+
   const handleAIStructure = () => {
     // 1. 새 카테고리 생성 (임시로 3개)
     const newCategories: Category[] = [
@@ -123,42 +81,15 @@ const IssuePage = () => {
     ];
 
     // 2. 아이디어 분류 로직 (임시로 단순 분배)
-    // 먼저 각 카테고리에 할당될 아이디어 개수 파악
-    const ideasPerCategory = ideas.reduce(
-      (acc, idea, index) => {
-        const categoryIndex = index % 3;
-        const categoryId = newCategories[categoryIndex].id;
-        acc[categoryId] = (acc[categoryId] || 0) + 1;
-        return acc;
-      },
-      {} as Record<string, number>,
-    );
-
-    // 카테고리별 인덱스 추적
-    const categoryIndexTracker: Record<string, number> = {};
-
     const categorizedIdeas = ideas.map((idea, index) => {
       // 3개 카테고리에 순서대로 분배
       const categoryIndex = index % 3;
-      const targetCategory = newCategories[categoryIndex];
-      const categoryId = targetCategory.id;
-
-      // 해당 카테고리 내에서 몇 번째 아이디어인지
-      const indexInCategory = categoryIndexTracker[categoryId] || 0;
-      categoryIndexTracker[categoryId] = indexInCategory + 1;
-
-      // Grid 위치 계산 (카테고리 절대 좌표 + 해당 카테고리의 총 아이디어 개수)
-      const totalInCategory = ideasPerCategory[categoryId];
-      const targetPosition = calculateGridPosition(
-        targetCategory.position,
-        indexInCategory,
-        totalInCategory,
-      );
+      const categoryId = newCategories[categoryIndex].id;
 
       return {
         ...idea,
         categoryId,
-        position: targetPosition,
+        position: null, // 카테고리 내부는 position 불필요 (CSS Grid가 처리)
       };
     });
 
@@ -166,6 +97,12 @@ const IssuePage = () => {
     setCategories(newCategories);
     setIdeas(categorizedIdeas);
   };
+
+  useEffect(() => {
+    ideas.forEach((idea) => {
+      addCard(idea.id);
+    });
+  }, []);
 
   // AI 구조화 이벤트 리스너
   useEffect(() => {
@@ -179,11 +116,9 @@ const IssuePage = () => {
 
   return (
     <Canvas onDoubleClick={handleCreateIdea}>
+      {/* 카테고리들 - 내부에 아이디어 카드들을 children으로 전달 */}
       {categories.map((category) => {
-        // 카테고리에 속한 아이디어 수 계산
-        const ideasInCategory = ideas.filter((idea) => idea.categoryId === category.id).length;
-        // 동적 크기 계산
-        const { width, height } = calculateCategorySize(ideasInCategory);
+        const categoryIdeas = ideas.filter((idea) => idea.categoryId === category.id);
 
         return (
           <CategoryCard
@@ -192,34 +127,54 @@ const IssuePage = () => {
             title={category.title}
             position={category.position}
             isMuted={category.isMuted}
-            width={width}
-            height={height}
             onPositionChange={handleCategoryPositionChange}
-            onDrag={handleCategoryDrag}
-            onDragStart={() => handleCategoryDragStart(category.id)}
-            onDragEnd={handleCategoryDragEnd}
-          />
+          >
+            {categoryIdeas.map((idea) => (
+              <IdeaCard
+                key={idea.id}
+                id={idea.id}
+                issueId={issueId}
+                content={idea.content}
+                author={idea.author}
+                categoryId={idea.categoryId}
+                position={null} // 카테고리 내부는 position 불필요
+                isSelected={idea.isSelected}
+                isVotePhrase={isVoteActive}
+                agreeCount={idea.agreeCount}
+                disagreeCount={idea.disagreeCount}
+                needDiscussion={idea.needDiscussion}
+                editable={idea.editable}
+                onSave={(content) => handleSaveIdea(idea.id, content)}
+                onDelete={() => handleDeleteIdea(idea.id)}
+              />
+            ))}
+          </CategoryCard>
         );
       })}
 
-      {ideas.map((idea) => (
-        <IdeaCard
-          key={idea.id}
-          id={idea.id}
-          content={idea.content}
-          author={idea.author}
-          categoryId={idea.categoryId}
-          position={idea.position}
-          isSelected={idea.isSelected}
-          isVotePhrase={isVoteActive}
-          agreeCount={idea.agreeCount}
-          disagreeCount={idea.disagreeCount}
-          needDiscussion={idea.needDiscussion}
-          editable={idea.editable}
-          isBeingDraggedByCategory={idea.categoryId === draggingCategoryId}
-          onPositionChange={handleIdeaPositionChange}
-        />
-      ))}
+      {/* 자유 배치 아이디어들 (categoryId === null) */}
+      {ideas
+        .filter((idea) => idea.categoryId === null)
+        .map((idea) => (
+          <IdeaCard
+            key={idea.id}
+            id={idea.id}
+            issueId={issueId}
+            content={idea.content}
+            author={idea.author}
+            categoryId={idea.categoryId}
+            position={idea.position}
+            isSelected={idea.isSelected}
+            isVotePhrase={isVoteActive}
+            agreeCount={idea.agreeCount}
+            disagreeCount={idea.disagreeCount}
+            needDiscussion={idea.needDiscussion}
+            editable={idea.editable}
+            onPositionChange={handleIdeaPositionChange}
+            onSave={(content) => handleSaveIdea(idea.id, content)}
+            onDelete={() => handleDeleteIdea(idea.id)}
+          />
+        ))}
     </Canvas>
   );
 };

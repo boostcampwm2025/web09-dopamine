@@ -17,14 +17,17 @@ interface CanvasProps {
   onDoubleClick?: (position: { x: number; y: number }) => void;
 }
 
+const DEFAULT_ZOOM_SCALE = 0.7;
+const DEFAULT_OFFSET = { x: 0, y: 0 };
+
 export default function Canvas({ children, onDoubleClick }: CanvasProps) {
   const canvasRef = useRef<HTMLDivElement>(null);
 
   // 패닝(드래그 이동) 상태 관리
   const [isPanning, setIsPanning] = useState(false); // 현재 패닝 중인지 여부
-  const [panStart, setPanStart] = useState({ x: 0, y: 0 }); // 패닝 시작 지점
-  const [offset, setOffset] = useState({ x: 0, y: 0 }); // 캔버스 이동 오프셋
-  const [scale, setScale] = useState(1); // 확대/축소 비율 (0.3 ~ 3.0)
+  const [panStart, setPanStart] = useState(DEFAULT_OFFSET); // 패닝 시작 지점
+  const [offset, setOffset] = useState(DEFAULT_OFFSET); // 캔버스 이동 오프셋
+  const [scale, setScale] = useState(DEFAULT_ZOOM_SCALE); // 확대/축소 비율 (0.3 ~ 3.0)
 
   /**
    * 마우스 휠 이벤트 핸들러
@@ -94,10 +97,10 @@ export default function Canvas({ children, onDoubleClick }: CanvasProps) {
   const handleZoomOut = () => {
     setScale((prev) => Math.max(prev - 0.1, 0.3));
   };
-
-  /** 줌/패닝 초기화 (100%, 원점) */
+  /** 기본값으로 복귀 */
   const handleResetZoom = () => {
-    setScale(1);
+    setScale(DEFAULT_ZOOM_SCALE);
+    setOffset(DEFAULT_OFFSET);
     setOffset({ x: 0, y: 0 });
   };
 
@@ -116,6 +119,21 @@ export default function Canvas({ children, onDoubleClick }: CanvasProps) {
     },
     [onDoubleClick, offset, scale],
   );
+
+  const handleAddIdeaClick = useCallback(() => {
+    if (!onDoubleClick) return;
+
+    const rect = canvasRef.current?.getBoundingClientRect();
+    if (!rect) return;
+
+    const viewportCenterX = rect.width / 2;
+    const viewportCenterY = rect.height / 2;
+
+    const x = (viewportCenterX - offset.x) / scale;
+    const y = (viewportCenterY - offset.y) / scale;
+
+    onDoubleClick({ x, y });
+  }, [onDoubleClick, offset, scale]);
 
   return (
     <>
@@ -170,7 +188,7 @@ export default function Canvas({ children, onDoubleClick }: CanvasProps) {
           />
         </ZoomButton>
       </ZoomControls>
-      <AddIdeaButton>아이디어 추가</AddIdeaButton>
+      <AddIdeaButton onClick={handleAddIdeaClick}>아이디어 추가</AddIdeaButton>
       <BottomMessage>배경을 더블클릭하여 새로운 아이디어를 작성할 수 있습니다.</BottomMessage>
     </>
   );

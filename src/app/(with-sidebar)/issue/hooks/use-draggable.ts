@@ -5,11 +5,11 @@ import type { Position } from '../types/idea';
 
 interface UseDraggableProps {
   initialPosition: Position;
-  onDragStart?: () => void; // 드래그 시작
+  onDragStart?: () => void;
   onDragEnd?: (position: Position) => void;
-  onDrag?: (position: Position, delta: { dx: number; dy: number }) => void; // 드래그 중 실시간 업데이트
+  onDrag?: (position: Position, delta: { dx: number; dy: number }) => void;
   disabled?: boolean;
-  scale?: number; // 캔버스 확대/축소 비율
+  scale?: number;
 }
 
 export const useDraggable = ({
@@ -22,28 +22,26 @@ export const useDraggable = ({
 }: UseDraggableProps) => {
   const [position, setPosition] = useState(initialPosition);
   const [isDragging, setIsDragging] = useState(false);
+  const [hasMoved, setHasMoved] = useState(false); 
   const dragStartPos = useRef<Position>({ x: 0, y: 0 });
   const elementStartPos = useRef<Position>(initialPosition);
-  const lastDelta = useRef({ dx: 0, dy: 0 }); // 이전 프레임의 delta 저장
+  const lastDelta = useRef({ dx: 0, dy: 0 });
 
-  // 외부에서 position이 변경되면 동기화
   useEffect(() => {
     setPosition(initialPosition);
   }, [initialPosition]);
 
-  /**
-   * 드래그 시작
-   */
   const handleMouseDown = useCallback(
     (e: React.MouseEvent) => {
       if (disabled) return;
 
-      e.stopPropagation(); // 캔버스 패닝 방지
+      e.stopPropagation();
       setIsDragging(true);
+      setHasMoved(false); 
       dragStartPos.current = { x: e.clientX, y: e.clientY };
       elementStartPos.current = position;
-      lastDelta.current = { dx: 0, dy: 0 }; // delta 초기화
-      onDragStart?.(); // 드래그 시작 콜백
+      lastDelta.current = { dx: 0, dy: 0 };
+      onDragStart?.();
     },
     [position, disabled, onDragStart],
   );
@@ -58,6 +56,11 @@ export const useDraggable = ({
 
       const deltaX = (e.clientX - dragStartPos.current.x) / scale;
       const deltaY = (e.clientY - dragStartPos.current.y) / scale;
+
+      const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+      if (distance > 5 && !hasMoved) {
+        setHasMoved(true);
+      }
 
       const newPosition = {
         x: elementStartPos.current.x + deltaX,
@@ -75,12 +78,9 @@ export const useDraggable = ({
       lastDelta.current = { dx: deltaX, dy: deltaY };
       onDrag?.(newPosition, incrementalDelta);
     },
-    [isDragging, scale, onDrag],
+    [isDragging, scale, hasMoved, onDrag],
   );
 
-  /**
-   * 드래그 종료
-   */
   const handleMouseUp = useCallback(() => {
     if (isDragging) {
       setIsDragging(false);
@@ -88,7 +88,6 @@ export const useDraggable = ({
     }
   }, [isDragging, position, onDragEnd]);
 
-  // 전역 마우스 이벤트 리스너 등록
   useEffect(() => {
     if (!isDragging) return;
 
@@ -104,6 +103,7 @@ export const useDraggable = ({
   return {
     position,
     isDragging,
+    hasMoved,
     handleMouseDown,
   };
 };
