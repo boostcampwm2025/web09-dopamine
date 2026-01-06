@@ -11,13 +11,11 @@ import { useIssueStore } from '@/store/issue';
 import CategoryCard from './_components/category/category-card';
 import { calculateCategorySize, calculateGridPosition } from './utils/category-grid';
 
-type Phase = 'ideation' | 'voting' | 'discussion';
-
 const IssuePage = () => {
   const [ideas, setIdeas] = useState<IdeaWithPosition[]>(mockIdeasWithPosition); // 아이디어 목록
   const [categories, setCategories] = useState<Category[]>(mockCategories); // 카테고리 목록
   const [draggingCategoryId, setDraggingCategoryId] = useState<string | null>(null); // 드래그 중인 카테고리 ID
-  const { isVoteActive } = useIssueStore();
+  const isVoteActive = useIssueStore((state) => state.isVoteActive);
 
   /**
    * 아이디어 카드 위치 업데이트
