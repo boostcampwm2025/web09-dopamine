@@ -32,16 +32,29 @@ export default function CategorizedList() {
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
   const [dialogContent, setDialogContent] = useState<string | null>(null);
 
-  const handleShowDetail = (text: string) => {
-    setDialogContent(text);
-  };
-
   const toggleCategory = (categoryId: string) => {
     setExpandedCategories((prev) => ({
       ...prev,
       [categoryId]: !prev[categoryId],
     }));
   };
+
+  const handleShowDetail = (text: string) => {
+    setDialogContent(text);
+  };
+
+  const handleCloseDialog = () => {
+    setDialogContent(null);
+  };
+
+  const handleContentsClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+  };
+
+  const handleToggleCategory = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const { id } = e.currentTarget.dataset;
+    if (id) toggleCategory(id);
+  }
 
   return (
     <Container>
@@ -95,7 +108,7 @@ export default function CategorizedList() {
             ))}
             {hasMore && (
               <Footer>
-                <MoreButton type="button" onClick={() => toggleCategory(category.id)}>
+                <MoreButton type="button" onClick={handleToggleCategory}>
                   {isExpanded ? '접기' : '더보기'}
                 </MoreButton>
               </Footer>
@@ -104,21 +117,20 @@ export default function CategorizedList() {
         );
       })}
       {dialogContent && (
-        <DialogOverlay onClick={() => setDialogContent(null)}>
+        <DialogOverlay onClick={handleCloseDialog}>
           <Dialog
             role="dialog"
             aria-modal="true"
             aria-label="아이디어 상세"
-            onClick={(e) => e.stopPropagation()}
+            onClick={handleContentsClick}
           >
             <DialogHeader>
               <span>아이디어 상세</span>
               <DialogClose
                 type="button"
                 aria-label="닫기"
-                onClick={() => setDialogContent(null)}
+                onClick={handleCloseDialog}
               >
-                ×
               </DialogClose>
             </DialogHeader>
             <DialogBody>{dialogContent}</DialogBody>
