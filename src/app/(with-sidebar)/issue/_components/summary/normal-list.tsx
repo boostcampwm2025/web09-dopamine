@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { Idea } from '@/app/(with-sidebar)/issue/types/idea';
 import Image from 'next/image';
 import {
@@ -28,12 +28,21 @@ import {
   Footer,
   MoreButton,
 } from './normal-list.styles';
-import { mockIdeas } from '../../data/mock-ideas';
+import { getAllIdeas } from '../../services/issue-service';
 
-const rawData: Idea[] = mockIdeas;
 export default function NormalList() {
+  const [rawData, setRawData] = useState<Idea[]>([]);
   const [showAll, setShowAll] = useState(false);
   const [dialogContent, setDialogContent] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchIssues = async () => {
+      const ideas = await getAllIdeas();
+      setRawData(ideas);
+    };
+
+    fetchIssues();
+  }, []);
 
   const visibleItems = showAll ? rawData : rawData.slice(0, 5);
   const hasMore = rawData.length > 5;
