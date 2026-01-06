@@ -35,13 +35,15 @@ export const Title = styled.span`
   color: ${theme.colors.green[600]};
   font-size: ${theme.font.size.medium};
   font-weight: ${theme.font.weight.bold};
-`;
-
-export const Dot = styled.span`
-  width: 8px;
-  height: 8px;
-  border-radius: ${theme.radius.half};
-  background: ${theme.colors.green[600]};
+  &::before {
+    margin-right: 4px;
+    display: inline-block;
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: ${theme.radius.half};
+    background: ${theme.colors.green[600]};
+  }
 `;
 
 export const ItemWrapper = styled.div`

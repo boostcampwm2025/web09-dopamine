@@ -7,7 +7,6 @@ import {
   Container,
   Card,
   Header,
-  Dot,
   Title,
   ItemWrapper,
   ItemContent,
@@ -71,7 +70,6 @@ export default function CategorizedList() {
           >
             <Header>
               <HeaderLeft>
-                <Dot></Dot>
                 <Title>{category.title}</Title>
               </HeaderLeft>
             </Header>
