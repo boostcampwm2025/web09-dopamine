@@ -2,8 +2,11 @@
 
 import Image from 'next/image';
 import { useShallow } from 'zustand/shallow';
+import {
+  useIsNextButtonVisible,
+  useIssueStore,
+} from '@/app/(with-sidebar)/issue/store/use-issue-store';
 import { BUTTON_TEXT_MAP, ISSUE_STATUS } from '@/constants/issue';
-import { useIsNextButtonVisible, useIssueStore } from '@/store/issue';
 import ProgressBar from '../progress-bar/progress-bar';
 import HeaderButton from './header-button';
 import * as S from './header.styles';

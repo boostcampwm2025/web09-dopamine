@@ -5,9 +5,9 @@ import Canvas from '@/app/(with-sidebar)/issue/_components/canvas/canvas';
 import IdeaCard from '@/app/(with-sidebar)/issue/_components/idea-card/idea-card';
 import { useIdeaCardStackStore } from '@/app/(with-sidebar)/issue/store/use-idea-card-stack-store';
 import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
+import { useIssueStore } from '@/app/(with-sidebar)/issue/store/use-issue-store';
 import type { Category } from '@/app/(with-sidebar)/issue/types/category';
 import type { IdeaWithPosition, Position } from '@/app/(with-sidebar)/issue/types/idea';
-import { useIssueStore } from '@/store/issue';
 import CategoryCard from './_components/category/category-card';
 
 const IssuePage = () => {
