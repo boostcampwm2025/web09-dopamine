@@ -44,7 +44,7 @@ const IssuePage = () => {
       categoryId: null,
       position,
       editable: true,
-      isVotephase: false,
+      isVotePhase: false,
     };
 
     addIdea(newIdea);
@@ -142,7 +142,7 @@ const IssuePage = () => {
                 categoryId={idea.categoryId}
                 position={null} // 카테고리 내부는 position 불필요
                 isSelected={idea.isSelected}
-                isVotephase={isVoteActive}
+                isVotePhase={isVoteActive}
                 agreeCount={idea.agreeCount}
                 disagreeCount={idea.disagreeCount}
                 needDiscussion={idea.needDiscussion}
@@ -168,7 +168,7 @@ const IssuePage = () => {
             categoryId={idea.categoryId}
             position={idea.position}
             isSelected={idea.isSelected}
-            isVotephase={isVoteActive}
+            isVotePhase={isVoteActive}
             agreeCount={idea.agreeCount}
             disagreeCount={idea.disagreeCount}
             needDiscussion={idea.needDiscussion}
