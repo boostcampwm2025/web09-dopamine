@@ -28,7 +28,7 @@ interface IdeaCardProps {
   author?: string;
   position?: Position | null;
   isSelected?: boolean;
-  isVotePhrase?: boolean;
+  isVotePhase?: boolean;
   agreeCount?: number;
   disagreeCount?: number;
   needDiscussion?: boolean;
@@ -46,7 +46,7 @@ export type DragItemPayload = {
   content?: string;
   author?: string;
   isSelected?: boolean;
-  isVotePhrase?: boolean;
+  isVotePhase?: boolean;
   agreeCount?: number;
   disagreeCount?: number;
   needDiscussion?: boolean;
@@ -157,7 +157,7 @@ export default function IdeaCard(props: IdeaCardProps) {
         )}
         <Meta>
           <AuthorPill>{props.author}</AuthorPill>
-          {props.isVotePhrase ? (
+          {props.isVotePhase ? (
             <IconButton aria-label="comment">
               <Image
                 src="/comment.svg"
@@ -181,7 +181,7 @@ export default function IdeaCard(props: IdeaCardProps) {
           )}
         </Meta>
       </Header>
-      {props.isVotePhrase && (
+      {props.isVotePhase && (
         <div>
           <Divider />
           <Footer>

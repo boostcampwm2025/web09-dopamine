@@ -14,23 +14,29 @@ import Canvas from '@/app/(with-sidebar)/issue/_components/canvas/canvas';
 import IdeaCard from '@/app/(with-sidebar)/issue/_components/idea-card/idea-card';
 import { useIdeaCardStackStore } from '@/app/(with-sidebar)/issue/store/use-idea-card-stack-store';
 import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
+import { useIssueStore } from '@/app/(with-sidebar)/issue/store/use-issue-store';
 import type { Category } from '@/app/(with-sidebar)/issue/types/category';
 import type { IdeaWithPosition, Position } from '@/app/(with-sidebar)/issue/types/idea';
 import LoadingOverlay from '@/components/loading-overlay/loading-overlay';
 import CategoryCard from './_components/category/category-card';
 import { useCanvasStore } from './store/use-canvas-store';
 
-type Phase = 'ideation' | 'voting' | 'discussion';
+type Phase = 'ideation' | 'categorization' | 'voting' | 'discussion' | 'selection' | 'closed';
 
 const IssuePage = () => {
   // TODO: URL 파라미터나 props에서 실제 issueId 가져오기
   // 예: const { issueId } = useParams() 또는 props.issueId
+  // TODO: 실제 issueId로 useIssueStore > setInitialData 실행
   const issueId = 'default'; // 임시 기본값
 
   const { ideas, addIdea, updateIdeaContent, updateIdeaPosition, deleteIdea, setIdeas } =
     useIdeaStore(issueId);
   const { addCard, removeCard } = useIdeaCardStackStore(issueId);
   const scale = useCanvasStore((state) => state.scale); // Canvas scale 가져오기
+
+  const voteStatus = useIssueStore((state) => state.voteStatus);
+  //TODO: 추후 투표 종료 시 투표 기능이 활성화되지 않도록 기능 추가 필요
+  const isVoteActive = voteStatus !== 'READY';
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [currentPhase, setCurrentPhase] = useState<Phase>('ideation');
@@ -64,7 +70,7 @@ const IssuePage = () => {
       categoryId: null,
       position,
       editable: true,
-      isVotePhrase: false,
+      isVotePhase: false,
     };
 
     addIdea(newIdea);
@@ -224,16 +230,6 @@ const IssuePage = () => {
     return () => window.removeEventListener('aiStructure', handleAIStructureEvent);
   }, [ideas]); // ideas가 변경될 때마다 리스너 재등록
 
-  // Phase 변경 이벤트 리스너
-  useEffect(() => {
-    const handlePhaseChangeEvent = (e: CustomEvent<Phase>) => {
-      setCurrentPhase(e.detail);
-    };
-
-    window.addEventListener('phaseChange', handlePhaseChangeEvent as EventListener);
-    return () => window.removeEventListener('phaseChange', handlePhaseChangeEvent as EventListener);
-  }, []);
-
   return (
     <>
       <DndContext
@@ -266,7 +262,7 @@ const IssuePage = () => {
                     categoryId={idea.categoryId}
                     position={null} // 카테고리 내부는 position 불필요
                     isSelected={idea.isSelected}
-                    isVotePhrase={currentPhase === 'voting' || currentPhase === 'discussion'}
+                    isVotePhase={isVoteActive}
                     agreeCount={idea.agreeCount}
                     disagreeCount={idea.disagreeCount}
                     needDiscussion={idea.needDiscussion}
@@ -292,7 +288,7 @@ const IssuePage = () => {
                 categoryId={idea.categoryId}
                 position={idea.position}
                 isSelected={idea.isSelected}
-                isVotePhrase={currentPhase === 'voting' || currentPhase === 'discussion'}
+                isVotePhase={isVoteActive}
                 agreeCount={idea.agreeCount}
                 disagreeCount={idea.disagreeCount}
                 needDiscussion={idea.needDiscussion}
@@ -320,11 +316,13 @@ const IssuePage = () => {
                   >
                     <IdeaCard
                       id={activeIdea.id}
+                      issueId={issueId}
                       content={activeIdea.content}
                       author={activeIdea.author}
                       categoryId={activeIdea.categoryId}
                       position={null}
                       isSelected={activeIdea.isSelected}
+                      isVotePhase={isVoteActive}
                       agreeCount={activeIdea.agreeCount}
                       disagreeCount={activeIdea.disagreeCount}
                       needDiscussion={activeIdea.needDiscussion}
