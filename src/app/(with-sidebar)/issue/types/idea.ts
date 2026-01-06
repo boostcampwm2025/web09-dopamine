@@ -3,6 +3,16 @@ export interface Position {
   y: number;
 }
 
+export interface Idea {
+  id: string;
+  content: string;
+  author: string;
+  category: string;
+  agreeCount: number;
+  disagreeCount: number;
+  highlighted: boolean;
+}
+
 export interface IdeaWithPosition {
   id: string;
   content: string;
