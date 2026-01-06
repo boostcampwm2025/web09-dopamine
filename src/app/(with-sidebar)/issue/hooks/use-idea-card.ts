@@ -127,12 +127,6 @@ export default function useIdeaCard(props: UseIdeaCardProps) {
     [submitEdit],
   );
 
-  const startEditing = useCallback(() => {
-    if (!isEditing && displayContent) {
-      setIsEditing(true);
-    }
-  }, [isEditing, displayContent]);
-
   return {
     status,
     userVote,
@@ -146,6 +140,5 @@ export default function useIdeaCard(props: UseIdeaCardProps) {
     handleDisagree,
     submitEdit,
     handleKeyDownEdit,
-    startEditing,
   };
 }

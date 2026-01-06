@@ -88,7 +88,6 @@ export default function IdeaCard(props: IdeaCardProps) {
     handleAgree,
     handleDisagree,
     handleKeyDownEdit,
-    startEditing,
   } = useIdeaCard({
     content: props.content,
     agreeCount: props.agreeCount,
@@ -113,11 +112,6 @@ export default function IdeaCard(props: IdeaCardProps) {
         }
       : {};
 
-  const handleDoubleClickToEdit = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    startEditing();
-  };
-
   const handleCardClick = (e: React.MouseEvent) => {
     if (props.id && !inCategory) {
       bringToFront(props.id);
@@ -132,7 +126,6 @@ export default function IdeaCard(props: IdeaCardProps) {
       inCategory={inCategory}
       onClick={handleCardClick}
       onMouseDown={draggable?.handleMouseDown}
-      onDoubleClick={handleDoubleClickToEdit}
       style={cardStyle}
     >
       {status === 'selected' && (
