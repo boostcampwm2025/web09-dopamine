@@ -138,7 +138,7 @@ export const Footer = styled.div`
 
 export const MoreButton = styled.button`
   color: ${theme.colors.gray[500]};
-  font-size: ${theme.font.size.body5};
+  font-size: ${theme.font.size.small};
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s ease, color 0.2s ease;
