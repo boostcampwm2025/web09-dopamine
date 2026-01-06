@@ -1,8 +1,11 @@
 'use client';
 
+import Image from 'next/image';
 import type React from 'react';
-import { useState } from 'react';
-import useIssueSummary from '@/app/(with-sidebar)/issue/hooks/use-issue-summary';
+import { useEffect, useMemo, useState } from 'react';
+import { getCategorizedIssues } from '../../services/issue-service';
+import type { Category } from '../../types/category';
+import type { Idea } from '../../types/idea';
 import {
   RankBadge,
   HeaderLeft,
@@ -29,17 +32,35 @@ import {
   DialogClose,
 } from './dialog.styles';
 
+type CategorizedCard = {
+  category: Category;
+  ideas: Idea[];
+};
+
 export default function CategorizedList() {
-  const { categorizedCards } = useIssueSummary();
+  const [categorizedCards, setCategorizedCards] = useState<CategorizedCard[]>([]);
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
   const [dialogContent, setDialogContent] = useState<string | null>(null);
 
-  const columns = categorizedCards.reduce<[typeof categorizedCards, typeof categorizedCards]>(
-    (acc, card, index) => {
-      acc[index % 2].push(card);
-      return acc;
-    },
-    [[], []],
+  useEffect(() => {
+    const fetchIssues = async () => {
+      const { categorizedCards: fetchedCards } = await getCategorizedIssues();
+      setCategorizedCards(fetchedCards);
+    };
+
+    fetchIssues();
+  }, []);
+
+  const columns = useMemo(
+    () =>
+      categorizedCards.reduce<[CategorizedCard[], CategorizedCard[]]>(
+        (acc, card, index) => {
+          acc[index % 2].push(card);
+          return acc;
+        },
+        [[], []],
+      ),
+    [categorizedCards],
   );
 
   const toggleCategory = (categoryId: string) => {
@@ -156,6 +177,12 @@ export default function CategorizedList() {
                 aria-label="닫기"
                 onClick={handleCloseDialog}
               >
+                <Image
+                  src="/close.svg"
+                  alt="닫기 이미지"
+                  width={16}
+                  height={16}
+                />
               </DialogClose>
             </DialogHeader>
             <DialogBody>{dialogContent}</DialogBody>
