@@ -6,15 +6,14 @@ const PROGRESS_BAR_DURATION = 0.3;
 
 const ProgressBar = () => {
   const status = useIssueStore((state) => state.status);
-  const steps = STEP_FLOW.slice(0, -1);
   const currentIndex = STEP_FLOW.indexOf(status);
 
   return (
     <S.Container>
-      {steps.map((step, index) => {
+      {STEP_FLOW.map((step, index) => {
         const isActive = index <= currentIndex;
         const isLineActive = index < currentIndex;
-        const showLine = index < steps.length - 1;
+        const showLine = index < STEP_FLOW.length - 1;
 
         return (
           <S.StepWrapper key={step}>
