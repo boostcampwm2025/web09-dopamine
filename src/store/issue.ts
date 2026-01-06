@@ -1,20 +1,21 @@
 import { create } from 'zustand';
 import { ISSUE_STATUS, STEP_FLOW } from '@/constants/issue';
-import { IssueStatus } from '@/types/issue';
+import { IssueStatus, VoteStatus } from '@/types/issue';
 
 interface IssueStore {
   status: IssueStatus;
-  isVoteActive: boolean;
+  voteStatus: VoteStatus;
   actions: {
     next: () => void;
     closeIssue: () => void;
-    toggleVoteActvie: () => void;
+    startVote: () => void;
+    endVote: () => void;
   };
 }
 
 export const useIssueStore = create<IssueStore>((set) => ({
   status: ISSUE_STATUS.BRAINSTORMING,
-  isVoteActive: false,
+  voteStatus: 'READY',
 
   actions: {
     next: () =>
@@ -24,7 +25,8 @@ export const useIssueStore = create<IssueStore>((set) => ({
         return { status: nextStatus };
       }),
     closeIssue: () => set(() => ({ status: ISSUE_STATUS.CLOSE })),
-    toggleVoteActvie: () => set((state) => ({ isVoteActive: !state.isVoteActive })),
+    startVote: () => set({ voteStatus: 'IN_PROGRESS' }),
+    endVote: () => set({ voteStatus: 'COMPLETED' }),
   },
 }));
 

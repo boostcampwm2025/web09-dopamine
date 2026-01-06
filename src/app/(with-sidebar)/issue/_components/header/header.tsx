@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { useShallow } from 'zustand/shallow';
-import { ISSUE_STATUS } from '@/constants/issue';
+import { BUTTON_TEXT_MAP, ISSUE_STATUS } from '@/constants/issue';
 import { useIsNextButtonVisible, useIssueStore } from '@/store/issue';
 import ProgressBar from '../progress-bar/progress-bar';
 import HeaderButton from './header-button';
@@ -16,11 +16,11 @@ const Header = ({ onAIStructure }: IssueHeaderProps) => {
   const issueState = useIssueStore(
     useShallow((state) => ({
       status: state.status,
-      isVoteActive: state.isVoteActive,
+      voteStatus: state.voteStatus,
     })),
   );
 
-  const { next, closeIssue, toggleVoteActvie } = useIssueStore((state) => state.actions);
+  const { next, closeIssue, startVote, endVote } = useIssueStore((state) => state.actions);
 
   const isVisible = useIsNextButtonVisible();
 
@@ -43,13 +43,16 @@ const Header = ({ onAIStructure }: IssueHeaderProps) => {
           </>
         );
       case ISSUE_STATUS.VOTE:
+        const isVoting = issueState.voteStatus === 'IN_PROGRESS';
+        const text = BUTTON_TEXT_MAP[issueState.voteStatus];
+
         return (
           <HeaderButton
             imageSrc="/good.svg"
-            alt="투표하기"
-            text={issueState.isVoteActive ? '투표 종료' : '투표 시작'}
-            variant={issueState.isVoteActive ? 'dark' : undefined}
-            onClick={toggleVoteActvie}
+            alt="투표"
+            text={text}
+            variant={isVoting ? 'dark' : undefined}
+            onClick={isVoting ? endVote : startVote}
           />
         );
       case ISSUE_STATUS.SELECT:

@@ -1,3 +1,5 @@
+import { VoteStatus } from '@/types/issue';
+
 export const ISSUE_STATUS = {
   BRAINSTORMING: 'BRAINSTORMING',
   CATEGORIZE: 'CATEGORIZE',
@@ -20,4 +22,10 @@ export const STATUS_LABEL = {
   [ISSUE_STATUS.VOTE]: '투표',
   [ISSUE_STATUS.SELECT]: '채택',
   [ISSUE_STATUS.CLOSE]: '종료',
+};
+
+export const BUTTON_TEXT_MAP: Record<VoteStatus, string> = {
+  READY: '투표 시작',
+  IN_PROGRESS: '투표 종료',
+  COMPLETED: '재투표 시작',
 };

@@ -19,7 +19,9 @@ const IssuePage = () => {
     useIdeaStore(issueId);
   const { addCard, removeCard } = useIdeaCardStackStore(issueId);
 
-  const isVoteActive = useIssueStore((state) => state.isVoteActive);
+  const voteStatus = useIssueStore((state) => state.voteStatus);
+  //TODO: 추후 투표 종료 시 투표 기능이 활성화되지 않도록 기능 추가 필요
+  const isVoteActive = voteStatus !== 'READY';
 
   const [categories, setCategories] = useState<Category[]>([]);
 
@@ -41,7 +43,7 @@ const IssuePage = () => {
       categoryId: null,
       position,
       editable: true,
-      isVotePhrase: false,
+      isVotephase: false,
     };
 
     addIdea(newIdea);
@@ -139,7 +141,7 @@ const IssuePage = () => {
                 categoryId={idea.categoryId}
                 position={null} // 카테고리 내부는 position 불필요
                 isSelected={idea.isSelected}
-                isVotePhrase={isVoteActive}
+                isVotephase={isVoteActive}
                 agreeCount={idea.agreeCount}
                 disagreeCount={idea.disagreeCount}
                 needDiscussion={idea.needDiscussion}
@@ -165,7 +167,7 @@ const IssuePage = () => {
             categoryId={idea.categoryId}
             position={idea.position}
             isSelected={idea.isSelected}
-            isVotePhrase={isVoteActive}
+            isVotephase={isVoteActive}
             agreeCount={idea.agreeCount}
             disagreeCount={idea.disagreeCount}
             needDiscussion={idea.needDiscussion}
