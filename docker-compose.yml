@@ -1,0 +1,32 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: murphy-mysql
+    restart: always
+    ports:
+      - "${DB_PORT}:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      TZ: Asia/Seoul
+    command: 
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+
+  redis:
+    image: redis:7.0
+    container_name: local-redis
+    restart: always
+    ports:
+      - "${REDIS_PORT}:6379"
+    environment:
+      TZ: Asia/Seoul
+    # Redis는 환경변수가 아니라 실행 커맨드로 비번을 설정합니다.
+    # .env의 값을 커맨드라인에 주입합니다.
+    command: redis-server --requirepass "${REDIS_PASSWORD}" --appendonly yes
+    volumes:
+      - ./data/redis:/data
