@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import type React from 'react';
 import { useEffect, useMemo, useState } from 'react';
-import { getCategorizedIssues } from '../../services/issue-service';
+import { getCategorizedIdeas } from '../../services/issue-service';
 import type { Category } from '../../types/category';
 import type { Idea } from '../../types/idea';
 import {
@@ -44,7 +44,7 @@ export default function CategorizedList() {
 
   useEffect(() => {
     const fetchIssues = async () => {
-      const { categorizedCards: fetchedCards } = await getCategorizedIssues();
+      const { categorizedCards: fetchedCards } = await getCategorizedIdeas();
       setCategorizedCards(fetchedCards);
     };
 
