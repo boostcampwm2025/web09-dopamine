@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import styled from '@emotion/styled';
 import { theme } from '@/styles/theme';
-import { IssueStatusType } from './types';
+import { IssueStatus } from '@/types/issue';
 
 export const Sidebar = styled.aside`
   display: flex;
@@ -14,8 +14,8 @@ export const Sidebar = styled.aside`
   height: 100%;
   width: 256px;
   padding: 16px 0px;
-  background-color: ${({ theme }) => theme.colors.white};
-  color: ${({ theme }) => theme.colors.gray[400]};
+  background-color: ${theme.colors.white};
+  color: ${theme.colors.gray[400]};
   box-shadow: 2px 0 2px -1px rgba(0, 0, 0, 0.1);
 `;
 
@@ -52,13 +52,13 @@ export const SidebarInput = styled.input`
   width: 100%;
   padding: 8px;
   border: none;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.gray[200]};
+  border-bottom: 1px solid ${theme.colors.gray[200]};
 `;
 
 export const SidebarTitle = styled.span`
   position: relative;
   padding: 0 16px;
-  font-size: ${({ theme }) => theme.font.size.medium};
+  font-size: ${theme.font.size.medium};
   font-weight: 700;
   letter-spacing: 1px;
 `;
@@ -81,28 +81,28 @@ export const ListItemLink = styled(Link)`
   justify-content: space-between;
   width: 100%;
   padding: 10px 16px 10px 24px;
-  background-color: ${({ theme }) => theme.colors.white};
-  font-size: ${({ theme }) => theme.font.size.medium};
-  color: ${({ theme }) => theme.colors.gray[700]};
+  background-color: ${theme.colors.white};
+  font-size: ${theme.font.size.medium};
+  color: ${theme.colors.gray[700]};
   border: none;
   text-decoration: none;
 
   &:hover,
   &:focus {
-    background-color: ${({ theme }) => theme.colors.gray[200]};
+    background-color: ${theme.colors.gray[200]};
   }
 `;
 
 export const StatusLabel = styled.span<{
-  status: IssueStatusType;
+  status: IssueStatus;
 }>`
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 4px 8px;
   font-size: ${theme.font.size.xs};
-  color: ${({ theme, status }) => theme.status[status].color};
-  background-color: ${({ theme }) => theme.colors.white};
-  border: 1px solid ${({ theme, status }) => theme.status[status].color};
-  border-radius: ${({ theme }) => theme.radius.large};
+  color: ${({ status }) => theme.status[status].color};
+  background-color: ${theme.colors.white};
+  border: 1px solid ${({ status }) => theme.status[status].color};
+  border-radius: ${theme.radius.large};
 `;

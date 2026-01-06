@@ -97,13 +97,19 @@ export const theme = {
     },
   },
   status: {
-    open: {
-      color: colors.green[600],
+    BRAINSTORMING: {
+      color: colors.yellow[400],
     },
-    voting: {
-      color: colors.blue[600],
+    CATEGORIZE: {
+      color: colors.blue[500],
     },
-    closed: {
+    VOTE: {
+      color: colors.red[400],
+    },
+    SELECT: {
+      color: colors.green[500],
+    },
+    CLOSE: {
       color: colors.gray[500],
     },
   },
