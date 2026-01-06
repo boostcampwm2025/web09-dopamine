@@ -2,10 +2,16 @@ import styled from '@emotion/styled';
 import { theme } from '@/styles/theme';
 
 export const Container = styled.div`
-  display: grid;
-  grid-template-columns: repeat(2, 1fr); 
+  display: flex;
+  flex-direction: row;
   gap: 20px; 
   position: relative;
+`;
+
+export const ContainerCol = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 `;
 
 export const Card = styled.section`
