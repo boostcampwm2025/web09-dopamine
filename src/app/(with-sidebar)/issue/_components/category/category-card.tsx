@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useDroppable } from '@dnd-kit/core';
 import useCategory from '@/app/(with-sidebar)/issue/hooks/use-category-card';
 import { useDraggable } from '../../hooks/use-draggable';
 import type { Position } from '../../types/idea';
@@ -46,7 +47,11 @@ export default function CategoryCard({
   onDropIdea,
 }: CategoryCardProps) {
   const { scale } = useCanvasContext();
-  const [isDragOver, setIsDragOver] = useState(false);
+
+  // dnd-kit useDroppable
+  const { setNodeRef: setDroppableRef, isOver } = useDroppable({
+    id,
+  });
 
   // 카테고리 드래그 기능
   const draggable = onPositionChange
@@ -76,37 +81,11 @@ export default function CategoryCard({
     cancelEditingTitle,
   } = useCategory({ title });
 
-  // 드롭존 이벤트 핸들러
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault(); // 드롭을 허용하려면 필수
-    e.stopPropagation();
-    setIsDragOver(true);
-  };
-
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragOver(false);
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragOver(false);
-
-    const ideaId = e.dataTransfer.getData('ideaId');
-    if (ideaId && onDropIdea) {
-      onDropIdea(ideaId);
-    }
-  };
-
   return (
     <StyledCategoryCard
+      ref={setDroppableRef}
       isMuted={isMuted}
       aria-label={`${curTitle} 카테고리`}
-      onDragOver={handleDragOver}
-      onDragLeave={handleDragLeave}
-      onDrop={handleDrop}
       style={
         draggable
           ? {
@@ -116,12 +95,12 @@ export default function CategoryCard({
               cursor: draggable.isDragging ? 'grabbing' : 'grab',
               userSelect: 'none' as const,
               zIndex: 0, // 항상 아이디어 카드보다 낮게
-              outline: isDragOver ? '2px dashed #4CAF50' : 'none',
-              backgroundColor: isDragOver ? 'rgba(76, 175, 80, 0.1)' : undefined,
+              outline: isOver ? '2px dashed #4CAF50' : 'none',
+              backgroundColor: isOver ? 'rgba(76, 175, 80, 0.1)' : undefined,
             }
           : {
-              outline: isDragOver ? '2px dashed #4CAF50' : 'none',
-              backgroundColor: isDragOver ? 'rgba(76, 175, 80, 0.1)' : undefined,
+              outline: isOver ? '2px dashed #4CAF50' : 'none',
+              backgroundColor: isOver ? 'rgba(76, 175, 80, 0.1)' : undefined,
             }
       }
     >

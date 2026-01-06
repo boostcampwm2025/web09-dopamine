@@ -1,6 +1,15 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import {
+  DndContext,
+  DragEndEvent,
+  DragOverlay,
+  DragStartEvent,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
 import Canvas from '@/app/(with-sidebar)/issue/_components/canvas/canvas';
 import IdeaCard from '@/app/(with-sidebar)/issue/_components/idea-card/idea-card';
 import { useIdeaCardStackStore } from '@/app/(with-sidebar)/issue/store/use-idea-card-stack-store';
@@ -22,6 +31,16 @@ const IssuePage = () => {
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [currentPhase, setCurrentPhase] = useState<Phase>('ideation');
+  const [activeId, setActiveId] = useState<string | null>(null);
+
+  // dnd-kit sensors 설정
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8, // 8px 이동해야 드래그 시작
+      },
+    }),
+  );
 
   const handleIdeaPositionChange = (id: string, position: Position) => {
     updateIdeaPosition(id, position);
@@ -69,6 +88,38 @@ const IssuePage = () => {
           : idea,
       ),
     );
+  };
+
+  // dnd-kit 드래그 시작
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveId(event.active.id as string);
+  };
+
+  // dnd-kit 드래그 종료
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over, delta } = event;
+    setActiveId(null);
+
+    if (!over) return;
+
+    const ideaId = active.id as string;
+    const overId = over.id as string;
+
+    // 카테고리로 드롭한 경우
+    if (overId.startsWith('category-')) {
+      handleMoveIdeaToCategory(ideaId, overId);
+    }
+    // 자유 배치 영역으로 드롭한 경우
+    else if (overId === 'canvas') {
+      const idea = ideas.find((i) => i.id === ideaId);
+      if (idea && idea.position) {
+        // 위치 업데이트
+        updateIdeaPosition(ideaId, {
+          x: idea.position.x + delta.x,
+          y: idea.position.y + delta.y,
+        });
+      }
+    }
   };
 
   const handleAIStructure = async () => {
@@ -180,68 +231,100 @@ const IssuePage = () => {
   }, []);
 
   return (
-    <Canvas onDoubleClick={handleCreateIdea}>
-      {/* 카테고리들 - 내부에 아이디어 카드들을 children으로 전달 */}
-      {categories.map((category) => {
-        const categoryIdeas = ideas.filter((idea) => idea.categoryId === category.id);
+    <DndContext
+      sensors={sensors}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+    >
+      <Canvas onDoubleClick={handleCreateIdea}>
+        {/* 카테고리들 - 내부에 아이디어 카드들을 children으로 전달 */}
+        {categories.map((category) => {
+          const categoryIdeas = ideas.filter((idea) => idea.categoryId === category.id);
 
-        return (
-          <CategoryCard
-            key={category.id}
-            id={category.id}
-            title={category.title}
-            position={category.position}
-            isMuted={category.isMuted}
-            onPositionChange={handleCategoryPositionChange}
-            onDropIdea={(ideaId) => handleMoveIdeaToCategory(ideaId, category.id)}
-          >
-            {categoryIdeas.map((idea) => (
-              <IdeaCard
-                key={idea.id}
-                id={idea.id}
-                issueId={issueId}
-                content={idea.content}
-                author={idea.author}
-                categoryId={idea.categoryId}
-                position={null} // 카테고리 내부는 position 불필요
-                isSelected={idea.isSelected}
-                isVotePhrase={currentPhase === 'voting' || currentPhase === 'discussion'}
-                agreeCount={idea.agreeCount}
-                disagreeCount={idea.disagreeCount}
-                needDiscussion={idea.needDiscussion}
-                editable={idea.editable}
-                onSave={(content) => handleSaveIdea(idea.id, content)}
-                onDelete={() => handleDeleteIdea(idea.id)}
-              />
-            ))}
-          </CategoryCard>
-        );
-      })}
+          return (
+            <CategoryCard
+              key={category.id}
+              id={category.id}
+              title={category.title}
+              position={category.position}
+              isMuted={category.isMuted}
+              onPositionChange={handleCategoryPositionChange}
+              onDropIdea={(ideaId) => handleMoveIdeaToCategory(ideaId, category.id)}
+            >
+              {categoryIdeas.map((idea) => (
+                <IdeaCard
+                  key={idea.id}
+                  id={idea.id}
+                  issueId={issueId}
+                  content={idea.content}
+                  author={idea.author}
+                  categoryId={idea.categoryId}
+                  position={null} // 카테고리 내부는 position 불필요
+                  isSelected={idea.isSelected}
+                  isVotePhrase={currentPhase === 'voting' || currentPhase === 'discussion'}
+                  agreeCount={idea.agreeCount}
+                  disagreeCount={idea.disagreeCount}
+                  needDiscussion={idea.needDiscussion}
+                  editable={idea.editable}
+                  onSave={(content) => handleSaveIdea(idea.id, content)}
+                  onDelete={() => handleDeleteIdea(idea.id)}
+                />
+              ))}
+            </CategoryCard>
+          );
+        })}
 
-      {/* 자유 배치 아이디어들 (categoryId === null) */}
-      {ideas
-        .filter((idea) => idea.categoryId === null)
-        .map((idea) => (
-          <IdeaCard
-            key={idea.id}
-            id={idea.id}
-            issueId={issueId}
-            content={idea.content}
-            author={idea.author}
-            categoryId={idea.categoryId}
-            position={idea.position}
-            isSelected={idea.isSelected}
-            isVotePhrase={currentPhase === 'voting' || currentPhase === 'discussion'}
-            agreeCount={idea.agreeCount}
-            disagreeCount={idea.disagreeCount}
-            needDiscussion={idea.needDiscussion}
-            editable={idea.editable}
-            onPositionChange={handleIdeaPositionChange}
-            onSave={(content) => handleSaveIdea(idea.id, content)}
-            onDelete={() => handleDeleteIdea(idea.id)}
-          />
-        ))}
-    </Canvas>
+        {/* 자유 배치 아이디어들 (categoryId === null) */}
+        {ideas
+          .filter((idea) => idea.categoryId === null)
+          .map((idea) => (
+            <IdeaCard
+              key={idea.id}
+              id={idea.id}
+              issueId={issueId}
+              content={idea.content}
+              author={idea.author}
+              categoryId={idea.categoryId}
+              position={idea.position}
+              isSelected={idea.isSelected}
+              isVotePhrase={currentPhase === 'voting' || currentPhase === 'discussion'}
+              agreeCount={idea.agreeCount}
+              disagreeCount={idea.disagreeCount}
+              needDiscussion={idea.needDiscussion}
+              editable={idea.editable}
+              onPositionChange={handleIdeaPositionChange}
+              onSave={(content) => handleSaveIdea(idea.id, content)}
+              onDelete={() => handleDeleteIdea(idea.id)}
+            />
+          ))}
+      </Canvas>
+
+      {/* 드래그 오버레이 (고스트 이미지) */}
+      <DragOverlay dropAnimation={null}>
+        {activeId
+          ? (() => {
+              const activeIdea = ideas.find((idea) => idea.id === activeId);
+              if (!activeIdea) return null;
+
+              return (
+                <div style={{ transform: 'scale(0.7)' }}>
+                  <IdeaCard
+                    id={activeIdea.id}
+                    content={activeIdea.content}
+                    author={activeIdea.author}
+                    categoryId={activeIdea.categoryId}
+                    position={null}
+                    isSelected={activeIdea.isSelected}
+                    agreeCount={activeIdea.agreeCount}
+                    disagreeCount={activeIdea.disagreeCount}
+                    needDiscussion={activeIdea.needDiscussion}
+                  />
+                </div>
+              );
+            })()
+          : null}
+      </DragOverlay>
+    </DndContext>
   );
 };
 

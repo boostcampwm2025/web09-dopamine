@@ -1,8 +1,9 @@
 'use client';
 
 import Image from 'next/image';
+import { useDraggable } from '@dnd-kit/core';
+import { CSS } from '@dnd-kit/utilities';
 import useIdeaCard from '@/app/(with-sidebar)/issue/hooks/use-idea-card';
-import { useDraggable } from '../../hooks/use-draggable';
 import { useIdeaCardStackStore } from '../../store/use-idea-card-stack-store';
 import type { Position } from '../../types/idea';
 import { useCanvasContext } from '../canvas/canvas-context';
@@ -60,21 +61,12 @@ export default function IdeaCard(props: IdeaCardProps) {
 
   // 드래그 로직
   const inCategory = !!props.categoryId;
-  // 카테고리에 속하지 않은 자유 배치 아이디어만 드래그 가능
-  const canDrag = !inCategory && props.id && props.onPositionChange;
 
-  const draggable =
-    canDrag && props.position
-      ? useDraggable({
-          initialPosition: props.position,
-          scale,
-          onDragEnd: (newPosition) => {
-            if (props.id && props.onPositionChange) {
-              props.onPositionChange(props.id, newPosition);
-            }
-          },
-        })
-      : null;
+  // dnd-kit useDraggable
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+    id: props.id || 'idea-unknown',
+    disabled: !props.id, // id가 없으면 드래그 불가
+  });
 
   // 비즈니스 로직 (투표, 편집 등)
   const {
@@ -102,19 +94,18 @@ export default function IdeaCard(props: IdeaCardProps) {
   // 스타일 계산
   // 자유 배치 모드(categoryId === null)면 absolute positioning
   const cardStyle =
-    !inCategory && draggable
+    !inCategory && props.position
       ? {
           position: 'absolute' as const,
-          left: draggable.position.x,
-          top: draggable.position.y,
-          cursor: draggable.isDragging ? 'grabbing' : 'grab',
+          left: props.position.x,
+          top: props.position.y,
+          cursor: isDragging ? 'grabbing' : 'grab',
           userSelect: 'none' as const,
-          zIndex: draggable.isDragging ? 1000 : zIndex,
-          // 드래그 중에도 Canvas scale 0.7 유지
-          transform: draggable.isDragging ? 'scale(0.7)' : undefined,
-          transformOrigin: 'top left',
-          boxShadow: draggable.isDragging ? '0 12px 24px rgba(31, 41, 55, 0.2)' : undefined,
-          opacity: draggable.isDragging ? 0.95 : undefined,
+          zIndex: isDragging ? 1000 : zIndex,
+          // dnd-kit transform 적용 (Canvas scale과 호환됨!)
+          transform: CSS.Transform.toString(transform),
+          // 드래그 중일 때 원본은 반투명하게 (DragOverlay가 보임)
+          opacity: isDragging ? 0.4 : undefined,
         }
       : {};
 
@@ -127,34 +118,18 @@ export default function IdeaCard(props: IdeaCardProps) {
 
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!draggable?.hasMoved) {
-      props.onDelete?.();
-    }
-  };
-
-  // HTML5 드래그앤드롭 (카테고리 간 이동용)
-  const handleDragStart = (e: React.DragEvent) => {
-    e.stopPropagation(); // 카테고리로 이벤트 버블링 방지
-    if (props.id) {
-      e.dataTransfer.effectAllowed = 'move';
-      e.dataTransfer.setData('ideaId', props.id);
-    }
-  };
-
-  const handleDragEnd = (e: React.DragEvent) => {
-    e.stopPropagation(); // 드래그 종료 이벤트도 버블링 방지
+    props.onDelete?.();
   };
 
   return (
     <Card
+      ref={setNodeRef}
       status={status}
-      isDragging={draggable?.isDragging ?? false}
+      isDragging={isDragging}
       inCategory={inCategory}
       onClick={handleCardClick}
-      onMouseDown={draggable?.handleMouseDown}
-      draggable={inCategory} // 카테고리 내부일 때만 HTML5 드래그 활성화
-      onDragStart={inCategory ? handleDragStart : undefined}
-      onDragEnd={inCategory ? handleDragEnd : undefined}
+      {...attributes}
+      {...listeners}
       style={cardStyle}
     >
       {status === 'selected' && (
