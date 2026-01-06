@@ -4,7 +4,7 @@ export const mockIdeasWithPosition: IdeaWithPosition[] = [
   // 캔버스에 자유 배치된 아이디어들(categoryId: null)
   {
     id: 'idea-001',
-    content: 'SaaS형 릴스 콘텐츠로 활용하기 보여주기',
+    content: 'SaaS 릴스 콘텐츠로 핵심 기능을 짧게 보여주고 실제 성공 사례를 덧붙여 반복 노출하기',
     author: '지연',
     categoryId: null,
     position: { x: 150, y: 120 },
@@ -13,7 +13,7 @@ export const mockIdeasWithPosition: IdeaWithPosition[] = [
   },
   {
     id: 'idea-002',
-    content: '노션 템플릿 상품 기능 소개 영상 제작',
+    content: '노션 템플릿 상품을 편집부터 배포까지 전 과정을 담은 2분 튜토리얼 영상으로 소개하기',
     author: '소환',
     categoryId: null,
     position: { x: 680, y: 180 },
@@ -22,7 +22,7 @@ export const mockIdeasWithPosition: IdeaWithPosition[] = [
   },
   {
     id: 'idea-003',
-    content: '커뮤니티에 주간 성과 공유하며 실명으로 운영하기',
+    content: '커뮤니티에서 주간 성과를 실명으로 공유하며 신뢰도를 높이고 참여를 유도하는 캠페인 진행',
     author: '민수',
     categoryId: null,
     position: { x: 320, y: 380 },
@@ -31,7 +31,7 @@ export const mockIdeasWithPosition: IdeaWithPosition[] = [
   },
   {
     id: 'idea-004',
-    content: '블로그 SEO 최적화로 검색유입 정리하기',
+    content: '블로그 SEO 전반을 점검해 키워드 리서치, 메타태그, 내부 링크를 한 번에 리팩터링하기',
     author: '세연',
     categoryId: null,
     position: { x: 850, y: 450 },
@@ -40,7 +40,7 @@ export const mockIdeasWithPosition: IdeaWithPosition[] = [
   },
   {
     id: 'idea-005',
-    content: '활용사례 인터뷰 콘텐츠로 주간 제작하기',
+    content: '주간 활용사례 인터뷰를 표준 스크립트로 제작해 시리즈화하고 다운로드 자료로도 제공하기',
     author: '주원',
     categoryId: null,
     position: { x: 180, y: 620 },
@@ -49,7 +49,7 @@ export const mockIdeasWithPosition: IdeaWithPosition[] = [
   },
   {
     id: 'idea-006',
-    content: '개발자 커뮤니티와 기술 블로그글 공유하기',
+    content: '개발자 커뮤니티에 API 예제와 코드 샘플을 담은 기술 블로그 글을 공유하며 트래픽 유입 늘리기',
     author: '민지',
     categoryId: null,
     position: { x: 580, y: 700 },
@@ -58,7 +58,7 @@ export const mockIdeasWithPosition: IdeaWithPosition[] = [
   },
   {
     id: 'idea-007',
-    content: '랜딩 페이지 A/B 테스트로 전환최적화하기',
+    content: '랜딩 페이지의 CTA 색상과 카피를 나눠 2주간 A/B 테스트를 돌려 전환율 차이를 측정하기',
     author: '지훈',
     categoryId: null,
     position: { x: 920, y: 220 },
@@ -67,7 +67,7 @@ export const mockIdeasWithPosition: IdeaWithPosition[] = [
   },
   {
     id: 'idea-008',
-    content: '무료 체험 플로우 개선하여 활용도 높이기',
+    content: '무료 체험 플로우에서 핵심 액션까지의 단계를 줄이고 인앱 안내를 추가해 완료율을 끌어올리기',
     author: '소연',
     categoryId: null,
     position: { x: 420, y: 150 },
@@ -80,7 +80,7 @@ export const mockIdeasWithCategory: IdeaWithPosition[] = [
   // 카테고리에 속해 배치된 아이디어들
   {
     id: 'idea-001',
-    content: 'SaaS형 릴스 콘텐츠로 활용하기 보여주기',
+    content: 'SaaS 릴스 콘텐츠로 핵심 기능을 짧게 보여주고 실제 성공 사례를 덧붙여 반복 노출하기',
     author: '지연',
     categoryId: 'cat-1',
     position: { x: 150, y: 120 },
@@ -89,7 +89,7 @@ export const mockIdeasWithCategory: IdeaWithPosition[] = [
   },
   {
     id: 'idea-002',
-    content: '노션 템플릿 상품 기능 소개 영상 제작',
+    content: '노션 템플릿 상품을 편집부터 배포까지 전 과정을 담은 2분 튜토리얼 영상으로 소개하기',
     author: '소환',
     categoryId: 'cat-2',
     position: { x: 680, y: 180 },
@@ -98,7 +98,7 @@ export const mockIdeasWithCategory: IdeaWithPosition[] = [
   },
   {
     id: 'idea-003',
-    content: '커뮤니티에 주간 성과 공유하며 실명으로 운영하기',
+    content: '커뮤니티에서 주간 성과를 실명으로 공유하며 신뢰도를 높이고 참여를 유도하는 캠페인 진행',
     author: '민수',
     categoryId: 'cat-1',
     position: { x: 320, y: 380 },
@@ -107,7 +107,7 @@ export const mockIdeasWithCategory: IdeaWithPosition[] = [
   },
   {
     id: 'idea-004',
-    content: '블로그 SEO 최적화로 검색유입 정리하기',
+    content: '블로그 SEO 전반을 점검해 키워드 리서치, 메타태그, 내부 링크를 한 번에 리팩터링하기',
     author: '세연',
     categoryId: 'cat-3',
     position: { x: 850, y: 450 },
@@ -116,7 +116,7 @@ export const mockIdeasWithCategory: IdeaWithPosition[] = [
   },
   {
     id: 'idea-005',
-    content: '활용사례 인터뷰 콘텐츠로 주간 제작하기',
+    content: '주간 활용사례 인터뷰를 표준 스크립트로 제작해 시리즈화하고 다운로드 자료로도 제공하기',
     author: '주원',
     categoryId: 'cat-1',
     position: { x: 180, y: 620 },
@@ -125,7 +125,7 @@ export const mockIdeasWithCategory: IdeaWithPosition[] = [
   },
   {
     id: 'idea-006',
-    content: '개발자 커뮤니티와 기술 블로그글 공유하기',
+    content: '개발자 커뮤니티에 API 예제와 코드 샘플을 담은 기술 블로그 글을 공유하며 트래픽 유입 늘리기',
     author: '민지',
     categoryId: 'cat-3',
     position: { x: 580, y: 700 },
@@ -134,7 +134,7 @@ export const mockIdeasWithCategory: IdeaWithPosition[] = [
   },
   {
     id: 'idea-007',
-    content: '랜딩 페이지 A/B 테스트로 전환최적화하기',
+    content: '랜딩 페이지의 CTA 색상과 카피를 나눠 2주간 A/B 테스트를 돌려 전환율 차이를 측정하기',
     author: '지훈',
     categoryId: 'cat-2',
     position: { x: 920, y: 220 },
@@ -143,7 +143,7 @@ export const mockIdeasWithCategory: IdeaWithPosition[] = [
   },
   {
     id: 'idea-008',
-    content: '무료 체험 플로우 개선하여 활용도 높이기',
+    content: '무료 체험 플로우에서 핵심 액션까지의 단계를 줄이고 인앱 안내를 추가해 완료율을 끌어올리기',
     author: '소연',
     categoryId: 'cat-2',
     position: { x: 420, y: 150 },
@@ -152,7 +152,7 @@ export const mockIdeasWithCategory: IdeaWithPosition[] = [
   },
   {
     id: 'idea-009',
-    content: '카테고리별 베스트 글 주간 뉴스레터 발행',
+    content: '카테고리별 베스트 글을 모아 주간 뉴스레터로 발행하고 각 아이디어 링크를 함께 제공하기',
     author: '유진',
     categoryId: 'cat-1',
     position: { x: 510, y: 260 },
@@ -161,7 +161,7 @@ export const mockIdeasWithCategory: IdeaWithPosition[] = [
   },
   {
     id: 'idea-010',
-    content: '오프라인 밋업 개최 후 후기 콘텐츠로 재가공',
+    content: '오프라인 밋업을 열고 주요 토픽과 사진을 정리해 블로그와 뉴스레터로 2차 콘텐츠화하기',
     author: '태윤',
     categoryId: 'cat-1',
     position: { x: 260, y: 480 },
@@ -170,7 +170,7 @@ export const mockIdeasWithCategory: IdeaWithPosition[] = [
   },
   {
     id: 'idea-011',
-    content: '프리미엄 템플릿 번들 출시로 ARPU 끌어올리기',
+    content: '인기 노션 템플릿을 묶어 프리미엄 번들로 출시하고 크로스셀 프로모션으로 ARPU 올리기',
     author: '라온',
     categoryId: 'cat-2',
     position: { x: 730, y: 360 },
@@ -179,7 +179,7 @@ export const mockIdeasWithCategory: IdeaWithPosition[] = [
   },
   {
     id: 'idea-012',
-    content: '무료 체험 구간에 사용자 온보딩 체크리스트 추가',
+    content: '무료 체험 구간에 온보딩 체크리스트를 노출해 핵심 단계 완료율을 높이고 이탈을 줄이기',
     author: '승아',
     categoryId: 'cat-2',
     position: { x: 860, y: 520 },
@@ -188,7 +188,7 @@ export const mockIdeasWithCategory: IdeaWithPosition[] = [
   },
   {
     id: 'idea-013',
-    content: 'AI 글쓰기 팁을 사례로 묶어 블로그 시리즈 발행',
+    content: 'AI 글쓰기 팁과 전/후 사례를 묶어 블로그 시리즈로 발행하고 프롬프트 예시를 함께 제공하기',
     author: '도윤',
     categoryId: 'cat-3',
     position: { x: 640, y: 560 },
@@ -197,7 +197,7 @@ export const mockIdeasWithCategory: IdeaWithPosition[] = [
   },
   {
     id: 'idea-014',
-    content: 'SEO용 롱폼 가이드 작성 후 다운로드 리드 확보',
+    content: 'SEO용 롱폼 가이드를 PDF로 제작해 다운로드 리드를 확보하고 이메일 워밍업에 활용하기',
     author: '하린',
     categoryId: 'cat-3',
     position: { x: 940, y: 640 },
