@@ -104,8 +104,7 @@ export default function IdeaCard(props: IdeaCardProps) {
           zIndex: isDragging ? 1000 : zIndex,
           // dnd-kit transform 적용 (Canvas scale과 호환됨!)
           transform: CSS.Transform.toString(transform),
-          // 드래그 중일 때 원본은 반투명하게 (DragOverlay가 보임)
-          opacity: isDragging ? 0.4 : undefined,
+          opacity: isDragging ? 0 : undefined,
         }
       : {};
 

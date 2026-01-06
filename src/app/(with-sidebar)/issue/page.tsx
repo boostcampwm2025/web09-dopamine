@@ -102,25 +102,24 @@ const IssuePage = () => {
     const { active, over, delta } = event;
     setActiveId(null);
 
-    if (!over) return;
-
     const ideaId = active.id as string;
-    const overId = over.id as string;
+    const idea = ideas.find((i) => i.id === ideaId);
+
+    if (!idea) return;
 
     // 카테고리로 드롭한 경우
-    if (overId.startsWith('category-')) {
-      handleMoveIdeaToCategory(ideaId, overId);
+    if (over && over.id.toString().startsWith('category-')) {
+      handleMoveIdeaToCategory(ideaId, over.id as string);
     }
-    // 자유 배치 영역으로 드롭한 경우
-    else if (overId === 'canvas') {
-      const idea = ideas.find((i) => i.id === ideaId);
-      if (idea && idea.position) {
-        // 위치 업데이트
-        updateIdeaPosition(ideaId, {
-          x: idea.position.x + delta.x,
-          y: idea.position.y + delta.y,
-        });
-      }
+    // 자유 배치 영역 (over가 없거나 카테고리가 아닌 경우)
+    else if (idea.position) {
+      const CANVAS_SCALE = 0.7;
+
+      // delta는 화면 픽셀 단위이므로 Canvas scale로 나눠서 보정
+      updateIdeaPosition(ideaId, {
+        x: idea.position.x + delta.x / CANVAS_SCALE,
+        y: idea.position.y + delta.y / CANVAS_SCALE,
+      });
     }
   };
 
@@ -313,7 +312,12 @@ const IssuePage = () => {
                 if (!activeIdea) return null;
 
                 return (
-                  <div style={{ transform: 'scale(0.7)' }}>
+                  <div
+                    style={{
+                      transform: 'scale(0.7)',
+                      transformOrigin: '0 0', // 왼쪽 위 기준으로 scale
+                    }}
+                  >
                     <IdeaCard
                       id={activeIdea.id}
                       content={activeIdea.content}

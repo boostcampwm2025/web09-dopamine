@@ -50,15 +50,6 @@ const Card = styled.article<{
       transform: scale(1);
     }
   }
-
-  /* 드래그 중이 아닐 때만 애니메이션 적용 */
-  ${({ isDragging }) =>
-    !isDragging &&
-    `
-    animation: ideaCardAppear 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-    transition: left 0.5s cubic-bezier(0.34, 1.2, 0.64, 1),
-                top 0.5s cubic-bezier(0.34, 1.2, 0.64, 1);
-  `}
 `;
 
 const Header = styled.div`
