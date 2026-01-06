@@ -18,14 +18,15 @@ import {
   VoteCount,
   Footer,
   MoreButton,
-  DialogOverlay,
+} from './categorized-list.styles';
+import useIssueSummary from '@/app/(with-sidebar)/issue/hooks/use-issue-summary';
+import {
   Dialog,
+  DialogOverlay,
   DialogHeader,
   DialogBody,
   DialogClose,
-} from './categorized-list.styles';
-import useIssueSummary from '@/app/(with-sidebar)/issue/hooks/use-issue-summary';
-
+} from './dialog.styles';
 export default function CategorizedList() {
   const { categorizedCards } = useIssueSummary();
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
