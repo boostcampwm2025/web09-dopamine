@@ -9,6 +9,7 @@ interface HeaderButtonProps {
   text?: string;
   imageSrc?: string;
   imageSize?: number;
+  alt?: string;
   variant?: Variant;
   onClick?: () => void;
 }
@@ -16,8 +17,9 @@ interface HeaderButtonProps {
 const HeaderButton = ({
   text,
   imageSrc,
-  variant = 'default',
   imageSize = 14,
+  alt = '',
+  variant = 'default',
   onClick,
 }: HeaderButtonProps) => {
   return (
@@ -28,7 +30,7 @@ const HeaderButton = ({
       {imageSrc && (
         <Image
           src={imageSrc}
-          alt=""
+          alt={alt}
           width={imageSize}
           height={imageSize}
         />

@@ -1,0 +1,21 @@
+name: CI - Build Test
+
+on:
+  pull_request:
+    branches: [ "main", "dev" ]
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+
+      - name: Build Docker image (test only)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: false
+          tags: web09-dopamine:test
+          platforms: linux/amd64

@@ -85,9 +85,9 @@ export const theme = {
     size: {
       large: '28px',
       medium: '14px',
-      small: '10px',
+      small: '12px',
+      xs: '10px',
       body2: '18px',
-      body5: '12px',
     },
     weight: {
       regular: 400,
@@ -97,16 +97,20 @@ export const theme = {
     },
   },
   status: {
-    open: {
-      color: colors.green[600],
+    BRAINSTORMING: {
+      color: colors.yellow[400],
     },
-    voting: {
-      color: colors.blue[600],
+    CATEGORIZE: {
+      color: colors.blue[500],
     },
-    closed: {
+    VOTE: {
+      color: colors.red[400],
+    },
+    SELECT: {
+      color: colors.green[500],
+    },
+    CLOSE: {
       color: colors.gray[500],
     },
   },
 };
-
-export type Theme = typeof theme;

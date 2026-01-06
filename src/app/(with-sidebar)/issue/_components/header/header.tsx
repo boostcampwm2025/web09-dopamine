@@ -1,41 +1,74 @@
 'use client';
 
 import Image from 'next/image';
+import { useShallow } from 'zustand/shallow';
+import {
+  useIsNextButtonVisible,
+  useIssueStore,
+} from '@/app/(with-sidebar)/issue/store/use-issue-store';
+import { BUTTON_TEXT_MAP, ISSUE_STATUS } from '@/constants/issue';
+import ProgressBar from '../progress-bar/progress-bar';
 import HeaderButton from './header-button';
 import * as S from './header.styles';
 
-type Phase = 'ideation' | 'voting' | 'discussion';
-
 interface IssueHeaderProps {
-  currentPhase: Phase;
-  onPhaseChange: (phase: Phase) => void;
   onAIStructure?: () => void;
 }
 
-const Header = ({ currentPhase, onPhaseChange, onAIStructure }: IssueHeaderProps) => {
-  const handleVoteStart = () => {
-    if (currentPhase === 'ideation') {
-      onPhaseChange('voting');
-      return;
-    }
-    if (currentPhase === 'voting') {
-      onPhaseChange('discussion');
-      return;
+const Header = ({ onAIStructure }: IssueHeaderProps) => {
+  const issueState = useIssueStore(
+    useShallow((state) => ({
+      status: state.status,
+      voteStatus: state.voteStatus,
+    })),
+  );
+
+  const { nextStep, closeIssue, startVote, endVote } = useIssueStore((state) => state.actions);
+
+  const isVisible = useIsNextButtonVisible();
+
+  const renderActionButtons = () => {
+    switch (issueState.status) {
+      case ISSUE_STATUS.CATEGORIZE:
+        return (
+          <>
+            <HeaderButton
+              imageSrc="/folder.svg"
+              alt="카테고리 추가"
+              text="카테고리 추가"
+            />
+            <HeaderButton
+              imageSrc="/stick.svg"
+              alt="AI 구조화"
+              text="AI 구조화"
+              onClick={onAIStructure}
+            />
+          </>
+        );
+      case ISSUE_STATUS.VOTE:
+        const isVoting = issueState.voteStatus === 'IN_PROGRESS';
+        const text = BUTTON_TEXT_MAP[issueState.voteStatus];
+
+        return (
+          <HeaderButton
+            imageSrc="/good.svg"
+            alt="투표"
+            text={text}
+            variant={isVoting ? 'dark' : undefined}
+            onClick={isVoting ? endVote : startVote}
+          />
+        );
+      case ISSUE_STATUS.SELECT:
+        return (
+          <HeaderButton
+            text="이슈 종료"
+            variant="dark"
+            onClick={closeIssue}
+          />
+        );
     }
   };
 
-  const getVoteButtonText = () => {
-    switch (currentPhase) {
-      case 'ideation':
-        return '투표 시작';
-      case 'voting':
-        return '토론 시작';
-      case 'discussion':
-        return '토론 중';
-      default:
-        return '투표 시작';
-    }
-  };
   return (
     <S.HeaderContainer>
       <S.LeftSection>
@@ -47,29 +80,27 @@ const Header = ({ currentPhase, onPhaseChange, onAIStructure }: IssueHeaderProps
         />
         서비스 홍보 방안
       </S.LeftSection>
+      <S.CenterSection>
+        <ProgressBar />
+      </S.CenterSection>
       <S.RightSection>
+        {isVisible && (
+          <HeaderButton
+            text="다음"
+            onClick={nextStep}
+          />
+        )}
+
+        {renderActionButtons()}
+
         <HeaderButton
           imageSrc="/timer.svg"
           imageSize={16}
+          alt="타이머"
         />
         <HeaderButton
-          imageSrc="/good.svg"
-          text={getVoteButtonText()}
-          onClick={currentPhase !== 'discussion' ? handleVoteStart : undefined}
-        />
-        <HeaderButton
-          imageSrc="/folder.svg"
-          text="카테고리 추가"
-        />
-        <HeaderButton
-          imageSrc="/stick.svg"
-          text="AI 구조화"
-          onClick={onAIStructure}
-        />
-        <HeaderButton imageSrc="/share.svg" />
-        <HeaderButton
-          text="이슈 종료"
-          variant="dark"
+          imageSrc="/share.svg"
+          alt="공유하기"
         />
       </S.RightSection>
     </S.HeaderContainer>
