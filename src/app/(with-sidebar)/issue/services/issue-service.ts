@@ -30,3 +30,10 @@ export async function getCategorizedIdeas() {
 
   return { rawData, categorizedCards };
 }
+
+export async function getAllIdeas() {
+  // 실제 DB I/O 로직이 들어갈 자리
+
+  const { rawData } = await getCategorizedIdeas();
+  return rawData as Idea[];
+}
