@@ -18,6 +18,7 @@ import type { Category } from '@/app/(with-sidebar)/issue/types/category';
 import type { IdeaWithPosition, Position } from '@/app/(with-sidebar)/issue/types/idea';
 import LoadingOverlay from '@/components/loading-overlay/loading-overlay';
 import CategoryCard from './_components/category/category-card';
+import { useCanvasStore } from './store/use-canvas-store';
 
 type Phase = 'ideation' | 'voting' | 'discussion';
 
@@ -29,6 +30,7 @@ const IssuePage = () => {
   const { ideas, addIdea, updateIdeaContent, updateIdeaPosition, deleteIdea, setIdeas } =
     useIdeaStore(issueId);
   const { addCard, removeCard } = useIdeaCardStackStore(issueId);
+  const scale = useCanvasStore((state) => state.scale); // Canvas scale 가져오기
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [currentPhase, setCurrentPhase] = useState<Phase>('ideation');
@@ -113,12 +115,10 @@ const IssuePage = () => {
     }
     // 자유 배치 영역 (over가 없거나 카테고리가 아닌 경우)
     else if (idea.position) {
-      const CANVAS_SCALE = 0.7;
-
       // delta는 화면 픽셀 단위이므로 Canvas scale로 나눠서 보정
       updateIdeaPosition(ideaId, {
-        x: idea.position.x + delta.x / CANVAS_SCALE,
-        y: idea.position.y + delta.y / CANVAS_SCALE,
+        x: idea.position.x + delta.x / scale,
+        y: idea.position.y + delta.y / scale,
       });
     }
   };
@@ -314,7 +314,7 @@ const IssuePage = () => {
                 return (
                   <div
                     style={{
-                      transform: 'scale(0.7)',
+                      transform: `scale(${scale})`,
                       transformOrigin: '0 0', // 왼쪽 위 기준으로 scale
                     }}
                   >

@@ -2,6 +2,7 @@
 
 import { useCallback, useRef, useState } from 'react';
 import Image from 'next/image';
+import { useCanvasStore } from '../../store/use-canvas-store';
 import { CanvasContext } from './canvas-context';
 import {
   AddIdeaButton,
@@ -17,37 +18,41 @@ interface CanvasProps {
   onDoubleClick?: (position: { x: number; y: number }) => void;
 }
 
-const DEFAULT_ZOOM_SCALE = 0.7;
 const DEFAULT_OFFSET = { x: 0, y: 0 };
 
 export default function Canvas({ children, onDoubleClick }: CanvasProps) {
   const canvasRef = useRef<HTMLDivElement>(null);
 
+  // 전역 상태에서 scale과 offset 가져오기
+  const { scale, offset, setScale, setOffset, reset } = useCanvasStore();
+
   // 패닝(드래그 이동) 상태 관리
   const [isPanning, setIsPanning] = useState(false); // 현재 패닝 중인지 여부
   const [panStart, setPanStart] = useState(DEFAULT_OFFSET); // 패닝 시작 지점
-  const [offset, setOffset] = useState(DEFAULT_OFFSET); // 캔버스 이동 오프셋
-  const [scale, setScale] = useState(DEFAULT_ZOOM_SCALE); // 확대/축소 비율 (0.3 ~ 3.0)
 
   /**
    * 마우스 휠 이벤트 핸들러
    * - Ctrl/Cmd + 휠: 줌 인/아웃 (0.3x ~ 3.0x)
    * - 일반 휠: 캔버스 패닝
    */
-  const handleWheel = useCallback((e: React.WheelEvent) => {
-    if (e.ctrlKey || e.metaKey) {
-      // 줌 기능
-      e.preventDefault();
-      const delta = -e.deltaY * 0.001;
-      setScale((prev) => Math.min(Math.max(0.3, prev + delta), 3));
-    } else {
-      // 패닝 기능
-      setOffset((prev) => ({
-        x: prev.x - e.deltaX,
-        y: prev.y - e.deltaY,
-      }));
-    }
-  }, []);
+  const handleWheel = useCallback(
+    (e: React.WheelEvent) => {
+      if (e.ctrlKey || e.metaKey) {
+        // 줌 기능
+        e.preventDefault();
+        const delta = -e.deltaY * 0.001;
+        const newScale = Math.min(Math.max(0.3, scale + delta), 3);
+        setScale(newScale);
+      } else {
+        // 패닝 기능
+        setOffset({
+          x: offset.x - e.deltaX,
+          y: offset.y - e.deltaY,
+        });
+      }
+    },
+    [scale, offset, setScale, setOffset],
+  );
 
   /**
    * 마우스 다운 이벤트 핸들러
@@ -79,7 +84,7 @@ export default function Canvas({ children, onDoubleClick }: CanvasProps) {
         });
       }
     },
-    [isPanning, panStart],
+    [isPanning, panStart, setOffset],
   );
 
   /**
@@ -92,18 +97,17 @@ export default function Canvas({ children, onDoubleClick }: CanvasProps) {
 
   /** 줌 인 (+10%) */
   const handleZoomIn = () => {
-    setScale((prev) => Math.min(prev + 0.1, 3));
+    setScale(Math.min(scale + 0.1, 3));
   };
 
   /** 줌 아웃 (-10%) */
   const handleZoomOut = () => {
-    setScale((prev) => Math.max(prev - 0.1, 0.3));
+    setScale(Math.max(scale - 0.1, 0.3));
   };
+
   /** 기본값으로 복귀 */
   const handleResetZoom = () => {
-    setScale(DEFAULT_ZOOM_SCALE);
-    setOffset(DEFAULT_OFFSET);
-    setOffset({ x: 0, y: 0 });
+    reset();
   };
 
   const handleCanvasDoubleClick = useCallback(
