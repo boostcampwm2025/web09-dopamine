@@ -42,6 +42,18 @@ export default function CategorizedList() {
     setDialogContent(text);
   };
 
+  const handleItemInteraction = (e: React.MouseEvent | React.KeyboardEvent) => {
+    // 키보드 체크
+    if ('key' in e && e.key !== 'Enter' && e.key !== ' ') return;
+    
+    // 데이터 추출
+    const content = e.currentTarget.getAttribute('data-content');
+    if (content) {
+      if ('key' in e) e.preventDefault();
+      handleShowDetail(content);
+    }
+  };
+
   const handleCloseDialog = () => {
     setDialogContent(null);
   };
@@ -81,13 +93,9 @@ export default function CategorizedList() {
                     title={item.content}
                     role="button"
                     tabIndex={0}
-                    onClick={() => handleShowDetail(item.content)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        handleShowDetail(item.content);
-                      }
-                    }}
+                    data-content={item.content}
+                    onClick={handleItemInteraction}
+                    onKeyDown={handleItemInteraction}
                   >
                     {item.content}
                   </ItemContent>
@@ -106,7 +114,11 @@ export default function CategorizedList() {
             ))}
             {hasMore && (
               <Footer>
-                <MoreButton type="button" onClick={handleToggleCategory}>
+                <MoreButton
+                  type="button"
+                  data-id={category.id}
+                  onClick={handleToggleCategory}
+                >
                   {isExpanded ? '접기' : '더보기'}
                 </MoreButton>
               </Footer>
