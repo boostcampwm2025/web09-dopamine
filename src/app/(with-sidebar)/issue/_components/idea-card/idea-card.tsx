@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import useIdeaCard from '@/app/(with-sidebar)/issue/hooks/use-idea-card';
 import { useDraggable } from '../../hooks/use-draggable';
+import { useIdeaCardStackStore } from '../../store/use-idea-card-stack-store';
 import type { Position } from '../../types/idea';
 import { useCanvasContext } from '../canvas/canvas-context';
 import {
@@ -21,6 +22,7 @@ import {
 
 interface IdeaCardProps {
   id?: string;
+  issueId?: string;
   content?: string;
   author?: string;
   position?: Position | null;
@@ -32,6 +34,7 @@ interface IdeaCardProps {
   editable?: boolean;
   categoryId?: string | null;
   onSave?: (content: string) => void;
+  onDelete?: () => void;
   onClick?: () => void;
   onPositionChange?: (id: string, position: Position) => void;
 }
@@ -51,6 +54,9 @@ export type DragItemPayload = {
 
 export default function IdeaCard(props: IdeaCardProps) {
   const { scale } = useCanvasContext();
+
+  const { bringToFront, getZIndex } = useIdeaCardStackStore(props.issueId);
+  const zIndex = props.id ? getZIndex(props.id) : 0;
 
   // 드래그 로직
   const inCategory = !!props.categoryId;
@@ -94,23 +100,38 @@ export default function IdeaCard(props: IdeaCardProps) {
 
   // 스타일 계산
   // 자유 배치 모드(categoryId === null)면 absolute positioning
-  const cardStyle = !inCategory && draggable
-    ? {
-        position: 'absolute' as const,
-        left: draggable.position.x,
-        top: draggable.position.y,
-        cursor: draggable.isDragging ? 'grabbing' : 'grab',
-        userSelect: 'none' as const,
-        zIndex: draggable.isDragging ? 1000 : 1,
-      }
-    : {};
+  const cardStyle =
+    !inCategory && draggable
+      ? {
+          position: 'absolute' as const,
+          left: draggable.position.x,
+          top: draggable.position.y,
+          cursor: draggable.isDragging ? 'grabbing' : 'grab',
+          userSelect: 'none' as const,
+          zIndex: draggable.isDragging ? 1000 : zIndex,
+        }
+      : {};
+
+  const handleCardClick = (e: React.MouseEvent) => {
+    if (props.id && !inCategory) {
+      bringToFront(props.id);
+    }
+    props.onClick?.();
+  };
+
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!draggable?.hasMoved) {
+      props.onDelete?.();
+    }
+  };
 
   return (
     <Card
       status={status}
       isDragging={draggable?.isDragging ?? false}
       inCategory={inCategory}
-      onClick={props.onClick}
+      onClick={handleCardClick}
       onMouseDown={draggable?.handleMouseDown}
       style={cardStyle}
     >
@@ -131,6 +152,7 @@ export default function IdeaCard(props: IdeaCardProps) {
             value={editValue}
             onChange={(e) => setEditValue(e.target.value)}
             onKeyDown={handleKeyDownEdit}
+            onMouseDown={(e) => e.stopPropagation()} 
             autoFocus
             placeholder="아이디어를 입력해주세요."
           />
@@ -149,7 +171,10 @@ export default function IdeaCard(props: IdeaCardProps) {
               />
             </IconButton>
           ) : (
-            <IconButton aria-label="delete">
+            <IconButton
+              aria-label="delete"
+              onClick={handleDeleteClick}
+            >
               <Image
                 src="/trash.svg"
                 alt="삭제"
