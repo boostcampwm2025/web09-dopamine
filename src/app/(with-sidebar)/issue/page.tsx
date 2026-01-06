@@ -13,6 +13,7 @@ import CategoryCard from './_components/category/category-card';
 const IssuePage = () => {
   // TODO: URL 파라미터나 props에서 실제 issueId 가져오기
   // 예: const { issueId } = useParams() 또는 props.issueId
+  // TODO: 실제 issueId로 useIssueStore > setInitialData 실행
   const issueId = 'default'; // 임시 기본값
 
   const { ideas, addIdea, updateIdeaContent, updateIdeaPosition, deleteIdea, setIdeas } =

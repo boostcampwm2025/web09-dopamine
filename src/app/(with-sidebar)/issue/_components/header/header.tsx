@@ -23,7 +23,7 @@ const Header = ({ onAIStructure }: IssueHeaderProps) => {
     })),
   );
 
-  const { next, closeIssue, startVote, endVote } = useIssueStore((state) => state.actions);
+  const { nextStep, closeIssue, startVote, endVote } = useIssueStore((state) => state.actions);
 
   const isVisible = useIsNextButtonVisible();
 
@@ -87,7 +87,7 @@ const Header = ({ onAIStructure }: IssueHeaderProps) => {
         {isVisible && (
           <HeaderButton
             text="다음"
-            onClick={next}
+            onClick={nextStep}
           />
         )}
 
