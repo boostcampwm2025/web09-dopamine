@@ -1,5 +1,4 @@
-import ConclusionSection from '@/app/(with-sidebar)/issue/_components/summary/conclusion-section';
-import RankingList from '@/app/(with-sidebar)/issue/_components/summary/ranking-list';
+import CategorizedList from "../(with-sidebar)/issue/_components/summary/categorized-list";
 
 export default function TestPage() {
   return (
@@ -12,13 +11,7 @@ export default function TestPage() {
         gap: 16,
       }}
     >
-      <ConclusionSection
-        badgeText="Selected Idea"
-        title="OKKY 개발자 커뮤니티에 기술 블로그 형식으로 홍보글 작성"
-        votes={12}
-        candidates={12}
-      />
-      <RankingList/>
+      <CategorizedList/>
     </main>
   );
 }
