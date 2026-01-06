@@ -1,24 +1,19 @@
+import { STATUS_LABEL } from '@/constants/issue';
+import { IssueStatus } from '@/types/issue';
 import * as S from './sidebar.styles';
-import { IssueStatusType } from './types';
 
 interface SidebarItemProps {
   title: string;
   href: string;
-  status?: IssueStatusType;
+  status?: IssueStatus;
 }
-
-const ISSUE_STATUS: Record<IssueStatusType, string> = {
-  open: 'Open',
-  voting: 'Voting',
-  closed: 'Closed',
-};
 
 export default function SidebarItem({ title, href, status }: SidebarItemProps) {
   return (
     <S.SidebarListItem>
       <S.ListItemLink href={href}>
         <span>{title}</span>
-        {status && <S.StatusLabel status={status}>{ISSUE_STATUS[status]}</S.StatusLabel>}
+        {status && <S.StatusLabel status={status}>{STATUS_LABEL[status]}</S.StatusLabel>}
       </S.ListItemLink>
     </S.SidebarListItem>
   );
