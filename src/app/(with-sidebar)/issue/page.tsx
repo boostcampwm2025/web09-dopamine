@@ -57,6 +57,20 @@ const IssuePage = () => {
     removeCard(id);
   };
 
+  const handleMoveIdeaToCategory = (ideaId: string, targetCategoryId: string | null) => {
+    setIdeas(
+      ideas.map((idea) =>
+        idea.id === ideaId
+          ? {
+              ...idea,
+              categoryId: targetCategoryId,
+              position: targetCategoryId === null ? idea.position || { x: 100, y: 100 } : null,
+            }
+          : idea,
+      ),
+    );
+  };
+
   const handleAIStructure = async () => {
     // 빈 content를 가진 아이디어는 제외
     const validIdeas = ideas
@@ -96,7 +110,6 @@ const IssuePage = () => {
       }
 
       const aiResponse = JSON.parse(content);
-      console.log('파싱된 AI 응답:', aiResponse);
 
       // AI 응답 처리
       if (aiResponse.categories && Array.isArray(aiResponse.categories)) {
@@ -125,7 +138,7 @@ const IssuePage = () => {
             return {
               ...idea,
               categoryId: newCategories[categoryIndex].id,
-              position: { x: 0, y: 0 },
+              position: null, // 카테고리 내부는 position 불필요
             };
           }
 
@@ -180,6 +193,7 @@ const IssuePage = () => {
             position={category.position}
             isMuted={category.isMuted}
             onPositionChange={handleCategoryPositionChange}
+            onDropIdea={(ideaId) => handleMoveIdeaToCategory(ideaId, category.id)}
           >
             {categoryIdeas.map((idea) => (
               <IdeaCard

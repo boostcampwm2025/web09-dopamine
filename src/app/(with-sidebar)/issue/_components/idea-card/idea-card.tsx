@@ -63,17 +63,18 @@ export default function IdeaCard(props: IdeaCardProps) {
   // 카테고리에 속하지 않은 자유 배치 아이디어만 드래그 가능
   const canDrag = !inCategory && props.id && props.onPositionChange;
 
-  const draggable = canDrag
-    ? useDraggable({
-        initialPosition: props.position || { x: 0, y: 0 },
-        scale,
-        onDragEnd: (newPosition) => {
-          if (props.id && props.onPositionChange) {
-            props.onPositionChange(props.id, newPosition);
-          }
-        },
-      })
-    : null;
+  const draggable =
+    canDrag && props.position
+      ? useDraggable({
+          initialPosition: props.position,
+          scale,
+          onDragEnd: (newPosition) => {
+            if (props.id && props.onPositionChange) {
+              props.onPositionChange(props.id, newPosition);
+            }
+          },
+        })
+      : null;
 
   // 비즈니스 로직 (투표, 편집 등)
   const {
@@ -109,6 +110,11 @@ export default function IdeaCard(props: IdeaCardProps) {
           cursor: draggable.isDragging ? 'grabbing' : 'grab',
           userSelect: 'none' as const,
           zIndex: draggable.isDragging ? 1000 : zIndex,
+          // 드래그 중에도 Canvas scale 0.7 유지
+          transform: draggable.isDragging ? 'scale(0.7)' : undefined,
+          transformOrigin: 'top left',
+          boxShadow: draggable.isDragging ? '0 12px 24px rgba(31, 41, 55, 0.2)' : undefined,
+          opacity: draggable.isDragging ? 0.95 : undefined,
         }
       : {};
 
@@ -126,6 +132,19 @@ export default function IdeaCard(props: IdeaCardProps) {
     }
   };
 
+  // HTML5 드래그앤드롭 (카테고리 간 이동용)
+  const handleDragStart = (e: React.DragEvent) => {
+    e.stopPropagation(); // 카테고리로 이벤트 버블링 방지
+    if (props.id) {
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('ideaId', props.id);
+    }
+  };
+
+  const handleDragEnd = (e: React.DragEvent) => {
+    e.stopPropagation(); // 드래그 종료 이벤트도 버블링 방지
+  };
+
   return (
     <Card
       status={status}
@@ -133,6 +152,9 @@ export default function IdeaCard(props: IdeaCardProps) {
       inCategory={inCategory}
       onClick={handleCardClick}
       onMouseDown={draggable?.handleMouseDown}
+      draggable={inCategory} // 카테고리 내부일 때만 HTML5 드래그 활성화
+      onDragStart={inCategory ? handleDragStart : undefined}
+      onDragEnd={inCategory ? handleDragEnd : undefined}
       style={cardStyle}
     >
       {status === 'selected' && (
@@ -152,7 +174,7 @@ export default function IdeaCard(props: IdeaCardProps) {
             value={editValue}
             onChange={(e) => setEditValue(e.target.value)}
             onKeyDown={handleKeyDownEdit}
-            onMouseDown={(e) => e.stopPropagation()} 
+            onMouseDown={(e) => e.stopPropagation()}
             autoFocus
             placeholder="아이디어를 입력해주세요."
           />

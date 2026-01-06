@@ -51,11 +51,13 @@ export default function Canvas({ children, onDoubleClick }: CanvasProps) {
 
   /**
    * 마우스 다운 이벤트 핸들러
-   * - 중간 마우스 버튼(휠 클릭) 또는 Shift + 좌클릭으로 패닝 시작
+   * - 중간 마우스 버튼(휠 클릭)으로 패닝 시작
+   * - 또는 캔버스 빈 공간을 Shift + 좌클릭으로 패닝 시작
    */
   const handleMouseDown = useCallback(
     (e: React.MouseEvent) => {
-      if (e.button === 1 || (e.button === 0 && !e.shiftKey)) {
+      // 중간 버튼(휠 클릭) 또는 Shift + 좌클릭
+      if (e.button === 1 || (e.button === 0 && e.shiftKey)) {
         e.preventDefault();
         setIsPanning(true);
         setPanStart({ x: e.clientX - offset.x, y: e.clientY - offset.y });

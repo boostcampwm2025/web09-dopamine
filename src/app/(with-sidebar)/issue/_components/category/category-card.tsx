@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import useCategory from '@/app/(with-sidebar)/issue/hooks/use-category-card';
 import { useDraggable } from '../../hooks/use-draggable';
 import type { Position } from '../../types/idea';
@@ -28,6 +29,7 @@ interface CategoryCardProps {
   onDrag?: (id: string, position: Position, delta: { dx: number; dy: number }) => void;
   onDragStart?: () => void;
   onDragEnd?: () => void;
+  onDropIdea?: (ideaId: string) => void;
 }
 
 export default function CategoryCard({
@@ -41,8 +43,10 @@ export default function CategoryCard({
   onDrag,
   onDragStart,
   onDragEnd,
+  onDropIdea,
 }: CategoryCardProps) {
   const { scale } = useCanvasContext();
+  const [isDragOver, setIsDragOver] = useState(false);
 
   // 카테고리 드래그 기능
   const draggable = onPositionChange
@@ -72,11 +76,37 @@ export default function CategoryCard({
     cancelEditingTitle,
   } = useCategory({ title });
 
+  // 드롭존 이벤트 핸들러
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault(); // 드롭을 허용하려면 필수
+    e.stopPropagation();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+
+    const ideaId = e.dataTransfer.getData('ideaId');
+    if (ideaId && onDropIdea) {
+      onDropIdea(ideaId);
+    }
+  };
+
   return (
     <StyledCategoryCard
       isMuted={isMuted}
       aria-label={`${curTitle} 카테고리`}
-      onMouseDown={draggable?.handleMouseDown}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
       style={
         draggable
           ? {
@@ -86,11 +116,19 @@ export default function CategoryCard({
               cursor: draggable.isDragging ? 'grabbing' : 'grab',
               userSelect: 'none' as const,
               zIndex: 0, // 항상 아이디어 카드보다 낮게
+              outline: isDragOver ? '2px dashed #4CAF50' : 'none',
+              backgroundColor: isDragOver ? 'rgba(76, 175, 80, 0.1)' : undefined,
             }
-          : {}
+          : {
+              outline: isDragOver ? '2px dashed #4CAF50' : 'none',
+              backgroundColor: isDragOver ? 'rgba(76, 175, 80, 0.1)' : undefined,
+            }
       }
     >
-      <Header isMuted={isMuted}>
+      <Header
+        isMuted={isMuted}
+        onMouseDown={draggable?.handleMouseDown}
+      >
         <HeaderLeft>
           <Dot isMuted={isMuted} />
           {isEditing ? (
