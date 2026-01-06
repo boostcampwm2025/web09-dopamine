@@ -1,13 +1,11 @@
-name: Deploy to Docker Hub
+name: CD - Deploy to Docker Hub
 
 on:
   push:
-    branches: [ "main" ] # main 브랜치에 푸시될 때만 실행
-  pull_request:
-    branches: [ "main" ]
+    branches: [ "main" ] # main 브랜치에 merge되었을 때만 배포
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
