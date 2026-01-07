@@ -19,6 +19,7 @@ import {
   Header,
   IconButton,
   Meta,
+  SubmitButton,
   VoteButton,
 } from './idea-card.styles';
 
@@ -82,6 +83,7 @@ export default function IdeaCard(props: IdeaCardProps) {
     setEditValue,
     handleAgree,
     handleDisagree,
+    submitEdit,
     handleKeyDownEdit,
   } = useIdeaCard({
     content: props.content,
@@ -177,17 +179,20 @@ export default function IdeaCard(props: IdeaCardProps) {
               />
             </IconButton>
           ) : (
-            <IconButton
-              aria-label="delete"
-              onClick={handleDeleteClick}
-            >
-              <Image
-                src="/trash.svg"
-                alt="삭제"
-                width={14}
-                height={14}
-              />
-            </IconButton>
+            <>
+              {isEditing ? <SubmitButton onClick={submitEdit}>제출</SubmitButton> : null}
+              <IconButton
+                aria-label="delete"
+                onClick={handleDeleteClick}
+              >
+                <Image
+                  src="/trash.svg"
+                  alt="삭제"
+                  width={14}
+                  height={14}
+                />
+              </IconButton>
+            </>
           )}
         </Meta>
       </Header>

@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+import { theme } from '@/styles/theme';
 
 const Card = styled.article<{
   status?: 'needDiscussion' | 'selected' | 'default';
@@ -114,6 +115,7 @@ const Meta = styled.div`
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
+  gap: 8px;
   width: 100%;
 `;
 
@@ -126,6 +128,21 @@ const AuthorPill = styled.span`
   font-size: 13px;
 `;
 
+const SubmitButton = styled.button`
+  margin-left: auto;
+  width: 60px;
+  height: 42px;
+  border: 1px solid ${theme.colors.green[600]};
+  border-radius: ${theme.radius.small};
+  font-size: ${theme.font.size.medium};
+  color: ${theme.colors.green[600]};
+  background-color: ${theme.colors.white};
+  letter-spacing: 1px;
+
+  &:hover {
+    background-color: ${theme.colors.green[100]};
+  }
+`;
 const IconButton = styled.button`
   background: #ffffff;
   border: 1px solid #e5e7eb;
@@ -207,5 +224,6 @@ export {
   Divider,
   Footer,
   VoteButton,
+  SubmitButton,
   Badge,
 };
