@@ -24,7 +24,7 @@ export default function NormalList() {
   const visibleItems = showAll ? rawData : rawData.slice(0, 5);
   const hasMore = rawData.length > 5;
 
-  const handleDialogContent = () => {
+  const closeDialog = () => {
     setDialogContent(null)
   };
 
@@ -77,7 +77,7 @@ export default function NormalList() {
         </S.Footer>
       )}
       {dialogContent && (
-        <DS.DialogOverlay onClick={handleDialogContent}>
+        <DS.DialogOverlay onClick={closeDialog}>
           <DS.Dialog
             role="dialog"
             aria-modal="true"
@@ -88,12 +88,12 @@ export default function NormalList() {
               <span>아이디어 상세</span>
               <DS.DialogClose
                 type="button"
-                aria-label="닫기"
-                onClick={handleDialogContent}
+                aria-label="이슈 닫기"
+                onClick={closeDialog}
               >
                 <Image
                   src="/close.svg"
-                  alt="닫기 이미지"
+                  alt="이슈 닫기 이미지"
                   width={16}
                   height={16}
                 />  
