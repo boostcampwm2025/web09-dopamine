@@ -10,6 +10,7 @@ interface IdeaStore {
   updateIdeaEditable: (id: string, editable: boolean) => void;
   deleteIdea: (id: string) => void;
   setIdeas: (ideas: IdeaWithPosition[]) => void;
+  setInitialData: (ideas: IdeaWithPosition[]) => void;
   clearIdeas: () => void;
 }
 
@@ -19,38 +20,44 @@ const createIdeaStore = (issueId: string) => {
       (set) => ({
         ideas: [],
 
-        addIdea: (idea) =>
+        addIdea: (idea: IdeaWithPosition) =>
           set((state) => ({
             ideas: [...state.ideas, idea],
           })),
 
-        updateIdeaContent: (id, content) =>
+        updateIdeaContent: (id: string, content: string) =>
           set((state) => ({
             ideas: state.ideas.map((idea) =>
               idea.id === id ? { ...idea, content, editable: false } : idea,
             ),
           })),
 
-        updateIdeaPosition: (id, position) =>
+        updateIdeaPosition: (id: string, position: Position) =>
           set((state) => ({
             ideas: state.ideas.map((idea) =>
               idea.id === id ? { ...idea, position } : idea,
             ),
           })),
 
-        updateIdeaEditable: (id, editable) =>
+        updateIdeaEditable: (id: string, editable: boolean) =>
           set((state) => ({
             ideas: state.ideas.map((idea) =>
               idea.id === id ? { ...idea, editable } : idea,
             ),
           })),
 
-        deleteIdea: (id) =>
+        deleteIdea: (id: string) =>
           set((state) => ({
             ideas: state.ideas.filter((idea) => idea.id !== id),
           })),
 
-        setIdeas: (ideas) => set({ ideas }),
+        setIdeas: (ideas: IdeaWithPosition[]) => set({ ideas }),
+
+        setInitialData: (ideas: IdeaWithPosition[]) => // 서버
+          set((state) => { // 로컬
+            if (state.ideas.length > 0) return state;
+            return { ideas };
+          }),
 
         clearIdeas: () => set({ ideas: [] }),
       }),
