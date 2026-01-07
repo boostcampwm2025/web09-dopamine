@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
@@ -55,6 +56,7 @@ export type DragItemPayload = {
 
 export default function IdeaCard(props: IdeaCardProps) {
   const { scale } = useCanvasContext();
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const { bringToFront, getZIndex } = useIdeaCardStackStore(props.issueId);
   const zIndex = props.id ? getZIndex(props.id) : 0;
@@ -90,6 +92,13 @@ export default function IdeaCard(props: IdeaCardProps) {
     editable: !!props.editable,
     onSave: props.onSave,
   });
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+    }
+  }, [editValue]);
 
   // 스타일 계산
   // 자유 배치 모드(categoryId === null)면 absolute positioning
@@ -145,6 +154,7 @@ export default function IdeaCard(props: IdeaCardProps) {
       <Header>
         {isEditing ? (
           <EditableInput
+            ref={textareaRef}
             value={editValue}
             onChange={(e) => setEditValue(e.target.value)}
             onKeyDown={handleKeyDownEdit}

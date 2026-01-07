@@ -31,8 +31,7 @@ const IssuePage = () => {
 
   const { ideas, addIdea, updateIdeaContent, updateIdeaPosition, deleteIdea, setIdeas } =
     useIdeaStore(issueId);
-  const { addCard, removeCard } = useIdeaCardStackStore(issueId);
-  const scale = useCanvasStore((state) => state.scale); // Canvas scale 가져오기
+  const { addCard, removeCard, setInitialData } = useIdeaCardStackStore(issueId);
 
   const voteStatus = useIssueStore((state) => state.voteStatus);
   //TODO: 추후 투표 종료 시 투표 기능이 활성화되지 않도록 기능 추가 필요
@@ -215,10 +214,9 @@ const IssuePage = () => {
   };
 
   useEffect(() => {
-    ideas.forEach((idea) => {
-      addCard(idea.id);
-    });
-  }, []);
+    const ideaIds = ideas.map((idea) => idea.id);
+    setInitialData(ideaIds);
+  }, [ideas, setInitialData]);
 
   // AI 구조화 이벤트 리스너
   useEffect(() => {
