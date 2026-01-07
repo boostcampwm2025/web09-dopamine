@@ -10,6 +10,8 @@ export const Container = styled.div`
   padding: 60px;
   flex: 1;
   height: fit-content;
+  background: ${theme.colors.gray[50]};
+
 `;
 
 export const ComponentBox = styled.div`
