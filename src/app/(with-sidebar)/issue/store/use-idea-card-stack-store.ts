@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware';
 
 interface IdeaCardStackState {
   cardStack: string[];
+  setInitialData: (cardIds: string[]) => void;
   bringToFront: (cardId: string) => void;
   addCard: (cardId: string) => void;
   removeCard: (cardId: string) => void;
@@ -15,7 +16,18 @@ const createIdeaCardStackStore = (issueId: string) => {
       (set, get) => ({
         cardStack: [],
 
-        bringToFront: (cardId) =>
+        setInitialData: (cardIds: string[]) =>
+          set((state) => {
+            const newIds = cardIds.filter((id) => !state.cardStack.includes(id));
+            
+            if (newIds.length === 0) return state;
+            
+            return {
+              cardStack: [...state.cardStack, ...newIds],
+            };
+          }),
+
+        bringToFront: (cardId: string) =>
           set((state) => {
             if (state.cardStack[state.cardStack.length - 1] === cardId) {
               return state;
@@ -25,7 +37,7 @@ const createIdeaCardStackStore = (issueId: string) => {
             };
           }),
 
-        addCard: (cardId) =>
+        addCard: (cardId: string) =>
           set((state) => {
             if (state.cardStack.includes(cardId)) {
               return state;
@@ -35,12 +47,12 @@ const createIdeaCardStackStore = (issueId: string) => {
             };
           }),
 
-        removeCard: (cardId) =>
+        removeCard: (cardId: string) =>
           set((state) => ({
             cardStack: state.cardStack.filter((id) => id !== cardId),
           })),
 
-        getZIndex: (cardId) => {
+        getZIndex: (cardId: string) => {
           const index = get().cardStack.indexOf(cardId);
           return index === -1 ? 0 : index + 1; // 1부터 시작
         },
