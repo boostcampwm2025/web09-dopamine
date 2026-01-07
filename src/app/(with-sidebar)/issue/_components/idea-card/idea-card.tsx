@@ -47,15 +47,6 @@ export default function IdeaCard(props: IdeaCardProps) {
   const { bringToFront, getZIndex } = useIdeaCardStackStore(props.issueId);
   const zIndex = props.id ? getZIndex(props.id) : 0;
 
-  // 드래그 로직
-  const inCategory = !!props.categoryId;
-
-  // dnd-kit useDraggable
-  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
-    id: props.id || 'idea-unknown',
-    disabled: !props.id, // id가 없으면 드래그 불가
-  });
-
   // 비즈니스 로직 (투표, 편집 등)
   const {
     status,
@@ -78,6 +69,18 @@ export default function IdeaCard(props: IdeaCardProps) {
     needDiscussion: props.needDiscussion,
     editable: !!props.editable,
     onSave: props.onSave,
+  });
+
+  // 드래그 로직
+  const inCategory = !!props.categoryId;
+
+  // dnd-kit useDraggable
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+    id: props.id || 'idea-unknown',
+    disabled: !props.id, // id가 없으면 드래그 불가
+    data: {
+      editValue: editValue,
+    },
   });
 
   useEffect(() => {

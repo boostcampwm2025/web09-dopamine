@@ -38,6 +38,7 @@ const IssuePage = () => {
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [overlayEditValue, setOverlayEditValue] = useState<string | null>(null);
   const [isAILoading, setIsAILoading] = useState(false);
 
   // dnd-kit sensors 설정
@@ -100,12 +101,18 @@ const IssuePage = () => {
   // dnd-kit 드래그 시작
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string);
+
+    const editValue = event.active.data?.current?.editValue;
+    if (editValue) {
+      setOverlayEditValue(editValue);
+    }
   };
 
   // dnd-kit 드래그 종료
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over, delta } = event;
     setActiveId(null);
+    setOverlayEditValue(null);
 
     const ideaId = active.id as string;
     const idea = ideas.find((i) => i.id === ideaId);
@@ -313,7 +320,7 @@ const IssuePage = () => {
                     <IdeaCard
                       id={activeIdea.id}
                       issueId={issueId}
-                      content={activeIdea.content}
+                      content={overlayEditValue ?? activeIdea.content}
                       author={activeIdea.author}
                       categoryId={activeIdea.categoryId}
                       position={null}
