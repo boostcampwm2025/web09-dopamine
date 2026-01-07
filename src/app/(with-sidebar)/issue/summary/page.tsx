@@ -1,6 +1,6 @@
 'use client';
 
-import RankingList from './ranking-list';
+import RankingList from './_components/ranking-list';
 
 export default function IssueSummaryPage() {
   return (

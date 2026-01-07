@@ -5,7 +5,7 @@ import type { Idea } from '@/app/(with-sidebar)/issue/types/idea';
 import Image from 'next/image';
 import * as DS from './dialog.styles';
 import * as S from './normal-list.styles';
-import { getAllIdeas } from '../services/issue-service';
+import { getAllIdeas } from '../../services/issue-service';
 
 export default function NormalList() {
   const [rawData, setRawData] = useState<Idea[]>([]);
@@ -59,6 +59,7 @@ export default function NormalList() {
           <S.ItemRight>
             <S.VoteInfoSection>
               <S.VoteInfo type="agree">
+                <S.VoteLabel>찬성</S.VoteLabel>
                 <S.VoteCount type="agree">{item.agreeCount}</S.VoteCount>
               </S.VoteInfo>
               <S.VoteInfo type="disagree">
