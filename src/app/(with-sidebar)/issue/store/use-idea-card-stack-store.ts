@@ -17,9 +17,15 @@ const createIdeaCardStackStore = (issueId: string) => {
         cardStack: [],
 
         setInitialData: (cardIds: string[]) =>
-          set(() => ({
-            cardStack: cardIds,
-          })),
+          set((state) => {
+            const newIds = cardIds.filter((id) => !state.cardStack.includes(id));
+            
+            if (newIds.length === 0) return state;
+            
+            return {
+              cardStack: [...state.cardStack, ...newIds],
+            };
+          }),
 
         bringToFront: (cardId: string) =>
           set((state) => {
