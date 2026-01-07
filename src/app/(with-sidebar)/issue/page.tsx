@@ -32,6 +32,7 @@ const IssuePage = () => {
   const { ideas, addIdea, updateIdeaContent, updateIdeaPosition, deleteIdea, setIdeas } =
     useIdeaStore(issueId);
   const { addCard, removeCard, setInitialData } = useIdeaCardStackStore(issueId);
+  const scale = useCanvasStore((state) => state.scale); // Canvas scale 가져오기
 
   const voteStatus = useIssueStore((state) => state.voteStatus);
   //TODO: 추후 투표 종료 시 투표 기능이 활성화되지 않도록 기능 추가 필요
