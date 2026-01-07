@@ -11,6 +11,8 @@ import { BUTTON_TEXT_MAP, ISSUE_STATUS } from '@/constants/issue';
 import ProgressBar from '../progress-bar/progress-bar';
 import HeaderButton from './header-button';
 import * as S from './header.styles';
+import { useCategoryStore } from '@/app/(with-sidebar)/issue/store/use-category-store';
+import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
 
 interface IssueHeaderProps {
   onAddCategory?: (issueId: string) => void;
@@ -31,6 +33,28 @@ const Header = ({ onAddCategory, onAIStructure }: IssueHeaderProps) => {
 
   const openTooltip = useTooltipStore((state) => state.openTooltip);
   const closeTooltip = useTooltipStore((state) => state.closeTooltip);
+
+  const { categories } = useCategoryStore('default');
+  const { ideas } = useIdeaStore('default');
+
+  const handleNextStep = () => {
+    try {
+      nextStep(() => {
+        if (issueState.status === ISSUE_STATUS.CATEGORIZE) {
+          if (categories.length === 0) {
+            throw new Error('카테고리가 없습니다.');
+          }
+
+          const uncategorizedIdeas = ideas.filter((idea) => idea.categoryId === null);
+          if (uncategorizedIdeas.length > 0) {
+            throw new Error('카테고리가 지정되지 않은 아이디어가 있습니다.');
+          }
+        }
+      });
+    } catch (error) {
+      alert((error as Error).message);
+    }
+  };
 
   const renderActionButtons = () => {
     switch (issueState.status) {
@@ -94,7 +118,7 @@ const Header = ({ onAddCategory, onAIStructure }: IssueHeaderProps) => {
           <>
             <HeaderButton
               text="다음"
-              onClick={nextStep}
+              onClick={handleNextStep}
               onMouseEnter={(e) => {
                 e.stopPropagation();
                 openTooltip(
