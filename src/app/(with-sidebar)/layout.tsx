@@ -34,10 +34,6 @@ export default function WithSidebarLayout({ children }: { children: ReactNode })
 
   // 경로에 따라 다른 헤더 렌더링
   const renderHeader = () => {
-    // summary 페이지는 헤더 없음
-    if (pathname?.startsWith('/issue/summary')) {
-      return null;
-    }
     
     if (pathname?.startsWith('/issue')) {
       return <IssueHeader onAIStructure={handleAIStructure} />;
