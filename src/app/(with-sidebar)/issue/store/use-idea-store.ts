@@ -10,7 +10,6 @@ interface IdeaStore {
   updateIdeaEditable: (id: string, editable: boolean) => void;
   deleteIdea: (id: string) => void;
   setIdeas: (ideas: IdeaWithPosition[]) => void;
-  setInitialData: (ideas: IdeaWithPosition[]) => void;
   clearIdeas: () => void;
 }
 
@@ -52,12 +51,6 @@ const createIdeaStore = (issueId: string) => {
           })),
 
         setIdeas: (ideas: IdeaWithPosition[]) => set({ ideas }),
-
-        setInitialData: (ideas: IdeaWithPosition[]) => // 서버
-          set((state) => { // 로컬
-            if (state.ideas.length > 0) return state;
-            return { ideas };
-          }),
 
         clearIdeas: () => set({ ideas: [] }),
       }),
