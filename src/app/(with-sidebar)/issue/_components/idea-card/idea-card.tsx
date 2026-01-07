@@ -123,6 +123,11 @@ export default function IdeaCard(props: IdeaCardProps) {
     if (props.id && !inCategory) {
       bringToFront(props.id);
     }
+
+    if (isEditing) {
+      textareaRef.current?.focus();
+    }
+
     props.onClick?.();
   };
 
