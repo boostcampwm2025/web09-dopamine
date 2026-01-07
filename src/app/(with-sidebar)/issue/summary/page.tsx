@@ -1,8 +1,9 @@
 'use client';
 
+import ConclusionSection from './_components/conclusion/conclusion-section';
+import RankingList from './_components/ranking/ranking-list';
+import WordCloud from './_components/word-cloud/word-cloud';
 import * as S from './page.style';
-import RankingList from './_components/ranking-list';
-import ConclusionSection from './_components/conclusion-section';
 
 export default function IssueSummaryPage() {
   return (
@@ -12,6 +13,14 @@ export default function IssueSummaryPage() {
         votes={150}
         candidates={25}
       />
+      <S.wordCloudAndVoteBox>
+        <S.ComponentBox>
+          <WordCloud />
+        </S.ComponentBox>
+                <S.ComponentBox>
+          <WordCloud />
+        </S.ComponentBox>
+      </S.wordCloudAndVoteBox>
       <RankingList />
     </S.Container>
   );

@@ -43,9 +43,3 @@ export const Header = styled.div`
   align-items: center;
   padding: 0px 4px;
 `;
-
-export const HeaderTitle = styled.span`
-  font-size: ${theme.font.size.medium};
-  font-weight: ${theme.font.weight.bold};
-  color: ${theme.colors.black}
-`;

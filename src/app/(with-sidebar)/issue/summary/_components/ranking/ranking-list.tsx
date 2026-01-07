@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Image from 'next/image';
 import CategorizedListClient from './categorized-list';
 import * as S from './ranking-list.styles';
-import * as PS from '../page.style';
+import * as PS from '../../page.style';
 
 import NormalList from './normal-list';
 
@@ -21,7 +21,7 @@ export default function RankingList() {
             width={20}
             height={20}
           />
-          <S.HeaderTitle>투표 결과 순위</S.HeaderTitle>
+          <PS.HeaderTitle>투표 결과 순위</PS.HeaderTitle>
         </S.HeaderLeft>
         <S.BtnContainer>
           <S.Btn selected={!isCategorized} onClick={() => setIsCategorized(false)}>
