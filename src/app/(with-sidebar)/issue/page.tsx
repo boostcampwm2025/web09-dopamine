@@ -16,7 +16,7 @@ const IssuePage = () => {
   // TODO: 실제 issueId로 useIssueStore > setInitialData 실행
   const issueId = 'default'; // 임시 기본값
 
-  const { ideas, addIdea, updateIdeaContent, updateIdeaPosition, deleteIdea, setIdeas, setInitialData: setInitialIdeas } =
+  const { ideas, addIdea, updateIdeaContent, updateIdeaPosition, deleteIdea, setIdeas } =
     useIdeaStore(issueId);
   const { addCard, removeCard, setInitialData } = useIdeaCardStackStore(issueId);
 
