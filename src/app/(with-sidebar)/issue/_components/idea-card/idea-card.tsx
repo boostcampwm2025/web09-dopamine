@@ -90,6 +90,18 @@ export default function IdeaCard(props: IdeaCardProps) {
     }
   }, [editValue]);
 
+  useEffect(() => {
+    // 입력 중인 카드의 드래그가 끝난 경우, textarea에 포커스
+    if (isEditing && !isDragging) {
+      // dnd-kit에서 드래그가 끝나면 드래그한 컴포넌트를 자동으로 focus하기 때문에 시간차를 두고 포커스 설정
+      const timer = setTimeout(() => {
+        textareaRef.current?.focus();
+      }, 50);
+
+      return () => clearTimeout(timer);
+    }
+  }, [isDragging]);
+
   // 스타일 계산
   // 자유 배치 모드(categoryId === null)면 absolute positioning
   const cardStyle =
