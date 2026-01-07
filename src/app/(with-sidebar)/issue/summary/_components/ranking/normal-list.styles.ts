@@ -10,7 +10,7 @@ export const Container = styled.div`
   flex-direction: column;
 `;
 
-export const Item = styled.div<{ highlighted?: boolean }>`
+export const Item = styled.div<{ highlighted?: boolean, isTop?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -18,7 +18,7 @@ export const Item = styled.div<{ highlighted?: boolean }>`
   padding: 14px 16px;
   border-bottom: 1px solid ${theme.colors.gray[100]};
   background: ${({ highlighted }) => (highlighted ? theme.colors.gray[50] : 'transparent')};
-  border-radius: ${theme.radius.medium};
+  border-radius: ${ isTop => isTop ? theme.radius.medium + ' ' + theme.radius.medium + ' 0 0' : '0' };
   &:last-of-type {
     border-bottom: none;
   }
@@ -129,6 +129,7 @@ export const Footer = styled.div`
   display: flex;
   justify-content: center;
   padding: 12px 0;
+  border-radius: 0 0 ${theme.radius.medium} ${theme.radius.medium};
   border-top: 1px solid ${theme.colors.gray[100]};
   background: ${theme.colors.white};
 `;

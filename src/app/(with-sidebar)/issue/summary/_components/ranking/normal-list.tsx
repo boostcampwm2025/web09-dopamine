@@ -34,6 +34,7 @@ export default function NormalList() {
         <S.Item
           key={item.id}
           highlighted={item.highlighted}
+          isTop={index === 0}
         >
           <S.ItemLeft>
             <S.RankBadge highlighted={item.highlighted}>{index + 1}</S.RankBadge>

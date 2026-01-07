@@ -28,21 +28,23 @@ export default async function IssueSummaryPage({params}: {params: {issueId: stri
 
 
   return (
-    <div className={styles.container}>
-      <ConclusionSection
-        title= {"선택된 아이디어"}
-        votes={150}
-        candidates={25}
-      />
-      <div className={styles.wordCloudAndVoteBox}>
-        <div className={`${styles.componentBox} ${styles.componentBoxFlex2}`}>
-          <WordCloud />
+    <div className={styles.background} >
+      <div className={styles.container}>
+        <ConclusionSection
+          title= {"선택된 아이디어"}
+          votes={150}
+          candidates={25}
+        />
+        <div className={styles.wordCloudAndVoteBox}>
+          <div className={`${styles.componentBox} ${styles.componentBoxFlex2}`}>
+            <WordCloud />
+          </div>
+          <div className={`${styles.componentBox} ${styles.componentBoxFlex1}`}>
+            <VoteResult />
+          </div>
         </div>
-        <div className={`${styles.componentBox} ${styles.componentBoxFlex1}`}>
-          <VoteResult />
-        </div>
+        <RankingList />
       </div>
-      <RankingList />
     </div>
   );
 }
