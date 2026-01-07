@@ -45,23 +45,6 @@ const IssuePage = () => {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [isAILoading, setIsAILoading] = useState(false);
 
-  useEffect(() => {
-    const categoryIds = new Set(categories.map(cat => cat.id));
-    const orphanedIdeas = ideas.filter(
-      idea => idea.categoryId !== null && !categoryIds.has(idea.categoryId)
-    );
-
-    if (orphanedIdeas.length > 0) {
-      setIdeas(
-        ideas.map(idea =>
-          idea.categoryId !== null && !categoryIds.has(idea.categoryId)
-            ? { ...idea, categoryId: null, position: idea.position || { x: 100, y: 100 } }
-            : idea
-        )
-      );
-    }
-  }, []); 
-
   // dnd-kit sensors 설정
   const sensors = useSensors(
     useSensor(PointerSensor, {
