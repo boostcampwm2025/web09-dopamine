@@ -126,17 +126,20 @@ export default function Canvas({ children, onDoubleClick }: CanvasProps) {
     [onDoubleClick, offset, scale],
   );
 
-  const handleAddIdeaClick = useCallback(() => {
+  const handleAddIdeaButtonClick = useCallback(() => {
     if (!onDoubleClick) return;
 
     const rect = canvasRef.current?.getBoundingClientRect();
     if (!rect) return;
 
-    const viewportCenterX = rect.width / 2;
-    const viewportCenterY = rect.height / 2;
+    const CARD_WIDTH = 640;
+    const CARD_HEIGHT = 320;
 
-    const x = (viewportCenterX - offset.x) / scale;
-    const y = (viewportCenterY - offset.y) / scale;
+    const centerX = (rect.width / 2 - offset.x) / scale;
+    const centerY = (rect.height / 2 - offset.y) / scale;
+
+    const x = centerX - CARD_WIDTH / 2;
+    const y = centerY - CARD_HEIGHT / 2;
 
     onDoubleClick({ x, y });
   }, [onDoubleClick, offset, scale]);
@@ -194,7 +197,7 @@ export default function Canvas({ children, onDoubleClick }: CanvasProps) {
           />
         </ZoomButton>
       </ZoomControls>
-      <AddIdeaButton onClick={handleAddIdeaClick}>아이디어 추가</AddIdeaButton>
+      <AddIdeaButton onClick={handleAddIdeaButtonClick}>아이디어 추가</AddIdeaButton>
       <BottomMessage>배경을 더블클릭하여 새로운 아이디어를 작성할 수 있습니다.</BottomMessage>
     </>
   );
