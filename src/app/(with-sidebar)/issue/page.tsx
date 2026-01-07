@@ -16,14 +16,10 @@ const IssuePage = () => {
   // TODO: 실제 issueId로 useIssueStore > setInitialData 실행
   const issueId = 'default'; // 임시 기본값
 
-  const { ideas, addIdea, updateIdeaContent, updateIdeaPosition, deleteIdea, setIdeas } =
+  const { ideas, addIdea, updateIdeaContent, updateIdeaPosition, deleteIdea, setIdeas, setInitialData: setInitialIdeas } =
     useIdeaStore(issueId);
-  const { addCard, removeCard } = useIdeaCardStackStore(issueId);
-
-  const voteStatus = useIssueStore((state) => state.voteStatus);
-  //TODO: 추후 투표 종료 시 투표 기능이 활성화되지 않도록 기능 추가 필요
-  const isVoteActive = voteStatus !== 'READY';
-
+  const { addCard, removeCard, setInitialData } = useIdeaCardStackStore(issueId);
+  
   const [categories, setCategories] = useState<Category[]>([]);
 
   const handleIdeaPositionChange = (id: string, position: Position) => {
@@ -102,10 +98,9 @@ const IssuePage = () => {
   };
 
   useEffect(() => {
-    ideas.forEach((idea) => {
-      addCard(idea.id);
-    });
-  }, []);
+    const ideaIds = ideas.map((idea) => idea.id);
+    setInitialData(ideaIds);
+  }, [ideas, setInitialData]);
 
   // AI 구조화 이벤트 리스너
   useEffect(() => {
