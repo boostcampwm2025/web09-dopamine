@@ -1,5 +1,5 @@
 'use client';
-import * as S from './word-cloud-style';
+import * as S from './word-cloud.style';
 import * as PS from '../../page.style';
 
 export default function WordCloud() {

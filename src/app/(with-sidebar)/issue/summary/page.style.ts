@@ -20,8 +20,8 @@ export const HeaderTitle = styled.span`
 `;
 
 
-export const ComponentBox = styled.div`
-  flex: 1;
+export const ComponentBox = styled.div<{ flexRatio?: number }>`
+  flex: ${({ flexRatio }) => flexRatio ?? 1};
   background: ${theme.colors.white};
   border: 1px solid ${theme.colors.gray[200]};
   border-radius: ${theme.radius.medium};

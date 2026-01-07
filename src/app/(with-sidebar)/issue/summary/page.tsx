@@ -2,6 +2,7 @@
 
 import ConclusionSection from './_components/conclusion/conclusion-section';
 import RankingList from './_components/ranking/ranking-list';
+import VoteResult from './_components/vote-result/vote-result';
 import WordCloud from './_components/word-cloud/word-cloud';
 import * as S from './page.style';
 
@@ -14,11 +15,11 @@ export default function IssueSummaryPage() {
         candidates={25}
       />
       <S.wordCloudAndVoteBox>
-        <S.ComponentBox>
+        <S.ComponentBox flexRatio={2}>
           <WordCloud />
         </S.ComponentBox>
-                <S.ComponentBox>
-          <WordCloud />
+        <S.ComponentBox flexRatio={1}>
+          <VoteResult />
         </S.ComponentBox>
       </S.wordCloudAndVoteBox>
       <RankingList />
