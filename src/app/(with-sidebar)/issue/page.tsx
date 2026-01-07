@@ -21,8 +21,6 @@ import LoadingOverlay from '@/components/loading-overlay/loading-overlay';
 import CategoryCard from './_components/category/category-card';
 import { useCanvasStore } from './store/use-canvas-store';
 
-type Phase = 'ideation' | 'categorization' | 'voting' | 'discussion' | 'selection' | 'closed';
-
 const IssuePage = () => {
   // TODO: URL 파라미터나 props에서 실제 issueId 가져오기
   // 예: const { issueId } = useParams() 또는 props.issueId
@@ -39,7 +37,6 @@ const IssuePage = () => {
   const isVoteActive = voteStatus !== 'READY';
 
   const [categories, setCategories] = useState<Category[]>([]);
-  const [currentPhase, setCurrentPhase] = useState<Phase>('ideation');
   const [activeId, setActiveId] = useState<string | null>(null);
   const [isAILoading, setIsAILoading] = useState(false);
 
