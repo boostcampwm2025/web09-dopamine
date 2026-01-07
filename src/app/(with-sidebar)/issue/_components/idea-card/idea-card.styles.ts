@@ -75,11 +75,11 @@ export const Badge = styled.div`
   font-weight: 800;
 `;
 
-export const Content = styled.h3`
-  min-height: 45px;
-  font-size: 20px;
+export const Content = styled.pre`
+  min-height: ${theme.font.size.xl};
+  font-size: ${theme.font.size.large};
   font-weight: 700;
-  color: #111827;
+  color: ${theme.colors.gray[900]};
   line-height: 1.4;
   word-break: break-word;
   white-space: pre-wrap;
@@ -88,11 +88,11 @@ export const Content = styled.h3`
 
 export const EditableInput = styled.textarea`
   width: 100%;
-  min-height: 45px;
+  min-height: ${theme.font.size.xl};
   border: none;
   outline: none;
   resize: none;
-  font-size: 20px;
+  font-size: ${theme.font.size.large};
   font-weight: 700;
   color: #111827;
   background: transparent;
@@ -118,6 +118,7 @@ export const Meta = styled.div`
   align-items: center;
   gap: 8px;
   width: 100%;
+  margin-top: 10px;
 `;
 
 export const AuthorPill = styled.span`
@@ -126,7 +127,7 @@ export const AuthorPill = styled.span`
   padding: 8px 14px;
   border-radius: ${theme.radius.large};
   font-weight: 600;
-  font-size: 13px;
+  font-size: ${theme.font.size.small};
 `;
 
 export const SubmitButton = styled.button`

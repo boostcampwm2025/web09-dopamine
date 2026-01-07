@@ -7,7 +7,6 @@ import { CSS } from '@dnd-kit/utilities';
 import useIdeaCard from '@/app/(with-sidebar)/issue/hooks/use-idea-card';
 import { useIdeaCardStackStore } from '../../store/use-idea-card-stack-store';
 import type { Position } from '../../types/idea';
-import { useCanvasContext } from '../canvas/canvas-context';
 import * as S from './idea-card.styles';
 
 interface IdeaCardProps {
@@ -43,7 +42,6 @@ export type DragItemPayload = {
 };
 
 export default function IdeaCard(props: IdeaCardProps) {
-  const { scale } = useCanvasContext();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const { bringToFront, getZIndex } = useIdeaCardStackStore(props.issueId);
@@ -144,6 +142,7 @@ export default function IdeaCard(props: IdeaCardProps) {
         {isEditing ? (
           <S.EditableInput
             ref={textareaRef}
+            rows={1}
             value={editValue}
             onChange={(e) => setEditValue(e.target.value)}
             onKeyDown={handleKeyDownEdit}
