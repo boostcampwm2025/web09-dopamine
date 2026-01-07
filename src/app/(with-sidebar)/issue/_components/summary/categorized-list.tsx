@@ -3,34 +3,11 @@
 import Image from 'next/image';
 import type React from 'react';
 import { useEffect, useMemo, useState } from 'react';
-import { getCategorizedIssues } from '../../services/issue-service';
+import { getCategorizedIdeas } from '../../services/issue-service';
 import type { Category } from '../../types/category';
 import type { Idea } from '../../types/idea';
-import {
-  RankBadge,
-  HeaderLeft,
-  Container,
-  ContainerCol,
-  Card,
-  Header,
-  Title,
-  ItemWrapper,
-  ItemContent,
-  ItemLeft,
-  VoteInfoSection,
-  VoteInfo,
-  VoteLabel,
-  VoteCount,
-  Footer,
-  MoreButton,
-} from './categorized-list.styles';
-import {
-  Dialog,
-  DialogOverlay,
-  DialogHeader,
-  DialogBody,
-  DialogClose,
-} from './dialog.styles';
+import * as S from './categorized-list.styles';
+import * as DS from './dialog.styles';
 
 type CategorizedCard = {
   category: Category;
@@ -44,7 +21,7 @@ export default function CategorizedList() {
 
   useEffect(() => {
     const fetchIssues = async () => {
-      const { categorizedCards: fetchedCards } = await getCategorizedIssues();
+      const { categorizedCards: fetchedCards } = await getCategorizedIdeas();
       setCategorizedCards(fetchedCards);
     };
 
@@ -100,30 +77,30 @@ export default function CategorizedList() {
   };
 
   return (
-    <Container>
+    <S.Container>
       {columns.map((colCards, colIndex) => (
-        <ContainerCol key={`col-${colIndex}`}>
+        <S.ContainerCol key={`col-${colIndex}`}>
           {colCards.map(({ category, ideas }) => {
             const isExpanded = expandedCategories[category.id] ?? false;
             const visibleIdeas = isExpanded ? ideas : ideas.slice(0, 3);
             const hasMore = ideas.length > 3;
 
             return (
-              <Card
+              <S.Card
                 key={category.id}
                 id={category.id}
                 title={category.title}
               >
-                <Header>
-                  <HeaderLeft>
-                    <Title>{category.title}</Title>
-                  </HeaderLeft>
-                </Header>
+                <S.Header>
+                  <S.HeaderLeft>
+                    <S.Title>{category.title}</S.Title>
+                  </S.HeaderLeft>
+                </S.Header>
                 {visibleIdeas.map((item, ideaIndex) => (
-                  <ItemWrapper key={item.id}>
-                    <ItemLeft>
-                      <RankBadge highlighted={ideaIndex === 0}>{ideaIndex + 1}</RankBadge>
-                      <ItemContent
+                  <S.ItemWrapper key={item.id}>
+                    <S.ItemLeft>
+                      <S.RankBadge highlighted={ideaIndex === 0}>{ideaIndex + 1}</S.RankBadge>
+                      <S.ItemContent
                         title={item.content}
                         role="button"
                         tabIndex={0}
@@ -132,47 +109,47 @@ export default function CategorizedList() {
                         onKeyDown={handleItemInteraction}
                       >
                         {item.content}
-                      </ItemContent>
-                    </ItemLeft>
-                    <VoteInfoSection>
-                      <VoteInfo type="agree">
-                        <VoteLabel>찬성</VoteLabel>
-                        <VoteCount type="agree">{item.agreeCount}</VoteCount>
-                      </VoteInfo>
-                      <VoteInfo type="disagree">
-                        <VoteLabel>반대</VoteLabel>
-                        <VoteCount type="disagree">{item.disagreeCount}</VoteCount>
-                      </VoteInfo>
-                    </VoteInfoSection>
-                  </ItemWrapper>
+                      </S.ItemContent>
+                    </S.ItemLeft>
+                    <S.VoteInfoSection>
+                      <S.VoteInfo type="agree">
+                        <S.VoteLabel>찬성</S.VoteLabel>
+                        <S.VoteCount type="agree">{item.agreeCount}</S.VoteCount>
+                      </S.VoteInfo>
+                      <S.VoteInfo type="disagree">
+                        <S.VoteLabel>반대</S.VoteLabel>
+                        <S.VoteCount type="disagree">{item.disagreeCount}</S.VoteCount>
+                      </S.VoteInfo>
+                    </S.VoteInfoSection>
+                  </S.ItemWrapper>
                 ))}
                 {hasMore && (
-                  <Footer>
-                    <MoreButton
+                  <S.Footer>
+                    <S.MoreButton
                       type="button"
                       data-id={category.id}
                       onClick={handleToggleCategory}
                     >
                       {isExpanded ? '접기' : '더보기'}
-                    </MoreButton>
-                  </Footer>
+                    </S.MoreButton>
+                  </S.Footer>
                 )}
-              </Card>
+              </S.Card>
             );
           })}
-        </ContainerCol>
+        </S.ContainerCol>
       ))}
       {dialogContent && (
-        <DialogOverlay onClick={handleCloseDialog}>
-          <Dialog
+        <DS.DialogOverlay onClick={handleCloseDialog}>
+          <DS.Dialog
             role="dialog"
             aria-modal="true"
             aria-label="아이디어 상세"
             onClick={handleContentsClick}
           >
-            <DialogHeader>
+            <DS.DialogHeader>
               <span>아이디어 상세</span>
-              <DialogClose
+              <DS.DialogClose
                 type="button"
                 aria-label="닫기"
                 onClick={handleCloseDialog}
@@ -183,12 +160,12 @@ export default function CategorizedList() {
                   width={16}
                   height={16}
                 />
-              </DialogClose>
-            </DialogHeader>
-            <DialogBody>{dialogContent}</DialogBody>
-          </Dialog>
-        </DialogOverlay>
+              </DS.DialogClose>
+            </DS.DialogHeader>
+            <DS.DialogBody>{dialogContent}</DS.DialogBody>
+          </DS.Dialog>
+        </DS.DialogOverlay>
       )}
-    </Container>
+    </S.Container>
   );
 }

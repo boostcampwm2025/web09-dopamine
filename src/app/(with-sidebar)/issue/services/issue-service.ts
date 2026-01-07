@@ -2,7 +2,7 @@ import { mockCategories } from '../data/mock-categories';
 import { mockIdeasWithCategory } from '../data/mock-ideas';
 import type { Idea } from '../types/idea';
 
-export async function getCategorizedIssues() {
+export async function getCategorizedIdeas() {
   // 실제 DB I/O 로직이 들어갈 자리
 
   const categoriesById = mockCategories.reduce<Record<string, string>>((acc, cur) => {
@@ -29,4 +29,11 @@ export async function getCategorizedIssues() {
   }));
 
   return { rawData, categorizedCards };
+}
+
+export async function getAllIdeas() {
+  // 실제 DB I/O 로직이 들어갈 자리
+
+  const { rawData } = await getCategorizedIdeas();
+  return rawData as Idea[];
 }

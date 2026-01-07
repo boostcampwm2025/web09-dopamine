@@ -1,4 +1,61 @@
-import type { IdeaWithPosition } from '../types/idea';
+import type { IdeaWithPosition, Idea } from '../types/idea';
+
+export const mockIdeas: Idea[] = [
+  {
+    id: 'idea-001',
+    content: 'SaaS 릴스 콘텐츠로 핵심 기능을 짧게 보여주고 실제 성공 사례를 덧붙여 반복 노출하기',
+    author: '지연',
+    category: 'SNS 마케팅',
+    agreeCount: 24,
+    disagreeCount: 3,
+    highlighted: true,
+  },
+  {
+    id: 'idea-002',
+    content: '노션 템플릿 상품을 편집부터 배포까지 전 과정을 담은 2분 튜토리얼 영상으로 소개하기',
+    author: '소환',
+    category: '콘텐츠 제작',
+    agreeCount: 14,
+    disagreeCount: 6,
+    highlighted: false,
+  },
+  {
+    id: 'idea-003',
+    content: '커뮤니티에서 주간 성과를 실명으로 공유하며 신뢰도를 높이고 참여를 유도하는 캠페인 진행',
+    author: '민수',
+    category: 'SNS 마케팅',
+    agreeCount: 18,
+    disagreeCount: 2,
+    highlighted: false,
+  },
+  {
+    id: 'idea-004',
+    content: '블로그 SEO 전반을 점검해 키워드 리서치, 메타태그, 내부 링크를 한 번에 리팩터링하기',
+    author: '세연',
+    category: '커뮤니티 활동',
+    agreeCount: 21,
+    disagreeCount: 5,
+    highlighted: false,
+  },
+  {
+    id: 'idea-005',
+    content: '주간 활용사례 인터뷰를 표준 스크립트로 제작해 시리즈화하고 다운로드 자료로도 제공하기',
+    author: '주원',
+    category: 'SNS 마케팅',
+    agreeCount: 9,
+    disagreeCount: 1,
+    highlighted: false,
+  },
+  {
+    id: 'idea-006',
+    content: '개발자 커뮤니티에 API 예제와 코드 샘플을 담은 기술 블로그 글을 공유하며 트래픽 유입 늘리기',
+    author: '민지',
+    category: '커뮤니티 활동',
+    agreeCount: 12,
+    disagreeCount: 4,
+    highlighted: false,
+  },
+];
 
 export const mockIdeasWithPosition: IdeaWithPosition[] = [
   // 캔버스에 자유 배치된 아이디어들(categoryId: null)

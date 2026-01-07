@@ -1,3 +1,4 @@
+import NormalList from "../(with-sidebar)/issue/_components/summary/normal-list";
 import CategorizedList from "../(with-sidebar)/issue/_components/summary/categorized-list";
 
 export default function TestPage() {
@@ -11,7 +12,7 @@ export default function TestPage() {
         gap: 16,
       }}
     >
-      <CategorizedList/>
+      <NormalList/>
     </main>
   );
 }
