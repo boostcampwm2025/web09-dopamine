@@ -14,8 +14,8 @@ export const Container = styled.div`
 `;
 
 export const HeaderTitle = styled.span`
-  font-size: ${theme.font.size.medium};
-  font-weight: ${theme.font.weight.bold};
+  font-size: 20px;
+  font-weight: ${theme.font.weight.semibold};
   color: ${theme.colors.black}
 `;
 

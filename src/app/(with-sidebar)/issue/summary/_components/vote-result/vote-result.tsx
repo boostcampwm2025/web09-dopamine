@@ -6,8 +6,20 @@ export default function VoteResult() {
         <S.Container>
             <PS.HeaderTitle>투표 결과</PS.HeaderTitle>
             <S.VoteBox>
-                {/* 투표 결과 구현 예정 */}
-                투표 결과 영역
+                <S.TableRow>
+                    <S.OptionText>참여자</S.OptionText>
+                    <S.VoteCountText>4먕</S.VoteCountText>
+                </S.TableRow>
+                <S.divider />
+                <S.TableRow>
+                    <S.OptionText>총 투표수</S.OptionText>
+                    <S.VoteCountText highlight>30표</S.VoteCountText>
+                </S.TableRow>
+                <S.divider />
+                <S.TableRow>
+                    <S.OptionText>최다 댓글</S.OptionText>
+                    <S.VoteCountText>2개</S.VoteCountText>
+                </S.TableRow>
             </S.VoteBox>
         </S.Container>
     )
