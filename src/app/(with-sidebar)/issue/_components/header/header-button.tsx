@@ -1,5 +1,6 @@
 'use client';
 
+import { MouseEventHandler } from 'react';
 import Image from 'next/image';
 import * as S from './header-button.styles';
 
@@ -12,6 +13,8 @@ interface HeaderButtonProps {
   alt?: string;
   variant?: Variant;
   onClick?: () => void;
+  onMouseEnter?: MouseEventHandler<HTMLButtonElement>;
+  onMouseLeave?: MouseEventHandler<HTMLButtonElement>;
 }
 
 const HeaderButton = ({
@@ -21,11 +24,15 @@ const HeaderButton = ({
   alt = '',
   variant = 'default',
   onClick,
+  onMouseEnter,
+  onMouseLeave,
 }: HeaderButtonProps) => {
   return (
     <S.ButtonContainer
       variant={variant}
       onClick={onClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
     >
       {imageSrc && (
         <Image
