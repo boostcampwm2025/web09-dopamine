@@ -30,6 +30,8 @@ const IssuePage = () => {
   const { ideas, addIdea, updateIdeaContent, updateIdeaPosition, deleteIdea, setIdeas } =
     useIdeaStore(issueId);
   const { addCard, removeCard, setInitialData } = useIdeaCardStackStore(issueId);
+  const { isAIStructuring } = useIssueStore();
+  const { finishAIStructure } = useIssueStore((state) => state.actions);
 
   const voteStatus = useIssueStore((state) => state.voteStatus);
   //TODO: 추후 투표 종료 시 투표 기능이 활성화되지 않도록 기능 추가 필요
@@ -37,7 +39,6 @@ const IssuePage = () => {
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
-  const [isAILoading, setIsAILoading] = useState(false);
 
   const scale = useCanvasStore((state) => state.scale);
 
@@ -147,7 +148,6 @@ const IssuePage = () => {
       ideas: validIdeas,
     };
 
-    setIsAILoading(true);
     try {
       const res = await fetch('/api/categorize', {
         method: 'POST',
@@ -208,7 +208,7 @@ const IssuePage = () => {
       console.error('AI 구조화 오류:', error);
       alert('AI 구조화 중 오류가 발생했습니다.');
     } finally {
-      setIsAILoading(false);
+      finishAIStructure();
     }
   };
 
@@ -217,15 +217,9 @@ const IssuePage = () => {
     setInitialData(ideaIds);
   }, [ideas, setInitialData]);
 
-  // AI 구조화 이벤트 리스너
   useEffect(() => {
-    const handleAIStructureEvent = () => {
-      handleAIStructure();
-    };
-
-    window.addEventListener('aiStructure', handleAIStructureEvent);
-    return () => window.removeEventListener('aiStructure', handleAIStructureEvent);
-  }, [ideas]); // ideas가 변경될 때마다 리스너 재등록
+    if (isAIStructuring) handleAIStructure();
+  }, [isAIStructuring]);
 
   return (
     <>
@@ -332,7 +326,7 @@ const IssuePage = () => {
       </DndContext>
 
       {/* AI 구조화 로딩 오버레이 */}
-      {isAILoading && <LoadingOverlay message="AI가 아이디어를 분류하고 있습니다..." />}
+      {isAIStructuring && <LoadingOverlay message="AI가 아이디어를 분류하고 있습니다..." />}
     </>
   );
 };
