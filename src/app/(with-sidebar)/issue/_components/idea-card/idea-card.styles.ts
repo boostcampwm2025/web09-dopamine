@@ -83,15 +83,19 @@ const Badge = styled.div`
 `;
 
 const Content = styled.h3`
-  height: 45px;
+  min-height: 45px;
   font-size: 20px;
   font-weight: 700;
   color: #111827;
+  line-height: 1.4;
+  word-break: break-word;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
 `;
 
 const EditableInput = styled.textarea`
   width: 100%;
-  height: auto;
+  min-height: 45px;
   border: none;
   outline: none;
   resize: none;
@@ -103,6 +107,8 @@ const EditableInput = styled.textarea`
   letter-spacing: 0;
   padding: 0;
   margin: 0;
+  line-height: 1.4;
+  overflow: hidden;
   -webkit-font-smoothing: antialiased;
 
   &::placeholder {
