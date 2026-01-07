@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 import { theme } from '@/styles/theme';
 
-const Card = styled.article<{
+export const Card = styled.article<{
   status?: 'needDiscussion' | 'selected' | 'default';
   isDragging?: boolean;
   inCategory?: boolean;
@@ -53,14 +53,14 @@ const Card = styled.article<{
   }
 `;
 
-const Header = styled.div`
+export const Header = styled.div`
   display: flex;
   flex-direction: column;
   gap: 12px;
   width: 100%;
 `;
 
-const Badge = styled.div`
+export const Badge = styled.div`
   position: absolute;
   top: -20px;
   right: 12px;
@@ -75,7 +75,7 @@ const Badge = styled.div`
   font-weight: 800;
 `;
 
-const Content = styled.h3`
+export const Content = styled.h3`
   min-height: 45px;
   font-size: 20px;
   font-weight: 700;
@@ -86,7 +86,7 @@ const Content = styled.h3`
   overflow-wrap: break-word;
 `;
 
-const EditableInput = styled.textarea`
+export const EditableInput = styled.textarea`
   width: 100%;
   min-height: 45px;
   border: none;
@@ -110,7 +110,7 @@ const EditableInput = styled.textarea`
   }
 `;
 
-const Meta = styled.div`
+export const Meta = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -119,7 +119,7 @@ const Meta = styled.div`
   width: 100%;
 `;
 
-const AuthorPill = styled.span`
+export const AuthorPill = styled.span`
   background: #f3f4f6;
   color: #9ca3af;
   padding: 8px 14px;
@@ -128,7 +128,7 @@ const AuthorPill = styled.span`
   font-size: 13px;
 `;
 
-const SubmitButton = styled.button`
+export const SubmitButton = styled.button`
   margin-left: auto;
   width: 60px;
   height: 42px;
@@ -143,7 +143,7 @@ const SubmitButton = styled.button`
     background-color: ${theme.colors.green[100]};
   }
 `;
-const IconButton = styled.button`
+export const IconButton = styled.button`
   background: #ffffff;
   border: 1px solid #e5e7eb;
   width: 42px;
@@ -154,7 +154,7 @@ const IconButton = styled.button`
   justify-content: center;
 `;
 
-const Divider = styled.hr`
+export const Divider = styled.hr`
   border: none;
 
   height: 1px;
@@ -162,12 +162,12 @@ const Divider = styled.hr`
   margin: 20px 0;
 `;
 
-const Footer = styled.div`
+export const Footer = styled.div`
   display: flex;
   gap: 12px;
 `;
 
-const VoteButton = styled.button<{
+export const VoteButton = styled.button<{
   kind: 'agree' | 'disagree';
   active?: boolean;
   cardStatus?: 'needDiscussion' | 'selected' | 'default';
@@ -212,18 +212,3 @@ const VoteButton = styled.button<{
     }}
   }
 `;
-
-export {
-  Card,
-  Header,
-  Content,
-  EditableInput,
-  Meta,
-  AuthorPill,
-  IconButton,
-  Divider,
-  Footer,
-  VoteButton,
-  SubmitButton,
-  Badge,
-};

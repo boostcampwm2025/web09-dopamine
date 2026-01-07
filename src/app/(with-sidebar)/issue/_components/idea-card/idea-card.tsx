@@ -8,20 +8,7 @@ import useIdeaCard from '@/app/(with-sidebar)/issue/hooks/use-idea-card';
 import { useIdeaCardStackStore } from '../../store/use-idea-card-stack-store';
 import type { Position } from '../../types/idea';
 import { useCanvasContext } from '../canvas/canvas-context';
-import {
-  AuthorPill,
-  Badge,
-  Card,
-  Content,
-  Divider,
-  EditableInput,
-  Footer,
-  Header,
-  IconButton,
-  Meta,
-  SubmitButton,
-  VoteButton,
-} from './idea-card.styles';
+import * as S from './idea-card.styles';
 
 interface IdeaCardProps {
   id?: string;
@@ -132,7 +119,7 @@ export default function IdeaCard(props: IdeaCardProps) {
   };
 
   return (
-    <Card
+    <S.Card
       ref={setNodeRef}
       status={status}
       isDragging={isDragging}
@@ -143,7 +130,7 @@ export default function IdeaCard(props: IdeaCardProps) {
       style={cardStyle}
     >
       {status === 'selected' && (
-        <Badge>
+        <S.Badge>
           <Image
             src="/crown.svg"
             alt="채택 아이콘"
@@ -151,11 +138,11 @@ export default function IdeaCard(props: IdeaCardProps) {
             height={20}
           />
           <span>채택</span>
-        </Badge>
+        </S.Badge>
       )}
-      <Header>
+      <S.Header>
         {isEditing ? (
-          <EditableInput
+          <S.EditableInput
             ref={textareaRef}
             value={editValue}
             onChange={(e) => setEditValue(e.target.value)}
@@ -165,23 +152,23 @@ export default function IdeaCard(props: IdeaCardProps) {
             placeholder="아이디어를 입력해주세요."
           />
         ) : (
-          <Content>{displayContent}</Content>
+          <S.Content>{displayContent}</S.Content>
         )}
-        <Meta>
-          <AuthorPill>{props.author}</AuthorPill>
+        <S.Meta>
+          <S.AuthorPill>{props.author}</S.AuthorPill>
           {props.isVotePhase ? (
-            <IconButton aria-label="comment">
+            <S.IconButton aria-label="comment">
               <Image
                 src="/comment.svg"
                 alt="댓글"
                 width={14}
                 height={14}
               />
-            </IconButton>
+            </S.IconButton>
           ) : (
             <>
-              {isEditing ? <SubmitButton onClick={submitEdit}>제출</SubmitButton> : null}
-              <IconButton
+              {isEditing ? <S.SubmitButton onClick={submitEdit}>제출</S.SubmitButton> : null}
+              <S.IconButton
                 aria-label="delete"
                 onClick={handleDeleteClick}
               >
@@ -191,34 +178,34 @@ export default function IdeaCard(props: IdeaCardProps) {
                   width={14}
                   height={14}
                 />
-              </IconButton>
+              </S.IconButton>
             </>
           )}
-        </Meta>
-      </Header>
+        </S.Meta>
+      </S.Header>
       {props.isVotePhase && (
         <div>
-          <Divider />
-          <Footer>
-            <VoteButton
+          <S.Divider />
+          <S.Footer>
+            <S.VoteButton
               kind="agree"
               cardStatus={status}
               active={userVote === 'agree'}
               onClick={handleAgree}
             >
               찬성 {agreeCountState}
-            </VoteButton>
-            <VoteButton
+            </S.VoteButton>
+            <S.VoteButton
               kind="disagree"
               cardStatus={status}
               active={userVote === 'disagree'}
               onClick={handleDisagree}
             >
               반대 {disagreeCountState}
-            </VoteButton>
-          </Footer>
+            </S.VoteButton>
+          </S.Footer>
         </div>
       )}
-    </Card>
+    </S.Card>
   );
 }
