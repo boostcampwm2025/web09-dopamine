@@ -214,12 +214,29 @@ const IssuePage = () => {
     }
   };
 
+  const handleAddCategory = () => {
+    const maxX = categories.length > 0 
+      ? Math.max(...categories.map(cat => cat.position.x))
+      : 0;
+
+    const newCategory: Category = {
+      id: `category-${Date.now()}`,
+      title: '새 카테고리',
+      position: {
+        x: maxX + 200, 
+        y: 100,
+      },
+      isMuted: false,
+    };
+
+    addCategory(newCategory);
+  };
+
   useEffect(() => {
     const ideaIds = ideas.map((idea) => idea.id);
     setInitialData(ideaIds);
   }, [ideas, setInitialData]);
-
-  // AI 구조화 이벤트 리스너
+  
   useEffect(() => {
     const handleAIStructureEvent = () => {
       handleAIStructure();
@@ -227,7 +244,16 @@ const IssuePage = () => {
 
     window.addEventListener('aiStructure', handleAIStructureEvent);
     return () => window.removeEventListener('aiStructure', handleAIStructureEvent);
-  }, [ideas]); // ideas가 변경될 때마다 리스너 재등록
+  }, [ideas]);
+
+  useEffect(() => {
+    const handleAddCategoryEvent = () => {
+      handleAddCategory();
+    };
+
+    window.addEventListener('addCategory', handleAddCategoryEvent);
+    return () => window.removeEventListener('addCategory', handleAddCategoryEvent);
+  }, [categories]); 
 
   return (
     <>
@@ -259,7 +285,7 @@ const IssuePage = () => {
                     content={idea.content}
                     author={idea.author}
                     categoryId={idea.categoryId}
-                    position={null} // 카테고리 내부는 position 불필요
+                    position={null} 
                     isSelected={idea.isSelected}
                     isVotePhase={isVoteActive}
                     agreeCount={idea.agreeCount}

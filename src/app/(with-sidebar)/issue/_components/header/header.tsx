@@ -13,10 +13,11 @@ import HeaderButton from './header-button';
 import * as S from './header.styles';
 
 interface IssueHeaderProps {
+  onAddCategory?: (issueId: string) => void;
   onAIStructure?: () => void;
 }
 
-const Header = ({ onAIStructure }: IssueHeaderProps) => {
+const Header = ({ onAddCategory, onAIStructure }: IssueHeaderProps) => {
   const issueState = useIssueStore(
     useShallow((state) => ({
       status: state.status,
@@ -40,6 +41,7 @@ const Header = ({ onAIStructure }: IssueHeaderProps) => {
               imageSrc="/folder.svg"
               alt="카테고리 추가"
               text="카테고리 추가"
+              onClick={() => onAddCategory?.('default')}
             />
             <HeaderButton
               imageSrc="/stick.svg"
