@@ -153,6 +153,10 @@ export const IconButton = styled.button`
   display: inline-flex;
   align-items: center;
   justify-content: center;
+
+  &:hover {
+    background-color: ${theme.colors.gray[100]};
+  }
 `;
 
 export const Divider = styled.hr`
