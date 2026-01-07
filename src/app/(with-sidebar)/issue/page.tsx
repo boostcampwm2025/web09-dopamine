@@ -60,6 +60,15 @@ const IssuePage = () => {
     setCategories((prevCategories) =>
       prevCategories.map((cat) => (cat.id === id ? { ...cat, position } : cat)),
     );
+  const handleDeleteCategory = (categoryId: string) => {
+    const categoryIdeas = ideas.filter(idea => idea.categoryId === categoryId);
+    
+    if (categoryIdeas.length > 0) {
+      alert(`카테고리 내부에 ${categoryIdeas.length}개의 아이디어가 있습니다.\n먼저 아이디어를 이동하거나 삭제해주세요.`);
+      return;
+    }
+
+    deleteCategory(categoryId);
   };
 
   const handleCreateIdea = (position: Position) => {
@@ -271,10 +280,12 @@ const IssuePage = () => {
               <CategoryCard
                 key={category.id}
                 id={category.id}
+                issueId={issueId}
                 title={category.title}
                 position={category.position}
                 isMuted={category.isMuted}
                 onPositionChange={handleCategoryPositionChange}
+                onRemove={() => handleDeleteCategory(category.id)}
                 onDropIdea={(ideaId) => handleMoveIdeaToCategory(ideaId, category.id)}
               >
                 {categoryIdeas.map((idea) => (
