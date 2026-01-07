@@ -1,3 +1,5 @@
+'use client';
+
 import * as S from './vote-result.style';
 import * as PS from '../../page.style';
 
