@@ -7,28 +7,28 @@ export const Card = styled.article<{
   inCategory?: boolean;
 }>`
   position: relative;
-  border-radius: 12px;
+  border-radius: ${theme.radius.medium};
   padding: 35px;
   box-shadow: 0 4px 10px rgba(31, 41, 55, 0.06);
   ${({ status }) => {
     switch (status) {
       case 'needDiscussion':
         return `
-        border: 2px solid #EC0000;
-        background: #ffffff; 
+        border: 2px solid ${theme.colors.red[600]};
+        background: ${theme.colors.white};
         box-shadow: 0 4px 10px rgba(236, 0, 0, 0.77);
         `;
       case 'selected':
         return `
-        border: 2px solid #fccf1cff;
-        background: #FEFCE8;
+        border: 2px solid ${theme.colors.yellow[500]};
+        background: ${theme.colors.yellow[50]};
         box-shadow: 0 4px 10px rgba(250, 204, 21, 0.86);
         `;
       case 'default':
       default:
         return `
-        border: 1px solid #E5E7EB;
-        background: #ffffff; 
+        border: 1px solid ${theme.colors.gray[200]};
+        background: ${theme.colors.white};
         box-shadow: 0 4px 10px rgba(31, 41, 55, 0.06);
         `;
     }
@@ -68,9 +68,9 @@ export const Badge = styled.div`
   align-items: center;
   gap: 5px;
   padding: 10px 16px;
-  background: #facc15;
-  color: #ffffff;
-  border-radius: 24px;
+  background: ${theme.colors.yellow[500]};
+  color: ${theme.colors.white};
+  border-radius: ${theme.radius.large};
   box-shadow: 0 6px 18px rgba(18, 18, 14, 0.18);
   font-weight: 800;
 `;
@@ -105,7 +105,8 @@ export const EditableInput = styled.textarea`
   -webkit-font-smoothing: antialiased;
 
   &::placeholder {
-    color: rgba(17, 24, 39, 0.4);
+    color: ${theme.colors.gray[900]};
+    opacity: 0.4;
     font-weight: 700;
   }
 `;
@@ -120,10 +121,10 @@ export const Meta = styled.div`
 `;
 
 export const AuthorPill = styled.span`
-  background: #f3f4f6;
-  color: #9ca3af;
+  background: ${theme.colors.gray[100]};
+  color: ${theme.colors.gray[400]};
   padding: 8px 14px;
-  border-radius: 999px;
+  border-radius: ${theme.radius.large};
   font-weight: 600;
   font-size: 13px;
 `;
@@ -144,11 +145,11 @@ export const SubmitButton = styled.button`
   }
 `;
 export const IconButton = styled.button`
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
+  background: ${theme.colors.white};
+  border: 1px solid ${theme.colors.gray[200]};
   width: 42px;
   height: 42px;
-  border-radius: 10px;
+  border-radius: ${theme.radius.medium};
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -156,9 +157,8 @@ export const IconButton = styled.button`
 
 export const Divider = styled.hr`
   border: none;
-
   height: 1px;
-  background: #f3f4f6;
+  background: ${theme.colors.gray[100]};
   margin: 20px 0;
 `;
 
@@ -174,7 +174,7 @@ export const VoteButton = styled.button<{
 }>`
   flex: 1;
   padding: 14px 18px;
-  border-radius: 12px;
+  border-radius: ${theme.radius.medium};
   border: none;
   font-weight: 700;
   font-size: 16px;
@@ -190,25 +190,26 @@ export const VoteButton = styled.button<{
   ${({ kind, active, cardStatus }) => {
     if (kind === 'agree') {
       if (cardStatus === 'selected') {
-        return `background: #FEF9C3; color: #A16207; box-shadow: inset 0 -2px 0 rgba(250,204,21,0.15);`;
+        return `background: ${theme.colors.yellow[50]}; color: ${theme.colors.yellow[700]}; box-shadow: inset 0 -2px 0 rgba(250,204,21,0.15);`;
       }
       if (active) {
-        return `background: #059669; color: #ffffff;`;
+        return `background: ${theme.colors.green[600]}; color: ${theme.colors.white};`;
       }
-      return `background: #F0FDF4; color: #059669;`;
+      return `background: ${theme.colors.green[50]}; color: ${theme.colors.green[600]};`;
     }
 
     if (active) {
-      return `background: #DC2626; color: #ffffff;`;
+      return `background: ${theme.colors.red[600]}; color: ${theme.colors.white};`;
     }
-    return `background: #f3f4f6; color: #6b7280;`;
+    return `background: ${theme.colors.gray[100]}; color: ${theme.colors.gray[600]};`;
   }}
 
   &:hover {
     ${({ kind, active, cardStatus }) => {
       if (active || cardStatus === 'selected') return '';
-      if (kind === 'agree') return `background: #059669; color: #ffffff;`;
-      return `background: #e5e7eb; color: #374151;`;
+      if (kind === 'agree')
+        return `background: ${theme.colors.green[600]}; color: ${theme.colors.white};`;
+      return `background: ${theme.colors.gray[200]}; color: ${theme.colors.gray[700]};`;
     }}
   }
 `;
