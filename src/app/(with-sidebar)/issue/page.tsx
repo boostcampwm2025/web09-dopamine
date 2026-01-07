@@ -31,7 +31,7 @@ const IssuePage = () => {
 
   const { ideas, addIdea, updateIdeaContent, updateIdeaPosition, deleteIdea, setIdeas } =
     useIdeaStore(issueId);
-  const { addCard, removeCard } = useIdeaCardStackStore(issueId);
+  const { addCard, removeCard, setInitialData } = useIdeaCardStackStore(issueId);
   const scale = useCanvasStore((state) => state.scale); // Canvas scale 가져오기
 
   const voteStatus = useIssueStore((state) => state.voteStatus);
@@ -215,10 +215,9 @@ const IssuePage = () => {
   };
 
   useEffect(() => {
-    ideas.forEach((idea) => {
-      addCard(idea.id);
-    });
-  }, []);
+    const ideaIds = ideas.map((idea) => idea.id);
+    setInitialData(ideaIds);
+  }, [ideas, setInitialData]);
 
   // AI 구조화 이벤트 리스너
   useEffect(() => {
