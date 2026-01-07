@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 
 export const Card = styled.div`
-  width: 1000px;
+  width: 100%;
   background: #ffffff;
   border: 2px solid #00A94F;
   border-radius: 14px;
