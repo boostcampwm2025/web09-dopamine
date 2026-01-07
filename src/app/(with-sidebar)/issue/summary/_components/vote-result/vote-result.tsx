@@ -10,7 +10,7 @@ export default function VoteResult() {
             <S.VoteBox>
                 <S.TableRow>
                     <S.OptionText>참여자</S.OptionText>
-                    <S.VoteCountText>4먕</S.VoteCountText>
+                    <S.VoteCountText>4명</S.VoteCountText>
                 </S.TableRow>
                 <S.divider />
                 <S.TableRow>
