@@ -2,10 +2,11 @@ import { useCallback, useEffect, useReducer, useState } from 'react';
 
 interface UseCategoryProps {
   title: string;
+  onTitleChange?: (newTitle: string) => void;
 }
 
 export default function useCategory(props: UseCategoryProps) {
-  const { title } = props;
+  const { title, onTitleChange } = props;
   const [curTitle, setCurTitle] = useState<string>(title);
   const [draftTitle, setDraftTitle] = useState<string>(title);
   const [isEditing, setIsEditing] = useState<boolean>(false);
@@ -54,16 +55,17 @@ export default function useCategory(props: UseCategoryProps) {
   const submitEditedTitle = useCallback(
     (nextTitle: string) => {
       const value = nextTitle.trim();
-      setCurTitle(value || curTitle);
-      setDraftTitle(value || curTitle);
+      const finalTitle = value || curTitle;
+      setCurTitle(finalTitle);
+      setDraftTitle(finalTitle);
       setIsEditing(false);
 
-      /**
-       * To Do
-       * 서버에 변경사항 전달
-       */
+      // 서버에 변경사항 전달
+
+      // Zustand 스토어 업데이트
+      onTitleChange?.(finalTitle);
     },
-    [curTitle],
+    [curTitle, onTitleChange],
   );
 
   const cancelEditingTitle = () => {
