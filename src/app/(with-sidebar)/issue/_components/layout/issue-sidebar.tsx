@@ -1,6 +1,6 @@
-import Sidebar from '@/components/Sidebar/Sidebar';
-import SidebarItem from '@/components/Sidebar/sidebar-item';
-import * as S from '@/components/Sidebar/sidebar.styles';
+import Sidebar from '@/components/sidebar/sidebar';
+import SidebarItem from '@/components/sidebar/sidebar-item';
+import * as S from '@/components/sidebar/sidebar.styles';
 import { ISSUE_STATUS } from '@/constants/issue';
 import IssueGraphLink from './issue-graph-link';
 import NewIssueButton from './new-issue-button';
