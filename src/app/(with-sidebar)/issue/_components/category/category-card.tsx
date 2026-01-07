@@ -1,5 +1,7 @@
 'use client';
 
+import { useState } from 'react';
+import { useDroppable } from '@dnd-kit/core';
 import useCategory from '@/app/(with-sidebar)/issue/hooks/use-category-card';
 import { useDraggable } from '../../hooks/use-draggable';
 import type { Position } from '../../types/idea';
@@ -28,6 +30,7 @@ interface CategoryCardProps {
   onDrag?: (id: string, position: Position, delta: { dx: number; dy: number }) => void;
   onDragStart?: () => void;
   onDragEnd?: () => void;
+  onDropIdea?: (ideaId: string) => void;
 }
 
 export default function CategoryCard({
@@ -41,8 +44,14 @@ export default function CategoryCard({
   onDrag,
   onDragStart,
   onDragEnd,
+  onDropIdea,
 }: CategoryCardProps) {
   const { scale } = useCanvasContext();
+
+  // dnd-kit useDroppable
+  const { setNodeRef: setDroppableRef, isOver } = useDroppable({
+    id,
+  });
 
   // 카테고리 드래그 기능
   const draggable = onPositionChange
@@ -74,9 +83,9 @@ export default function CategoryCard({
 
   return (
     <StyledCategoryCard
+      ref={setDroppableRef}
       isMuted={isMuted}
       aria-label={`${curTitle} 카테고리`}
-      onMouseDown={draggable?.handleMouseDown}
       style={
         draggable
           ? {
@@ -86,11 +95,19 @@ export default function CategoryCard({
               cursor: draggable.isDragging ? 'grabbing' : 'grab',
               userSelect: 'none' as const,
               zIndex: 0, // 항상 아이디어 카드보다 낮게
+              outline: isOver ? '2px dashed #4CAF50' : 'none',
+              backgroundColor: isOver ? 'rgba(76, 175, 80, 0.1)' : undefined,
             }
-          : {}
+          : {
+              outline: isOver ? '2px dashed #4CAF50' : 'none',
+              backgroundColor: isOver ? 'rgba(76, 175, 80, 0.1)' : undefined,
+            }
       }
     >
-      <Header isMuted={isMuted}>
+      <Header
+        isMuted={isMuted}
+        onMouseDown={draggable?.handleMouseDown}
+      >
         <HeaderLeft>
           <Dot isMuted={isMuted} />
           {isEditing ? (
