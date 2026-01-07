@@ -1,0 +1,272 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+// Enums
+enum IssueStatus {
+  OPEN
+  CLOSED
+}
+
+enum VoteType {
+  UP
+  DOWN
+}
+
+// Models
+model User {
+  id          String   @id @default(uuid()) @db.Char(36)
+  email       String   @unique @db.VarChar(255)
+  name        String?  @db.VarChar(30)
+  displayName String?  @map("display_name") @db.VarChar(30)
+  provider    String?  @db.VarChar(30)
+  avatarUrl   String?  @map("avatar_url") @db.VarChar(2048)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  // Relations
+  ownedProjects   Project[]
+  projectMembers  ProjectMember[]
+  issueMembers    IssueMember[]
+  ideas           Idea[]
+  comments        Comment[]
+  votes           Vote[]
+
+  @@map("users")
+}
+
+model Project {
+  id          String   @id @default(uuid()) @db.Char(36)
+  ownerId     String   @map("owner_id") @db.Char(36)
+  title       String   @db.VarChar(255)
+  description String?  @db.Text
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  // Relations
+  owner           User            @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  projectMembers  ProjectMember[]
+  topics          Topic[]
+
+  @@index([ownerId])
+  @@map("projects")
+}
+
+model ProjectMember {
+  id        String   @id @default(uuid()) @db.Char(36)
+  userId    String   @map("user_id") @db.Char(36)
+  projectId String   @map("project_id") @db.Char(36)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  // Relations
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, userId, deletedAt])
+  @@index([userId])
+  @@index([projectId])
+  @@map("project_members")
+}
+
+model Topic {
+  id        String   @id @default(uuid()) @db.Char(36)
+  projectId String   @map("project_id") @db.Char(36)
+  title     String   @db.VarChar(255)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  // Relations
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  issues  Issue[]
+
+  @@index([projectId])
+  @@map("topics")
+}
+
+model Issue {
+  id        String      @id @default(uuid()) @db.Char(36)
+  topicId   String      @map("topic_id") @db.Char(36)
+  title     String      @db.VarChar(255)
+  status    IssueStatus @default(OPEN)
+  closedAt  DateTime?   @map("closed_at")
+  createdAt DateTime    @default(now()) @map("created_at")
+  updatedAt DateTime    @updatedAt @map("updated_at")
+  deletedAt DateTime?   @map("deleted_at")
+
+  // Relations
+  topic               Topic              @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  issueMembers        IssueMember[]
+  connectionsAsA      IssueConnection[]  @relation("IssueA")
+  connectionsAsB      IssueConnection[]  @relation("IssueB")
+  categories          Category[]
+  ideas               Idea[]
+  reports             Report[]
+
+  @@index([topicId])
+  @@index([status])
+  @@map("issues")
+}
+
+model IssueMember {
+  id        String   @id @default(uuid()) @db.Char(36)
+  issueId   String   @map("issue_id") @db.Char(36)
+  userId    String   @map("user_id") @db.Char(36)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  // Relations
+  issue Issue @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([issueId, userId, deletedAt])
+  @@index([userId])
+  @@index([issueId])
+  @@map("issue_members")
+}
+
+model IssueConnection {
+  id        String   @id @default(uuid()) @db.Char(36)
+  issueAId  String   @map("issue_a_id") @db.Char(36)
+  issueBId  String   @map("issue_b_id") @db.Char(36)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  // Relations
+  issueA Issue @relation("IssueA", fields: [issueAId], references: [id], onDelete: Cascade)
+  issueB Issue @relation("IssueB", fields: [issueBId], references: [id], onDelete: Cascade)
+
+  @@unique([issueAId, issueBId, deletedAt])
+  @@index([issueBId])
+  @@map("issue_connections")
+}
+
+model Category {
+  id        String   @id @default(uuid()) @db.Char(36)
+  issueId   String   @map("issue_id") @db.Char(36)
+  title     String   @db.VarChar(255)
+  positionX Float?   @map("position_x") @db.Float
+  positionY Float?   @map("position_y") @db.Float
+  width     Float?   @db.Float
+  height    Float?   @db.Float
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  // Relations
+  issue Issue @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  ideas Idea[]
+
+  @@index([issueId])
+  @@map("categories")
+}
+
+model Idea {
+  id         String   @id @default(uuid()) @db.Char(36)
+  issueId    String   @map("issue_id") @db.Char(36)
+  userId     String   @map("user_id") @db.Char(36)
+  categoryId String?  @map("category_id") @db.Char(36)
+  content    String   @db.Text
+  memo       String?  @db.Text
+  positionX  Float?   @map("position_x") @db.Float
+  positionY  Float?   @map("position_y") @db.Float
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+  deletedAt  DateTime? @map("deleted_at")
+
+  // Relations
+  issue    Issue     @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  comments Comment[]
+  votes    Vote[]
+  reports  Report[]
+
+  @@index([issueId])
+  @@index([userId])
+  @@index([categoryId])
+  @@map("ideas")
+}
+
+model Comment {
+  id        String   @id @default(uuid()) @db.Char(36)
+  ideaId    String   @map("idea_id") @db.Char(36)
+  userId    String   @map("user_id") @db.Char(36)
+  content   String   @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  // Relations
+  idea Idea @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([ideaId])
+  @@index([userId])
+  @@map("comments")
+}
+
+model Vote {
+  id        String   @id @default(uuid()) @db.Char(36)
+  ideaId    String   @map("idea_id") @db.Char(36)
+  userId    String   @map("user_id") @db.Char(36)
+  type      VoteType
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  // Relations
+  idea Idea @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([ideaId, userId, deletedAt])
+  @@index([ideaId])
+  @@index([userId])
+  @@map("votes")
+}
+
+model Report {
+  id             String   @id @default(uuid()) @db.Char(36)
+  issueId        String   @map("issue_id") @db.Char(36)
+  selectedIdeaId String?  @map("selected_idea_id") @db.Char(36)
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+  deletedAt      DateTime? @map("deleted_at")
+
+  // Relations
+  issue        Issue       @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  selectedIdea Idea?       @relation(fields: [selectedIdeaId], references: [id], onDelete: SetNull)
+  wordClouds   WordCloud[]
+
+  @@index([issueId])
+  @@index([selectedIdeaId])
+  @@map("reports")
+}
+
+model WordCloud {
+  id        String   @id @default(uuid()) @db.Char(36)
+  reportId  String   @map("report_id") @db.Char(36)
+  word      String   @db.VarChar(255)
+  count     Int?     @db.Int
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  // Relations
+  report Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  @@unique([reportId, word, deletedAt])
+  @@index([reportId])
+  @@map("word_clouds")
+}
+

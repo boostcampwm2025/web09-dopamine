@@ -6,6 +6,7 @@ import {
   useIsNextButtonVisible,
   useIssueStore,
 } from '@/app/(with-sidebar)/issue/store/use-issue-store';
+import { useTooltipStore } from '@/components/tooltip/use-tooltip-store';
 import { BUTTON_TEXT_MAP, ISSUE_STATUS } from '@/constants/issue';
 import ProgressBar from '../progress-bar/progress-bar';
 import HeaderButton from './header-button';
@@ -26,6 +27,9 @@ const Header = ({ onAIStructure }: IssueHeaderProps) => {
   const { nextStep, closeIssue, startVote, endVote } = useIssueStore((state) => state.actions);
 
   const isVisible = useIsNextButtonVisible();
+
+  const openTooltip = useTooltipStore((state) => state.openTooltip);
+  const closeTooltip = useTooltipStore((state) => state.closeTooltip);
 
   const renderActionButtons = () => {
     switch (issueState.status) {
@@ -85,10 +89,20 @@ const Header = ({ onAIStructure }: IssueHeaderProps) => {
       </S.CenterSection>
       <S.RightSection>
         {isVisible && (
-          <HeaderButton
-            text="다음"
-            onClick={nextStep}
-          />
+          <>
+            <HeaderButton
+              text="다음"
+              onClick={nextStep}
+              onMouseEnter={(e) => {
+                e.stopPropagation();
+                openTooltip(
+                  e.currentTarget,
+                  '다음 단계로 이동하면 현재 단계로 돌아올 수 없습니다.',
+                );
+              }}
+              onMouseLeave={closeTooltip}
+            />
+          </>
         )}
 
         {renderActionButtons()}
