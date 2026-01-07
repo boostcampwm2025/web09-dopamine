@@ -41,8 +41,6 @@ const IssuePage = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
 
-  const scale = useCanvasStore((state) => state.scale);
-
   // dnd-kit sensors 설정
   const sensors = useSensors(
     useSensor(PointerSensor, {
