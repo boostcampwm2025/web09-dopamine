@@ -19,7 +19,11 @@ const IssuePage = () => {
   const { ideas, addIdea, updateIdeaContent, updateIdeaPosition, deleteIdea, setIdeas, setInitialData: setInitialIdeas } =
     useIdeaStore(issueId);
   const { addCard, removeCard, setInitialData } = useIdeaCardStackStore(issueId);
-  
+
+  const voteStatus = useIssueStore((state) => state.voteStatus);
+  //TODO: 추후 투표 종료 시 투표 기능이 활성화되지 않도록 기능 추가 필요
+  const isVoteActive = voteStatus !== 'READY';
+
   const [categories, setCategories] = useState<Category[]>([]);
 
   const handleIdeaPositionChange = (id: string, position: Position) => {
