@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import { useParams } from 'next/navigation';
 import {
   DndContext,
   DragEndEvent,
@@ -18,14 +19,15 @@ import { useIssueStore } from '@/app/(with-sidebar)/issue/store/use-issue-store'
 import type { Category } from '@/app/(with-sidebar)/issue/types/category';
 import type { IdeaWithPosition, Position } from '@/app/(with-sidebar)/issue/types/idea';
 import LoadingOverlay from '@/components/loading-overlay/loading-overlay';
-import CategoryCard from './_components/category/category-card';
-import { useCanvasStore } from './store/use-canvas-store';
+import CategoryCard from '../_components/category/category-card';
+import { useCanvasStore } from '../store/use-canvas-store';
 
 const IssuePage = () => {
   // TODO: URL 파라미터나 props에서 실제 issueId 가져오기
   // 예: const { issueId } = useParams() 또는 props.issueId
   // TODO: 실제 issueId로 useIssueStore > setInitialData 실행
-  const issueId = 'default'; // 임시 기본값
+  const params = useParams<{ id: string }>();
+  const issueId = params.id;
 
   const { ideas, addIdea, updateIdeaContent, updateIdeaPosition, deleteIdea, setIdeas } =
     useIdeaStore(issueId);
