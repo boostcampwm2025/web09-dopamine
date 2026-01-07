@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   DndContext,
   DragEndEvent,
@@ -129,7 +129,7 @@ const IssuePage = () => {
     }
   };
 
-  const handleAIStructure = async () => {
+  const handleAIStructure = useCallback(async () => {
     // 빈 content를 가진 아이디어는 제외
     const validIdeas = ideas
       .filter((idea) => idea.content.trim().length > 0)
@@ -211,7 +211,7 @@ const IssuePage = () => {
     } finally {
       finishAIStructure();
     }
-  };
+  }, [ideas, issueId, setIdeas, finishAIStructure]);
 
   useEffect(() => {
     const ideaIds = ideas.map((idea) => idea.id);
@@ -220,7 +220,7 @@ const IssuePage = () => {
 
   useEffect(() => {
     if (isAIStructuring) handleAIStructure();
-  }, [isAIStructuring]);
+  }, [isAIStructuring, handleAIStructure]);
 
   return (
     <>
