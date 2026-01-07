@@ -1,14 +1,29 @@
 'use client';
 
+import styled from '@emotion/styled';
 import RankingList from './_components/ranking-list';
+import ConclusionSection from './_components/conclusion-section';
+
+export const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 80px;
+  padding: 60px;
+  flex: 1;
+  height: fit-content;
+`;
 
 export default function IssueSummaryPage() {
   return (
-    <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
-      <h1 style={{ fontSize: '28px', fontWeight: 'bold', marginBottom: '24px' }}>
-        이슈 결과 요약
-      </h1>
+    <Container>
+      <ConclusionSection
+        title="선택된 아이디어"
+        votes={150}
+        candidates={25}
+      />
       <RankingList />
-    </div>
+    </Container>
   );
 }
