@@ -14,6 +14,8 @@ export const BtnContainer = styled.div`
   flex-direction: row;
   justify-content: center;
   align-items: center;
+  background: ${theme.colors.gray[200]};
+  border-radius: ${theme.radius.medium};
 `;
 
 export const Btn = styled.button<{ selected?: boolean }>`
@@ -23,8 +25,9 @@ export const Btn = styled.button<{ selected?: boolean }>`
   line-height: 20px;
   font-weight: ${theme.font.weight.bold};
   color: ${({ selected }) => (selected ? theme.colors.black : theme.colors.gray[400])};
-  border-radius: 14px;
+  border-radius: ${theme.radius.medium};
   background-color: ${({ selected }) => (selected ? theme.colors.white : 'none')};
+  box-shadow: ${({ selected }) => (selected ? '0px 1px 2px 0px #0000000D' : 'none')};
 `;
 
 export const HeaderLeft = styled.div`
@@ -38,6 +41,7 @@ export const Header = styled.div`
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
+  padding: 0px 4px;
 `;
 
 export const HeaderTitle = styled.span`
