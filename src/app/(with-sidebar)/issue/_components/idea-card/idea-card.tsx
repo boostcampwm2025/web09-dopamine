@@ -148,6 +148,7 @@ export default function IdeaCard(props: IdeaCardProps) {
             rows={1}
             value={editValue}
             onChange={(e) => setEditValue(e.target.value)}
+            onPointerDown={(e) => e.stopPropagation()}
             onKeyDown={handleKeyDownEdit}
             onMouseDown={(e) => e.stopPropagation()}
             autoFocus
