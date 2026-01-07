@@ -3,45 +3,42 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import CategorizedListClient from './categorized-list';
-import {
-  Card,
-  BtnContainer,
-  Btn,
-  HeaderLeft,
-  Header,
-  HeaderTitle,
-} from './ranking-list.styles';
+import * as S from './ranking-list.styles';
+import * as PS from '../page.style';
+
 import NormalList from './normal-list';
 
 export default function RankingList() {
   const [isCategorized, setIsCategorized] = useState(false);
 
   return (
-    <Card>
-      <Header>
-        <HeaderLeft>
+    <S.Card>
+      <S.Header>
+        <S.HeaderLeft>
           <Image
             src="/trophy.svg"
             alt="트로피 아이콘"
             width={20}
             height={20}
           />
-          <HeaderTitle>투표 결과 순위</HeaderTitle>
-        </HeaderLeft>
-        <BtnContainer>
-          <Btn selected={!isCategorized} onClick={() => setIsCategorized(false)}>
+          <S.HeaderTitle>투표 결과 순위</S.HeaderTitle>
+        </S.HeaderLeft>
+        <S.BtnContainer>
+          <S.Btn selected={!isCategorized} onClick={() => setIsCategorized(false)}>
             전체 순위
-          </Btn>
-          <Btn selected={isCategorized} onClick={() => setIsCategorized(true)}>
+          </S.Btn>
+          <S.Btn selected={isCategorized} onClick={() => setIsCategorized(true)}>
             카테고리별
-          </Btn>
-        </BtnContainer>
-      </Header>
+          </S.Btn>
+        </S.BtnContainer>
+      </S.Header>
+      <PS.ComponentBox>
       {isCategorized ? (
         <CategorizedListClient />
       ) : (
         <NormalList />
       )}
-    </Card>
+      </PS.ComponentBox>
+    </S.Card>
   );
 }

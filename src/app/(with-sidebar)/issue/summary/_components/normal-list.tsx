@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import type { Idea } from '@/app/(with-sidebar)/issue/types/idea';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
+import type { Idea } from '@/app/(with-sidebar)/issue/types/idea';
+import { getAllIdeas } from '../../services/issue-service';
 import * as DS from './dialog.styles';
 import * as S from './normal-list.styles';
-import { getAllIdeas } from '../../services/issue-service';
 
 export default function NormalList() {
   const [rawData, setRawData] = useState<Idea[]>([]);
@@ -25,13 +25,16 @@ export default function NormalList() {
   const hasMore = rawData.length > 5;
 
   const closeDialog = () => {
-    setDialogContent(null)
+    setDialogContent(null);
   };
 
   return (
-    <S.Container>
+    <>
       {visibleItems.map((item, index) => (
-        <S.Item key={item.id} highlighted={item.highlighted}>
+        <S.Item
+          key={item.id}
+          highlighted={item.highlighted}
+        >
           <S.ItemLeft>
             <S.RankBadge highlighted={item.highlighted}>{index + 1}</S.RankBadge>
             <S.Content>
@@ -72,7 +75,10 @@ export default function NormalList() {
       ))}
       {hasMore && (
         <S.Footer>
-          <S.MoreButton type="button" onClick={() => setShowAll((prev) => !prev)}>
+          <S.MoreButton
+            type="button"
+            onClick={() => setShowAll((prev) => !prev)}
+          >
             {showAll ? '접기' : '더보기'}
           </S.MoreButton>
         </S.Footer>
@@ -97,13 +103,13 @@ export default function NormalList() {
                   alt="이슈 닫기 이미지"
                   width={16}
                   height={16}
-                />  
+                />
               </DS.DialogClose>
             </DS.DialogHeader>
             <DS.DialogBody>{dialogContent}</DS.DialogBody>
           </DS.Dialog>
         </DS.DialogOverlay>
       )}
-    </S.Container>
+    </>
   );
 }
