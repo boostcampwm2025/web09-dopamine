@@ -19,38 +19,34 @@ const createIdeaStore = (issueId: string) => {
       (set) => ({
         ideas: [],
 
-        addIdea: (idea) =>
+        addIdea: (idea: IdeaWithPosition) =>
           set((state) => ({
             ideas: [...state.ideas, idea],
           })),
 
-        updateIdeaContent: (id, content) =>
+        updateIdeaContent: (id: string, content: string) =>
           set((state) => ({
             ideas: state.ideas.map((idea) =>
               idea.id === id ? { ...idea, content, editable: false } : idea,
             ),
           })),
 
-        updateIdeaPosition: (id, position) =>
+        updateIdeaPosition: (id: string, position: Position) =>
           set((state) => ({
-            ideas: state.ideas.map((idea) =>
-              idea.id === id ? { ...idea, position } : idea,
-            ),
+            ideas: state.ideas.map((idea) => (idea.id === id ? { ...idea, position } : idea)),
           })),
 
-        updateIdeaEditable: (id, editable) =>
+        updateIdeaEditable: (id: string, editable: boolean) =>
           set((state) => ({
-            ideas: state.ideas.map((idea) =>
-              idea.id === id ? { ...idea, editable } : idea,
-            ),
+            ideas: state.ideas.map((idea) => (idea.id === id ? { ...idea, editable } : idea)),
           })),
 
-        deleteIdea: (id) =>
+        deleteIdea: (id: string) =>
           set((state) => ({
             ideas: state.ideas.filter((idea) => idea.id !== id),
           })),
 
-        setIdeas: (ideas) => set({ ideas }),
+        setIdeas: (ideas: IdeaWithPosition[]) => set({ ideas }),
 
         clearIdeas: () => set({ ideas: [] }),
       }),
@@ -69,4 +65,3 @@ export const useIdeaStore = (issueId: string = 'default') => {
   }
   return storeCache.get(issueId)!();
 };
-

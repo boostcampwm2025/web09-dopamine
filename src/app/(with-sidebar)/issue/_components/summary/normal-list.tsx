@@ -3,31 +3,8 @@
 import { useState, useEffect } from 'react';
 import type { Idea } from '@/app/(with-sidebar)/issue/types/idea';
 import Image from 'next/image';
-import {
-  Dialog,
-  DialogBody,
-  DialogClose,
-  DialogHeader,
-  DialogOverlay,
-} from './dialog.styles';
-import {
-  Container,
-  Item,
-  ItemLeft,
-  ItemRight,
-  RankBadge,
-  Content,
-  Title,
-  MetaRow,
-  Author,
-  Divider,
-  VoteInfoSection,
-  VoteInfo,
-  VoteLabel,
-  VoteCount,
-  Footer,
-  MoreButton,
-} from './normal-list.styles';
+import * as DS from './dialog.styles';
+import * as S from './normal-list.styles';
 import { getAllIdeas } from '../../services/issue-service';
 
 export default function NormalList() {
@@ -47,14 +24,18 @@ export default function NormalList() {
   const visibleItems = showAll ? rawData : rawData.slice(0, 5);
   const hasMore = rawData.length > 5;
 
+  const closeDialog = () => {
+    setDialogContent(null)
+  };
+
   return (
-    <Container>
+    <S.Container>
       {visibleItems.map((item, index) => (
-        <Item key={item.id} highlighted={item.highlighted}>
-          <ItemLeft>
-            <RankBadge highlighted={item.highlighted}>{index + 1}</RankBadge>
-            <Content>
-              <Title
+        <S.Item key={item.id} highlighted={item.highlighted}>
+          <S.ItemLeft>
+            <S.RankBadge highlighted={item.highlighted}>{index + 1}</S.RankBadge>
+            <S.Content>
+              <S.Title
                 title={item.content}
                 role="button"
                 tabIndex={0}
@@ -67,62 +48,61 @@ export default function NormalList() {
                 }}
               >
                 {item.content}
-              </Title>
-              <MetaRow>
-                <Author>{item.author}</Author>
-                <Divider />
+              </S.Title>
+              <S.MetaRow>
+                <S.Author>{item.author}</S.Author>
+                <S.Divider />
                 <span>{item.category}</span>
-              </MetaRow>
-            </Content>
-          </ItemLeft>
-          <ItemRight>
-            <VoteInfoSection>
-              <VoteInfo type="agree">
-                <VoteLabel>찬성</VoteLabel>
-                <VoteCount type="agree">{item.agreeCount}</VoteCount>
-              </VoteInfo>
-              <VoteInfo type="disagree">
-                <VoteLabel>반대</VoteLabel>
-                <VoteCount type="disagree">{item.disagreeCount}</VoteCount>
-              </VoteInfo>
-            </VoteInfoSection>
-          </ItemRight>
-        </Item>
+              </S.MetaRow>
+            </S.Content>
+          </S.ItemLeft>
+          <S.ItemRight>
+            <S.VoteInfoSection>
+              <S.VoteInfo type="agree">
+                <S.VoteCount type="agree">{item.agreeCount}</S.VoteCount>
+              </S.VoteInfo>
+              <S.VoteInfo type="disagree">
+                <S.VoteLabel>반대</S.VoteLabel>
+                <S.VoteCount type="disagree">{item.disagreeCount}</S.VoteCount>
+              </S.VoteInfo>
+            </S.VoteInfoSection>
+          </S.ItemRight>
+        </S.Item>
       ))}
       {hasMore && (
-        <Footer>
-          <MoreButton type="button" onClick={() => setShowAll((prev) => !prev)}>
+        <S.Footer>
+          <S.MoreButton type="button" onClick={() => setShowAll((prev) => !prev)}>
             {showAll ? '접기' : '더보기'}
-          </MoreButton>
-        </Footer>
+          </S.MoreButton>
+        </S.Footer>
       )}
       {dialogContent && (
-        <DialogOverlay onClick={() => setDialogContent(null)}>
-          <Dialog
+        <DS.DialogOverlay onClick={closeDialog}>
+          <DS.Dialog
             role="dialog"
             aria-modal="true"
             aria-label="아이디어 상세"
             onClick={(e) => e.stopPropagation()}
           >
-            <DialogHeader>
+            <DS.DialogHeader>
               <span>아이디어 상세</span>
-              <DialogClose
+              <DS.DialogClose
                 type="button"
-                aria-label="닫기"
-                onClick={() => setDialogContent(null)}
+                aria-label="이슈 닫기"
+                onClick={closeDialog}
               >
                 <Image
                   src="/close.svg"
-                  alt="닫기 이미지"
+                  alt="이슈 닫기 이미지"
                   width={16}
                   height={16}
                 />  
-              </DialogClose>
-            </DialogHeader>
-            <DialogBody>{dialogContent}</DialogBody>
-          </Dialog>
-        </DialogOverlay>
+              </DS.DialogClose>
+            </DS.DialogHeader>
+            <DS.DialogBody>{dialogContent}</DS.DialogBody>
+          </DS.Dialog>
+        </DS.DialogOverlay>
       )}
-    </Container>
+    </S.Container>
   );
 }
