@@ -325,6 +325,7 @@ const IssuePage = () => {
                       agreeCount={activeIdea.agreeCount}
                       disagreeCount={activeIdea.disagreeCount}
                       needDiscussion={activeIdea.needDiscussion}
+                      editable={activeIdea.editable}
                     />
                   </div>
                 );
