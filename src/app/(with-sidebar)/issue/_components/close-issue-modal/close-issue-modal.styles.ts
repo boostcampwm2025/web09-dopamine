@@ -94,12 +94,12 @@ export const SubmitButton = styled.button`
   padding: 0 18px;
   border: none;
   border-radius: ${theme.radius.small};
-  background: ${theme.colors.black};
+  background: ${theme.colors.green[600]};
   color: ${theme.colors.white};
   font-weight: 600;
   cursor: pointer;
 
   &:hover {
-    background: ${theme.colors.gray[900]};
+    background: ${theme.colors.green[700]};
   }
 `;
