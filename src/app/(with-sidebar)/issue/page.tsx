@@ -24,8 +24,6 @@ import { useCanvasStore } from './store/use-canvas-store';
 import FilterPanel from './_components/filter-panel/filter-panel';
 import { useIdeaHighlight } from '@/app/(with-sidebar)/issue/hooks/use-highlighted-ideas';
 
-type Phase = 'ideation' | 'categorization' | 'voting' | 'discussion' | 'selection' | 'closed';
-
 const IssuePage = () => {
   // TODO: URL 파라미터나 props에서 실제 issueId 가져오기
   // 예: const { issueId } = useParams() 또는 props.issueId
