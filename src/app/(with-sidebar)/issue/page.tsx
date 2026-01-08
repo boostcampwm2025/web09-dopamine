@@ -21,6 +21,8 @@ import type { IdeaWithPosition, Position } from '@/app/(with-sidebar)/issue/type
 import LoadingOverlay from '@/components/loading-overlay/loading-overlay';
 import CategoryCard from './_components/category/category-card';
 import { useCanvasStore } from './store/use-canvas-store';
+import FilterPanel from './_components/filter-panel/filter-panel';
+import { useIdeaHighlight } from '@/app/(with-sidebar)/issue/hooks/use-highlighted-ideas';
 
 const IssuePage = () => {
   // TODO: URL 파라미터나 props에서 실제 issueId 가져오기
@@ -39,8 +41,8 @@ const IssuePage = () => {
   const scale = useCanvasStore((state) => state.scale); // Canvas scale 가져오기
 
   const voteStatus = useIssueStore((state) => state.voteStatus);
-  //TODO: 추후 투표 종료 시 투표 기능이 활성화되지 않도록 기능 추가 필요
-  const isVoteActive = voteStatus !== 'READY';
+
+  const isVoteActive = voteStatus === 'IN_PROGRESS';
   
   const [activeId, setActiveId] = useState<string | null>(null);
   const [overlayEditValue, setOverlayEditValue] = useState<string | null>(null);
@@ -104,6 +106,9 @@ const IssuePage = () => {
     
     return false;
   }, [categories]);
+  
+  //하이라이트된 아이디어
+  const { activeFilter, setFilter, highlightedIds } = useIdeaHighlight(issueId, ideas);  
 
   // dnd-kit sensors 설정
   const sensors = useSensors(
@@ -160,6 +165,19 @@ const IssuePage = () => {
   const handleDeleteIdea = (id: string) => {
     deleteIdea(id);
     removeCard(id);
+  };
+
+  const handleVoteChange = (id: string, agreeCount: number, disagreeCount: number) => {
+    const current = ideas.find((idea) => idea.id === id);
+    if (!current) return;
+    if ((current.agreeCount ?? 0) === agreeCount && (current.disagreeCount ?? 0) === disagreeCount) {
+      return;
+    }
+    setIdeas(
+      ideas.map((idea) =>
+        idea.id === id ? { ...idea, agreeCount, disagreeCount } : idea,
+      ),
+    );
   };
 
   const handleMoveIdeaToCategory = (ideaId: string, targetCategoryId: string | null) => {
@@ -311,6 +329,14 @@ const IssuePage = () => {
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
+        {/* 투표 시작 시 필터 UI 적용 */}
+        {voteStatus === 'IN_PROGRESS' && (
+          <FilterPanel
+            value={activeFilter}
+            onChange={setFilter}
+          />
+        )}
+
         <Canvas onDoubleClick={handleCreateIdea}>
           {/* 카테고리들 - 내부에 아이디어 카드들을 children으로 전달 */}
           {categories.map((category) => {
@@ -339,11 +365,15 @@ const IssuePage = () => {
                     categoryId={idea.categoryId}
                     position={null} 
                     isSelected={idea.isSelected}
+                    isHighlighted={highlightedIds.has(idea.id)}
                     isVotePhase={isVoteActive}
                     agreeCount={idea.agreeCount}
                     disagreeCount={idea.disagreeCount}
                     needDiscussion={idea.needDiscussion}
                     editable={idea.editable}
+                    onVoteChange={(agreeCount, disagreeCount) =>
+                      handleVoteChange(idea.id, agreeCount, disagreeCount)
+                    }
                     onSave={(content) => handleSaveIdea(idea.id, content)}
                     onDelete={() => handleDeleteIdea(idea.id)}
                   />
@@ -365,12 +395,16 @@ const IssuePage = () => {
                 categoryId={idea.categoryId}
                 position={idea.position}
                 isSelected={idea.isSelected}
+                isHighlighted={highlightedIds.has(idea.id)}
                 isVotePhase={isVoteActive}
                 agreeCount={idea.agreeCount}
                 disagreeCount={idea.disagreeCount}
                 needDiscussion={idea.needDiscussion}
                 editable={idea.editable}
                 onPositionChange={handleIdeaPositionChange}
+                onVoteChange={(agreeCount, disagreeCount) =>
+                  handleVoteChange(idea.id, agreeCount, disagreeCount)
+                }
                 onSave={(content) => handleSaveIdea(idea.id, content)}
                 onDelete={() => handleDeleteIdea(idea.id)}
               />
@@ -399,6 +433,7 @@ const IssuePage = () => {
                       categoryId={activeIdea.categoryId}
                       position={null}
                       isSelected={activeIdea.isSelected}
+                      isHighlighted={highlightedIds.has(activeIdea.id)}
                       isVotePhase={isVoteActive}
                       agreeCount={activeIdea.agreeCount}
                       disagreeCount={activeIdea.disagreeCount}
