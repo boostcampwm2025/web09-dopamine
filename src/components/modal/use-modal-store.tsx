@@ -5,6 +5,7 @@ interface OpenModalPayload {
   title?: string;
   content: ReactNode;
   closeOnOverlayClick?: boolean;
+  hasCloseButton?: boolean;
   onClose?: () => void;
 }
 
@@ -13,6 +14,7 @@ interface ModalState {
   title?: string;
   content: ReactNode | null;
   closeOnOverlayClick: boolean;
+  hasCloseButton?: boolean;
   onClose?: () => void;
   openModal: (payload: OpenModalPayload) => void;
   closeModal: () => void;
@@ -23,14 +25,16 @@ export const useModalStore = create<ModalState>((set, get) => ({
   title: undefined,
   content: null,
   closeOnOverlayClick: true,
+  hasCloseButton: true,
   onClose: undefined,
 
-  openModal: ({ title, content, closeOnOverlayClick = true, onClose }) => {
+  openModal: ({ title, content, closeOnOverlayClick = true, hasCloseButton = true, onClose }) => {
     set({
       isOpen: true,
       title,
       content,
       closeOnOverlayClick,
+      hasCloseButton,
       onClose,
     });
   },
@@ -43,6 +47,7 @@ export const useModalStore = create<ModalState>((set, get) => ({
       title: undefined,
       content: null,
       closeOnOverlayClick: true,
+      hasCloseButton: true,
       onClose: undefined,
     });
   },

@@ -49,6 +49,7 @@ const Header = () => {
         title: '이슈 종료',
         content: <CloseIssueModal />,
         closeOnOverlayClick: false,
+        hasCloseButton: false,
       });
       hasOpenedCloseModal.current = true;
     }

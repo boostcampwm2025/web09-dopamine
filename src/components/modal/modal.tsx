@@ -6,7 +6,7 @@ import { useModalStore } from './use-modal-store';
 import * as S from './modal.styles';
 
 export default function Modal() {
-  const { isOpen, title, content, closeOnOverlayClick, closeModal } = useModalStore();
+  const { isOpen, title, content, closeOnOverlayClick, hasCloseButton, closeModal } = useModalStore();
 
   useEffect(() => {
     if (!isOpen) return;
@@ -39,6 +39,7 @@ export default function Modal() {
         {title ? (
           <S.Header>
             <span>{title}</span>
+            {hasCloseButton ? 
             <S.CloseButton
               type="button"
               aria-label="닫기"
@@ -46,6 +47,7 @@ export default function Modal() {
             >
               &times;
             </S.CloseButton>
+            : null}
           </S.Header>
         ) : null}
         <S.Body>{content}</S.Body>
