@@ -9,19 +9,13 @@ export const Container = styled.div`
   background-color: ${theme.colors.yellow[100]};
   z-index: 999;
   pointer-events: none;
+  font-weight: ${theme.font.weight.medium};
+`;
 
-  &::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 50%;
-    width: 0;
-    height: 0;
-    border: 16px solid transparent;
-    border-bottom-color: ${theme.colors.yellow[100]};
-    border-top: 0;
-    border-left: 0;
-    margin-left: -5px;
-    margin-top: -16px;
-  }
+export const Arrow = styled.div`
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background-color: ${theme.colors.yellow[100]};
+  transform: rotate(45deg);
 `;

@@ -21,7 +21,7 @@ const BodyContainer = styled.div`
 const ContentArea = styled.div`
   display: flex;
   flex: 1;
-  overflow: hidden;
+  overflow-y: auto;
 `;
 
 export default function WithSidebarLayout({ children }: { children: ReactNode }) {

@@ -43,3 +43,5 @@ next-env.d.ts
 # docker data volumes
 /data/mysql
 /data/redis
+
+.cursorrules

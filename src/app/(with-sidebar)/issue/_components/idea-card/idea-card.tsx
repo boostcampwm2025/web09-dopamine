@@ -117,11 +117,16 @@ export default function IdeaCard(props: IdeaCardProps) {
         }
       : {};
 
-  const handleCardClick = (e: React.MouseEvent) => {
+  const handlePointerDown = (e: React.PointerEvent) => {
+    // z-index 업데이트는 드래그 시작 전에 처리
     if (props.id && !inCategory) {
       bringToFront(props.id);
     }
-    props.onClick?.();
+
+    // listeners의 onPointerDown도 호출 (드래그를 위해)
+    if (!inCategory && listeners?.onPointerDown) {
+      listeners.onPointerDown(e);
+    }
   };
 
   const handleDeleteClick = (e: React.MouseEvent) => {
@@ -135,9 +140,12 @@ export default function IdeaCard(props: IdeaCardProps) {
       status={status}
       isDragging={isDragging}
       inCategory={inCategory}
-      onClick={handleCardClick}
+      onClick={props.onClick}
+      onPointerDown={handlePointerDown}
       {...attributes}
-      {...listeners}
+      {...(inCategory ? {} : Object.fromEntries(
+        Object.entries(listeners || {}).filter(([key]) => key !== 'onPointerDown')
+      ))}
       style={cardStyle}
     >
       {status === 'selected' && (
