@@ -2,7 +2,9 @@
 
 import { useCallback, useRef, useState } from 'react';
 import Image from 'next/image';
+import { ISSUE_STATUS } from '@/constants/issue';
 import { useCanvasStore } from '../../store/use-canvas-store';
+import { useIssueStore } from '../../store/use-issue-store';
 import { CanvasContext } from './canvas-context';
 import {
   AddIdeaButton,
@@ -24,6 +26,9 @@ export default function Canvas({ children, onDoubleClick }: CanvasProps) {
   const canvasRef = useRef<HTMLDivElement>(null);
 
   // 전역 상태에서 scale과 offset 가져오기
+
+  const { status } = useIssueStore();
+  const isBrainStorming = status == ISSUE_STATUS.BRAINSTORMING;
   const { scale, offset, setScale, setOffset, reset } = useCanvasStore();
 
   // 패닝(드래그 이동) 상태 관리
@@ -197,7 +202,10 @@ export default function Canvas({ children, onDoubleClick }: CanvasProps) {
           />
         </ZoomButton>
       </ZoomControls>
-      <AddIdeaButton onClick={handleAddIdeaButtonClick}>아이디어 추가</AddIdeaButton>
+      {isBrainStorming && (
+        <AddIdeaButton onClick={handleAddIdeaButtonClick}>아이디어 추가</AddIdeaButton>
+      )}
+
       <BottomMessage>배경을 더블클릭하여 새로운 아이디어를 작성할 수 있습니다.</BottomMessage>
     </>
   );
