@@ -32,6 +32,7 @@ interface CategoryCardProps {
   onDragStart?: () => void;
   onDragEnd?: () => void;
   onDropIdea?: (ideaId: string) => void;
+  checkCollision?: (id: string, position: Position) => boolean;
 }
 
 export default function CategoryCard({
@@ -47,6 +48,7 @@ export default function CategoryCard({
   onDragStart,
   onDragEnd,
   onDropIdea,
+  checkCollision,
 }: CategoryCardProps) {
   const { scale } = useCanvasContext();
   const { updateCategoryTitle } = useCategoryStore(issueId);
@@ -71,6 +73,9 @@ export default function CategoryCard({
           onPositionChange(id, newPosition);
           onDragEnd?.();
         },
+        checkCollision: checkCollision
+          ? (newPosition) => checkCollision(id, newPosition)
+          : undefined,
       })
     : null;
 
@@ -92,6 +97,7 @@ export default function CategoryCard({
   return (
     <StyledCategoryCard
       ref={setDroppableRef}
+      data-category-id={id}
       isMuted={isMuted}
       aria-label={`${curTitle} 카테고리`}
       style={
