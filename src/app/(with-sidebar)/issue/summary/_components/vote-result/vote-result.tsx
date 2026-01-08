@@ -1,7 +1,7 @@
 'use client';
 
-import * as S from './vote-result.style';
-import * as PS from '../../page.style';
+import * as S from './vote-result.styles';
+import * as PS from '../../page.styles';
 
 export default function VoteResult() {
     return (

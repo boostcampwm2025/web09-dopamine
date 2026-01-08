@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Image from 'next/image';
 import CategorizedListClient from './categorized-list';
 import * as S from './ranking-list.styles';
-import * as PS from '../../page.style';
+import * as PS from '../../page.styles';
 
 import NormalList from './normal-list';
 
