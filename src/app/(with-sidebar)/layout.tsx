@@ -27,15 +27,10 @@ const ContentArea = styled.div`
 export default function WithSidebarLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
 
-  // AI 구조화 이벤트 발생
-  const handleAIStructure = () => {
-    window.dispatchEvent(new CustomEvent('aiStructure'));
-  };
-
   // 경로에 따라 다른 헤더 렌더링
   const renderHeader = () => {
     if (pathname?.startsWith('/issue')) {
-      return <IssueHeader onAIStructure={handleAIStructure} />;
+      return <IssueHeader />;
     }
 
     return null;

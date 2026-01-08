@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   DndContext,
   DragEndEvent,
@@ -21,8 +21,6 @@ import LoadingOverlay from '@/components/loading-overlay/loading-overlay';
 import CategoryCard from './_components/category/category-card';
 import { useCanvasStore } from './store/use-canvas-store';
 
-type Phase = 'ideation' | 'categorization' | 'voting' | 'discussion' | 'selection' | 'closed';
-
 const IssuePage = () => {
   // TODO: URL 파라미터나 props에서 실제 issueId 가져오기
   // 예: const { issueId } = useParams() 또는 props.issueId
@@ -32,6 +30,8 @@ const IssuePage = () => {
   const { ideas, addIdea, updateIdeaContent, updateIdeaPosition, deleteIdea, setIdeas } =
     useIdeaStore(issueId);
   const { addCard, removeCard, setInitialData } = useIdeaCardStackStore(issueId);
+  const { isAIStructuring } = useIssueStore();
+  const { finishAIStructure } = useIssueStore((state) => state.actions);
   const scale = useCanvasStore((state) => state.scale); // Canvas scale 가져오기
 
   const voteStatus = useIssueStore((state) => state.voteStatus);
@@ -39,9 +39,7 @@ const IssuePage = () => {
   const isVoteActive = voteStatus !== 'READY';
 
   const [categories, setCategories] = useState<Category[]>([]);
-  const [currentPhase, setCurrentPhase] = useState<Phase>('ideation');
   const [activeId, setActiveId] = useState<string | null>(null);
-  const [isAILoading, setIsAILoading] = useState(false);
 
   // dnd-kit sensors 설정
   const sensors = useSensors(
@@ -129,7 +127,7 @@ const IssuePage = () => {
     }
   };
 
-  const handleAIStructure = async () => {
+  const handleAIStructure = useCallback(async () => {
     // 빈 content를 가진 아이디어는 제외
     const validIdeas = ideas
       .filter((idea) => idea.content.trim().length > 0)
@@ -149,7 +147,6 @@ const IssuePage = () => {
       ideas: validIdeas,
     };
 
-    setIsAILoading(true);
     try {
       const res = await fetch('/api/categorize', {
         method: 'POST',
@@ -210,24 +207,18 @@ const IssuePage = () => {
       console.error('AI 구조화 오류:', error);
       alert('AI 구조화 중 오류가 발생했습니다.');
     } finally {
-      setIsAILoading(false);
+      finishAIStructure();
     }
-  };
+  }, [ideas, issueId, setIdeas, finishAIStructure]);
 
   useEffect(() => {
     const ideaIds = ideas.map((idea) => idea.id);
     setInitialData(ideaIds);
   }, [ideas, setInitialData]);
 
-  // AI 구조화 이벤트 리스너
   useEffect(() => {
-    const handleAIStructureEvent = () => {
-      handleAIStructure();
-    };
-
-    window.addEventListener('aiStructure', handleAIStructureEvent);
-    return () => window.removeEventListener('aiStructure', handleAIStructureEvent);
-  }, [ideas]); // ideas가 변경될 때마다 리스너 재등록
+    if (isAIStructuring) handleAIStructure();
+  }, [isAIStructuring, handleAIStructure]);
 
   return (
     <>
@@ -334,7 +325,7 @@ const IssuePage = () => {
       </DndContext>
 
       {/* AI 구조화 로딩 오버레이 */}
-      {isAILoading && <LoadingOverlay message="AI가 아이디어를 분류하고 있습니다..." />}
+      {isAIStructuring && <LoadingOverlay message="AI가 아이디어를 분류하고 있습니다..." />}
     </>
   );
 };
