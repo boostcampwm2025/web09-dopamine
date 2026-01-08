@@ -31,7 +31,7 @@ const IssuePage = () => {
 
   const { ideas, addIdea, updateIdeaContent, updateIdeaPosition, deleteIdea, setIdeas } =
     useIdeaStore(issueId);
-  const { addCard, removeCard, setInitialData } = useIdeaCardStackStore(issueId);
+  const { addCard, removeCard, setInitialCardData } = useIdeaCardStackStore(issueId);
   const { isAIStructuring } = useIssueStore();
   const { finishAIStructure } = useIssueStore((state) => state.actions);
   const scale = useCanvasStore((state) => state.scale); // Canvas scale 가져오기
@@ -215,7 +215,7 @@ const IssuePage = () => {
 
   useEffect(() => {
     const ideaIds = ideas.map((idea) => idea.id);
-    setInitialData(ideaIds);
+    setInitialCardData(ideaIds);
   }, [ideas, setInitialData]);
 
   useEffect(() => {
