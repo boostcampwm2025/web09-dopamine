@@ -1,7 +1,7 @@
 import type { MouseEvent } from 'react';
 import * as S from './filter-panel.styles';
 
-export type FilterKey = 'most-liked' | 'hot-potato' | 'none';
+export type FilterKey = 'most-liked' | 'need-discussion' | 'none';
 
 interface FilterPanelProps {
   value: FilterKey;
@@ -9,13 +9,13 @@ interface FilterPanelProps {
 }
 
 export default function FilterPanel({ value, onChange }: FilterPanelProps) {
-  const toggleFilter = (nextFilter: 'most-liked' | 'hot-potato') => {
+  const toggleFilter = (nextFilter: 'most-liked' | 'need-discussion') => {
     onChange(value === nextFilter ? 'none' : nextFilter);
   };
 
   const handleClick = (e: MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
-    const nextFilter = e.currentTarget.dataset.filter as 'most-liked' | 'hot-potato' | undefined;
+    const nextFilter = e.currentTarget.dataset.filter as 'most-liked' | 'need-discussion' | undefined;
     if (!nextFilter) return;
     toggleFilter(nextFilter);
   };
@@ -32,8 +32,8 @@ export default function FilterPanel({ value, onChange }: FilterPanelProps) {
       </S.Btn>
       <S.Btn
         type="button"
-        data-filter="hot-potato"
-        $selected={value === 'hot-potato'}
+        data-filter="need-discussion"
+        $selected={value === 'need-discussion'}
         onClick={handleClick}
       >
         논의 필요

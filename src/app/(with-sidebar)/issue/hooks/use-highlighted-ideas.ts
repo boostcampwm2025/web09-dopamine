@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import type { IdeaWithPosition } from '../types/idea';
 import { getVoteCounts } from '../services/issue-service';
 
-export type FilterType = 'most-liked' | 'hot-potato' | 'none';
+export type FilterType = 'most-liked' | 'need-discussion' | 'none';
 
 export const useIdeaHighlight = (issueId: string, initialIdeas: IdeaWithPosition[]) => {
   const [activeFilter, setActiveFilter] = useState<FilterType>('none');
@@ -26,7 +26,7 @@ export const useIdeaHighlight = (issueId: string, initialIdeas: IdeaWithPosition
         if (bV.agree !== aV.agree) return bV.agree - aV.agree;
         return bV.total - aV.total;
       });
-    } else if (activeFilter === 'hot-potato') {
+    } else if (activeFilter === 'need-discussion') {
       // 찬반 비율 20% 이내 후보군 필터링 후 찬성순 정렬
       const candidates = initialIdeas.filter((idea) => {
         const { total, diff } = getVoteCounts(idea);
