@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import {
   DndContext,
   DragEndEvent,
@@ -44,6 +44,29 @@ const IssuePage = () => {
   
   const [activeId, setActiveId] = useState<string | null>(null);
   const [overlayEditValue, setOverlayEditValue] = useState<string | null>(null);
+
+  const categorySizesRef = useRef<Map<string, { width: number; height: number }>>(new Map());
+
+  useEffect(() => {
+    const updateCategorySizes = () => {
+      const newSizes = new Map<string, { width: number; height: number }>();
+      
+      categories.forEach((category) => {
+        const element = document.querySelector(`[data-category-id="${category.id}"]`);
+        if (element) {
+          const rect = element.getBoundingClientRect();
+          newSizes.set(category.id, {
+            width: rect.width / scale,
+            height: rect.height / scale,
+          });
+        }
+      });
+      
+      categorySizesRef.current = newSizes;
+    };
+
+    updateCategorySizes();
+  }, [categories, ideas, scale]);
 
   const checkCategoryOverlap = useCallback((draggingCategoryId: string, newPosition: Position) => {
     const draggingSize = categorySizesRef.current.get(draggingCategoryId);
