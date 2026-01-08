@@ -27,13 +27,9 @@ const ContentArea = styled.div`
 export default function WithSidebarLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
 
-  const handleAddCategory = () => {
-    window.dispatchEvent(new CustomEvent('addCategory'));
-  };
-
   const renderHeader = () => {
     if (pathname?.startsWith('/issue')) {
-      return <IssueHeader onAddCategory={handleAddCategory} />;
+      return <IssueHeader />;
     }
 
     return null;

@@ -229,37 +229,10 @@ const IssuePage = () => {
     }
   }, [isAIStructuring, handleAIStructure]);
 
-  const handleAddCategory = () => {
-    const maxX = categories.length > 0 
-      ? Math.max(...categories.map(cat => cat.position.x))
-      : 0;
-
-    const newCategory: Category = {
-      id: `category-${Date.now()}`,
-      title: '새 카테고리',
-      position: {
-        x: maxX + 200, 
-        y: 100,
-      },
-      isMuted: false,
-    };
-
-    addCategory(newCategory);
-  };
-
   useEffect(() => {
     const ideaIds = ideas.map((idea) => idea.id);
     setInitialData(ideaIds);
-  }, [ideas, setInitialData]);
-
-  useEffect(() => {
-    const handleAddCategoryEvent = () => {
-      handleAddCategory();
-    };
-
-    window.addEventListener('addCategory', handleAddCategoryEvent);
-    return () => window.removeEventListener('addCategory', handleAddCategoryEvent);
-  }, [categories]); 
+  }, [ideas, setInitialData]); 
 
   return (
     <>

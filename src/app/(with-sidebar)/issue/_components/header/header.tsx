@@ -13,12 +13,9 @@ import HeaderButton from './header-button';
 import * as S from './header.styles';
 import { useCategoryStore } from '@/app/(with-sidebar)/issue/store/use-category-store';
 import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
+import type { Category } from '../../types/category';
 
-interface IssueHeaderProps {
-  onAddCategory?: (issueId: string) => void;
-}
-
-const Header = ({ onAddCategory }: IssueHeaderProps) => {
+const Header = () => {
   const issueState = useIssueStore(
     useShallow((state) => ({
       status: state.status,
@@ -33,7 +30,7 @@ const Header = ({ onAddCategory }: IssueHeaderProps) => {
   const openTooltip = useTooltipStore((state) => state.openTooltip);
   const closeTooltip = useTooltipStore((state) => state.closeTooltip);
 
-  const { categories } = useCategoryStore('default');
+  const { categories, addCategory } = useCategoryStore('default');
   const { ideas } = useIdeaStore('default');
 
   const handleNextStep = () => {
@@ -55,6 +52,24 @@ const Header = ({ onAddCategory }: IssueHeaderProps) => {
     }
   };
 
+  const handleAddCategory = () => {
+    const maxX = categories.length > 0 
+      ? Math.max(...categories.map(cat => cat.position.x))
+      : 0;
+
+    const newCategory: Category = {
+      id: `category-${Date.now()}`,
+      title: '새 카테고리',
+      position: {
+        x: maxX + 300,
+        y: 100,
+      },
+      isMuted: false,
+    };
+
+    addCategory(newCategory);
+  };
+
   const renderActionButtons = () => {
     switch (issueState.status) {
       case ISSUE_STATUS.CATEGORIZE:
@@ -64,7 +79,7 @@ const Header = ({ onAddCategory }: IssueHeaderProps) => {
               imageSrc="/folder.svg"
               alt="카테고리 추가"
               text="카테고리 추가"
-              onClick={() => onAddCategory?.('default')}
+              onClick={handleAddCategory}
             />
             <HeaderButton
               imageSrc="/stick.svg"
