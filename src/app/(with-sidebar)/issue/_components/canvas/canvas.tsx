@@ -208,7 +208,6 @@ export default function Canvas({ children, onDoubleClick }: CanvasProps) {
       {isBrainStorming && (
         <AddIdeaButton onClick={handleAddIdeaButtonClick}>아이디어 추가</AddIdeaButton>
       )}
-
       <BottomMessage>{description}</BottomMessage>
     </>
   );

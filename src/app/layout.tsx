@@ -1,5 +1,6 @@
 import 'pretendard/dist/web/static/pretendard.css';
 import { Toaster } from 'react-hot-toast';
+import Modal from '@/components/modal/modal';
 import Tooltip from '@/components/tooltip/tooltip';
 import ThemeProvider from '@/providers/ThemeProvider';
 import EmotionRegistry from '@/styles/EmotionRegistry';
@@ -18,6 +19,7 @@ export default function RootLayout({
             <GlobalStyle />
             <Tooltip />
             <Toaster />
+            <Modal />
             {children}
           </ThemeProvider>
         </EmotionRegistry>

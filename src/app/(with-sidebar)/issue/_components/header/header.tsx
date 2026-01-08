@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import toast from 'react-hot-toast';
@@ -10,9 +11,11 @@ import {
   useIsNextButtonVisible,
   useIssueStore,
 } from '@/app/(with-sidebar)/issue/store/use-issue-store';
+import { useModalStore } from '@/components/modal/use-modal-store';
 import { useTooltipStore } from '@/components/tooltip/use-tooltip-store';
 import { BUTTON_TEXT_MAP, ISSUE_STATUS } from '@/constants/issue';
 import type { Category } from '../../types/category';
+import CloseIssueModal from '../close-issue-modal/close-issue-modal';
 import ProgressBar from '../progress-bar/progress-bar';
 import HeaderButton from './header-button';
 import * as S from './header.styles';
@@ -34,20 +37,50 @@ const Header = () => {
 
   const isVisible = useIsNextButtonVisible();
 
+  const { hasEditingIdea } = useIdeaStore();
+
   const openTooltip = useTooltipStore((state) => state.openTooltip);
   const closeTooltip = useTooltipStore((state) => state.closeTooltip);
+  const { openModal, isOpen } = useModalStore();
+  const hasOpenedModal = useRef(false);
 
   const { categories, addCategory } = useCategoryStore(issueId);
   const { ideas } = useIdeaStore(issueId);
+
+  useEffect(() => {
+    if (issueState.status !== ISSUE_STATUS.CLOSE) {
+      hasOpenedModal.current = false;
+      return;
+    }
+
+    if (!hasOpenedModal.current && !isOpen) {
+      openModal({
+        title: '이슈 종료',
+        content: <CloseIssueModal />,
+        closeOnOverlayClick: false,
+        hasCloseButton: false,
+      });
+      hasOpenedModal.current = true;
+    }
+  }, [issueState.status, isOpen, openModal]);
 
   const handleNextStep = () => {
     try {
       nextStep(() => {
         if (issueState.status === ISSUE_STATUS.BRAINSTORMING) {
-          console.log(ideas.length);
           if (ideas.length === 0) {
             toast.error('최소 1개 이상의 아이디어를 제출해야합니다.');
             throw new Error('아이디어가 존재하지 않습니다.');
+          }
+          if (hasEditingIdea) {
+            toast.error('입력 중인 아이디어가 있습니다.');
+            throw new Error('입력 중인 아이디어가 있습니다.');
+          }
+        }
+        if (issueState.status === ISSUE_STATUS.CATEGORIZE) {
+          if (categories.length === 0) {
+            toast.error('카테고리가 없습니다.');
+            throw new Error('카테고리가 없습니다.');
           }
         }
 
