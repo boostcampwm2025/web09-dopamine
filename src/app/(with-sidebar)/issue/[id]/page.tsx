@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams } from 'next/navigation';
 import {
   DndContext,
@@ -12,7 +12,11 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import Canvas from '@/app/(with-sidebar)/issue/_components/canvas/canvas';
+import CategoryCard from '@/app/(with-sidebar)/issue/_components/category/category-card';
+import FilterPanel from '@/app/(with-sidebar)/issue/_components/filter-panel/filter-panel';
 import IdeaCard from '@/app/(with-sidebar)/issue/_components/idea-card/idea-card';
+import { useIdeaHighlight } from '@/app/(with-sidebar)/issue/hooks/use-highlighted-ideas';
+import { useCanvasStore } from '@/app/(with-sidebar)/issue/store/use-canvas-store';
 import { useCategoryStore } from '@/app/(with-sidebar)/issue/store/use-category-store';
 import { useIdeaCardStackStore } from '@/app/(with-sidebar)/issue/store/use-idea-card-stack-store';
 import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
@@ -21,8 +25,6 @@ import type { Category } from '@/app/(with-sidebar)/issue/types/category';
 import type { IdeaWithPosition, Position } from '@/app/(with-sidebar)/issue/types/idea';
 import LoadingOverlay from '@/components/loading-overlay/loading-overlay';
 import { ISSUE_STATUS } from '@/constants/issue';
-import CategoryCard from '../_components/category/category-card';
-import { useCanvasStore } from '../store/use-canvas-store';
 
 const IssuePage = () => {
   // TODO: URL 파라미터나 props에서 실제 issueId 가져오기
@@ -31,23 +33,28 @@ const IssuePage = () => {
   const params = useParams<{ id: string }>();
   const issueId = params.id;
 
-  const { ideas, addIdea, updateIdeaContent, updateIdeaPosition, deleteIdea, setIdeas } =
-    useIdeaStore(issueId);
-
+  const {
+    ideas,
+    hasEditingIdea,
+    resetEditingIdea,
+    addIdea,
+    updateIdeaContent,
+    updateIdeaPosition,
+    deleteIdea,
+    setIdeas,
+  } = useIdeaStore(issueId);
   const { addCard, removeCard, setInitialCardData } = useIdeaCardStackStore(issueId);
-  const { isAIStructuring } = useIssueStore();
-  const { finishAIStructure, setInitialData } = useIssueStore((state) => state.actions);
   const { categories, setCategories, addCategory, deleteCategory, updateCategoryPosition } =
     useCategoryStore(issueId);
 
+  const { isAIStructuring } = useIssueStore();
+  const { finishAIStructure, setInitialData } = useIssueStore((state) => state.actions);
   const scale = useCanvasStore((state) => state.scale); // Canvas scale 가져오기
 
-  const voteStatus = useIssueStore((state) => state.voteStatus);
-  //TODO: 추후 투표 종료 시 투표 기능이 활성화되지 않도록 기능 추가 필요
-  const isVoteActive = voteStatus !== 'READY';
+  const status = useIssueStore((state) => state.status);
+  const isCreateIdeaActive = status === 'BRAINSTORMING';
 
-  const [activeId, setActiveId] = useState<string | null>(null);
-  const [overlayEditValue, setOverlayEditValue] = useState<string | null>(null);
+  const voteStatus = useIssueStore((state) => state.voteStatus);
 
   // Redis에서 이슈 상태 가져와서 초기화
   useEffect(() => {
@@ -70,6 +77,77 @@ const IssuePage = () => {
     fetchIssueStatus();
   }, [issueId, setInitialData]);
 
+  const isVoteActive = voteStatus === 'IN_PROGRESS';
+
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [overlayEditValue, setOverlayEditValue] = useState<string | null>(null);
+
+  const categorySizesRef = useRef<Map<string, { width: number; height: number }>>(new Map());
+
+  useEffect(() => {
+    const updateCategorySizes = () => {
+      const newSizes = new Map<string, { width: number; height: number }>();
+
+      categories.forEach((category) => {
+        const element = document.querySelector(`[data-category-id="${category.id}"]`);
+        if (element) {
+          const rect = element.getBoundingClientRect();
+          newSizes.set(category.id, {
+            width: rect.width / scale,
+            height: rect.height / scale,
+          });
+        }
+      });
+
+      categorySizesRef.current = newSizes;
+    };
+
+    updateCategorySizes();
+  }, [categories, ideas, scale]);
+
+  const checkCategoryOverlap = useCallback(
+    (draggingCategoryId: string, newPosition: Position) => {
+      const draggingSize = categorySizesRef.current.get(draggingCategoryId);
+      if (!draggingSize) return false;
+
+      const rect1 = {
+        left: newPosition.x,
+        right: newPosition.x + draggingSize.width,
+        top: newPosition.y,
+        bottom: newPosition.y + draggingSize.height,
+      };
+
+      for (const category of categories) {
+        if (category.id === draggingCategoryId) continue;
+
+        const categorySize = categorySizesRef.current.get(category.id);
+        if (!categorySize) continue;
+
+        const rect2 = {
+          left: category.position.x,
+          right: category.position.x + categorySize.width,
+          top: category.position.y,
+          bottom: category.position.y + categorySize.height,
+        };
+
+        const isOverlapping = !(
+          rect1.right < rect2.left ||
+          rect1.left > rect2.right ||
+          rect1.bottom < rect2.top ||
+          rect1.top > rect2.bottom
+        );
+
+        if (isOverlapping) return true;
+      }
+
+      return false;
+    },
+    [categories],
+  );
+
+  //하이라이트된 아이디어
+  const { activeFilter, setFilter, highlightedIds } = useIdeaHighlight(issueId, ideas);
+
   // dnd-kit sensors 설정
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -84,6 +162,11 @@ const IssuePage = () => {
   };
 
   const handleCategoryPositionChange = (id: string, position: Position) => {
+    const hasOverlap = checkCategoryOverlap(id, position);
+    if (hasOverlap) {
+      return;
+    }
+
     updateCategoryPosition(id, position);
   };
 
@@ -101,6 +184,13 @@ const IssuePage = () => {
   };
 
   const handleCreateIdea = (position: Position) => {
+    if (!isCreateIdeaActive) return;
+
+    if (hasEditingIdea) {
+      window.alert('입력 중인 아이디어가 있습니다.');
+      return;
+    }
+
     const newIdea: IdeaWithPosition = {
       id: `idea-${Date.now()}`,
       content: '',
@@ -120,8 +210,23 @@ const IssuePage = () => {
   };
 
   const handleDeleteIdea = (id: string) => {
+    if (hasEditingIdea) {
+      resetEditingIdea();
+    }
     deleteIdea(id);
     removeCard(id);
+  };
+
+  const handleVoteChange = (id: string, agreeCount: number, disagreeCount: number) => {
+    const current = ideas.find((idea) => idea.id === id);
+    if (!current) return;
+    if (
+      (current.agreeCount ?? 0) === agreeCount &&
+      (current.disagreeCount ?? 0) === disagreeCount
+    ) {
+      return;
+    }
+    setIdeas(ideas.map((idea) => (idea.id === id ? { ...idea, agreeCount, disagreeCount } : idea)));
   };
 
   const handleMoveIdeaToCategory = (ideaId: string, targetCategoryId: string | null) => {
@@ -274,6 +379,14 @@ const IssuePage = () => {
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
+        {/* 투표 시작 시 필터 UI 적용 */}
+        {voteStatus === 'IN_PROGRESS' && (
+          <FilterPanel
+            value={activeFilter}
+            onChange={setFilter}
+          />
+        )}
+
         <Canvas onDoubleClick={handleCreateIdea}>
           {/* 카테고리들 - 내부에 아이디어 카드들을 children으로 전달 */}
           {categories.map((category) => {
@@ -288,6 +401,7 @@ const IssuePage = () => {
                 position={category.position}
                 isMuted={category.isMuted}
                 onPositionChange={handleCategoryPositionChange}
+                checkCollision={checkCategoryOverlap}
                 onRemove={() => handleDeleteCategory(category.id)}
                 onDropIdea={(ideaId) => handleMoveIdeaToCategory(ideaId, category.id)}
               >
@@ -301,11 +415,15 @@ const IssuePage = () => {
                     categoryId={idea.categoryId}
                     position={null}
                     isSelected={idea.isSelected}
+                    isHighlighted={highlightedIds.has(idea.id)}
                     isVotePhase={isVoteActive}
                     agreeCount={idea.agreeCount}
                     disagreeCount={idea.disagreeCount}
                     needDiscussion={idea.needDiscussion}
                     editable={idea.editable}
+                    onVoteChange={(agreeCount, disagreeCount) =>
+                      handleVoteChange(idea.id, agreeCount, disagreeCount)
+                    }
                     onSave={(content) => handleSaveIdea(idea.id, content)}
                     onDelete={() => handleDeleteIdea(idea.id)}
                   />
@@ -327,12 +445,16 @@ const IssuePage = () => {
                 categoryId={idea.categoryId}
                 position={idea.position}
                 isSelected={idea.isSelected}
+                isHighlighted={highlightedIds.has(idea.id)}
                 isVotePhase={isVoteActive}
                 agreeCount={idea.agreeCount}
                 disagreeCount={idea.disagreeCount}
                 needDiscussion={idea.needDiscussion}
                 editable={idea.editable}
                 onPositionChange={handleIdeaPositionChange}
+                onVoteChange={(agreeCount, disagreeCount) =>
+                  handleVoteChange(idea.id, agreeCount, disagreeCount)
+                }
                 onSave={(content) => handleSaveIdea(idea.id, content)}
                 onDelete={() => handleDeleteIdea(idea.id)}
               />
@@ -361,6 +483,7 @@ const IssuePage = () => {
                       categoryId={activeIdea.categoryId}
                       position={null}
                       isSelected={activeIdea.isSelected}
+                      isHighlighted={highlightedIds.has(activeIdea.id)}
                       isVotePhase={isVoteActive}
                       agreeCount={activeIdea.agreeCount}
                       disagreeCount={activeIdea.disagreeCount}

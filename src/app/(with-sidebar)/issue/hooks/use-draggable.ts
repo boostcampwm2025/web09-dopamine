@@ -8,6 +8,7 @@ interface UseDraggableProps {
   onDragStart?: () => void;
   onDragEnd?: (position: Position) => void;
   onDrag?: (position: Position, delta: { dx: number; dy: number }) => void;
+  checkCollision?: (position: Position) => boolean; 
   disabled?: boolean;
   scale?: number;
 }
@@ -17,6 +18,7 @@ export const useDraggable = ({
   onDragStart,
   onDragEnd,
   onDrag,
+  checkCollision,
   disabled = false,
   scale = 1,
 }: UseDraggableProps) => {
@@ -67,6 +69,10 @@ export const useDraggable = ({
         y: elementStartPos.current.y + deltaY,
       };
 
+      if (checkCollision && checkCollision(newPosition)) {
+        return; 
+      }
+
       setPosition(newPosition);
 
       // 이전 프레임과의 차이만 전달 (증분 delta)
@@ -78,7 +84,7 @@ export const useDraggable = ({
       lastDelta.current = { dx: deltaX, dy: deltaY };
       onDrag?.(newPosition, incrementalDelta);
     },
-    [isDragging, scale, hasMoved, onDrag],
+    [isDragging, scale, hasMoved, onDrag, checkCollision],
   );
 
   const handleMouseUp = useCallback(() => {

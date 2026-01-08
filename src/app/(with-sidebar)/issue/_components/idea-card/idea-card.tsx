@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import Image from 'next/image';
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
@@ -16,11 +16,13 @@ interface IdeaCardProps {
   author?: string;
   position?: Position | null;
   isSelected?: boolean;
+  isHighlighted?: boolean;
   isVotePhase?: boolean;
   agreeCount?: number;
   disagreeCount?: number;
   needDiscussion?: boolean;
   editable?: boolean;
+  onVoteChange?: (agreeCount: number, disagreeCount: number) => void;
   categoryId?: string | null;
   onSave?: (content: string) => void;
   onDelete?: () => void;
@@ -42,13 +44,12 @@ export type DragItemPayload = {
 };
 
 export default function IdeaCard(props: IdeaCardProps) {
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-
   const { bringToFront, getZIndex } = useIdeaCardStackStore(props.issueId);
   const zIndex = props.id ? getZIndex(props.id) : 0;
 
   // 비즈니스 로직 (투표, 편집 등)
   const {
+    textareaRef,
     status,
     userVote,
     agreeCountState,
@@ -102,6 +103,10 @@ export default function IdeaCard(props: IdeaCardProps) {
     }
   }, [isDragging]);
 
+  useEffect(() => {
+    props.onVoteChange?.(agreeCountState, disagreeCountState);
+  }, [agreeCountState, disagreeCountState, props.onVoteChange]);
+
   // 스타일 계산
   // 자유 배치 모드(categoryId === null)면 absolute positioning
   const cardStyle =
@@ -148,10 +153,13 @@ export default function IdeaCard(props: IdeaCardProps) {
       inCategory={inCategory}
       onClick={props.onClick}
       onPointerDown={handlePointerDown}
+      isHighlighted={props.isHighlighted}
       {...attributes}
-      {...(inCategory ? {} : Object.fromEntries(
-        Object.entries(listeners || {}).filter(([key]) => key !== 'onPointerDown')
-      ))}
+      {...(inCategory
+        ? {}
+        : Object.fromEntries(
+            Object.entries(listeners || {}).filter(([key]) => key !== 'onPointerDown'),
+          ))}
       style={cardStyle}
     >
       {status === 'selected' && (
@@ -193,45 +201,40 @@ export default function IdeaCard(props: IdeaCardProps) {
               />
             </S.IconButton>
           ) : (
-            <>
-              {isEditing ? <S.SubmitButton onClick={submitEdit}>제출</S.SubmitButton> : null}
-              <S.IconButton
-                aria-label="delete"
-                onClick={handleDeleteClick}
-              >
-                <Image
-                  src="/trash.svg"
-                  alt="삭제"
-                  width={14}
-                  height={14}
-                />
-              </S.IconButton>
-            </>
+            <>{isEditing ? <S.SubmitButton onClick={submitEdit}>제출</S.SubmitButton> : null}</>
           )}
         </S.Meta>
+        <S.DeleteButton
+          aria-label="delete"
+          onClick={handleDeleteClick}
+        >
+          <Image
+            src="/close.svg"
+            alt="삭제"
+            width={14}
+            height={14}
+          />
+        </S.DeleteButton>
       </S.Header>
       {props.isVotePhase && (
-        <div>
-          <S.Divider />
-          <S.Footer>
-            <S.VoteButton
-              kind="agree"
-              cardStatus={status}
-              active={userVote === 'agree'}
-              onClick={handleAgree}
-            >
-              찬성 {agreeCountState}
-            </S.VoteButton>
-            <S.VoteButton
-              kind="disagree"
-              cardStatus={status}
-              active={userVote === 'disagree'}
-              onClick={handleDisagree}
-            >
-              반대 {disagreeCountState}
-            </S.VoteButton>
-          </S.Footer>
-        </div>
+        <S.Footer>
+          <S.VoteButton
+            kind="agree"
+            cardStatus={status}
+            active={userVote === 'agree'}
+            onClick={handleAgree}
+          >
+            찬성 {agreeCountState}
+          </S.VoteButton>
+          <S.VoteButton
+            kind="disagree"
+            cardStatus={status}
+            active={userVote === 'disagree'}
+            onClick={handleDisagree}
+          >
+            반대 {disagreeCountState}
+          </S.VoteButton>
+        </S.Footer>
       )}
     </S.Card>
   );

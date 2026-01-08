@@ -33,6 +33,8 @@ const Header = () => {
 
   const isVisible = useIsNextButtonVisible();
 
+  const { hasEditingIdea } = useIdeaStore();
+
   const openTooltip = useTooltipStore((state) => state.openTooltip);
   const closeTooltip = useTooltipStore((state) => state.closeTooltip);
 
@@ -42,6 +44,10 @@ const Header = () => {
   const handleNextStep = () => {
     try {
       nextStep(() => {
+        if (hasEditingIdea) {
+          throw new Error('입력 중인 아이디어가 있습니다.');
+        }
+
         if (issueState.status === ISSUE_STATUS.CATEGORIZE) {
           if (categories.length === 0) {
             throw new Error('카테고리가 없습니다.');

@@ -5,10 +5,11 @@ export const Card = styled.article<{
   status?: 'needDiscussion' | 'selected' | 'default';
   isDragging?: boolean;
   inCategory?: boolean;
+  isHighlighted?: boolean;
 }>`
   position: relative;
   border-radius: ${theme.radius.medium};
-  padding: 35px;
+  padding: 35px 35px 30px 35px;
   box-shadow: 0 4px 10px rgba(31, 41, 55, 0.06);
   ${({ status }) => {
     switch (status) {
@@ -33,6 +34,13 @@ export const Card = styled.article<{
         `;
     }
   }}
+  ${({ isHighlighted }) =>
+    isHighlighted
+      ? `
+        outline: 3px solid rgba(17, 24, 39, 0.35);
+        outline-offset: 2px;
+      `
+      : ''}
   min-width: 30em;
   max-width: 30em;
 
@@ -58,6 +66,7 @@ export const Header = styled.div`
   flex-direction: column;
   gap: 12px;
   width: 100%;
+  position: relative;
 `;
 
 export const Badge = styled.div`
@@ -94,7 +103,7 @@ export const EditableInput = styled.textarea`
   resize: none;
   font-size: ${theme.font.size.large};
   font-weight: 700;
-  color: #111827;
+  color: ${theme.colors.gray[900]};
   background: transparent;
   font-family: inherit;
   letter-spacing: 0;
@@ -116,8 +125,8 @@ export const Meta = styled.div`
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  gap: 8px;
   width: 100%;
+  height: 42px;
   margin-top: 10px;
 `;
 
@@ -133,7 +142,7 @@ export const AuthorPill = styled.span`
 export const SubmitButton = styled.button`
   margin-left: auto;
   width: 60px;
-  height: 42px;
+  height: 40px;
   border: 1px solid ${theme.colors.green[600]};
   border-radius: ${theme.radius.small};
   font-size: ${theme.font.size.medium};
@@ -160,16 +169,21 @@ export const IconButton = styled.button`
   }
 `;
 
-export const Divider = styled.hr`
+export const DeleteButton = styled(IconButton)`
+  position: absolute;
+  top: -28px;
+  right: -28px;
+  width: 30px;
+  height: 30px;
   border: none;
-  height: 1px;
-  background: ${theme.colors.gray[100]};
-  margin: 20px 0;
 `;
 
 export const Footer = styled.div`
   display: flex;
   gap: 12px;
+  border-top: 1px solid ${theme.colors.gray[200]};
+  margin-top: 20px;
+  padding-top: 20px;
 `;
 
 export const VoteButton = styled.button<{
@@ -200,13 +214,13 @@ export const VoteButton = styled.button<{
       if (active) {
         return `background: ${theme.colors.green[600]}; color: ${theme.colors.white};`;
       }
-      return `background: ${theme.colors.green[50]}; color: ${theme.colors.green[600]};`;
+      return `background: ${theme.colors.green[100]}; color: ${theme.colors.green[600]};`;
     }
 
     if (active) {
       return `background: ${theme.colors.red[600]}; color: ${theme.colors.white};`;
     }
-    return `background: ${theme.colors.gray[100]}; color: ${theme.colors.gray[600]};`;
+    return `background: ${theme.colors.red[100]}; color: ${theme.colors.red[500]};`;
   }}
 
   &:hover {
@@ -214,7 +228,7 @@ export const VoteButton = styled.button<{
       if (active || cardStatus === 'selected') return '';
       if (kind === 'agree')
         return `background: ${theme.colors.green[600]}; color: ${theme.colors.white};`;
-      return `background: ${theme.colors.gray[200]}; color: ${theme.colors.gray[700]};`;
+      return `background: ${theme.colors.red[200]}; color: ${theme.colors.red[600]};`;
     }}
   }
 `;
