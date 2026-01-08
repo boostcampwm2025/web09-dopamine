@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import Image from 'next/image';
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
@@ -42,13 +42,12 @@ export type DragItemPayload = {
 };
 
 export default function IdeaCard(props: IdeaCardProps) {
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-
   const { bringToFront, getZIndex } = useIdeaCardStackStore(props.issueId);
   const zIndex = props.id ? getZIndex(props.id) : 0;
 
   // 비즈니스 로직 (투표, 편집 등)
   const {
+    textareaRef,
     status,
     userVote,
     agreeCountState,
@@ -211,26 +210,24 @@ export default function IdeaCard(props: IdeaCardProps) {
         </S.DeleteButton>
       </S.Header>
       {props.isVotePhase && (
-        <div>
-          <S.Footer>
-            <S.VoteButton
-              kind="agree"
-              cardStatus={status}
-              active={userVote === 'agree'}
-              onClick={handleAgree}
-            >
-              찬성 {agreeCountState}
-            </S.VoteButton>
-            <S.VoteButton
-              kind="disagree"
-              cardStatus={status}
-              active={userVote === 'disagree'}
-              onClick={handleDisagree}
-            >
-              반대 {disagreeCountState}
-            </S.VoteButton>
-          </S.Footer>
-        </div>
+        <S.Footer>
+          <S.VoteButton
+            kind="agree"
+            cardStatus={status}
+            active={userVote === 'agree'}
+            onClick={handleAgree}
+          >
+            찬성 {agreeCountState}
+          </S.VoteButton>
+          <S.VoteButton
+            kind="disagree"
+            cardStatus={status}
+            active={userVote === 'disagree'}
+            onClick={handleDisagree}
+          >
+            반대 {disagreeCountState}
+          </S.VoteButton>
+        </S.Footer>
       )}
     </S.Card>
   );

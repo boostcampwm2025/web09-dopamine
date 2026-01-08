@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useTooltipStore } from '@/components/tooltip/use-tooltip-store';
 
 interface UseIdeaCardProps {
   content?: string;
@@ -21,6 +22,11 @@ export default function useIdeaCard(props: UseIdeaCardProps) {
     editable = false,
     onSave,
   } = props;
+
+  const openTooltip = useTooltipStore((state) => state.openTooltip);
+  const closeTooltip = useTooltipStore((state) => state.closeTooltip);
+
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const [status, setStatus] = useState<'needDiscussion' | 'selected' | 'default'>('default');
 
@@ -111,7 +117,14 @@ export default function useIdeaCard(props: UseIdeaCardProps) {
   // onSave 콜백이 제공되면 변경된 값을 전달해 외부 동기화를 할 수 있습니다.
   const submitEdit = useCallback(() => {
     const trimmed = editValue.trim();
-    if (!trimmed) return;
+    if (!trimmed) {
+      openTooltip(textareaRef.current!, '내용을 입력해주세요');
+      const timer = setTimeout(() => {
+        closeTooltip();
+      }, 1000);
+
+      return () => clearTimeout(timer);
+    }
     setDisplayContent(trimmed);
     setIsEditing(false);
     if (onSave) onSave(trimmed);
@@ -128,6 +141,7 @@ export default function useIdeaCard(props: UseIdeaCardProps) {
   );
 
   return {
+    textareaRef,
     status,
     userVote,
     agreeCountState,
