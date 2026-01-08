@@ -27,9 +27,7 @@ const ContentArea = styled.div`
 export default function WithSidebarLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
 
-  // 경로에 따라 다른 헤더 렌더링
   const renderHeader = () => {
-    
     if (pathname?.startsWith('/issue')) {
       return <IssueHeader />;
     }

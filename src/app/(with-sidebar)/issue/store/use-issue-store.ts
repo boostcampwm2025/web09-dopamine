@@ -9,7 +9,7 @@ interface IssueStore {
   isAIStructuring: boolean;
   actions: {
     setInitialData: (data: { id: string; status: IssueStatus }) => void;
-    nextStep: () => void;
+    nextStep: (validate?: () => void) => void;
     closeIssue: () => void;
     startVote: () => void;
     endVote: () => void;
@@ -26,8 +26,11 @@ export const useIssueStore = create<IssueStore>((set) => ({
 
   actions: {
     setInitialData: (data) => set(() => ({ id: data.id, status: data.status })),
-    nextStep: () =>
+    nextStep: (validate?: () => void) =>
       set((state) => {
+        if (validate) {
+          validate();
+        }
         const currentIndex = STEP_FLOW.indexOf(state.status);
         const nextStatus = STEP_FLOW[currentIndex + 1];
         return { status: nextStatus };
