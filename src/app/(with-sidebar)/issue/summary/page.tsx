@@ -6,6 +6,8 @@ import styles from './page.module.css';
 
 import {prisma} from '@/lib/prisma';
 
+export const dynamic = 'force-dynamic';
+
 export default async function IssueSummaryPage({params}: {params: {issueId: string}}) {
 
   // 데이터베이스에서 리포트 정보 가져오기
