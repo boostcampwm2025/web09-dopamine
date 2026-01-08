@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
+import toast from 'react-hot-toast';
 import { useShallow } from 'zustand/shallow';
 import { useCategoryStore } from '@/app/(with-sidebar)/issue/store/use-category-store';
 import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
@@ -66,23 +67,42 @@ const Header = () => {
   const handleNextStep = () => {
     try {
       nextStep(() => {
-        if (hasEditingIdea) {
-          throw new Error('입력 중인 아이디어가 있습니다.');
+        if (issueState.status === ISSUE_STATUS.BRAINSTORMING) {
+          if (ideas.length === 0) {
+            toast.error('최소 1개 이상의 아이디어를 제출해야합니다.');
+            throw new Error('아이디어가 존재하지 않습니다.');
+          }
+          if (hasEditingIdea) {
+            toast.error('입력 중인 아이디어가 있습니다.');
+            throw new Error('입력 중인 아이디어가 있습니다.');
+          }
+        }
+        if (issueState.status === ISSUE_STATUS.CATEGORIZE) {
+          if (categories.length === 0) {
+            toast.error('카테고리가 없습니다.');
+            throw new Error('카테고리가 없습니다.');
+          }
         }
 
         if (issueState.status === ISSUE_STATUS.CATEGORIZE) {
-          if (categories.length === 0) {
-            throw new Error('카테고리가 없습니다.');
-          }
-
           const uncategorizedIdeas = ideas.filter((idea) => idea.categoryId === null);
           if (uncategorizedIdeas.length > 0) {
+            toast.error('카테고리가 지정되지 않은 아이디어가 있습니다.');
             throw new Error('카테고리가 지정되지 않은 아이디어가 있습니다.');
+          }
+
+          // 빈 카테고리 검사: 각 카테고리에 속한 아이디어가 없는지 확인
+          const emptyCategories = categories.filter(
+            (category) => !ideas.some((idea) => idea.categoryId === category.id),
+          );
+          if (emptyCategories.length > 0) {
+            toast.error(`빈 카테고리가 있습니다.`);
+            throw new Error('빈 카테고리가 있습니다.');
           }
         }
       });
     } catch (error) {
-      alert((error as Error).message);
+      toast((error as Error).message);
     }
   };
 

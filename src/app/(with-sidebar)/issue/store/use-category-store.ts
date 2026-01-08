@@ -30,24 +30,20 @@ const createCategoryStore = (issueId: string) => {
 
         updateCategoryPosition: (id: string, position: Position) =>
           set((state) => ({
-            categories: state.categories.map((cat) =>
-              cat.id === id ? { ...cat, position } : cat
-            ),
+            categories: state.categories.map((cat) => (cat.id === id ? { ...cat, position } : cat)),
           })),
 
         updateCategoryTitle: (id: string, title: string) =>
           set((state) => ({
-            categories: state.categories.map((cat) =>
-              cat.id === id ? { ...cat, title } : cat
-            ),
+            categories: state.categories.map((cat) => (cat.id === id ? { ...cat, title } : cat)),
           })),
 
         setCategories: (categories: Category[]) => set({ categories }),
       }),
       {
         name: `category-storage-${issueId}`,
-      }
-    )
+      },
+    ),
   );
 };
 

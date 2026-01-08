@@ -11,6 +11,7 @@ import {
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
+import toast from 'react-hot-toast';
 import Canvas from '@/app/(with-sidebar)/issue/_components/canvas/canvas';
 import CategoryCard from '@/app/(with-sidebar)/issue/_components/category/category-card';
 import FilterPanel from '@/app/(with-sidebar)/issue/_components/filter-panel/filter-panel';
@@ -42,7 +43,7 @@ const IssuePage = () => {
     updateIdeaPosition,
     deleteIdea,
     setIdeas,
-    selectIdea
+    selectIdea,
   } = useIdeaStore(issueId);
   const { addCard, removeCard, setInitialCardData } = useIdeaCardStackStore(issueId);
   const { categories, setCategories, addCategory, deleteCategory, updateCategoryPosition } =
@@ -175,9 +176,7 @@ const IssuePage = () => {
     const categoryIdeas = ideas.filter((idea) => idea.categoryId === categoryId);
 
     if (categoryIdeas.length > 0) {
-      alert(
-        `카테고리 내부에 ${categoryIdeas.length}개의 아이디어가 있습니다.\n먼저 아이디어를 이동하거나 삭제해주세요.`,
-      );
+      toast.error(`카테고리에 아이디어가 존재합니다.`);
       return;
     }
 
@@ -188,7 +187,7 @@ const IssuePage = () => {
     if (!isCreateIdeaActive) return;
 
     if (hasEditingIdea) {
-      window.alert('입력 중인 아이디어가 있습니다.');
+      toast.error('입력 중인 아이디어가 있습니다.');
       return;
     }
 
@@ -221,7 +220,7 @@ const IssuePage = () => {
   const handleSelectIdea = (id: string) => {
     selectIdea(id);
   };
-  
+
   const handleVoteChange = (id: string, agreeCount: number, disagreeCount: number) => {
     const current = ideas.find((idea) => idea.id === id);
     if (!current) return;
@@ -292,7 +291,7 @@ const IssuePage = () => {
       }));
 
     if (validIdeas.length === 0) {
-      alert('분류할 아이디어가 없습니다.');
+      toast.error('분류할 아이디어가 없습니다.');
       finishAIStructure();
       return;
     }
@@ -310,6 +309,7 @@ const IssuePage = () => {
       });
 
       if (!res.ok) {
+        toast.error('AI 분류가 실패했습니다. 잠시후 다시 시도해주세요');
         throw new Error('AI 분류 실패');
       }
 
@@ -317,6 +317,7 @@ const IssuePage = () => {
 
       const content = data.result?.message?.content;
       if (!content) {
+        toast.error('AI 분류가 실패했습니다. 잠시후 다시 시도해주세요');
         throw new Error('AI 응답 형식이 올바르지 않습니다.');
       }
 
@@ -360,7 +361,7 @@ const IssuePage = () => {
       }
     } catch (error) {
       console.error('AI 구조화 오류:', error);
-      alert('AI 구조화 중 오류가 발생했습니다.');
+      toast.error('AI 구조화 중 오류가 발생했습니다.');
     } finally {
       finishAIStructure();
     }
