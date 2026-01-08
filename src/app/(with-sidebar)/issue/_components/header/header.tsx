@@ -2,18 +2,18 @@
 
 import Image from 'next/image';
 import { useShallow } from 'zustand/shallow';
+import { useCategoryStore } from '@/app/(with-sidebar)/issue/store/use-category-store';
+import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
 import {
   useIsNextButtonVisible,
   useIssueStore,
 } from '@/app/(with-sidebar)/issue/store/use-issue-store';
 import { useTooltipStore } from '@/components/tooltip/use-tooltip-store';
 import { BUTTON_TEXT_MAP, ISSUE_STATUS } from '@/constants/issue';
+import type { Category } from '../../types/category';
 import ProgressBar from '../progress-bar/progress-bar';
 import HeaderButton from './header-button';
 import * as S from './header.styles';
-import { useCategoryStore } from '@/app/(with-sidebar)/issue/store/use-category-store';
-import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
-import type { Category } from '../../types/category';
 
 const Header = () => {
   const issueState = useIssueStore(
@@ -23,9 +23,13 @@ const Header = () => {
     })),
   );
 
-  const { nextStep, closeIssue, startVote, endVote, startAIStructure } = useIssueStore((state) => state.actions);
+  const { nextStep, closeIssue, startVote, endVote, startAIStructure } = useIssueStore(
+    (state) => state.actions,
+  );
 
   const isVisible = useIsNextButtonVisible();
+
+  const { hasEditingIdea } = useIdeaStore();
 
   const openTooltip = useTooltipStore((state) => state.openTooltip);
   const closeTooltip = useTooltipStore((state) => state.closeTooltip);
@@ -36,6 +40,10 @@ const Header = () => {
   const handleNextStep = () => {
     try {
       nextStep(() => {
+        if (hasEditingIdea) {
+          throw new Error('입력 중인 아이디어가 있습니다.');
+        }
+
         if (issueState.status === ISSUE_STATUS.CATEGORIZE) {
           if (categories.length === 0) {
             throw new Error('카테고리가 없습니다.');
@@ -53,9 +61,7 @@ const Header = () => {
   };
 
   const handleAddCategory = () => {
-    const maxX = categories.length > 0 
-      ? Math.max(...categories.map(cat => cat.position.x))
-      : 0;
+    const maxX = categories.length > 0 ? Math.max(...categories.map((cat) => cat.position.x)) : 0;
 
     const newCategory: Category = {
       id: `category-${Date.now()}`,
