@@ -16,11 +16,13 @@ interface IdeaCardProps {
   author?: string;
   position?: Position | null;
   isSelected?: boolean;
+  isHighlighted?: boolean;
   isVotePhase?: boolean;
   agreeCount?: number;
   disagreeCount?: number;
   needDiscussion?: boolean;
   editable?: boolean;
+  onVoteChange?: (agreeCount: number, disagreeCount: number) => void;
   categoryId?: string | null;
   onSave?: (content: string) => void;
   onDelete?: () => void;
@@ -101,6 +103,10 @@ export default function IdeaCard(props: IdeaCardProps) {
     }
   }, [isDragging]);
 
+  useEffect(() => {
+    props.onVoteChange?.(agreeCountState, disagreeCountState);
+  }, [agreeCountState, disagreeCountState, props.onVoteChange]);
+
   // 스타일 계산
   // 자유 배치 모드(categoryId === null)면 absolute positioning
   const cardStyle =
@@ -147,6 +153,7 @@ export default function IdeaCard(props: IdeaCardProps) {
       inCategory={inCategory}
       onClick={props.onClick}
       onPointerDown={handlePointerDown}
+      isHighlighted={props.isHighlighted}
       {...attributes}
       {...(inCategory
         ? {}
