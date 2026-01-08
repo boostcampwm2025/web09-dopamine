@@ -265,7 +265,7 @@ const IssuePage = () => {
   useEffect(() => {
     const ideaIds = ideas.map((idea) => idea.id);
     setInitialCardData(ideaIds);
-  }, [ideas, setInitialData]);
+  }, [ideas, setInitialCardData]);
 
   return (
     <>
