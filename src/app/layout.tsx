@@ -1,4 +1,5 @@
 import 'pretendard/dist/web/static/pretendard.css';
+import { Toaster } from 'react-hot-toast';
 import Tooltip from '@/components/tooltip/tooltip';
 import ThemeProvider from '@/providers/ThemeProvider';
 import EmotionRegistry from '@/styles/EmotionRegistry';
@@ -16,6 +17,7 @@ export default function RootLayout({
           <ThemeProvider>
             <GlobalStyle />
             <Tooltip />
+            <Toaster />
             {children}
           </ThemeProvider>
         </EmotionRegistry>

@@ -11,6 +11,7 @@ import {
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
+import toast from 'react-hot-toast';
 import Canvas from '@/app/(with-sidebar)/issue/_components/canvas/canvas';
 import IdeaCard from '@/app/(with-sidebar)/issue/_components/idea-card/idea-card';
 import { useCategoryStore } from '@/app/(with-sidebar)/issue/store/use-category-store';
@@ -200,6 +201,7 @@ const IssuePage = () => {
       });
 
       if (!res.ok) {
+        toast.error('AI 분류가 실패했습니다. 잠시후 다시 시도해주세요');
         throw new Error('AI 분류 실패');
       }
 
@@ -207,6 +209,7 @@ const IssuePage = () => {
 
       const content = data.result?.message?.content;
       if (!content) {
+        toast.error('AI 분류가 실패했습니다. 잠시후 다시 시도해주세요');
         throw new Error('AI 응답 형식이 올바르지 않습니다.');
       }
 
