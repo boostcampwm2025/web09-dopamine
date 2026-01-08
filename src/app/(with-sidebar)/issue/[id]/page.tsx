@@ -44,8 +44,25 @@ const IssuePage = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
 
+  // Redis에서 이슈 상태 가져와서 초기화
   useEffect(() => {
-    setInitialData({ id: issueId, status: ISSUE_STATUS.BRAINSTORMING });
+    const fetchIssueStatus = async () => {
+      try {
+        const response = await fetch(`/api/issues/${issueId}/status`);
+        if (response.ok) {
+          const data = await response.json();
+          setInitialData({ id: issueId, status: data.status || ISSUE_STATUS.BRAINSTORMING });
+        } else {
+          // Redis에 데이터가 없으면 기본값으로 초기화
+          setInitialData({ id: issueId, status: ISSUE_STATUS.BRAINSTORMING });
+        }
+      } catch (error) {
+        console.error('이슈 상태 가져오기 실패:', error);
+        setInitialData({ id: issueId, status: ISSUE_STATUS.BRAINSTORMING });
+      }
+    };
+
+    fetchIssueStatus();
   }, [issueId, setInitialData]);
 
   // dnd-kit sensors 설정
