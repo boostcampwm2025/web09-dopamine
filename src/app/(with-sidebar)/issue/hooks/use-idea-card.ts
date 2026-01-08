@@ -30,6 +30,13 @@ export default function useIdeaCard(props: UseIdeaCardProps) {
   const [userVote, setUserVote] = useState<'agree' | 'disagree' | null>(null);
   const [agreeCountState, setAgreeCountState] = useState<number>(agreeCount);
   const [disagreeCountState, setDisagreeCountState] = useState<number>(disagreeCount);
+  useEffect(() => {
+    setAgreeCountState(agreeCount);
+  }, [agreeCount]);
+
+  useEffect(() => {
+    setDisagreeCountState(disagreeCount);
+  }, [disagreeCount]);
 
   // 편집 관련 로컬 상태
   // isEditing: 현재 편집 모드인지
