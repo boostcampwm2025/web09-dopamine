@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { useEffect, useRef } from 'react';
 import { useShallow } from 'zustand/shallow';
 import { useCategoryStore } from '@/app/(with-sidebar)/issue/store/use-category-store';
 import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
@@ -9,11 +10,13 @@ import {
   useIssueStore,
 } from '@/app/(with-sidebar)/issue/store/use-issue-store';
 import { useTooltipStore } from '@/components/tooltip/use-tooltip-store';
+import { useModalStore } from '@/components/modal/use-modal-store';
 import { BUTTON_TEXT_MAP, ISSUE_STATUS } from '@/constants/issue';
 import type { Category } from '../../types/category';
 import ProgressBar from '../progress-bar/progress-bar';
 import HeaderButton from './header-button';
 import * as S from './header.styles';
+import CloseIssueModal from '../close-issue-modal/close-issue-modal';
 
 const Header = () => {
   const issueState = useIssueStore(
@@ -33,9 +36,28 @@ const Header = () => {
 
   const openTooltip = useTooltipStore((state) => state.openTooltip);
   const closeTooltip = useTooltipStore((state) => state.closeTooltip);
+  const { openModal, isOpen } = useModalStore();
+  const hasOpenedModal = useRef(false);
 
   const { categories, addCategory } = useCategoryStore('default');
   const { ideas } = useIdeaStore('default');
+
+  useEffect(() => {
+    if (issueState.status !== ISSUE_STATUS.CLOSE) {
+      hasOpenedModal.current = false;
+      return;
+    }
+
+    if (!hasOpenedModal.current && !isOpen) {
+      openModal({
+        title: '이슈 종료',
+        content: <CloseIssueModal />,
+        closeOnOverlayClick: false,
+        hasCloseButton: false,
+      });
+      hasOpenedModal.current = true;
+    }
+  }, [issueState.status, isOpen, openModal]);
 
   const handleNextStep = () => {
     try {

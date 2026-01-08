@@ -39,6 +39,7 @@ const IssuePage = () => {
     updateIdeaPosition,
     deleteIdea,
     setIdeas,
+    selectIdea
   } = useIdeaStore(issueId);
   const { addCard, removeCard, setInitialData } = useIdeaCardStackStore(issueId);
   const { categories, setCategories, addCategory, deleteCategory, updateCategoryPosition } =
@@ -191,6 +192,10 @@ const IssuePage = () => {
     removeCard(id);
   };
 
+  const handleSelectIdea = (id: string) => {
+    selectIdea(id);
+  };
+  
   const handleVoteChange = (id: string, agreeCount: number, disagreeCount: number) => {
     const current = ideas.find((idea) => idea.id === id);
     if (!current) return;
@@ -400,6 +405,7 @@ const IssuePage = () => {
                     }
                     onSave={(content) => handleSaveIdea(idea.id, content)}
                     onDelete={() => handleDeleteIdea(idea.id)}
+                    onClick={() => handleSelectIdea(idea.id)}
                   />
                 ))}
               </CategoryCard>
