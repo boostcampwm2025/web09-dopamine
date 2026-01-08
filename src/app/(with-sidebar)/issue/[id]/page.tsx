@@ -183,6 +183,7 @@ const IssuePage = () => {
 
     if (validIdeas.length === 0) {
       alert('분류할 아이디어가 없습니다.');
+      finishAIStructure();
       return;
     }
 
