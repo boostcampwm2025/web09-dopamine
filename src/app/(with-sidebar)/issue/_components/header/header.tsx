@@ -12,11 +12,7 @@ import ProgressBar from '../progress-bar/progress-bar';
 import HeaderButton from './header-button';
 import * as S from './header.styles';
 
-interface IssueHeaderProps {
-  onAIStructure?: () => void;
-}
-
-const Header = ({ onAIStructure }: IssueHeaderProps) => {
+const Header = () => {
   const issueState = useIssueStore(
     useShallow((state) => ({
       status: state.status,
@@ -24,7 +20,9 @@ const Header = ({ onAIStructure }: IssueHeaderProps) => {
     })),
   );
 
-  const { nextStep, closeIssue, startVote, endVote } = useIssueStore((state) => state.actions);
+  const { nextStep, closeIssue, startVote, endVote, startAIStructure } = useIssueStore(
+    (state) => state.actions,
+  );
 
   const isVisible = useIsNextButtonVisible();
 
@@ -45,7 +43,7 @@ const Header = ({ onAIStructure }: IssueHeaderProps) => {
               imageSrc="/stick.svg"
               alt="AI 구조화"
               text="AI 구조화"
-              onClick={onAIStructure}
+              onClick={startAIStructure}
             />
           </>
         );
