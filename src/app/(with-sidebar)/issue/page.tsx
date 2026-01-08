@@ -46,6 +46,9 @@ const IssuePage = () => {
 
   const scale = useCanvasStore((state) => state.scale); // Canvas scale 가져오기
 
+  const status = useIssueStore((state) => state.status);
+  const isCreateIdeaActive = status === 'BRAINSTORMING';
+
   const voteStatus = useIssueStore((state) => state.voteStatus);
   //TODO: 추후 투표 종료 시 투표 기능이 활성화되지 않도록 기능 추가 필요
   const isVoteActive = voteStatus !== 'READY';
@@ -84,6 +87,8 @@ const IssuePage = () => {
   };
 
   const handleCreateIdea = (position: Position) => {
+    if (!isCreateIdeaActive) return;
+
     if (hasEditingIdea) {
       window.alert('입력 중인 아이디어가 있습니다.');
       return;
