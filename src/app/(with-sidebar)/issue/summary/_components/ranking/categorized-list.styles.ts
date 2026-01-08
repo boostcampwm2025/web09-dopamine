@@ -6,9 +6,11 @@ export const Container = styled.div`
   flex-direction: row;
   gap: 20px; 
   position: relative;
+  padding: 16px;
 `;
 
 export const ContainerCol = styled.div`
+  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 20px;
