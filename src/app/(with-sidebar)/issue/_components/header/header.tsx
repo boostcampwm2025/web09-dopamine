@@ -16,10 +16,9 @@ import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
 
 interface IssueHeaderProps {
   onAddCategory?: (issueId: string) => void;
-  onAIStructure?: () => void;
 }
 
-const Header = ({ onAddCategory, onAIStructure }: IssueHeaderProps) => {
+const Header = ({ onAddCategory }: IssueHeaderProps) => {
   const issueState = useIssueStore(
     useShallow((state) => ({
       status: state.status,
@@ -27,7 +26,7 @@ const Header = ({ onAddCategory, onAIStructure }: IssueHeaderProps) => {
     })),
   );
 
-  const { nextStep, closeIssue, startVote, endVote } = useIssueStore((state) => state.actions);
+  const { nextStep, closeIssue, startVote, endVote, startAIStructure } = useIssueStore((state) => state.actions);
 
   const isVisible = useIsNextButtonVisible();
 
@@ -71,7 +70,7 @@ const Header = ({ onAddCategory, onAIStructure }: IssueHeaderProps) => {
               imageSrc="/stick.svg"
               alt="AI 구조화"
               text="AI 구조화"
-              onClick={onAIStructure}
+              onClick={startAIStructure}
             />
           </>
         );

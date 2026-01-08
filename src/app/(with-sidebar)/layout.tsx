@@ -27,17 +27,13 @@ const ContentArea = styled.div`
 export default function WithSidebarLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
 
-  const handleAIStructure = () => {
-    window.dispatchEvent(new CustomEvent('aiStructure'));
-  };
-
   const handleAddCategory = () => {
     window.dispatchEvent(new CustomEvent('addCategory'));
   };
 
   const renderHeader = () => {
     if (pathname?.startsWith('/issue')) {
-      return <IssueHeader onAIStructure={handleAIStructure} onAddCategory={handleAddCategory} />;
+      return <IssueHeader onAddCategory={handleAddCategory} />;
     }
 
     return null;
