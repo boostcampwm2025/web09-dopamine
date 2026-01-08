@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useParams } from 'next/navigation';
 import {
   DndContext,
   DragEndEvent,
@@ -11,7 +12,11 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import Canvas from '@/app/(with-sidebar)/issue/_components/canvas/canvas';
+import CategoryCard from '@/app/(with-sidebar)/issue/_components/category/category-card';
+import FilterPanel from '@/app/(with-sidebar)/issue/_components/filter-panel/filter-panel';
 import IdeaCard from '@/app/(with-sidebar)/issue/_components/idea-card/idea-card';
+import { useIdeaHighlight } from '@/app/(with-sidebar)/issue/hooks/use-highlighted-ideas';
+import { useCanvasStore } from '@/app/(with-sidebar)/issue/store/use-canvas-store';
 import { useCategoryStore } from '@/app/(with-sidebar)/issue/store/use-category-store';
 import { useIdeaCardStackStore } from '@/app/(with-sidebar)/issue/store/use-idea-card-stack-store';
 import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
@@ -19,16 +24,14 @@ import { useIssueStore } from '@/app/(with-sidebar)/issue/store/use-issue-store'
 import type { Category } from '@/app/(with-sidebar)/issue/types/category';
 import type { IdeaWithPosition, Position } from '@/app/(with-sidebar)/issue/types/idea';
 import LoadingOverlay from '@/components/loading-overlay/loading-overlay';
-import CategoryCard from './_components/category/category-card';
-import { useCanvasStore } from './store/use-canvas-store';
-import FilterPanel from './_components/filter-panel/filter-panel';
-import { useIdeaHighlight } from '@/app/(with-sidebar)/issue/hooks/use-highlighted-ideas';
+import { ISSUE_STATUS } from '@/constants/issue';
 
 const IssuePage = () => {
   // TODO: URL 파라미터나 props에서 실제 issueId 가져오기
   // 예: const { issueId } = useParams() 또는 props.issueId
   // TODO: 실제 issueId로 useIssueStore > setInitialData 실행
-  const issueId = 'default'; // 임시 기본값
+  const params = useParams<{ id: string }>();
+  const issueId = params.id;
 
   const {
     ideas,
@@ -41,13 +44,12 @@ const IssuePage = () => {
     setIdeas,
     selectIdea
   } = useIdeaStore(issueId);
-  const { addCard, removeCard, setInitialData } = useIdeaCardStackStore(issueId);
+  const { addCard, removeCard, setInitialCardData } = useIdeaCardStackStore(issueId);
   const { categories, setCategories, addCategory, deleteCategory, updateCategoryPosition } =
     useCategoryStore(issueId);
 
   const { isAIStructuring } = useIssueStore();
-  const { finishAIStructure } = useIssueStore((state) => state.actions);
-
+  const { finishAIStructure, setInitialData } = useIssueStore((state) => state.actions);
   const scale = useCanvasStore((state) => state.scale); // Canvas scale 가져오기
 
   const status = useIssueStore((state) => state.status);
@@ -55,8 +57,29 @@ const IssuePage = () => {
 
   const voteStatus = useIssueStore((state) => state.voteStatus);
 
+  // Redis에서 이슈 상태 가져와서 초기화
+  useEffect(() => {
+    const fetchIssueStatus = async () => {
+      try {
+        const response = await fetch(`/api/issues/${issueId}/status`);
+        if (response.ok) {
+          const data = await response.json();
+          setInitialData({ id: issueId, status: data.status || ISSUE_STATUS.BRAINSTORMING });
+        } else {
+          // Redis에 데이터가 없으면 기본값으로 초기화
+          setInitialData({ id: issueId, status: ISSUE_STATUS.BRAINSTORMING });
+        }
+      } catch (error) {
+        console.error('이슈 상태 가져오기 실패:', error);
+        setInitialData({ id: issueId, status: ISSUE_STATUS.BRAINSTORMING });
+      }
+    };
+
+    fetchIssueStatus();
+  }, [issueId, setInitialData]);
+
   const isVoteActive = voteStatus === 'IN_PROGRESS';
-  
+
   const [activeId, setActiveId] = useState<string | null>(null);
   const [overlayEditValue, setOverlayEditValue] = useState<string | null>(null);
 
@@ -65,7 +88,7 @@ const IssuePage = () => {
   useEffect(() => {
     const updateCategorySizes = () => {
       const newSizes = new Map<string, { width: number; height: number }>();
-      
+
       categories.forEach((category) => {
         const element = document.querySelector(`[data-category-id="${category.id}"]`);
         if (element) {
@@ -76,52 +99,55 @@ const IssuePage = () => {
           });
         }
       });
-      
+
       categorySizesRef.current = newSizes;
     };
 
     updateCategorySizes();
   }, [categories, ideas, scale]);
 
-  const checkCategoryOverlap = useCallback((draggingCategoryId: string, newPosition: Position) => {
-    const draggingSize = categorySizesRef.current.get(draggingCategoryId);
-    if (!draggingSize) return false;
-    
-    const rect1 = {
-      left: newPosition.x,
-      right: newPosition.x + draggingSize.width,
-      top: newPosition.y,
-      bottom: newPosition.y + draggingSize.height,
-    };
-    
-    for (const category of categories) {
-      if (category.id === draggingCategoryId) continue; 
-      
-      const categorySize = categorySizesRef.current.get(category.id);
-      if (!categorySize) continue;
-      
-      const rect2 = {
-        left: category.position.x,
-        right: category.position.x + categorySize.width,
-        top: category.position.y,
-        bottom: category.position.y + categorySize.height,
+  const checkCategoryOverlap = useCallback(
+    (draggingCategoryId: string, newPosition: Position) => {
+      const draggingSize = categorySizesRef.current.get(draggingCategoryId);
+      if (!draggingSize) return false;
+
+      const rect1 = {
+        left: newPosition.x,
+        right: newPosition.x + draggingSize.width,
+        top: newPosition.y,
+        bottom: newPosition.y + draggingSize.height,
       };
-      
-      const isOverlapping = !(
-        rect1.right < rect2.left ||
-        rect1.left > rect2.right ||
-        rect1.bottom < rect2.top ||
-        rect1.top > rect2.bottom
-      );
-      
-      if (isOverlapping) return true;
-    }
-    
-    return false;
-  }, [categories]);
-  
+
+      for (const category of categories) {
+        if (category.id === draggingCategoryId) continue;
+
+        const categorySize = categorySizesRef.current.get(category.id);
+        if (!categorySize) continue;
+
+        const rect2 = {
+          left: category.position.x,
+          right: category.position.x + categorySize.width,
+          top: category.position.y,
+          bottom: category.position.y + categorySize.height,
+        };
+
+        const isOverlapping = !(
+          rect1.right < rect2.left ||
+          rect1.left > rect2.right ||
+          rect1.bottom < rect2.top ||
+          rect1.top > rect2.bottom
+        );
+
+        if (isOverlapping) return true;
+      }
+
+      return false;
+    },
+    [categories],
+  );
+
   //하이라이트된 아이디어
-  const { activeFilter, setFilter, highlightedIds } = useIdeaHighlight(issueId, ideas);  
+  const { activeFilter, setFilter, highlightedIds } = useIdeaHighlight(issueId, ideas);
 
   // dnd-kit sensors 설정
   const sensors = useSensors(
@@ -199,14 +225,13 @@ const IssuePage = () => {
   const handleVoteChange = (id: string, agreeCount: number, disagreeCount: number) => {
     const current = ideas.find((idea) => idea.id === id);
     if (!current) return;
-    if ((current.agreeCount ?? 0) === agreeCount && (current.disagreeCount ?? 0) === disagreeCount) {
+    if (
+      (current.agreeCount ?? 0) === agreeCount &&
+      (current.disagreeCount ?? 0) === disagreeCount
+    ) {
       return;
     }
-    setIdeas(
-      ideas.map((idea) =>
-        idea.id === id ? { ...idea, agreeCount, disagreeCount } : idea,
-      ),
-    );
+    setIdeas(ideas.map((idea) => (idea.id === id ? { ...idea, agreeCount, disagreeCount } : idea)));
   };
 
   const handleMoveIdeaToCategory = (ideaId: string, targetCategoryId: string | null) => {
@@ -268,6 +293,7 @@ const IssuePage = () => {
 
     if (validIdeas.length === 0) {
       alert('분류할 아이디어가 없습니다.');
+      finishAIStructure();
       return;
     }
 
@@ -277,7 +303,7 @@ const IssuePage = () => {
     };
 
     try {
-      const res = await fetch('/api/categorize', {
+      const res = await fetch(`/api/issues/${issueId}/categorize`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -348,8 +374,8 @@ const IssuePage = () => {
 
   useEffect(() => {
     const ideaIds = ideas.map((idea) => idea.id);
-    setInitialData(ideaIds);
-  }, [ideas, setInitialData]);
+    setInitialCardData(ideaIds);
+  }, [ideas, setInitialCardData]);
 
   return (
     <>

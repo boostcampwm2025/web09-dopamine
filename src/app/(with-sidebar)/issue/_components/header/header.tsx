@@ -1,7 +1,8 @@
 'use client';
 
-import Image from 'next/image';
 import { useEffect, useRef } from 'react';
+import Image from 'next/image';
+import { useParams } from 'next/navigation';
 import { useShallow } from 'zustand/shallow';
 import { useCategoryStore } from '@/app/(with-sidebar)/issue/store/use-category-store';
 import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
@@ -9,16 +10,19 @@ import {
   useIsNextButtonVisible,
   useIssueStore,
 } from '@/app/(with-sidebar)/issue/store/use-issue-store';
-import { useTooltipStore } from '@/components/tooltip/use-tooltip-store';
 import { useModalStore } from '@/components/modal/use-modal-store';
+import { useTooltipStore } from '@/components/tooltip/use-tooltip-store';
 import { BUTTON_TEXT_MAP, ISSUE_STATUS } from '@/constants/issue';
 import type { Category } from '../../types/category';
+import CloseIssueModal from '../close-issue-modal/close-issue-modal';
 import ProgressBar from '../progress-bar/progress-bar';
 import HeaderButton from './header-button';
 import * as S from './header.styles';
-import CloseIssueModal from '../close-issue-modal/close-issue-modal';
 
 const Header = () => {
+  const params = useParams<{ id: string }>();
+  const issueId = params.id || 'default';
+
   const issueState = useIssueStore(
     useShallow((state) => ({
       status: state.status,
@@ -39,8 +43,8 @@ const Header = () => {
   const { openModal, isOpen } = useModalStore();
   const hasOpenedModal = useRef(false);
 
-  const { categories, addCategory } = useCategoryStore('default');
-  const { ideas } = useIdeaStore('default');
+  const { categories, addCategory } = useCategoryStore(issueId);
+  const { ideas } = useIdeaStore(issueId);
 
   useEffect(() => {
     if (issueState.status !== ISSUE_STATUS.CLOSE) {
