@@ -11,6 +11,9 @@ import { BUTTON_TEXT_MAP, ISSUE_STATUS } from '@/constants/issue';
 import ProgressBar from '../progress-bar/progress-bar';
 import HeaderButton from './header-button';
 import * as S from './header.styles';
+import { useCategoryStore } from '@/app/(with-sidebar)/issue/store/use-category-store';
+import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
+import type { Category } from '../../types/category';
 
 const Header = () => {
   const issueState = useIssueStore(
@@ -20,14 +23,52 @@ const Header = () => {
     })),
   );
 
-  const { nextStep, closeIssue, startVote, endVote, startAIStructure } = useIssueStore(
-    (state) => state.actions,
-  );
+  const { nextStep, closeIssue, startVote, endVote, startAIStructure } = useIssueStore((state) => state.actions);
 
   const isVisible = useIsNextButtonVisible();
 
   const openTooltip = useTooltipStore((state) => state.openTooltip);
   const closeTooltip = useTooltipStore((state) => state.closeTooltip);
+
+  const { categories, addCategory } = useCategoryStore('default');
+  const { ideas } = useIdeaStore('default');
+
+  const handleNextStep = () => {
+    try {
+      nextStep(() => {
+        if (issueState.status === ISSUE_STATUS.CATEGORIZE) {
+          if (categories.length === 0) {
+            throw new Error('카테고리가 없습니다.');
+          }
+
+          const uncategorizedIdeas = ideas.filter((idea) => idea.categoryId === null);
+          if (uncategorizedIdeas.length > 0) {
+            throw new Error('카테고리가 지정되지 않은 아이디어가 있습니다.');
+          }
+        }
+      });
+    } catch (error) {
+      alert((error as Error).message);
+    }
+  };
+
+  const handleAddCategory = () => {
+    const maxX = categories.length > 0 
+      ? Math.max(...categories.map(cat => cat.position.x))
+      : 0;
+
+    const newCategory: Category = {
+      id: `category-${Date.now()}`,
+      title: '새 카테고리',
+      position: {
+        x: maxX + 300,
+        y: 100,
+      },
+      isMuted: false,
+    };
+
+    addCategory(newCategory);
+  };
 
   const renderActionButtons = () => {
     switch (issueState.status) {
@@ -38,6 +79,7 @@ const Header = () => {
               imageSrc="/folder.svg"
               alt="카테고리 추가"
               text="카테고리 추가"
+              onClick={handleAddCategory}
             />
             <HeaderButton
               imageSrc="/stick.svg"
@@ -90,7 +132,7 @@ const Header = () => {
           <>
             <HeaderButton
               text="다음"
-              onClick={nextStep}
+              onClick={handleNextStep}
               onMouseEnter={(e) => {
                 e.stopPropagation();
                 openTooltip(

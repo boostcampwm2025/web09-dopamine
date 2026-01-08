@@ -16,7 +16,7 @@ export const HeaderContainer = styled.div`
 export const LeftSection = styled.div`
   gap: 12px;
   display: flex;
-  font-size: ${theme.font.size.body2};
+  font-size: ${theme.font.size.large};
   font-weight: ${theme.font.weight.semibold};
   color: black;
   align-items: center;

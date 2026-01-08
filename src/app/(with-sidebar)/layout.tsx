@@ -21,13 +21,12 @@ const BodyContainer = styled.div`
 const ContentArea = styled.div`
   display: flex;
   flex: 1;
-  overflow: hidden;
+  overflow-y: auto;
 `;
 
 export default function WithSidebarLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
 
-  // 경로에 따라 다른 헤더 렌더링
   const renderHeader = () => {
     if (pathname?.startsWith('/issue')) {
       return <IssueHeader />;

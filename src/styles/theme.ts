@@ -83,11 +83,11 @@ export const theme = {
   },
   font: {
     size: {
-      large: '28px',
+      xl: '28px',
+      large: '18px',
       medium: '14px',
       small: '12px',
       xs: '10px',
-      body2: '18px',
     },
     weight: {
       regular: 400,

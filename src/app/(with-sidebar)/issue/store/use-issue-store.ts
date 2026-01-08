@@ -9,7 +9,7 @@ interface IssueStore {
   isAIStructuring: boolean;
   actions: {
     setInitialData: (data: { id: string; status: IssueStatus }) => void;
-    nextStep: () => Promise<void>;
+    nextStep: (validate?: () => void) => Promise<void>;
     closeIssue: () => void;
     startVote: () => void;
     endVote: () => void;
@@ -26,7 +26,12 @@ export const useIssueStore = create<IssueStore>((set) => ({
 
   actions: {
     setInitialData: (data) => set(() => ({ id: data.id, status: data.status })),
-    nextStep: async () => {
+
+    nextStep: async (validate?: () => void) => {
+      if (validate) {
+        validate();
+      }
+
       const state = useIssueStore.getState();
       const currentIndex = STEP_FLOW.indexOf(state.status);
       const nextStatus = STEP_FLOW[currentIndex + 1];
@@ -46,6 +51,7 @@ export const useIssueStore = create<IssueStore>((set) => ({
         console.error('이슈 상태 업데이트 실패', error);
       }
     },
+
     closeIssue: () => set(() => ({ status: ISSUE_STATUS.CLOSE })),
     startVote: () => set({ voteStatus: 'IN_PROGRESS' }),
     endVote: () => set({ voteStatus: 'COMPLETED' }),
