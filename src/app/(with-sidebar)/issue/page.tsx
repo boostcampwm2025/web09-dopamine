@@ -21,6 +21,9 @@ import type { IdeaWithPosition, Position } from '@/app/(with-sidebar)/issue/type
 import LoadingOverlay from '@/components/loading-overlay/loading-overlay';
 import CategoryCard from './_components/category/category-card';
 import { useCanvasStore } from './store/use-canvas-store';
+import FilterPanel, { FilterKey } from './_components/filter-panel/filter-panel';
+
+type Phase = 'ideation' | 'categorization' | 'voting' | 'discussion' | 'selection' | 'closed';
 
 const IssuePage = () => {
   // TODO: URL 파라미터나 props에서 실제 issueId 가져오기
@@ -44,6 +47,48 @@ const IssuePage = () => {
   
   const [activeId, setActiveId] = useState<string | null>(null);
   const [overlayEditValue, setOverlayEditValue] = useState<string | null>(null);
+  const [activeFilter, setActiveFilter] = useState<FilterKey>('none');
+
+  const getVoteCounts = (idea: IdeaWithPosition) => {
+    const agree = idea.agreeCount ?? 0;
+    const disagree = idea.disagreeCount ?? 0;
+    const total = agree + disagree;
+    const diff = Math.abs(agree - disagree);
+    return { agree, disagree, total, diff };
+  };
+
+  const highlightedIds = (() => {
+    if (activeFilter === 'none') return new Set<string>();
+
+    if (activeFilter === 'most-liked') {
+      const sorted = [...ideas].sort((a, b) => {
+        const aAgree = a.agreeCount ?? 0;
+        const bAgree = b.agreeCount ?? 0;
+        if (bAgree !== aAgree) return bAgree - aAgree;
+        const aTotal = (a.agreeCount ?? 0) + (a.disagreeCount ?? 0);
+        const bTotal = (b.agreeCount ?? 0) + (b.disagreeCount ?? 0);
+        return bTotal - aTotal;
+      });
+
+      return new Set(sorted.slice(0, 3).map((idea) => idea.id));
+    }
+
+    const candidates = ideas.filter((idea) => {
+      const { agree, total, diff } = getVoteCounts(idea);
+      if (agree < 3 || total === 0) return false;
+      return diff / total <= 0.2;
+    });
+
+    const sorted = [...candidates].sort((a, b) => {
+      const aCounts = getVoteCounts(a);
+      const bCounts = getVoteCounts(b);
+      if (bCounts.total !== aCounts.total) return bCounts.total - aCounts.total;
+      if (aCounts.diff !== bCounts.diff) return aCounts.diff - bCounts.diff;
+      return bCounts.agree - aCounts.agree;
+    });
+
+    return new Set(sorted.slice(0, 3).map((idea) => idea.id));
+  })();
 
   // dnd-kit sensors 설정
   const sensors = useSensors(
@@ -95,6 +140,19 @@ const IssuePage = () => {
   const handleDeleteIdea = (id: string) => {
     deleteIdea(id);
     removeCard(id);
+  };
+
+  const handleVoteChange = (id: string, agreeCount: number, disagreeCount: number) => {
+    const current = ideas.find((idea) => idea.id === id);
+    if (!current) return;
+    if ((current.agreeCount ?? 0) === agreeCount && (current.disagreeCount ?? 0) === disagreeCount) {
+      return;
+    }
+    setIdeas(
+      ideas.map((idea) =>
+        idea.id === id ? { ...idea, agreeCount, disagreeCount } : idea,
+      ),
+    );
   };
 
   const handleMoveIdeaToCategory = (ideaId: string, targetCategoryId: string | null) => {
@@ -246,6 +304,14 @@ const IssuePage = () => {
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
+        {/* 투표 시작 시 필터 UI 적용 */}
+        {voteStatus === 'IN_PROGRESS' && (
+          <FilterPanel
+            value={activeFilter}
+            onChange={setActiveFilter}
+          />
+        )}
+
         <Canvas onDoubleClick={handleCreateIdea}>
           {/* 카테고리들 - 내부에 아이디어 카드들을 children으로 전달 */}
           {categories.map((category) => {
@@ -273,11 +339,15 @@ const IssuePage = () => {
                     categoryId={idea.categoryId}
                     position={null} 
                     isSelected={idea.isSelected}
+                    isHighlighted={highlightedIds.has(idea.id)}
                     isVotePhase={isVoteActive}
                     agreeCount={idea.agreeCount}
                     disagreeCount={idea.disagreeCount}
                     needDiscussion={idea.needDiscussion}
                     editable={idea.editable}
+                    onVoteChange={(agreeCount, disagreeCount) =>
+                      handleVoteChange(idea.id, agreeCount, disagreeCount)
+                    }
                     onSave={(content) => handleSaveIdea(idea.id, content)}
                     onDelete={() => handleDeleteIdea(idea.id)}
                   />
@@ -299,12 +369,16 @@ const IssuePage = () => {
                 categoryId={idea.categoryId}
                 position={idea.position}
                 isSelected={idea.isSelected}
+                isHighlighted={highlightedIds.has(idea.id)}
                 isVotePhase={isVoteActive}
                 agreeCount={idea.agreeCount}
                 disagreeCount={idea.disagreeCount}
                 needDiscussion={idea.needDiscussion}
                 editable={idea.editable}
                 onPositionChange={handleIdeaPositionChange}
+                onVoteChange={(agreeCount, disagreeCount) =>
+                  handleVoteChange(idea.id, agreeCount, disagreeCount)
+                }
                 onSave={(content) => handleSaveIdea(idea.id, content)}
                 onDelete={() => handleDeleteIdea(idea.id)}
               />
@@ -333,6 +407,7 @@ const IssuePage = () => {
                       categoryId={activeIdea.categoryId}
                       position={null}
                       isSelected={activeIdea.isSelected}
+                      isHighlighted={highlightedIds.has(activeIdea.id)}
                       isVotePhase={isVoteActive}
                       agreeCount={activeIdea.agreeCount}
                       disagreeCount={activeIdea.disagreeCount}
