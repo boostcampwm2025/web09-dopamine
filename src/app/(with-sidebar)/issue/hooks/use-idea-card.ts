@@ -118,6 +118,7 @@ export default function useIdeaCard(props: UseIdeaCardProps) {
   const submitEdit = useCallback(() => {
     const trimmed = editValue.trim();
     if (!trimmed) {
+      textareaRef.current?.focus();
       openTooltip(textareaRef.current!, '내용을 입력해주세요');
       const timer = setTimeout(() => {
         closeTooltip();
