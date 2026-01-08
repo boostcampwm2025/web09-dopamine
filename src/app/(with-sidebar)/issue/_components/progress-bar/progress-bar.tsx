@@ -1,6 +1,6 @@
 import { useIssueStore } from '@/app/(with-sidebar)/issue/store/use-issue-store';
 import { STATUS_LABEL, STEP_FLOW } from '@/constants/issue';
-import * as S from './progress-bar.style';
+import * as S from './progress-bar.styles';
 
 const PROGRESS_BAR_DURATION = 0.3;
 
