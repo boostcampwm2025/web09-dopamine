@@ -45,6 +45,43 @@ const IssuePage = () => {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [overlayEditValue, setOverlayEditValue] = useState<string | null>(null);
 
+  const checkCategoryOverlap = useCallback((draggingCategoryId: string, newPosition: Position) => {
+    const draggingSize = categorySizesRef.current.get(draggingCategoryId);
+    if (!draggingSize) return false;
+    
+    const rect1 = {
+      left: newPosition.x,
+      right: newPosition.x + draggingSize.width,
+      top: newPosition.y,
+      bottom: newPosition.y + draggingSize.height,
+    };
+    
+    for (const category of categories) {
+      if (category.id === draggingCategoryId) continue; 
+      
+      const categorySize = categorySizesRef.current.get(category.id);
+      if (!categorySize) continue;
+      
+      const rect2 = {
+        left: category.position.x,
+        right: category.position.x + categorySize.width,
+        top: category.position.y,
+        bottom: category.position.y + categorySize.height,
+      };
+      
+      const isOverlapping = !(
+        rect1.right < rect2.left ||
+        rect1.left > rect2.right ||
+        rect1.bottom < rect2.top ||
+        rect1.top > rect2.bottom
+      );
+      
+      if (isOverlapping) return true;
+    }
+    
+    return false;
+  }, [categories]);
+
   // dnd-kit sensors 설정
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -59,6 +96,11 @@ const IssuePage = () => {
   };
 
   const handleCategoryPositionChange = (id: string, position: Position) => {
+    const hasOverlap = checkCategoryOverlap(id, position);
+    if (hasOverlap) {
+      return;
+    }
+
     updateCategoryPosition(id, position);
   };
 
@@ -260,6 +302,7 @@ const IssuePage = () => {
                 position={category.position}
                 isMuted={category.isMuted}
                 onPositionChange={handleCategoryPositionChange}
+                checkCollision={checkCategoryOverlap}
                 onRemove={() => handleDeleteCategory(category.id)}
                 onDropIdea={(ideaId) => handleMoveIdeaToCategory(ideaId, category.id)}
               >
