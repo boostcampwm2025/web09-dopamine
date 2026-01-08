@@ -26,7 +26,7 @@ export default function FilterPanel({ value, onChange }: FilterPanelProps) {
         type="button"
         data-filter="most-liked"
         $selected={value === 'most-liked'}
-        // onClick={handleClick}
+        onClick={handleClick}
       >
         좋아요를 많이 받은 아이디어
       </S.Btn>
@@ -34,7 +34,7 @@ export default function FilterPanel({ value, onChange }: FilterPanelProps) {
         type="button"
         data-filter="hot-potato"
         $selected={value === 'hot-potato'}
-        // onClick={handleClick}
+        onClick={handleClick}
       >
         논쟁이 뜨거운 아이디어
       </S.Btn>
