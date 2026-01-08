@@ -1,21 +1,25 @@
 'use client';
 
 import Image from 'next/image';
+import { useParams } from 'next/navigation';
 import { useShallow } from 'zustand/shallow';
+import { useCategoryStore } from '@/app/(with-sidebar)/issue/store/use-category-store';
+import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
 import {
   useIsNextButtonVisible,
   useIssueStore,
 } from '@/app/(with-sidebar)/issue/store/use-issue-store';
 import { useTooltipStore } from '@/components/tooltip/use-tooltip-store';
 import { BUTTON_TEXT_MAP, ISSUE_STATUS } from '@/constants/issue';
+import type { Category } from '../../types/category';
 import ProgressBar from '../progress-bar/progress-bar';
 import HeaderButton from './header-button';
 import * as S from './header.styles';
-import { useCategoryStore } from '@/app/(with-sidebar)/issue/store/use-category-store';
-import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
-import type { Category } from '../../types/category';
 
 const Header = () => {
+  const params = useParams<{ id: string }>();
+  const issueId = params.id || 'default';
+
   const issueState = useIssueStore(
     useShallow((state) => ({
       status: state.status,
@@ -23,15 +27,17 @@ const Header = () => {
     })),
   );
 
-  const { nextStep, closeIssue, startVote, endVote, startAIStructure } = useIssueStore((state) => state.actions);
+  const { nextStep, closeIssue, startVote, endVote, startAIStructure } = useIssueStore(
+    (state) => state.actions,
+  );
 
   const isVisible = useIsNextButtonVisible();
 
   const openTooltip = useTooltipStore((state) => state.openTooltip);
   const closeTooltip = useTooltipStore((state) => state.closeTooltip);
 
-  const { categories, addCategory } = useCategoryStore('default');
-  const { ideas } = useIdeaStore('default');
+  const { categories, addCategory } = useCategoryStore(issueId);
+  const { ideas } = useIdeaStore(issueId);
 
   const handleNextStep = () => {
     try {
@@ -53,9 +59,7 @@ const Header = () => {
   };
 
   const handleAddCategory = () => {
-    const maxX = categories.length > 0 
-      ? Math.max(...categories.map(cat => cat.position.x))
-      : 0;
+    const maxX = categories.length > 0 ? Math.max(...categories.map((cat) => cat.position.x)) : 0;
 
     const newCategory: Category = {
       id: `category-${Date.now()}`,
