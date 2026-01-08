@@ -24,9 +24,9 @@ export default async function IssueSummaryPage({params}: {params: {issueId: stri
   });
 
   // TODO : 찾을 수 없을 경우 띄워줄 컴포넌트 구현
-  if (!report) {
-    return <div>리포트를 찾을 수 없습니다.</div>;
-  }
+  // if (!report) {
+  //   return <div>리포트를 찾을 수 없습니다.</div>;
+  // }
 
 
   return (
