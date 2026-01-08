@@ -21,7 +21,7 @@ import type { IdeaWithPosition, Position } from '@/app/(with-sidebar)/issue/type
 import LoadingOverlay from '@/components/loading-overlay/loading-overlay';
 import CategoryCard from './_components/category/category-card';
 import { useCanvasStore } from './store/use-canvas-store';
-import FilterPanel, { FilterKey } from './_components/filter-panel/filter-panel';
+import FilterPanel from './_components/filter-panel/filter-panel';
 import { useIdeaHighlight } from '@/app/(with-sidebar)/issue/hooks/use-highlighted-ideas';
 
 type Phase = 'ideation' | 'categorization' | 'voting' | 'discussion' | 'selection' | 'closed';

@@ -5,11 +5,7 @@ import { getVoteCounts } from '../services/issue-service';
 export type FilterType = 'most-liked' | 'hot-potato' | 'none';
 
 export const useIdeaHighlight = (issueId: string, initialIdeas: IdeaWithPosition[]) => {
-  // 1. 필터 상태 관리 (초기값은 localStorage에서 복구)
-  const [activeFilter, setActiveFilter] = useState<FilterType>(() => {
-    const saved = localStorage.getItem(`idea-filter-${issueId}`);
-    return (saved as FilterType) || 'none';
-  });
+  const [activeFilter, setActiveFilter] = useState<FilterType>('none');
 
   // 2. 필터 변경 시 localStorage에 저장
   useEffect(() => {
