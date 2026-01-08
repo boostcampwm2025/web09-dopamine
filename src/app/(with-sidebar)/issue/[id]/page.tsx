@@ -187,7 +187,7 @@ const IssuePage = () => {
     if (!isCreateIdeaActive) return;
 
     if (hasEditingIdea) {
-      window.alert('입력 중인 아이디어가 있습니다.');
+      toast.error('입력 중인 아이디어가 있습니다.');
       return;
     }
 
@@ -291,7 +291,7 @@ const IssuePage = () => {
       }));
 
     if (validIdeas.length === 0) {
-      alert('분류할 아이디어가 없습니다.');
+      toast.error('분류할 아이디어가 없습니다.');
       finishAIStructure();
       return;
     }
@@ -361,7 +361,7 @@ const IssuePage = () => {
       }
     } catch (error) {
       console.error('AI 구조화 오류:', error);
-      alert('AI 구조화 중 오류가 발생했습니다.');
+      toast.error('AI 구조화 중 오류가 발생했습니다.');
     } finally {
       finishAIStructure();
     }

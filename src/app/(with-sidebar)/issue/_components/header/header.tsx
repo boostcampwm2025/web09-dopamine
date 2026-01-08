@@ -102,7 +102,7 @@ const Header = () => {
         }
       });
     } catch (error) {
-      alert((error as Error).message);
+      toast((error as Error).message);
     }
   };
 
