@@ -130,7 +130,7 @@ export default function IdeaCard(props: IdeaCardProps) {
     }
 
     // listeners의 onPointerDown도 호출 (드래그를 위해)
-    if (!inCategory && listeners?.onPointerDown) {
+    if (listeners?.onPointerDown) {
       listeners.onPointerDown(e);
     }
   };
