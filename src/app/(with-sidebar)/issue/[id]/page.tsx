@@ -43,7 +43,7 @@ const IssuePage = () => {
     updateIdeaPosition,
     deleteIdea,
     setIdeas,
-    selectIdea
+    selectIdea,
   } = useIdeaStore(issueId);
   const { addCard, removeCard, setInitialCardData } = useIdeaCardStackStore(issueId);
   const { categories, setCategories, addCategory, deleteCategory, updateCategoryPosition } =
@@ -176,9 +176,7 @@ const IssuePage = () => {
     const categoryIdeas = ideas.filter((idea) => idea.categoryId === categoryId);
 
     if (categoryIdeas.length > 0) {
-      alert(
-        `카테고리 내부에 ${categoryIdeas.length}개의 아이디어가 있습니다.\n먼저 아이디어를 이동하거나 삭제해주세요.`,
-      );
+      toast.error(`카테고리에 아이디어가 존재합니다.`);
       return;
     }
 
@@ -222,7 +220,7 @@ const IssuePage = () => {
   const handleSelectIdea = (id: string) => {
     selectIdea(id);
   };
-  
+
   const handleVoteChange = (id: string, agreeCount: number, disagreeCount: number) => {
     const current = ideas.find((idea) => idea.id === id);
     if (!current) return;
