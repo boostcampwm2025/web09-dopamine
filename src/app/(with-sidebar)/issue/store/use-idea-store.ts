@@ -8,6 +8,7 @@ interface IdeaStore {
   updateIdeaContent: (id: string, content: string) => void;
   updateIdeaPosition: (id: string, position: Position) => void;
   updateIdeaEditable: (id: string, editable: boolean) => void;
+  selectIdea: (id: string | null) => void;
   deleteIdea: (id: string) => void;
   setIdeas: (ideas: IdeaWithPosition[]) => void;
   clearIdeas: () => void;
@@ -39,6 +40,14 @@ const createIdeaStore = (issueId: string) => {
         updateIdeaEditable: (id: string, editable: boolean) =>
           set((state) => ({
             ideas: state.ideas.map((idea) => (idea.id === id ? { ...idea, editable } : idea)),
+          })),
+
+        selectIdea: (id: string | null) =>
+          set((state) => ({
+            ideas: state.ideas.map((idea) => ({
+              ...idea,
+              isSelected: id !== null && idea.id === id,
+            })),
           })),
 
         deleteIdea: (id: string) =>
