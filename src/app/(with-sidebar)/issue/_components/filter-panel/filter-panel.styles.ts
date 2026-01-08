@@ -15,19 +15,17 @@ export const FilterPanel = styled.div`
 `;
 
 export const Btn = styled.button<{ $selected: boolean }>`
-  border-radius: ${theme.radius.medium};
-  border: 2px solid ${theme.colors.gray[400]};
+  border-radius: ${theme.radius.large};
   padding: 10px;
   transition: transform 120ms ease, box-shadow 120ms ease;
-
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
   &:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
   }
-
+  font-size: ${theme.font.size.small};
   ${({ $selected }) => `
-    border: 2px solid ${$selected ? theme.colors.gray[400] : theme.colors.gray[100]};
-    background: ${$selected ? theme.colors.gray[200] : theme.colors.gray[50]};
-    color: ${$selected ? theme.colors.gray[800] : theme.colors.gray[600]};
+    border: ${$selected ? '2px' : '1px'} solid ${theme.colors.yellow[400]};
+    background: ${$selected ? theme.colors.yellow[200] : 'none'};
+    color: ${$selected ? theme.colors.yellow[800] : theme.colors.yellow[600]};
   `}
 `;
