@@ -83,11 +83,11 @@ export const theme = {
   },
   font: {
     size: {
-      large: '28px',
+      xl: '28px',
+      large: '18px',
       medium: '14px',
-      small: '10px',
-      body2: '18px',
-      body5: '12px',
+      small: '12px',
+      xs: '10px',
     },
     weight: {
       regular: 400,
@@ -97,16 +97,20 @@ export const theme = {
     },
   },
   status: {
-    open: {
-      color: colors.green[600],
+    BRAINSTORMING: {
+      color: colors.yellow[400],
     },
-    voting: {
-      color: colors.blue[600],
+    CATEGORIZE: {
+      color: colors.blue[500],
     },
-    closed: {
+    VOTE: {
+      color: colors.red[400],
+    },
+    SELECT: {
+      color: colors.green[500],
+    },
+    CLOSE: {
       color: colors.gray[500],
     },
   },
 };
-
-export type Theme = typeof theme;
