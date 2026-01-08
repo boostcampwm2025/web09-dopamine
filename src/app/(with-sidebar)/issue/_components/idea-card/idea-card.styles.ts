@@ -118,6 +118,7 @@ export const Meta = styled.div`
   justify-content: space-between;
   align-items: center;
   width: 100%;
+  height: 42px;
   margin-top: 10px;
 `;
 
@@ -133,7 +134,7 @@ export const AuthorPill = styled.span`
 export const SubmitButton = styled.button`
   margin-left: auto;
   width: 60px;
-  height: 42px;
+  height: 40px;
   border: 1px solid ${theme.colors.green[600]};
   border-radius: ${theme.radius.small};
   font-size: ${theme.font.size.medium};
