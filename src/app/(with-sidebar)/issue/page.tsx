@@ -31,6 +31,7 @@ const IssuePage = () => {
   const {
     ideas,
     hasEditingIdea,
+    resetEditingIdea,
     addIdea,
     updateIdeaContent,
     updateIdeaPosition,
@@ -113,6 +114,9 @@ const IssuePage = () => {
   };
 
   const handleDeleteIdea = (id: string) => {
+    if (hasEditingIdea) {
+      resetEditingIdea();
+    }
     deleteIdea(id);
     removeCard(id);
   };
