@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import {
   DndContext,
   DragEndEvent,
@@ -47,6 +47,66 @@ const IssuePage = () => {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [overlayEditValue, setOverlayEditValue] = useState<string | null>(null);
 
+  const categorySizesRef = useRef<Map<string, { width: number; height: number }>>(new Map());
+
+  useEffect(() => {
+    const updateCategorySizes = () => {
+      const newSizes = new Map<string, { width: number; height: number }>();
+      
+      categories.forEach((category) => {
+        const element = document.querySelector(`[data-category-id="${category.id}"]`);
+        if (element) {
+          const rect = element.getBoundingClientRect();
+          newSizes.set(category.id, {
+            width: rect.width / scale,
+            height: rect.height / scale,
+          });
+        }
+      });
+      
+      categorySizesRef.current = newSizes;
+    };
+
+    updateCategorySizes();
+  }, [categories, ideas, scale]);
+
+  const checkCategoryOverlap = useCallback((draggingCategoryId: string, newPosition: Position) => {
+    const draggingSize = categorySizesRef.current.get(draggingCategoryId);
+    if (!draggingSize) return false;
+    
+    const rect1 = {
+      left: newPosition.x,
+      right: newPosition.x + draggingSize.width,
+      top: newPosition.y,
+      bottom: newPosition.y + draggingSize.height,
+    };
+    
+    for (const category of categories) {
+      if (category.id === draggingCategoryId) continue; 
+      
+      const categorySize = categorySizesRef.current.get(category.id);
+      if (!categorySize) continue;
+      
+      const rect2 = {
+        left: category.position.x,
+        right: category.position.x + categorySize.width,
+        top: category.position.y,
+        bottom: category.position.y + categorySize.height,
+      };
+      
+      const isOverlapping = !(
+        rect1.right < rect2.left ||
+        rect1.left > rect2.right ||
+        rect1.bottom < rect2.top ||
+        rect1.top > rect2.bottom
+      );
+      
+      if (isOverlapping) return true;
+    }
+    
+    return false;
+  }, [categories]);
+  
   //하이라이트된 아이디어
   const { activeFilter, setFilter, highlightedIds } = useIdeaHighlight(issueId, ideas);  
 
@@ -64,6 +124,11 @@ const IssuePage = () => {
   };
 
   const handleCategoryPositionChange = (id: string, position: Position) => {
+    const hasOverlap = checkCategoryOverlap(id, position);
+    if (hasOverlap) {
+      return;
+    }
+
     updateCategoryPosition(id, position);
   };
 
@@ -286,6 +351,7 @@ const IssuePage = () => {
                 position={category.position}
                 isMuted={category.isMuted}
                 onPositionChange={handleCategoryPositionChange}
+                checkCollision={checkCategoryOverlap}
                 onRemove={() => handleDeleteCategory(category.id)}
                 onDropIdea={(ideaId) => handleMoveIdeaToCategory(ideaId, category.id)}
               >

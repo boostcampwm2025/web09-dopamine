@@ -24,6 +24,7 @@ const color = <K extends keyof ThemeColors>(
 export const StyledCategoryCard = styled.section<{ isMuted?: boolean; isOver?: boolean; theme?: Theme }>`
   display: flex;
   flex-direction: column;
+  min-height: 200px;
   gap: 11px;
   background: ${({ isMuted, theme }) =>
     isMuted
