@@ -10,7 +10,7 @@ export const Container = styled.div`
   flex-direction: column;
 `;
 
-export const Item = styled.div<{ highlighted?: boolean }>`
+export const Item = styled.div<{ highlighted?: boolean, isTop?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -18,7 +18,7 @@ export const Item = styled.div<{ highlighted?: boolean }>`
   padding: 14px 16px;
   border-bottom: 1px solid ${theme.colors.gray[100]};
   background: ${({ highlighted }) => (highlighted ? theme.colors.gray[50] : 'transparent')};
-  border-radius: ${theme.radius.medium};
+  border-radius: ${isTop => isTop ? theme.radius.medium + ' ' + theme.radius.medium + ' 0 0' : '0'};
   &:last-of-type {
     border-bottom: none;
   }
@@ -45,10 +45,10 @@ export const RankBadge = styled.div<{ highlighted?: boolean }>`
   place-items: center;
   font-weight: 600;
   font-size: ${theme.font.size.medium};
-  color: ${({highlighted}) => (
+  color: ${({ highlighted }) => (
     highlighted ? theme.colors.white : theme.colors.gray[400]
   )};
-  background: ${({highlighted}) => (
+  background: ${({ highlighted }) => (
     highlighted ? theme.colors.green[600] : theme.colors.gray[100]
   )};
 `;
@@ -103,32 +103,36 @@ export const VoteInfoSection = styled.span`
 `;
 
 export const VoteInfo = styled.div<{ type?: 'agree' | 'disagree' }>`
-  color: ${({ type }) => (type === 'agree' ? theme.colors.green[600] : theme.colors.red[600])};
   display: flex;
   align-items: center;
-  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: ${theme.radius.medium};
+  background-color: ${({ type }) =>
+    type === 'agree' ? theme.colors.green[50] : theme.colors.red[50]};
 `;
 
 export const VoteLabel = styled.span`
   font-size: ${theme.font.size.small};
   font-weight: 400;
-  color: ${theme.colors.gray[400]};
+  color: ${theme.colors.gray[600]};
   letter-spacing: 0;
-  line-height: 16px;
 `;
 
 export const VoteCount = styled.span<{ type?: 'agree' | 'disagree' }>`
   font-size: ${theme.font.size.medium};
-  font-weight: 400;
-  color: ${({ type }) => (type === 'agree' ? theme.colors.green[600] : theme.colors.red[600])};
+  font-weight: 600;
+  color: ${({ type }) =>
+    type === 'agree' ? theme.colors.green[600] : theme.colors.red[600]};
   letter-spacing: 0;
-  line-height: 16px;
 `;
 
 export const Footer = styled.div`
   display: flex;
   justify-content: center;
   padding: 12px 0;
+  border-radius: 0 0 ${theme.radius.medium} ${theme.radius.medium};
   border-top: 1px solid ${theme.colors.gray[100]};
   background: ${theme.colors.white};
 `;
