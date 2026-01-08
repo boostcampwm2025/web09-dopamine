@@ -130,7 +130,7 @@ export default function IdeaCard(props: IdeaCardProps) {
     }
 
     // listeners의 onPointerDown도 호출 (드래그를 위해)
-    if (!inCategory && listeners?.onPointerDown) {
+    if (listeners?.onPointerDown) {
       listeners.onPointerDown(e);
     }
   };
@@ -149,9 +149,11 @@ export default function IdeaCard(props: IdeaCardProps) {
       onClick={props.onClick}
       onPointerDown={handlePointerDown}
       {...attributes}
-      {...(inCategory ? {} : Object.fromEntries(
-        Object.entries(listeners || {}).filter(([key]) => key !== 'onPointerDown')
-      ))}
+      {...(inCategory
+        ? {}
+        : Object.fromEntries(
+            Object.entries(listeners || {}).filter(([key]) => key !== 'onPointerDown'),
+          ))}
       style={cardStyle}
     >
       {status === 'selected' && (
@@ -193,26 +195,23 @@ export default function IdeaCard(props: IdeaCardProps) {
               />
             </S.IconButton>
           ) : (
-            <>
-              {isEditing ? <S.SubmitButton onClick={submitEdit}>제출</S.SubmitButton> : null}
-              <S.IconButton
-                aria-label="delete"
-                onClick={handleDeleteClick}
-              >
-                <Image
-                  src="/trash.svg"
-                  alt="삭제"
-                  width={14}
-                  height={14}
-                />
-              </S.IconButton>
-            </>
+            <>{isEditing ? <S.SubmitButton onClick={submitEdit}>제출</S.SubmitButton> : null}</>
           )}
         </S.Meta>
+        <S.DeleteButton
+          aria-label="delete"
+          onClick={handleDeleteClick}
+        >
+          <Image
+            src="/close.svg"
+            alt="삭제"
+            width={14}
+            height={14}
+          />
+        </S.DeleteButton>
       </S.Header>
       {props.isVotePhase && (
         <div>
-          <S.Divider />
           <S.Footer>
             <S.VoteButton
               kind="agree"
