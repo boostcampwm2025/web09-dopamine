@@ -1,6 +1,6 @@
 import { mockCategories } from '../data/mock-categories';
 import { mockIdeasWithCategory } from '../data/mock-ideas';
-import type { Idea } from '../types/idea';
+import type { Idea, IdeaWithPosition } from '../types/idea';
 
 export async function getCategorizedIdeas() {
   // 실제 DB I/O 로직이 들어갈 자리
@@ -36,4 +36,12 @@ export async function getAllIdeas() {
 
   const { rawData } = await getCategorizedIdeas();
   return rawData as Idea[];
+}
+
+export function getVoteCounts(idea: IdeaWithPosition) {
+    const agree = idea.agreeCount ?? 0;
+    const disagree = idea.disagreeCount ?? 0;
+    const total = agree + disagree;
+    const diff = Math.abs(agree - disagree);
+    return { agree, disagree, total, diff };
 }
