@@ -120,6 +120,7 @@ export default function Canvas({ children, onDoubleClick }: CanvasProps) {
   const handleCanvasDoubleClick = useCallback(
     (e: React.MouseEvent) => {
       if (!onDoubleClick) return;
+      if (!isBrainStorming) return;
 
       const rect = canvasRef.current?.getBoundingClientRect();
       if (!rect) return;
