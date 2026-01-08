@@ -4,39 +4,30 @@ import styled from '@emotion/styled';
 import { theme } from '@/styles/theme';
 
 export const FilterPanel = styled.div`
+  position: fixed;
+  top: 100px;
+  left: 300px;
+  z-index: 9999;
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: center;
   gap: 16px;
 `;
 
-export const Btn = styled.button<{ $variant: 'most-liked' | 'hot-potato' | 'none' }>`
+export const Btn = styled.button<{ $selected: boolean }>`
   border-radius: ${theme.radius.medium};
+  border: 2px solid ${theme.colors.gray[400]};
   padding: 10px;
+  transition: transform 120ms ease, box-shadow 120ms ease;
 
-  ${({ $variant }) => {
-    // Record 타입을 사용하여 키는 type과 동일하고 값은 객체임을 명시
-    const styles: Record<'most-liked' | 'hot-potato' | 'none', { main: string; bg: string }> = {
-      'most-liked': {
-        main: theme.colors.green[500],
-        bg: theme.colors.green[200],
-      },
-      'hot-potato': {
-        main: theme.colors.red[500],
-        bg: theme.colors.red[200],
-      },
-      'none': {
-        main: theme.colors.gray[500],
-        bg: theme.colors.gray[200],
-      },
-    };
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  }
 
-    const current = styles[$variant as keyof typeof styles];
-    return `
-      border: 2px solid ${current.main};
-      background: ${current.bg};
-      color: ${current.main};
-    `;
-  }}
+  ${({ $selected }) => `
+    border: 2px solid ${$selected ? theme.colors.gray[400] : theme.colors.gray[100]};
+    background: ${$selected ? theme.colors.gray[200] : theme.colors.gray[50]};
+    color: ${$selected ? theme.colors.gray[800] : theme.colors.gray[600]};
+  `}
 `;
