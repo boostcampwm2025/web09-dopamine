@@ -2,7 +2,7 @@
 
 import { autoUpdate, flip, offset, shift, useFloating } from '@floating-ui/react';
 import { createPortal } from 'react-dom';
-import * as S from './tooltip.style';
+import * as S from './tooltip.styles';
 import { useTooltipStore } from './use-tooltip-store';
 
 export default function Tooltip() {
