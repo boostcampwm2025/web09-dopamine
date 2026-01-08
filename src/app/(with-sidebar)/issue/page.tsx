@@ -65,25 +65,39 @@ const IssuePage = () => {
         const aAgree = a.agreeCount ?? 0;
         const bAgree = b.agreeCount ?? 0;
         if (bAgree !== aAgree) return bAgree - aAgree;
-        const aTotal = (a.agreeCount ?? 0) + (a.disagreeCount ?? 0);
-        const bTotal = (b.agreeCount ?? 0) + (b.disagreeCount ?? 0);
+        
+        const aTotal = aAgree + (a.disagreeCount ?? 0);
+        const bTotal = bAgree + (b.disagreeCount ?? 0);
         return bTotal - aTotal;
       });
 
-      return new Set(sorted.slice(0, 3).map((idea) => idea.id));
+      // 1. 데이터가 3개 이하라면 바로 반환
+      if (sorted.length <= 3) return new Set(sorted.map(idea => idea.id));
+
+      // 2. 3번째 요소(index 2)의 찬성 수 기준값을 찾음
+      const thirdAgreeCount = sorted[2].agreeCount ?? 0;
+
+      // 3. 3번째 요소와 찬성 수가 같은 데이터가 뒤에 더 있는지 확인하여 포함
+      const result = sorted.filter((idea, index) => {
+        if (index < 3) return true;
+        return (idea.agreeCount ?? 0) === thirdAgreeCount;
+      });
+
+      return new Set(result.map((idea) => idea.id));
     }
 
     const candidates = ideas.filter((idea) => {
-      const { agree, total, diff } = getVoteCounts(idea);
-      if (agree < 3 || total === 0) return false;
+      const { total, diff } = getVoteCounts(idea);
+      if (total === 0) return false;
+
+      // 찬 반 비율이 엇비슷한 것만 필터링
       return diff / total <= 0.2;
     });
 
+    // 찬성순으로 재정렬
     const sorted = [...candidates].sort((a, b) => {
       const aCounts = getVoteCounts(a);
       const bCounts = getVoteCounts(b);
-      if (bCounts.total !== aCounts.total) return bCounts.total - aCounts.total;
-      if (aCounts.diff !== bCounts.diff) return aCounts.diff - bCounts.diff;
       return bCounts.agree - aCounts.agree;
     });
 
