@@ -19,6 +19,7 @@ import { useIssueStore } from '@/app/(with-sidebar)/issue/store/use-issue-store'
 import type { Category } from '@/app/(with-sidebar)/issue/types/category';
 import type { IdeaWithPosition, Position } from '@/app/(with-sidebar)/issue/types/idea';
 import LoadingOverlay from '@/components/loading-overlay/loading-overlay';
+import { ISSUE_STATUS } from '@/constants/issue';
 import CategoryCard from '../_components/category/category-card';
 import { useCanvasStore } from '../store/use-canvas-store';
 
@@ -33,7 +34,7 @@ const IssuePage = () => {
     useIdeaStore(issueId);
   const { addCard, removeCard, setInitialCardData } = useIdeaCardStackStore(issueId);
   const { isAIStructuring } = useIssueStore();
-  const { finishAIStructure } = useIssueStore((state) => state.actions);
+  const { finishAIStructure, setInitialData } = useIssueStore((state) => state.actions);
   const scale = useCanvasStore((state) => state.scale); // Canvas scale 가져오기
 
   const voteStatus = useIssueStore((state) => state.voteStatus);
@@ -42,6 +43,10 @@ const IssuePage = () => {
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
+
+  useEffect(() => {
+    setInitialData({ id: issueId, status: ISSUE_STATUS.BRAINSTORMING });
+  }, [issueId, setInitialData]);
 
   // dnd-kit sensors 설정
   const sensors = useSensors(
