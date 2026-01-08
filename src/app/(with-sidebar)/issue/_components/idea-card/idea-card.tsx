@@ -6,6 +6,9 @@ import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import useIdeaCard from '@/app/(with-sidebar)/issue/hooks/use-idea-card';
 import { useIdeaCardStackStore } from '../../store/use-idea-card-stack-store';
+import { useIdeaStore } from '../../store/use-idea-store';
+import { useIssueStore } from '../../store/use-issue-store';
+import { ISSUE_STATUS } from '@/constants/issue';
 import type { Position } from '../../types/idea';
 import * as S from './idea-card.styles';
 
@@ -44,6 +47,8 @@ export type DragItemPayload = {
 export default function IdeaCard(props: IdeaCardProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  const { selectIdea } = useIdeaStore(props.issueId);
+  const issueStatus = useIssueStore((state) => state.status);
   const { bringToFront, getZIndex } = useIdeaCardStackStore(props.issueId);
   const zIndex = props.id ? getZIndex(props.id) : 0;
 
@@ -140,13 +145,20 @@ export default function IdeaCard(props: IdeaCardProps) {
     props.onDelete?.();
   };
 
+  const handleCardClick = () => {
+    if (!props.id || !props.categoryId || isEditing || issueStatus !== ISSUE_STATUS.SELECT) {
+      return;
+    }
+    selectIdea(props.id);
+  };
+
   return (
     <S.Card
       ref={setNodeRef}
       status={status}
       isDragging={isDragging}
       inCategory={inCategory}
-      onClick={props.onClick}
+      onClick={handleCardClick}
       onPointerDown={handlePointerDown}
       {...attributes}
       {...(inCategory ? {} : Object.fromEntries(

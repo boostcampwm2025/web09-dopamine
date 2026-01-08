@@ -28,7 +28,7 @@ const IssuePage = () => {
   // TODO: 실제 issueId로 useIssueStore > setInitialData 실행
   const issueId = 'default'; // 임시 기본값
 
-  const { ideas, addIdea, updateIdeaContent, updateIdeaPosition, deleteIdea, setIdeas } =
+  const { ideas, addIdea, updateIdeaContent, updateIdeaPosition, deleteIdea, setIdeas, selectIdea } =
     useIdeaStore(issueId);
   const { addCard, removeCard, setInitialData } = useIdeaCardStackStore(issueId);
   const { categories, setCategories, addCategory, deleteCategory, updateCategoryPosition } = useCategoryStore(issueId);
@@ -95,6 +95,10 @@ const IssuePage = () => {
   const handleDeleteIdea = (id: string) => {
     deleteIdea(id);
     removeCard(id);
+  };
+
+  const handleSelectIdea = (id: string) => {
+    selectIdea(id);
   };
 
   const handleMoveIdeaToCategory = (ideaId: string, targetCategoryId: string | null) => {
@@ -280,6 +284,7 @@ const IssuePage = () => {
                     editable={idea.editable}
                     onSave={(content) => handleSaveIdea(idea.id, content)}
                     onDelete={() => handleDeleteIdea(idea.id)}
+                    onClick={() => handleSelectIdea(idea.id)}
                   />
                 ))}
               </CategoryCard>
