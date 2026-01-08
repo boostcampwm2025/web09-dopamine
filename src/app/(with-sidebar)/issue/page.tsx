@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   DndContext,
   DragEndEvent,
@@ -12,10 +12,10 @@ import {
 } from '@dnd-kit/core';
 import Canvas from '@/app/(with-sidebar)/issue/_components/canvas/canvas';
 import IdeaCard from '@/app/(with-sidebar)/issue/_components/idea-card/idea-card';
+import { useCategoryStore } from '@/app/(with-sidebar)/issue/store/use-category-store';
 import { useIdeaCardStackStore } from '@/app/(with-sidebar)/issue/store/use-idea-card-stack-store';
 import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
 import { useIssueStore } from '@/app/(with-sidebar)/issue/store/use-issue-store';
-import { useCategoryStore } from '@/app/(with-sidebar)/issue/store/use-category-store';
 import type { Category } from '@/app/(with-sidebar)/issue/types/category';
 import type { IdeaWithPosition, Position } from '@/app/(with-sidebar)/issue/types/idea';
 import LoadingOverlay from '@/components/loading-overlay/loading-overlay';
@@ -28,10 +28,18 @@ const IssuePage = () => {
   // TODO: 실제 issueId로 useIssueStore > setInitialData 실행
   const issueId = 'default'; // 임시 기본값
 
-  const { ideas, addIdea, updateIdeaContent, updateIdeaPosition, deleteIdea, setIdeas } =
-    useIdeaStore(issueId);
+  const {
+    ideas,
+    hasEditingIdea,
+    addIdea,
+    updateIdeaContent,
+    updateIdeaPosition,
+    deleteIdea,
+    setIdeas,
+  } = useIdeaStore(issueId);
   const { addCard, removeCard, setInitialData } = useIdeaCardStackStore(issueId);
-  const { categories, setCategories, addCategory, deleteCategory, updateCategoryPosition } = useCategoryStore(issueId);
+  const { categories, setCategories, addCategory, deleteCategory, updateCategoryPosition } =
+    useCategoryStore(issueId);
 
   const { isAIStructuring } = useIssueStore();
   const { finishAIStructure } = useIssueStore((state) => state.actions);
@@ -41,7 +49,7 @@ const IssuePage = () => {
   const voteStatus = useIssueStore((state) => state.voteStatus);
   //TODO: 추후 투표 종료 시 투표 기능이 활성화되지 않도록 기능 추가 필요
   const isVoteActive = voteStatus !== 'READY';
-  
+
   const [activeId, setActiveId] = useState<string | null>(null);
   const [overlayEditValue, setOverlayEditValue] = useState<string | null>(null);
 
@@ -63,10 +71,12 @@ const IssuePage = () => {
   };
 
   const handleDeleteCategory = (categoryId: string) => {
-    const categoryIdeas = ideas.filter(idea => idea.categoryId === categoryId);
-    
+    const categoryIdeas = ideas.filter((idea) => idea.categoryId === categoryId);
+
     if (categoryIdeas.length > 0) {
-      alert(`카테고리 내부에 ${categoryIdeas.length}개의 아이디어가 있습니다.\n먼저 아이디어를 이동하거나 삭제해주세요.`);
+      alert(
+        `카테고리 내부에 ${categoryIdeas.length}개의 아이디어가 있습니다.\n먼저 아이디어를 이동하거나 삭제해주세요.`,
+      );
       return;
     }
 
@@ -74,6 +84,11 @@ const IssuePage = () => {
   };
 
   const handleCreateIdea = (position: Position) => {
+    if (hasEditingIdea) {
+      window.alert('입력 중인 아이디어가 있습니다.');
+      return;
+    }
+
     const newIdea: IdeaWithPosition = {
       id: `idea-${Date.now()}`,
       content: '',
@@ -226,7 +241,7 @@ const IssuePage = () => {
     } finally {
       finishAIStructure();
     }
-  },[ideas, issueId, setIdeas, finishAIStructure]);
+  }, [ideas, issueId, setIdeas, finishAIStructure]);
 
   useEffect(() => {
     if (isAIStructuring) {
@@ -237,7 +252,7 @@ const IssuePage = () => {
   useEffect(() => {
     const ideaIds = ideas.map((idea) => idea.id);
     setInitialData(ideaIds);
-  }, [ideas, setInitialData]); 
+  }, [ideas, setInitialData]);
 
   return (
     <>
@@ -271,7 +286,7 @@ const IssuePage = () => {
                     content={idea.content}
                     author={idea.author}
                     categoryId={idea.categoryId}
-                    position={null} 
+                    position={null}
                     isSelected={idea.isSelected}
                     isVotePhase={isVoteActive}
                     agreeCount={idea.agreeCount}

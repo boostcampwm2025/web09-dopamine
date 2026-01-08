@@ -4,6 +4,7 @@ import type { IdeaWithPosition, Position } from '../types/idea';
 
 interface IdeaStore {
   ideas: IdeaWithPosition[];
+  hasEditingIdea: boolean;
   addIdea: (idea: IdeaWithPosition) => void;
   updateIdeaContent: (id: string, content: string) => void;
   updateIdeaPosition: (id: string, position: Position) => void;
@@ -18,10 +19,12 @@ const createIdeaStore = (issueId: string) => {
     persist(
       (set) => ({
         ideas: [],
+        hasEditingIdea: false,
 
         addIdea: (idea: IdeaWithPosition) =>
           set((state) => ({
             ideas: [...state.ideas, idea],
+            hasEditingIdea: true,
           })),
 
         updateIdeaContent: (id: string, content: string) =>
@@ -29,6 +32,7 @@ const createIdeaStore = (issueId: string) => {
             ideas: state.ideas.map((idea) =>
               idea.id === id ? { ...idea, content, editable: false } : idea,
             ),
+            hasEditingIdea: false,
           })),
 
         updateIdeaPosition: (id: string, position: Position) =>
