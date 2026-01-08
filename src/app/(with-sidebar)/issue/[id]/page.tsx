@@ -267,10 +267,6 @@ const IssuePage = () => {
     setInitialCardData(ideaIds);
   }, [ideas, setInitialData]);
 
-  useEffect(() => {
-    if (isAIStructuring) handleAIStructure();
-  }, [isAIStructuring, handleAIStructure]);
-
   return (
     <>
       <DndContext
