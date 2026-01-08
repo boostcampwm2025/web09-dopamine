@@ -9,7 +9,7 @@ interface IssueStore {
   isAIStructuring: boolean;
   actions: {
     setInitialData: (data: { id: string; status: IssueStatus }) => void;
-    nextStep: () => void;
+    nextStep: () => Promise<void>;
     closeIssue: () => void;
     startVote: () => void;
     endVote: () => void;
@@ -26,12 +26,26 @@ export const useIssueStore = create<IssueStore>((set) => ({
 
   actions: {
     setInitialData: (data) => set(() => ({ id: data.id, status: data.status })),
-    nextStep: () =>
-      set((state) => {
-        const currentIndex = STEP_FLOW.indexOf(state.status);
-        const nextStatus = STEP_FLOW[currentIndex + 1];
-        return { status: nextStatus };
-      }),
+    nextStep: async () => {
+      const state = useIssueStore.getState();
+      const currentIndex = STEP_FLOW.indexOf(state.status);
+      const nextStatus = STEP_FLOW[currentIndex + 1];
+
+      // 서버에 저장
+      try {
+        const response = await fetch(`/api/issues/${state.id}/status`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: nextStatus }),
+        });
+
+        if (!response.ok) throw new Error('Failed to update status');
+
+        set({ status: nextStatus });
+      } catch (error) {
+        console.error('이슈 상태 업데이트 실패', error);
+      }
+    },
     closeIssue: () => set(() => ({ status: ISSUE_STATUS.CLOSE })),
     startVote: () => set({ voteStatus: 'IN_PROGRESS' }),
     endVote: () => set({ voteStatus: 'COMPLETED' }),

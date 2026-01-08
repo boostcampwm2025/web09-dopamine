@@ -150,7 +150,7 @@ const IssuePage = () => {
     };
 
     try {
-      const res = await fetch('/api/categorize', {
+      const res = await fetch(`/api/issues/${issueId}/categorize`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
