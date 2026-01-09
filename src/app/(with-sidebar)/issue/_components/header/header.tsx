@@ -37,7 +37,7 @@ const Header = () => {
 
   const isVisible = useIsNextButtonVisible();
 
-  const { hasEditingIdea } = useIdeaStore();
+  const { hasEditingIdea } = useIdeaStore(issueId);
 
   const openTooltip = useTooltipStore((state) => state.openTooltip);
   const closeTooltip = useTooltipStore((state) => state.closeTooltip);
