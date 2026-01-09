@@ -25,9 +25,8 @@ export const useIdeaHighlight = (issueId: string, initialIdeas: IdeaWithPosition
         const bV = getVoteCounts(b);
         const aDiff = aV.agree - aV.disagree;
         const bDiff = bV.agree - bV.disagree;
-
-        if (aDiff !== bDiff) return bDiff - aDiff;
-        return bV.agree - aV.agree;
+        if (aDiff === bDiff) return bV.agree - aV.agree;
+        return bDiff - aDiff;
       });
     } else if (activeFilter === 'need-discussion') {
       // 찬반 비율 20% 이내 후보군 필터링 후 찬성순 정렬
@@ -47,8 +46,13 @@ export const useIdeaHighlight = (issueId: string, initialIdeas: IdeaWithPosition
 
     const result = sorted.filter((idea, index) => {
       if (index < 3) return true;
-      // 3등과 찬성 수가 같다면 무제한 포함
-      return getVoteCounts(idea).agree === thirdAgree;
+      if (activeFilter === 'need-discussion') {
+        return getVoteCounts(idea).agree === thirdAgree;
+      }
+      const ideaV = getVoteCounts(idea);
+      const ideaDiff = ideaV.agree - ideaV.disagree;
+      const thirdDiff = thirdStandard ? getVoteCounts(thirdStandard).agree - getVoteCounts(thirdStandard).disagree : 0;
+      return (ideaV.agree === thirdAgree) && (ideaDiff > thirdDiff);
     });
 
     return new Set(result.map((i) => i.id));
