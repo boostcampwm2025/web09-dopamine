@@ -23,8 +23,11 @@ export const useIdeaHighlight = (issueId: string, initialIdeas: IdeaWithPosition
       sorted.sort((a, b) => {
         const aV = getVoteCounts(a);
         const bV = getVoteCounts(b);
-        if (bV.agree !== aV.agree) return bV.agree - aV.agree;
-        return bV.total - aV.total;
+        const aDiff = aV.agree - aV.disagree;
+        const bDiff = bV.agree - bV.disagree;
+
+        if (aDiff !== bDiff) return bDiff - aDiff;
+        return bV.agree - aV.agree;
       });
     } else if (activeFilter === 'need-discussion') {
       // 찬반 비율 20% 이내 후보군 필터링 후 찬성순 정렬
