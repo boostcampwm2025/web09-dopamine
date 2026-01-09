@@ -9,6 +9,7 @@ RUN yarn install --frozen-lockfile
 FROM node:20-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
+COPY prisma ./prisma
 COPY . .
 
 ENV NEXT_TELEMETRY_DISABLED=1
@@ -30,6 +31,9 @@ RUN adduser --system --uid 1001 nextjs
 
 # public 폴더 복사
 COPY --from=builder /app/public ./public
+
+# Prisma 관련 파일 복사
+COPY --from=builder /app/prisma ./prisma
 
 # Standalone 빌드 결과물 복사
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
