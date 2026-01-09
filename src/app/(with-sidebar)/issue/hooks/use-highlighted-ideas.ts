@@ -50,6 +50,7 @@ export const useIdeaHighlight = (issueId: string, initialIdeas: IdeaWithPosition
         return getVoteCounts(idea).agree === thirdAgree;
       }
       const ideaV = getVoteCounts(idea);
+      if (ideaV.total===0) return false;
       const ideaDiff = ideaV.agree - ideaV.disagree;
       const thirdDiff = thirdStandard ? getVoteCounts(thirdStandard).agree - getVoteCounts(thirdStandard).disagree : 0;
       return (ideaV.agree === thirdAgree) && (ideaDiff > thirdDiff);
