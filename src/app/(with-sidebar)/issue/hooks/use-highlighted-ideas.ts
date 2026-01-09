@@ -46,11 +46,11 @@ export const useIdeaHighlight = (issueId: string, initialIdeas: IdeaWithPosition
 
     const result = sorted.filter((idea, index) => {
       if (index < 3) return true;
+      const ideaV = getVoteCounts(idea);
+      if (ideaV.total===0) return false;
       if (activeFilter === 'need-discussion') {
         return getVoteCounts(idea).agree === thirdAgree;
       }
-      const ideaV = getVoteCounts(idea);
-      if (ideaV.total===0) return false;
       const ideaDiff = ideaV.agree - ideaV.disagree;
       const thirdDiff = thirdStandard ? getVoteCounts(thirdStandard).agree - getVoteCounts(thirdStandard).disagree : 0;
       return (ideaV.agree === thirdAgree) && (ideaDiff > thirdDiff);
