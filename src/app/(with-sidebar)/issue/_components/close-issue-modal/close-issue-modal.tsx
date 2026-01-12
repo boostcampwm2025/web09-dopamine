@@ -6,8 +6,12 @@ import { useModalStore } from '@/components/modal/use-modal-store';
 import * as S from './close-issue-modal.styles';
 import { usePathname, useRouter } from 'next/navigation';
 
-export default function CloseIssueModal() {
-  const { ideas } = useIdeaStore('default');
+interface CloseIssueModalProps {
+  issueId: string;
+}
+
+export default function CloseIssueModal({ issueId }: CloseIssueModalProps) {
+  const { ideas } = useIdeaStore(issueId);
   const { closeModal } = useModalStore();
   const [memo, setMemo] = useState('');
   const router = useRouter();
