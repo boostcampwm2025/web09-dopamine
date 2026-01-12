@@ -8,8 +8,11 @@ datasource db {
 
 // Enums
 enum IssueStatus {
-  OPEN
-  CLOSED
+  BRAINSTORMING
+  CATEGORIZE
+  VOTE
+  SELECT
+  CLOSE
 }
 
 enum VoteType {
@@ -96,7 +99,7 @@ model Issue {
   id        String      @id @default(uuid()) @db.Char(36)
   topicId   String      @map("topic_id") @db.Char(36)
   title     String      @db.VarChar(255)
-  status    IssueStatus @default(OPEN)
+  status    IssueStatus @default(BRAINSTORMING)
   closedAt  DateTime?   @map("closed_at")
   createdAt DateTime    @default(now()) @map("created_at")
   updatedAt DateTime    @updatedAt @map("updated_at")
@@ -177,7 +180,6 @@ model Idea {
   userId     String   @map("user_id") @db.Char(36)
   categoryId String?  @map("category_id") @db.Char(36)
   content    String   @db.Text
-  memo       String?  @db.Text
   positionX  Float?   @map("position_x") @db.Float
   positionY  Float?   @map("position_y") @db.Float
   createdAt  DateTime @default(now()) @map("created_at")
@@ -242,6 +244,7 @@ model Report {
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
   deletedAt      DateTime? @map("deleted_at")
+  memo       String?  @db.Text
 
   // Relations
   issue        Issue       @relation(fields: [issueId], references: [id], onDelete: Cascade)
