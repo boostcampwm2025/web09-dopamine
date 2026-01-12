@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
-import type { Idea } from '@/app/(with-sidebar)/issue/types/idea';
 import { getAllIdeas } from '@/app/(with-sidebar)/issue/services/issue-service';
+import type { Idea } from '@/app/(with-sidebar)/issue/types/idea';
+import { VOTE_TYPE } from '@/constants/issue';
 import * as DS from './dialog.styles';
 import * as S from './normal-list.styles';
 
@@ -62,13 +63,13 @@ export default function NormalList() {
           </S.ItemLeft>
           <S.ItemRight>
             <S.VoteInfoSection>
-              <S.VoteInfo type="agree">
+              <S.VoteInfo type={VOTE_TYPE.AGREE}>
                 <S.VoteLabel>찬성</S.VoteLabel>
-                <S.VoteCount type="agree">{item.agreeCount}</S.VoteCount>
+                <S.VoteCount type={VOTE_TYPE.AGREE}>{item.agreeCount}</S.VoteCount>
               </S.VoteInfo>
-              <S.VoteInfo type="disagree">
+              <S.VoteInfo type={VOTE_TYPE.DISAGREE}>
                 <S.VoteLabel>반대</S.VoteLabel>
-                <S.VoteCount type="disagree">{item.disagreeCount}</S.VoteCount>
+                <S.VoteCount type={VOTE_TYPE.DISAGREE}>{item.disagreeCount}</S.VoteCount>
               </S.VoteInfo>
             </S.VoteInfoSection>
           </S.ItemRight>
