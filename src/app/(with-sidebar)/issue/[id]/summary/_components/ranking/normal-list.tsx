@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import type { Idea } from '@/app/(with-sidebar)/issue/types/idea';
-import { getAllIdeas } from '../../../services/issue-service';
+import { getAllIdeas } from '@/app/(with-sidebar)/issue/services/issue-service';
 import * as DS from './dialog.styles';
 import * as S from './normal-list.styles';
 
