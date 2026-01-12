@@ -56,7 +56,7 @@ const Header = () => {
     if (!hasOpenedModal.current && !isOpen) {
       openModal({
         title: '이슈 종료',
-        content: <CloseIssueModal />,
+        content: <CloseIssueModal issueId={issueId} />,
         closeOnOverlayClick: false,
         hasCloseButton: false,
       });

@@ -3,9 +3,9 @@
 import Image from 'next/image';
 import type React from 'react';
 import { useEffect, useMemo, useState } from 'react';
-import { getCategorizedIdeas } from '../../../services/issue-service';
-import type { Category } from '../../../types/category';
-import type { Idea } from '../../../types/idea';
+import { getCategorizedIdeas } from '@/app/(with-sidebar)/issue/services/issue-service';
+import type { Category } from '@/app/(with-sidebar)/issue/types/category';
+import type { Idea } from '@/app/(with-sidebar)/issue/types/idea';
 import * as S from './categorized-list.styles';
 import * as DS from './dialog.styles';
 
