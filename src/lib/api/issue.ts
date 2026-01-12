@@ -2,6 +2,26 @@
  * 이슈 관련 API 함수들
  */
 
+export async function createQuickIssue(userId: string, title: string, nickname: string) {
+  try {
+    const response = await fetch('api/issues', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        userId,
+        title,
+        nickname,
+      }),
+    });
+    if (response.ok) {
+      const data = await response.json();
+      return data.issueId;
+    }
+  } catch (error) {
+    console.error('빠른 이슈 생성 실패');
+  }
+}
+
 /**
  * 이슈의 현재 상태를 가져옵니다.
  */
