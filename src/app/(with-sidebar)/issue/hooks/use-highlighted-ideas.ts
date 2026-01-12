@@ -53,7 +53,7 @@ export const useIdeaHighlight = (issueId: string, initialIdeas: IdeaWithPosition
       }
       const ideaDiff = ideaV.agree - ideaV.disagree;
       const thirdDiff = thirdStandard ? getVoteCounts(thirdStandard).agree - getVoteCounts(thirdStandard).disagree : 0;
-      return (ideaV.agree === thirdAgree) && (ideaDiff > thirdDiff);
+      return (ideaV.agree === thirdAgree) && (ideaDiff >= thirdDiff);
     });
 
     return new Set(result.map((i) => i.id));
