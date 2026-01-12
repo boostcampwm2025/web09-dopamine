@@ -9,5 +9,6 @@ export const redisKeys = {
   categoryIdeas: (categoryId: string) => `category:${categoryId}:ideas`,
   voteCount: (issueId: string, ideaId: string) => `vote:${issueId}:${ideaId}`,
   ideaVoteUsers: (ideaId: string) => `idea:${ideaId}:votes:users`,
+  userVote: (ideaId: string, userId: string) => `vote:${ideaId}:user:${userId}`,
   comment: (commentId: string) => `comment:${commentId}`,
 };
