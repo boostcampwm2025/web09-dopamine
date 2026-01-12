@@ -1,6 +1,7 @@
 import redis from '@/lib/redis';
 import { prisma } from '@/lib/prisma';
 import { redisKeys } from '@/lib/redis-keys';
+import { VoteType } from '@prisma/client';
 
 type IssueStatus = 'BRAINSTORMING' | 'CATEGORIZE' | 'VOTE' | 'SELECT' | 'CLOSE';
 
@@ -9,22 +10,23 @@ type IssueData = {
     status: IssueStatus;
 }
 
-// 이슈 이관
-async function transferIssue(
-  issueId: string,
-  tx: Parameters<Parameters<typeof prisma.$transaction>[0]>[0],
-) {
-  const issueData = await redis.hgetall(redisKeys.issue(issueId)) as IssueData;
+interface Props {
+  issueId: string;
+  tx: Parameters<Parameters<typeof prisma.$transaction>[0]>[0];
+}
 
+// 이슈 이관
+async function transferIssue({issueId, tx}: Props) {
+  // Redis에서 Issue 데이터 조회
+  const issueData = await redis.hgetall(redisKeys.issue(issueId)) as IssueData;
+  // Red(MySql)에서 기존 이슈 조회
   const existingIssue = await tx.issue.findUnique({
     where: { id: issueId },
   });
 
-  if (!existingIssue) {
-    throw new Error('MySQL에 이슈가 존재하지 않습니다.');
-  }
-
-  // Redis 정보로 업데이트
+  if (!existingIssue) throw new Error('MySQL에 이슈가 존재하지 않습니다.');
+  
+  // Redis 정보로 업데이트(Redis가 MySql보다 항상 최신 상태임)
   await tx.issue.update({
     where: { id: issueId },
     data: {
@@ -35,14 +37,10 @@ async function transferIssue(
 }
 
 // 카테고리 이관
-async function transferCategories(
-  issueId: string,
-  tx: Parameters<Parameters<typeof prisma.$transaction>[0]>[0],
-) {
+async function transferCategories({issueId, tx}: Props) {
   const categoryIds = await redis.smembers(redisKeys.issueCategories(issueId));
 
   for (const categoryId of categoryIds) {
-
     const categoryData = await redis.hgetall(redisKeys.category(categoryId));
     const existingCategory = await tx.category.findUnique({
       where: { id: categoryId },
@@ -74,15 +72,11 @@ async function transferCategories(
 }
 
 // 아이디어 이관
-async function transferIdeas(
-  issueId: string,
-  tx: Parameters<Parameters<typeof prisma.$transaction>[0]>[0],
-) {
+async function transferIdeas({issueId, tx}: Props) {
   const ideaIds = await redis.smembers(redisKeys.issueIdeas(issueId));
 
   for (const ideaId of ideaIds) {
     const ideaData = await redis.hgetall(redisKeys.idea(ideaId));
-
     const existingIdea = await tx.idea.findUnique({
       where: { id: ideaId },
     });
@@ -112,6 +106,89 @@ async function transferIdeas(
   }
 }
 
+// 댓글 이관
+async function transferComments({issueId, tx}: Props) {
+  const ideaIds = await redis.smembers(redisKeys.issueIdeas(issueId));
+
+  for (const ideaId of ideaIds) {
+    const commentIds = await redis.lrange(redisKeys.ideaComments(ideaId), 0, -1);
+
+    for (const commentId of commentIds) {
+      const commentData = await redis.hgetall(redisKeys.comment(commentId));
+
+      // 빈 내용 제외
+      if (!commentData.content) continue;
+
+      const existingComment = await tx.comment.findUnique({
+        where: { id: commentId },
+      });
+
+      const commentPayload = {
+        ideaId,
+        userId: commentData.user_id || commentData.userId,
+        content: commentData.content,
+      };
+
+      if (!existingComment) {
+        await tx.comment.create({
+          data: {
+            id: commentId,
+            ...commentPayload,
+          },
+        });
+      } else {
+        await tx.comment.update({
+          where: { id: commentId },
+          data: commentPayload,
+        });
+      }
+    }
+  }
+}
+
+// 투표 이관
+async function transferVotes({issueId, tx}: Props) {
+  const ideaIds = await redis.smembers(redisKeys.issueIdeas(issueId));
+
+  for (const ideaId of ideaIds) {
+    // 투표한 사용자 목록 조회
+    const userIds = await redis.smembers(redisKeys.ideaVoteUsers(ideaId));
+
+    for (const userId of userIds) {
+      // 개별 사용자의 투표 정보 조회
+      const voteData = await redis.hgetall(redisKeys.userVote(ideaId, userId));
+
+      // 투표 데이터가 없으면 스킵
+      if (!voteData.type) continue;
+
+      const existingVote = await tx.vote.findFirst({
+        where: {
+          ideaId,
+          userId,
+          deletedAt: null,
+        },
+      });
+
+      const votePayload = {
+        ideaId,
+        userId,
+        type: (voteData.type === 'UP' ? VoteType.UP : VoteType.DOWN) as VoteType,
+      };
+
+      if (!existingVote) {
+        await tx.vote.create({
+          data: votePayload,
+        });
+      } else {
+        await tx.vote.update({
+          where: { id: existingVote.id },
+          data: { type: votePayload.type },
+        });
+      }
+    }
+  }
+}
+
 // redis에서 mysql로 이슈 데이터 이관
 export async function transferIssueData(issueId: string) {
   // Redis에 이슈가 존재하는지 확인
@@ -122,11 +199,10 @@ export async function transferIssueData(issueId: string) {
 
   // 트랜잭션으로 모든 데이터 이관
   await prisma.$transaction(async (tx) => {
-    await transferIssue(issueId, tx);
-    await transferCategories(issueId, tx);
-    await transferIdeas(issueId, tx);
-
-    // TODO: 댓글 이관
-    // TODO: 투표 이관
+    await transferIssue({issueId, tx});
+    await transferCategories({issueId, tx});
+    await transferIdeas({issueId, tx});
+    await transferComments({issueId, tx});
+    await transferVotes({issueId, tx});
   });
 }
