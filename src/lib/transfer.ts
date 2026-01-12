@@ -113,11 +113,27 @@ async function transferComments({issueId, tx}: Props) {
   for (const ideaId of ideaIds) {
     const commentIds = await redis.lrange(redisKeys.ideaComments(ideaId), 0, -1);
 
-    for (const commentId of commentIds) {
-      const commentData = await redis.hgetall(redisKeys.comment(commentId));
+    if (commentIds.length === 0) continue;
+
+    // Pipeline으로 모든 댓글 데이터를 한 번에 조회
+    const pipeline = redis.pipeline();
+    commentIds.forEach(commentId => {
+      pipeline.hgetall(redisKeys.comment(commentId));
+    });
+    const results = await pipeline.exec();
+
+    if(!results) continue;
+
+    // 결과 처리
+    for (let i = 0; i < commentIds.length; i++) {
+      const [err, commentData] = results[i];
+      if (err) continue;
+      
+      const commentId = commentIds[i];
+      const comment = commentData as Record<string, string>;
 
       // 빈 내용 제외
-      if (!commentData.content) continue;
+      if (!comment.content) continue;
 
       const existingComment = await tx.comment.findUnique({
         where: { id: commentId },
@@ -125,8 +141,8 @@ async function transferComments({issueId, tx}: Props) {
 
       const commentPayload = {
         ideaId,
-        userId: commentData.user_id || commentData.userId,
-        content: commentData.content,
+        userId: comment.user_id || comment.userId,
+        content: comment.content,
       };
 
       if (!existingComment) {
@@ -154,12 +170,27 @@ async function transferVotes({issueId, tx}: Props) {
     // 투표한 사용자 목록 조회
     const userIds = await redis.smembers(redisKeys.ideaVoteUsers(ideaId));
 
-    for (const userId of userIds) {
-      // 개별 사용자의 투표 정보 조회
-      const voteData = await redis.hgetall(redisKeys.userVote(ideaId, userId));
+    if (userIds.length === 0) continue;
+
+    // Pipeline으로 모든 투표 데이터를 한 번에 조회
+    const pipeline = redis.pipeline();
+    userIds.forEach(userId => {
+      pipeline.hgetall(redisKeys.userVote(ideaId, userId));
+    });
+    const results = await pipeline.exec();
+
+    if(!results) continue;
+
+    // 결과 처리
+    for (let i = 0; i < userIds.length; i++) {
+      const [err, voteData] = results[i];
+      if (err) continue;
+      
+      const userId = userIds[i];
+      const vote = voteData as Record<string, string>;
 
       // 투표 데이터가 없으면 스킵
-      if (!voteData.type) continue;
+      if (!vote.type) continue;
 
       const existingVote = await tx.vote.findFirst({
         where: {
@@ -172,7 +203,7 @@ async function transferVotes({issueId, tx}: Props) {
       const votePayload = {
         ideaId,
         userId,
-        type: (voteData.type === 'UP' ? VoteType.UP : VoteType.DOWN) as VoteType,
+        type: (vote.type === 'UP' ? VoteType.UP : VoteType.DOWN) as VoteType,
       };
 
       if (!existingVote) {
