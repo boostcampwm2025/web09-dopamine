@@ -95,11 +95,8 @@ const IssuePage = () => {
             return (
               <CategoryCard
                 key={category.id}
-                id={category.id}
+                {...category}
                 issueId={issueId}
-                title={category.title}
-                position={category.position}
-                isMuted={category.isMuted}
                 onPositionChange={handleCategoryPositionChange}
                 checkCollision={checkCategoryOverlap}
                 onRemove={() => handleDeleteCategory(category.id)}
@@ -108,19 +105,11 @@ const IssuePage = () => {
                 {categoryIdeas.map((idea) => (
                   <IdeaCard
                     key={idea.id}
-                    id={idea.id}
+                    {...idea}
                     issueId={issueId}
-                    content={idea.content}
-                    author={idea.author}
-                    categoryId={idea.categoryId}
                     position={null}
-                    isSelected={idea.isSelected}
                     isHighlighted={highlightedIds.has(idea.id)}
                     isVotePhase={isVoteActive}
-                    agreeCount={idea.agreeCount}
-                    disagreeCount={idea.disagreeCount}
-                    needDiscussion={idea.needDiscussion}
-                    editable={idea.editable}
                     onVoteChange={(agreeCount, disagreeCount) =>
                       handleVoteChange(idea.id, agreeCount, disagreeCount)
                     }
@@ -139,19 +128,10 @@ const IssuePage = () => {
             .map((idea) => (
               <IdeaCard
                 key={idea.id}
-                id={idea.id}
+                {...idea}
                 issueId={issueId}
-                content={idea.content}
-                author={idea.author}
-                categoryId={idea.categoryId}
-                position={idea.position}
-                isSelected={idea.isSelected}
                 isHighlighted={highlightedIds.has(idea.id)}
                 isVotePhase={isVoteActive}
-                agreeCount={idea.agreeCount}
-                disagreeCount={idea.disagreeCount}
-                needDiscussion={idea.needDiscussion}
-                editable={idea.editable}
                 onPositionChange={handleIdeaPositionChange}
                 onVoteChange={(agreeCount, disagreeCount) =>
                   handleVoteChange(idea.id, agreeCount, disagreeCount)
@@ -177,19 +157,12 @@ const IssuePage = () => {
                     }}
                   >
                     <IdeaCard
-                      id={activeIdea.id}
+                      {...activeIdea}
                       issueId={issueId}
                       content={overlayEditValue ?? activeIdea.content}
-                      author={activeIdea.author}
-                      categoryId={activeIdea.categoryId}
                       position={null}
-                      isSelected={activeIdea.isSelected}
                       isHighlighted={highlightedIds.has(activeIdea.id)}
                       isVotePhase={isVoteActive}
-                      agreeCount={activeIdea.agreeCount}
-                      disagreeCount={activeIdea.disagreeCount}
-                      needDiscussion={activeIdea.needDiscussion}
-                      editable={activeIdea.editable}
                     />
                   </div>
                 );
