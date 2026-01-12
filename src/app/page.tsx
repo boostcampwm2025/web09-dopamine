@@ -1,11 +1,10 @@
 'use client';
 
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
 import styled from '@emotion/styled';
-import toast from 'react-hot-toast';
 import Background from '@/components/background/background';
-import { createQuickIssue } from '@/lib/api/issue';
+import CreateIssueModal from '@/components/modal/issue-create-modal/issue-create-modal';
+import { useModalStore } from '@/components/modal/use-modal-store';
 
 const BaseFlex = styled.div`
   display: flex;
@@ -102,17 +101,15 @@ const SOCIAL_ICONS = [
 ];
 
 export default function HomePage() {
-  const router = useRouter();
+  const { openModal } = useModalStore();
 
-  const handleQuickStart = async () => {
-    const issueId = await createQuickIssue('1', '저녁 메뉴 회의', '용가리');
-
-    if (issueId) {
-      router.push(`/issue/${issueId}`);
-    } else {
-      toast.error('이슈 생성이 실패했습니다.');
-      console.error('이슈 생성에 실패했습니다.');
-    }
+  const modalOpen = () => {
+    openModal({
+      title: '이슈 생성',
+      content: <CreateIssueModal />,
+      closeOnOverlayClick: true,
+      hasCloseButton: true,
+    });
   };
 
   return (
@@ -152,7 +149,7 @@ export default function HomePage() {
           <Text>길을 안내합니다.</Text>
         </SubTitleContainer>
         <BtnContainer>
-          <StartButton onClick={handleQuickStart}>빠르게 시작하기</StartButton>
+          <StartButton onClick={modalOpen}>빠르게 시작하기</StartButton>
         </BtnContainer>
         <HorizontalLine />
         <SocialLoginContainer>
