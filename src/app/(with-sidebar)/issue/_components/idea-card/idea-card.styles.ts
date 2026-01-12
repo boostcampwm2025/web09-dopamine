@@ -1,8 +1,9 @@
 import styled from '@emotion/styled';
 import { theme } from '@/styles/theme';
+import { CardStatus } from '../../types/idea';
 
 export const Card = styled.article<{
-  status?: 'needDiscussion' | 'selected' | 'default';
+  status?: CardStatus;
   isDragging?: boolean;
   inCategory?: boolean;
   isHighlighted?: boolean;
@@ -189,7 +190,7 @@ export const Footer = styled.div`
 export const VoteButton = styled.button<{
   kind: 'agree' | 'disagree';
   active?: boolean;
-  cardStatus?: 'needDiscussion' | 'selected' | 'default';
+  cardStatus?: CardStatus;
 }>`
   flex: 1;
   padding: 14px 18px;

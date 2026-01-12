@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTooltipStore } from '@/components/tooltip/use-tooltip-store';
+import { CardStatus } from '../types/idea';
 
 interface UseIdeaCardProps {
   content?: string;
@@ -28,7 +29,7 @@ export default function useIdeaCard(props: UseIdeaCardProps) {
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const [status, setStatus] = useState<'needDiscussion' | 'selected' | 'default'>('default');
+  const [status, setStatus] = useState<CardStatus>('default');
 
   // 투표 관련 로컬 상태
   // `userVote`: 사용자가 현재 어떤 투표를 선택했는지('agree' | 'disagree' | null)

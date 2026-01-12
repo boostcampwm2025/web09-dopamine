@@ -27,3 +27,5 @@ export interface IdeaWithPosition {
   needDiscussion?: boolean;
   editable?: boolean;
 }
+
+export type CardStatus = 'needDiscussion' | 'selected' | 'default';
