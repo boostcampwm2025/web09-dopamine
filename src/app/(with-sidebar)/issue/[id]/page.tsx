@@ -62,6 +62,10 @@ const IssuePage = () => {
 
   // 하이라이트된 아이디어
   const { activeFilter, setFilter, highlightedIds } = useIdeaHighlight(issueId, ideas);
+  const getIdeaStatus = (ideaId: string) => {
+    if (!highlightedIds.has(ideaId)) return 'default';
+    return 'highlighted';
+  };
 
   return (
     <>
@@ -99,7 +103,7 @@ const IssuePage = () => {
                     {...idea}
                     issueId={issueId}
                     position={null}
-                    isHighlighted={highlightedIds.has(idea.id)}
+                    status={getIdeaStatus(idea.id)}
                     isVotePhase={isVoteActive}
                     onVoteChange={(agreeCount, disagreeCount) =>
                       handleVoteChange(idea.id, agreeCount, disagreeCount)
@@ -121,7 +125,7 @@ const IssuePage = () => {
                 key={idea.id}
                 {...idea}
                 issueId={issueId}
-                isHighlighted={highlightedIds.has(idea.id)}
+                status={getIdeaStatus(idea.id)}
                 isVotePhase={isVoteActive}
                 onPositionChange={handleIdeaPositionChange}
                 onVoteChange={(agreeCount, disagreeCount) =>
@@ -152,7 +156,7 @@ const IssuePage = () => {
                       issueId={issueId}
                       content={overlayEditValue ?? activeIdea.content}
                       position={null}
-                      isHighlighted={highlightedIds.has(activeIdea.id)}
+                      status={getIdeaStatus(activeIdea.id)}
                       isVotePhase={isVoteActive}
                     />
                   </div>
