@@ -45,3 +45,17 @@ export function getVoteCounts(idea: IdeaWithPosition) {
     const diff = Math.abs(agree - disagree);
     return { agree, disagree, total, diff };
 }
+
+export async function fetchIssueStatus(issueId: string) {
+  try {
+    const response = await fetch(`/api/issues/${issueId}/status`);
+    if (response.ok) {
+      const data = await response.json();
+      return data.status;
+    }
+    return null;
+  } catch (error) {
+    console.error('이슈 상태 가져오기 실패:', error);
+    return null;
+  }
+}
