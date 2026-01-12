@@ -24,12 +24,6 @@ export const STATUS_LABEL = {
   [ISSUE_STATUS.CLOSE]: '종료',
 };
 
-export const BUTTON_TEXT_MAP: Record<VoteStatus, string> = {
-  READY: '투표 시작',
-  IN_PROGRESS: '투표 종료',
-  COMPLETED: '재투표 시작',
-};
-
 export const ISSUE_STATUS_DESCRIPTION: Record<IssueStatus, string> = {
   BRAINSTORMING: '배경을 더블클릭하여 새로운 아이디어를 자유롭게 작성해보세요.',
   CATEGORIZE: 'AI 카테고리화 버튼을 눌러 아이디어를 간편하게 구조화해보세요.',

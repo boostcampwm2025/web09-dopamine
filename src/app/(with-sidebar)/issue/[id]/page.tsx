@@ -28,7 +28,7 @@ const IssuePage = () => {
   const { setCategories } = useCategoryStore(issueId);
 
   // 1. 이슈 데이터 초기화
-  const { voteStatus, isAIStructuring, isCreateIdeaActive, isVoteActive } = useIssueData(issueId);
+  const { isAIStructuring, isCreateIdeaActive, isVoteActive } = useIssueData(issueId);
 
   // 2. 아이디어 관련 작업
   const {
