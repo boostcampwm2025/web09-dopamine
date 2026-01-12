@@ -6,10 +6,10 @@ const CACHE_TTL = 3600; // 1시간
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ issueId: string }> },
+  { params }: { params: Promise<{ id: string }> },
 ): Promise<NextResponse> {
-  const { issueId } = await params;
-  const cacheKey = `issue:${issueId}:ideas`;
+  const { id } = await params;
+  const cacheKey = `issue:${id}:ideas`;
 
   try {
     const cachedData = await redis.get(cacheKey);
@@ -22,7 +22,7 @@ export async function GET(
 
     const ideas = await prisma.idea.findMany({
       where: {
-        issueId,
+        issueId: id,
         deletedAt: null,
       },
       include: {
