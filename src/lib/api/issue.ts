@@ -2,20 +2,19 @@
  * 이슈 관련 API 함수들
  */
 
-export async function createQuickIssue(userId: string, title: string, nickname: string) {
+export async function createQuickIssue(title: string, nickname: string) {
   try {
     const response = await fetch('/api/issues', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        userId,
         title,
         nickname,
       }),
     });
     if (response.ok) {
       const data = await response.json();
-      return data.issueId;
+      return data;
     }
     return null;
   } catch (error) {

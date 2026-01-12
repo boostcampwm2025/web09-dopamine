@@ -3,13 +3,14 @@ import { randomUUID } from 'crypto';
 import redis from '@/lib/redis';
 
 export async function POST(req: NextRequest) {
-  const { userId, title, nickname } = await req.json();
+  const { title, nickname } = await req.json();
 
-  if (!userId || !title) {
-    return NextResponse.json({ message: 'userId와 title은 필수입니다.' }, { status: 400 });
+  if (!nickname || !title) {
+    return NextResponse.json({ message: 'nickname과 title은 필수입니다.' }, { status: 400 });
   }
 
   const issueId = randomUUID();
+  const userId = randomUUID();
   const now = Date.now();
 
   await redis.hset(`issue:${issueId}`, {
@@ -29,5 +30,5 @@ export async function POST(req: NextRequest) {
     joined_at: now,
   });
 
-  return NextResponse.json({ issueId }, { status: 201 });
+  return NextResponse.json({ issueId, userId }, { status: 201 });
 }

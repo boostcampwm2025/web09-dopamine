@@ -4,17 +4,21 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { createQuickIssue } from '@/lib/api/issue';
+import { useModalStore } from '../use-modal-store';
 import * as S from './issue-create-modal.styles';
 
 export default function CreateIssueModal() {
   const [title, setTitle] = useState('');
   const [ownerNickname, setOwnerNickname] = useState('');
   const router = useRouter();
+  const { closeModal } = useModalStore();
 
   const handleQuickStart = async () => {
-    const issueId = await createQuickIssue('1', '저녁 메뉴 회의', '용가리');
+    const { issueId, userId } = await createQuickIssue(title, ownerNickname);
 
     if (issueId) {
+      localStorage.setItem('userId', userId);
+      closeModal();
       router.push(`/issue/${issueId}`);
     } else {
       toast.error('이슈 생성이 실패했습니다.');
@@ -44,7 +48,12 @@ export default function CreateIssueModal() {
       </S.InfoContainer>
 
       <S.Footer>
-        <S.SubmitButton type="button">이슈 생성</S.SubmitButton>
+        <S.SubmitButton
+          type="button"
+          onClick={handleQuickStart}
+        >
+          이슈 생성
+        </S.SubmitButton>
       </S.Footer>
     </S.Container>
   );
