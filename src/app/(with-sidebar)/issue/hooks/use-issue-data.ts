@@ -1,13 +1,13 @@
 import { useEffect } from 'react';
 import { useIssueStore } from '@/app/(with-sidebar)/issue/store/use-issue-store';
-import { fetchIssueStatus } from '@/lib/api/issue';
 import { ISSUE_STATUS } from '@/constants/issue';
+import { fetchIssueStatus } from '@/lib/api/issue';
 
 export function useIssueData(issueId: string) {
   const { status, voteStatus, isAIStructuring } = useIssueStore();
   const { setInitialData } = useIssueStore((state) => state.actions);
 
-  const isCreateIdeaActive = status === 'BRAINSTORMING';
+  const isCreateIdeaActive = status === ISSUE_STATUS.BRAINSTORMING;
   const isVoteActive = voteStatus === 'IN_PROGRESS';
 
   // Redis에서 이슈 상태 가져와서 초기화
