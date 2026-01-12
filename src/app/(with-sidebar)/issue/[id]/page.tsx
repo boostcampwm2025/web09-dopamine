@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { DndContext, DragOverlay } from '@dnd-kit/core';
 import Canvas from '@/app/(with-sidebar)/issue/_components/canvas/canvas';
@@ -16,7 +15,6 @@ import { useAIStructuring } from '@/app/(with-sidebar)/issue/hooks/use-ai-struct
 import { useCanvasStore } from '@/app/(with-sidebar)/issue/store/use-canvas-store';
 import { useCategoryStore } from '@/app/(with-sidebar)/issue/store/use-category-store';
 import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
-import { useIdeaCardStackStore } from '@/app/(with-sidebar)/issue/store/use-idea-card-stack-store';
 import LoadingOverlay from '@/components/loading-overlay/loading-overlay';
 
 const IssuePage = () => {
@@ -26,7 +24,6 @@ const IssuePage = () => {
   const scale = useCanvasStore((state) => state.scale);
   const { setIdeas } = useIdeaStore(issueId);
   const { setCategories } = useCategoryStore(issueId);
-  const { setInitialCardData } = useIdeaCardStackStore(issueId);
 
   // 1. 이슈 데이터 초기화
   const { voteStatus, isAIStructuring, isCreateIdeaActive, isVoteActive } = useIssueData(issueId);
@@ -65,12 +62,6 @@ const IssuePage = () => {
 
   // 하이라이트된 아이디어
   const { activeFilter, setFilter, highlightedIds } = useIdeaHighlight(issueId, ideas);
-
-  // 아이디어 카드 스택 초기화
-  useEffect(() => {
-    const ideaIds = ideas.map((idea) => idea.id);
-    setInitialCardData(ideaIds);
-  }, [ideas, setInitialCardData]);
 
   return (
     <>

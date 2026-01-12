@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
 import { useIdeaCardStackStore } from '@/app/(with-sidebar)/issue/store/use-idea-card-stack-store';
@@ -16,7 +17,12 @@ export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) 
     selectIdea,
   } = useIdeaStore(issueId);
 
-  const { addCard, removeCard } = useIdeaCardStackStore(issueId);
+  const { addCard, removeCard, setInitialCardData } = useIdeaCardStackStore(issueId);
+
+  useEffect(() => {
+    const ideaIds = ideas.map((idea) => idea.id);
+    setInitialCardData(ideaIds);
+  }, [ideas, setInitialCardData]);
 
   const handleCreateIdea = (position: Position) => {
     if (!isCreateIdeaActive) return;
