@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useIssueStore } from '@/app/(with-sidebar)/issue/store/use-issue-store';
-import { fetchIssueStatus } from '@/app/(with-sidebar)/issue/services/issue-service';
+import { fetchIssueStatus } from '@/lib/api/issue';
 import { ISSUE_STATUS } from '@/constants/issue';
 
 export function useIssueData(issueId: string) {

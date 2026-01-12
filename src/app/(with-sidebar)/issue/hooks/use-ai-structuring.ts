@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useIssueStore } from '@/app/(with-sidebar)/issue/store/use-issue-store';
-import { categorizeIdeas } from '@/app/(with-sidebar)/issue/services/issue-service';
+import { categorizeIdeas } from '@/lib/api/issue';
 import type { Category } from '@/app/(with-sidebar)/issue/types/category';
 import type { IdeaWithPosition } from '@/app/(with-sidebar)/issue/types/idea';
 
