@@ -3,6 +3,7 @@ import toast from 'react-hot-toast';
 import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
 import { useIdeaCardStackStore } from '@/app/(with-sidebar)/issue/store/use-idea-card-stack-store';
 import type { IdeaWithPosition, Position } from '@/app/(with-sidebar)/issue/types/idea';
+import { createIdea, deleteIdea as deleteIdeaAPI } from '@/lib/api/idea';
 
 export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) {
   const {
@@ -24,7 +25,7 @@ export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) 
     setInitialCardData(ideaIds);
   }, [ideas, setInitialCardData]);
 
-  const handleCreateIdea = (position: Position) => {
+  const handleCreateIdea = async (position: Position) => {
     if (!isCreateIdeaActive) return;
 
     if (hasEditingIdea) {
@@ -32,8 +33,9 @@ export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) 
       return;
     }
 
+    const tempId = `temp-${Date.now()}`;
     const newIdea: IdeaWithPosition = {
-      id: `idea-${Date.now()}`,
+      id: tempId,
       content: '',
       author: '나',
       categoryId: null,
@@ -46,16 +48,75 @@ export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) 
     addCard(newIdea.id);
   };
 
-  const handleSaveIdea = (id: string, content: string) => {
-    updateIdeaContent(id, content);
+  const handleSaveIdea = async (id: string, content: string) => {
+    if (!id.startsWith('temp-')) {
+      updateIdeaContent(id, content);
+      return;
+    }
+
+    try {
+      // TODO: 실제 userId를 가져와야 함
+      const userId = 'current-user-id';
+      const idea = ideas.find((idea) => idea.id === id);
+
+      const createdIdea = await createIdea(issueId, {
+        content,
+        userId,
+        positionX: idea?.position?.x,
+        positionY: idea?.position?.y,
+        categoryId: idea?.categoryId || undefined,
+      });
+
+      // 임시 ID를 실제 ID로 교체
+      const updatedIdeas = ideas.map((idea) => {
+        if (idea.id !== id) return idea;
+        return {
+          ...idea,
+          id: createdIdea.id,
+          content: createdIdea.content,
+          editable: false,
+        };
+      });
+      setIdeas(updatedIdeas);
+
+      removeCard(id);
+      addCard(createdIdea.id);
+
+      toast.success('아이디어가 저장되었습니다.');
+    } catch (error) {
+      console.error('아이디어 저장 실패:', error);
+      toast.error('아이디어 저장에 실패했습니다.');
+      deleteIdea(id);
+      removeCard(id);
+    }
   };
 
-  const handleDeleteIdea = (id: string) => {
+  const handleDeleteIdea = async (id: string) => {
     if (hasEditingIdea) {
       resetEditingIdea();
     }
+
+    if (id.startsWith('temp-')) {
+      deleteIdea(id);
+      removeCard(id);
+      return;
+    }
+
+    const ideaToDelete = ideas.find((idea) => idea.id === id);
+    if (!ideaToDelete) return;
+
     deleteIdea(id);
     removeCard(id);
+
+    try {
+      await deleteIdeaAPI(issueId, id);
+      toast.success('아이디어가 삭제되었습니다.');
+    } catch (error) {
+      console.error('아이디어 삭제 실패:', error);
+      toast.error('아이디어 삭제에 실패했습니다.');
+      setIdeas([...ideas, ideaToDelete]);
+      addCard(id);
+    }
   };
 
   const handleSelectIdea = (id: string) => {
