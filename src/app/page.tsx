@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import styled from '@emotion/styled';
+import toast from 'react-hot-toast';
 import Background from '@/components/background/background';
 import { createQuickIssue } from '@/lib/api/issue';
 
@@ -104,9 +105,14 @@ export default function HomePage() {
   const router = useRouter();
 
   const handleQuickStart = async () => {
-    const issueId = await createQuickIssue('1', '서비스 홍보 방안', '용가리');
+    const issueId = await createQuickIssue('1', '저녁 메뉴 회의', '용가리');
 
-    router.push(`/issue/${issueId}`);
+    if (issueId) {
+      router.push(`/issue/${issueId}`);
+    } else {
+      toast.error('이슈 생성이 실패했습니다.');
+      console.error('이슈 생성에 실패했습니다.');
+    }
   };
 
   return (

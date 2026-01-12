@@ -4,7 +4,7 @@
 
 export async function createQuickIssue(userId: string, title: string, nickname: string) {
   try {
-    const response = await fetch('api/issues', {
+    const response = await fetch('/api/issues', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -17,20 +17,22 @@ export async function createQuickIssue(userId: string, title: string, nickname: 
       const data = await response.json();
       return data.issueId;
     }
+    return null;
   } catch (error) {
-    console.error('빠른 이슈 생성 실패');
+    console.error('빠른 이슈 생성 실패:', error);
+    return null;
   }
 }
 
 /**
  * 이슈의 현재 상태를 가져옵니다.
  */
-export async function fetchIssueStatus(issueId: string) {
+export async function getIssue(issueId: string) {
   try {
-    const response = await fetch(`/api/issues/${issueId}/status`);
+    const response = await fetch(`/api/issues/${issueId}`);
     if (response.ok) {
       const data = await response.json();
-      return data.status;
+      return data;
     }
     return null;
   } catch (error) {
