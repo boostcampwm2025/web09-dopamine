@@ -28,7 +28,7 @@ const IssuePage = () => {
   const { setCategories } = useCategoryStore(issueId);
 
   // 1. 이슈 데이터 초기화
-  const { isAIStructuring, isCreateIdeaActive, isVoteActive } = useIssueData(issueId);
+  const { isAIStructuring, isCreateIdeaActive, isVoteActive, isVoteEnded } = useIssueData(issueId);
 
   // 2. 아이디어 관련 작업
   const {
@@ -103,6 +103,7 @@ const IssuePage = () => {
                     position={null}
                     isHighlighted={highlightedIds.has(idea.id)}
                     isVotePhase={isVoteActive}
+                    isVoteEnded={isVoteEnded}
                     onVoteChange={(agreeCount, disagreeCount) =>
                       handleVoteChange(idea.id, agreeCount, disagreeCount)
                     }
@@ -125,6 +126,7 @@ const IssuePage = () => {
                 issueId={issueId}
                 isHighlighted={highlightedIds.has(idea.id)}
                 isVotePhase={isVoteActive}
+                isVoteEnded={isVoteEnded}
                 onPositionChange={handleIdeaPositionChange}
                 onVoteChange={(agreeCount, disagreeCount) =>
                   handleVoteChange(idea.id, agreeCount, disagreeCount)
@@ -156,6 +158,7 @@ const IssuePage = () => {
                       position={null}
                       isHighlighted={highlightedIds.has(activeIdea.id)}
                       isVotePhase={isVoteActive}
+                      isVoteEnded={isVoteEnded}
                     />
                   </div>
                 );

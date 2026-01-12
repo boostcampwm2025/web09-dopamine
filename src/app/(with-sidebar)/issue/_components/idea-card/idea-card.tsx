@@ -5,10 +5,10 @@ import Image from 'next/image';
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import useIdeaCard from '@/app/(with-sidebar)/issue/hooks/use-idea-card';
+import { ISSUE_STATUS } from '@/constants/issue';
 import { useIdeaCardStackStore } from '../../store/use-idea-card-stack-store';
 import { useIdeaStore } from '../../store/use-idea-store';
 import { useIssueStore } from '../../store/use-issue-store';
-import { ISSUE_STATUS } from '@/constants/issue';
 import type { Position } from '../../types/idea';
 import * as S from './idea-card.styles';
 
@@ -21,6 +21,7 @@ interface IdeaCardProps {
   isSelected?: boolean;
   isHighlighted?: boolean;
   isVotePhase?: boolean;
+  isVoteEnded?: boolean;
   agreeCount?: number;
   disagreeCount?: number;
   needDiscussion?: boolean;
@@ -40,6 +41,7 @@ export type DragItemPayload = {
   author?: string;
   isSelected?: boolean;
   isVotePhase?: boolean;
+  isVoteEnded?: boolean;
   agreeCount?: number;
   disagreeCount?: number;
   needDiscussion?: boolean;
@@ -235,6 +237,7 @@ export default function IdeaCard(props: IdeaCardProps) {
             cardStatus={status}
             active={userVote === 'agree'}
             onClick={handleAgree}
+            disabled={props.isVoteEnded}
           >
             찬성 {agreeCountState}
           </S.VoteButton>
@@ -243,6 +246,7 @@ export default function IdeaCard(props: IdeaCardProps) {
             cardStatus={status}
             active={userVote === 'disagree'}
             onClick={handleDisagree}
+            disabled={props.isVoteEnded}
           >
             반대 {disagreeCountState}
           </S.VoteButton>

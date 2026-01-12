@@ -231,4 +231,8 @@ export const VoteButton = styled.button<{
       return `background: ${theme.colors.red[200]}; color: ${theme.colors.red[600]};`;
     }}
   }
+
+  &:disabled {
+    pointer-events: none;
+  }
 `;

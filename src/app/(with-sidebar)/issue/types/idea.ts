@@ -21,6 +21,7 @@ export interface IdeaWithPosition {
   position: Position | null;
   isSelected?: boolean;
   isVotePhase?: boolean;
+  isVoteEnded?: boolean;
   agreeCount?: number;
   disagreeCount?: number;
   needDiscussion?: boolean;

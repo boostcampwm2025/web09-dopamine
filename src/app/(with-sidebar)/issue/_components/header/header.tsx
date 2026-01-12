@@ -27,7 +27,6 @@ const Header = () => {
   const issueState = useIssueStore(
     useShallow((state) => ({
       status: state.status,
-      voteStatus: state.voteStatus,
     })),
   );
 

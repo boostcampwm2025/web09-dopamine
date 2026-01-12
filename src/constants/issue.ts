@@ -1,4 +1,4 @@
-import { IssueStatus, VoteStatus } from '@/types/issue';
+import { IssueStatus } from '@/types/issue';
 
 export const ISSUE_STATUS = {
   BRAINSTORMING: 'BRAINSTORMING',
