@@ -1,44 +1,31 @@
 'use client';
 
 import type React from 'react';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import Image from 'next/image';
-import { getCategorizedIdeas } from '@/app/(with-sidebar)/issue/services/issue-service';
-import type { Category } from '@/app/(with-sidebar)/issue/types/category';
-import type { Idea } from '@/app/(with-sidebar)/issue/types/idea';
 import { VOTE_TYPE } from '@/constants/issue';
+import type { CategoryRanking } from '@/types/report';
 import * as S from './categorized-list.styles';
 import * as DS from './dialog.styles';
 
-type CategorizedCard = {
-  category: Category;
-  ideas: Idea[];
+type CategorizedListProps = {
+  categorizedRankings: CategoryRanking[];
 };
 
-export default function CategorizedList() {
-  const [categorizedCards, setCategorizedCards] = useState<CategorizedCard[]>([]);
+export default function CategorizedList({ categorizedRankings }: CategorizedListProps) {
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
   const [dialogContent, setDialogContent] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchIssues = async () => {
-      const { categorizedCards: fetchedCards } = await getCategorizedIdeas();
-      setCategorizedCards(fetchedCards);
-    };
-
-    fetchIssues();
-  }, []);
-
   const columns = useMemo(
     () =>
-      categorizedCards.reduce<[CategorizedCard[], CategorizedCard[]]>(
+      categorizedRankings.reduce<[CategoryRanking[], CategoryRanking[]]>(
         (acc, card, index) => {
           acc[index % 2].push(card);
           return acc;
         },
         [[], []],
       ),
-    [categorizedCards],
+    [categorizedRankings],
   );
 
   const toggleCategory = (categoryId: string) => {
@@ -81,20 +68,20 @@ export default function CategorizedList() {
     <S.Container>
       {columns.map((colCards, colIndex) => (
         <S.ContainerCol key={`col-${colIndex}`}>
-          {colCards.map(({ category, ideas }) => {
-            const isExpanded = expandedCategories[category.id] ?? false;
+          {colCards.map(({ categoryId, categoryTitle, ideas }) => {
+            const isExpanded = expandedCategories[categoryId] ?? false;
             const visibleIdeas = isExpanded ? ideas : ideas.slice(0, 3);
             const hasMore = ideas.length > 3;
 
             return (
               <S.Card
-                key={category.id}
-                id={category.id}
-                title={category.title}
+                key={categoryId}
+                id={categoryId}
+                title={categoryTitle}
               >
                 <S.Header>
                   <S.HeaderLeft>
-                    <S.Title>{category.title}</S.Title>
+                    <S.Title>{categoryTitle}</S.Title>
                   </S.HeaderLeft>
                 </S.Header>
                 {visibleIdeas.map((item, ideaIndex) => (
@@ -115,11 +102,13 @@ export default function CategorizedList() {
                     <S.VoteInfoSection>
                       <S.VoteInfo type={VOTE_TYPE.AGREE}>
                         <S.VoteLabel>찬성</S.VoteLabel>
-                        <S.VoteCount type={VOTE_TYPE.AGREE}>{item.agreeCount}</S.VoteCount>
+                        <S.VoteCount type={VOTE_TYPE.AGREE}>{item.agreeVoteCount}</S.VoteCount>
                       </S.VoteInfo>
                       <S.VoteInfo type={VOTE_TYPE.DISAGREE}>
                         <S.VoteLabel>반대</S.VoteLabel>
-                        <S.VoteCount type={VOTE_TYPE.DISAGREE}>{item.disagreeCount}</S.VoteCount>
+                        <S.VoteCount type={VOTE_TYPE.DISAGREE}>
+                          {item.disagreeVoteCount}
+                        </S.VoteCount>
                       </S.VoteInfo>
                     </S.VoteInfoSection>
                   </S.ItemWrapper>
@@ -128,7 +117,7 @@ export default function CategorizedList() {
                   <S.Footer>
                     <S.MoreButton
                       type="button"
-                      data-id={category.id}
+                      data-id={categoryId}
                       onClick={handleToggleCategory}
                     >
                       {isExpanded ? '접기' : '더보기'}

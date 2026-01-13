@@ -2,13 +2,19 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
+import type { CategoryRanking, RankedIdeaDto } from '@/types/report';
 import CategorizedListClient from './categorized-list';
 import * as S from './ranking-list.styles';
 import * as PS from '../../page.styles';
 
 import NormalList from './normal-list';
 
-export default function RankingList() {
+type RankingListProps = {
+  normalRankings: RankedIdeaDto[];
+  categorizedRankings: CategoryRanking[];
+};
+
+export default function RankingList({ normalRankings, categorizedRankings }: RankingListProps) {
   const [isCategorized, setIsCategorized] = useState(false);
 
   return (
@@ -34,9 +40,9 @@ export default function RankingList() {
       </S.Header>
       <PS.ComponentBox>
       {isCategorized ? (
-        <CategorizedListClient />
+        <CategorizedListClient categorizedRankings={categorizedRankings} />
       ) : (
-        <NormalList />
+        <NormalList normalRankings={normalRankings} />
       )}
       </PS.ComponentBox>
     </S.Card>
