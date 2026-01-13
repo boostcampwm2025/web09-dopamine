@@ -71,37 +71,47 @@ export function useCategoryOperations(issueId: string, ideas: IdeaWithPosition[]
       const draggingSize = categorySizesRef.current.get(draggingCategoryId);
       if (!draggingSize) return false;
 
-      const rect1 = {
-        left: newPosition.x,
-        right: newPosition.x + draggingSize.width,
-        top: newPosition.y,
-        bottom: newPosition.y + draggingSize.height,
-      };
-
-      for (const category of categories) {
-        if (category.id === draggingCategoryId) continue;
-
-        const categorySize = categorySizesRef.current.get(category.id);
-        if (!categorySize) continue;
-
-        const rect2 = {
-          left: category.position.x,
-          right: category.position.x + categorySize.width,
-          top: category.position.y,
-          bottom: category.position.y + categorySize.height,
+      const isOverlapping = (position: Position) => {
+        const rect1 = {
+          left: position.x,
+          right: position.x + draggingSize.width,
+          top: position.y,
+          bottom: position.y + draggingSize.height,
         };
 
-        const isOverlapping = !(
-          rect1.right < rect2.left ||
-          rect1.left > rect2.right ||
-          rect1.bottom < rect2.top ||
-          rect1.top > rect2.bottom
-        );
+        for (const category of categories) {
+          if (category.id === draggingCategoryId) continue;
 
-        if (isOverlapping) return true;
+          const categorySize = categorySizesRef.current.get(category.id);
+          if (!categorySize) continue;
+
+          const rect2 = {
+            left: category.position.x,
+            right: category.position.x + categorySize.width,
+            top: category.position.y,
+            bottom: category.position.y + categorySize.height,
+          };
+
+          const isOverlapping = !(
+            rect1.right < rect2.left ||
+            rect1.left > rect2.right ||
+            rect1.bottom < rect2.top ||
+            rect1.top > rect2.bottom
+          );
+
+          if (isOverlapping) return true;
+        }
+
+        return false;
+      };
+
+      const currentPosition = categories.find((category) => category.id === draggingCategoryId)
+        ?.position;
+      if (currentPosition && isOverlapping(currentPosition)) {
+        return false;
       }
 
-      return false;
+      return isOverlapping(newPosition);
     },
     [categories],
   );
