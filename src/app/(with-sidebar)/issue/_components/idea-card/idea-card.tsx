@@ -19,13 +19,12 @@ interface IdeaCardProps {
   author?: string;
   position?: Position | null;
   isSelected?: boolean;
-  isHighlighted?: boolean;
   isVotePhase?: boolean;
   isVoteEnded?: boolean;
   agreeCount?: number;
   disagreeCount?: number;
-  needDiscussion?: boolean;
   editable?: boolean;
+  status?: 'needDiscussion' | 'selected' | 'highlighted' | 'default';
   onVoteChange?: (agreeCount: number, disagreeCount: number) => void;
   categoryId?: string | null;
   onSave?: (content: string) => void;
@@ -74,7 +73,7 @@ export default function IdeaCard(props: IdeaCardProps) {
     agreeCount: props.agreeCount,
     disagreeCount: props.disagreeCount,
     isSelected: props.isSelected,
-    needDiscussion: props.needDiscussion,
+    status: props.status,
     editable: !!props.editable,
     onSave: props.onSave,
   });
@@ -167,7 +166,6 @@ export default function IdeaCard(props: IdeaCardProps) {
       inCategory={inCategory}
       onClick={handleCardClick}
       onPointerDown={handlePointerDown}
-      isHighlighted={props.isHighlighted}
       {...attributes}
       {...(inCategory
         ? {}

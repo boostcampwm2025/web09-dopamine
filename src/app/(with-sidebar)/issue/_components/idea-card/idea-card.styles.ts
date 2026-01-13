@@ -7,7 +7,6 @@ export const Card = styled.article<{
   status?: CardStatus;
   isDragging?: boolean;
   inCategory?: boolean;
-  isHighlighted?: boolean;
 }>`
   position: relative;
   border-radius: ${theme.radius.medium};
@@ -15,7 +14,7 @@ export const Card = styled.article<{
   box-shadow: 0 4px 10px rgba(31, 41, 55, 0.06);
   ${({ status }) => {
     switch (status) {
-      case 'needDiscussion':
+      case 'highlighted':
         return `
         border: 2px solid ${theme.colors.red[600]};
         background: ${theme.colors.white};
@@ -36,13 +35,6 @@ export const Card = styled.article<{
         `;
     }
   }}
-  ${({ isHighlighted }) =>
-    isHighlighted
-      ? `
-        outline: 3px solid rgba(17, 24, 39, 0.35);
-        outline-offset: 2px;
-      `
-      : ''}
   min-width: 30em;
   max-width: 30em;
 

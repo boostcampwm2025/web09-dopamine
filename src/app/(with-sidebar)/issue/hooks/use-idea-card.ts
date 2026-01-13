@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+﻿import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTooltipStore } from '@/components/tooltip/use-tooltip-store';
 import { CardStatus } from '../types/idea';
 import { VOTE_TYPE } from '@/constants/issue';
@@ -8,7 +8,7 @@ interface UseIdeaCardProps {
   agreeCount?: number;
   disagreeCount?: number;
   isSelected?: boolean;
-  needDiscussion?: boolean;
+  status?: 'needDiscussion' | 'highlighted' | 'selected' | 'default';
   editable?: boolean;
   onSave?: (content: string) => void;
   onClick?: () => void;
@@ -20,7 +20,7 @@ export default function useIdeaCard(props: UseIdeaCardProps) {
     agreeCount = 0,
     disagreeCount = 0,
     isSelected = false,
-    needDiscussion = false,
+    status: statusOverride = 'default',
     editable = false,
     onSave,
   } = props;
@@ -62,18 +62,14 @@ export default function useIdeaCard(props: UseIdeaCardProps) {
     setDisplayContent(content);
   }, [content]);
 
-  // isSelected / needDiscussion 플래그에 따라 status를 설정합니다.
+  // isSelected / highlighted 플래그에 따라 status를 설정합니다.
   useEffect(() => {
     if (isSelected) {
       setStatus('selected');
       return;
     }
-    if (needDiscussion) {
-      setStatus('needDiscussion');
-      return;
-    }
-    setStatus('default');
-  }, [isSelected, needDiscussion]);
+    setStatus(statusOverride);
+  }, [isSelected, statusOverride]);
 
   // 찬성 버튼 처리
   // - 이미 찬성 상태면 취소(카운트 감소)
@@ -168,3 +164,13 @@ export default function useIdeaCard(props: UseIdeaCardProps) {
     handleKeyDownEdit,
   };
 }
+export type IdeaStatus = 'default' | 'highlighted';
+
+export const useIdeaStatus = (highlightedIds: Set<string>) => {
+  return useCallback(
+    (ideaId: string): IdeaStatus =>
+      highlightedIds.has(ideaId) ? 'highlighted' : 'default',
+    [highlightedIds],
+  );
+};
+

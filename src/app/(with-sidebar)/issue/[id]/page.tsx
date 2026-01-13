@@ -11,6 +11,7 @@ import { useCategoryOperations } from '@/app/(with-sidebar)/issue/hooks/use-cate
 import { useDragAndDrop } from '@/app/(with-sidebar)/issue/hooks/use-drag-and-drop';
 import { useIdeaHighlight } from '@/app/(with-sidebar)/issue/hooks/use-highlighted-ideas';
 import { useIdeaOperations } from '@/app/(with-sidebar)/issue/hooks/use-idea-operations';
+import { useIdeaStatus } from '@/app/(with-sidebar)/issue/hooks/use-idea-card';
 import { useIssueData } from '@/app/(with-sidebar)/issue/hooks/use-issue-data';
 import { useCanvasStore } from '@/app/(with-sidebar)/issue/store/use-canvas-store';
 import { useCategoryStore } from '@/app/(with-sidebar)/issue/store/use-category-store';
@@ -64,6 +65,7 @@ const IssuePage = () => {
 
   // 하이라이트된 아이디어
   const { activeFilter, setFilter, highlightedIds } = useIdeaHighlight(issueId, ideas);
+  const getIdeaStatus = useIdeaStatus(highlightedIds);
 
   return (
     <>
@@ -101,7 +103,7 @@ const IssuePage = () => {
                     {...idea}
                     issueId={issueId}
                     position={null}
-                    isHighlighted={highlightedIds.has(idea.id)}
+                    status={getIdeaStatus(idea.id)}
                     isVotePhase={isVoteActive}
                     isVoteEnded={isVoteEnded}
                     onVoteChange={(agreeCount, disagreeCount) =>
@@ -124,7 +126,7 @@ const IssuePage = () => {
                 key={idea.id}
                 {...idea}
                 issueId={issueId}
-                isHighlighted={highlightedIds.has(idea.id)}
+                status={getIdeaStatus(idea.id)}
                 isVotePhase={isVoteActive}
                 isVoteEnded={isVoteEnded}
                 onPositionChange={handleIdeaPositionChange}
@@ -156,7 +158,7 @@ const IssuePage = () => {
                       issueId={issueId}
                       content={overlayEditValue ?? activeIdea.content}
                       position={null}
-                      isHighlighted={highlightedIds.has(activeIdea.id)}
+                      status={getIdeaStatus(activeIdea.id)}
                       isVotePhase={isVoteActive}
                       isVoteEnded={isVoteEnded}
                     />
