@@ -1,9 +1,8 @@
 import { useEffect } from 'react';
 import { useIssueStore } from '@/app/(with-sidebar)/issue/store/use-issue-store';
 import { ISSUE_STATUS } from '@/constants/issue';
-import { fetchIssueStatus, getIssue } from '@/lib/api/issue';
+import { getIssue } from '@/lib/api/issue';
 import { IssueStatus } from '@/types/issue';
-
 
 export function useIssueData(issueId: string) {
   const { status, isAIStructuring } = useIssueStore();
