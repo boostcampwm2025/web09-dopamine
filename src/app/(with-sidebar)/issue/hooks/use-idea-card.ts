@@ -1,12 +1,12 @@
 ﻿import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTooltipStore } from '@/components/tooltip/use-tooltip-store';
 import { CardStatus } from '../types/idea';
-import { VOTE_TYPE } from '@/constants/issue';
+import { useVoteMutation } from './use-vote-mutation';
 
 interface UseIdeaCardProps {
+  id?: string;
+  userId?: string;
   content?: string;
-  agreeCount?: number;
-  disagreeCount?: number;
   isSelected?: boolean;
   status?: 'needDiscussion' | 'highlighted' | 'selected' | 'default';
   editable?: boolean;
@@ -16,9 +16,9 @@ interface UseIdeaCardProps {
 
 export default function useIdeaCard(props: UseIdeaCardProps) {
   const {
+    id = '',
+    userId = '',
     content = '',
-    agreeCount = 0,
-    disagreeCount = 0,
     isSelected = false,
     status: statusOverride = 'default',
     editable = false,
@@ -32,21 +32,7 @@ export default function useIdeaCard(props: UseIdeaCardProps) {
 
   const [status, setStatus] = useState<CardStatus>('default');
 
-  // 투표 관련 로컬 상태
-  // `userVote`: 사용자가 현재 어떤 투표를 선택했는지(VOTE_TYPE.AGREE | VOTE_TYPE.DISAGREE | null)
-  // agreeCountState / disagreeCountState: 로컬에서 보여줄 카운트 (낙관적 업데이트)
-  const [userVote, setUserVote] = useState<
-    typeof VOTE_TYPE.AGREE | typeof VOTE_TYPE.DISAGREE | null
-  >(null);
-  const [agreeCountState, setAgreeCountState] = useState<number>(agreeCount);
-  const [disagreeCountState, setDisagreeCountState] = useState<number>(disagreeCount);
-  useEffect(() => {
-    setAgreeCountState(agreeCount);
-  }, [agreeCount]);
-
-  useEffect(() => {
-    setDisagreeCountState(disagreeCount);
-  }, [disagreeCount]);
+  const { mutate } = useVoteMutation(id);
 
   // 편집 관련 로컬 상태
   // isEditing: 현재 편집 모드인지
@@ -71,54 +57,13 @@ export default function useIdeaCard(props: UseIdeaCardProps) {
     setStatus(statusOverride);
   }, [isSelected, statusOverride]);
 
-  // 찬성 버튼 처리
-  // - 이미 찬성 상태면 취소(카운트 감소)
-  // - 반대에서 찬성으로 바뀌면 반대 카운트는 감소
-  // 낙관적 업데이트로 UI에 즉시 반영합니다.
-  const handleAgree = useCallback(
-    (e: React.MouseEvent) => {
-      e.stopPropagation(); // 카드 클릭 이벤트 버블링 방지
+  const handleAgree = () => {
+    mutate({ userId, voteType: 'AGREE' });
+  };
 
-      if (userVote === VOTE_TYPE.AGREE) {
-        // 찬성 취소
-        setAgreeCountState((c) => Math.max(0, c - 1));
-        setUserVote(null);
-      } else if (userVote === VOTE_TYPE.DISAGREE) {
-        // 반대 -> 찬성
-        setAgreeCountState((c) => c + 1);
-        setDisagreeCountState((c) => Math.max(0, c - 1));
-        setUserVote(VOTE_TYPE.AGREE);
-      } else {
-        // 미투표 -> 찬성
-        setAgreeCountState((c) => c + 1);
-        setUserVote(VOTE_TYPE.AGREE);
-      }
-    },
-    [userVote],
-  );
-
-  // 반대 버튼 처리 (찬성 처리와 대칭)
-  const handleDisagree = useCallback(
-    (e: React.MouseEvent) => {
-      e.stopPropagation(); // 카드 클릭 이벤트 버블링 방지
-
-      if (userVote === VOTE_TYPE.DISAGREE) {
-        // 반대 취소
-        setDisagreeCountState((c) => Math.max(0, c - 1));
-        setUserVote(null);
-      } else if (userVote === VOTE_TYPE.AGREE) {
-        // 찬성 -> 반대
-        setDisagreeCountState((c) => c + 1);
-        setAgreeCountState((c) => Math.max(0, c - 1));
-        setUserVote(VOTE_TYPE.DISAGREE);
-      } else {
-        // 미투표 -> 반대
-        setDisagreeCountState((c) => c + 1);
-        setUserVote(VOTE_TYPE.DISAGREE);
-      }
-    },
-    [userVote],
-  );
+  const handleDisagree = () => {
+    mutate({ userId, voteType: 'DISAGREE' });
+  };
 
   // 편집 내용을 제출합니다. 비어있으면 무시.
   // onSave 콜백이 제공되면 변경된 값을 전달해 외부 동기화를 할 수 있습니다.
@@ -151,9 +96,6 @@ export default function useIdeaCard(props: UseIdeaCardProps) {
   return {
     textareaRef,
     status,
-    userVote,
-    agreeCountState,
-    disagreeCountState,
     isEditing,
     editValue,
     displayContent,
@@ -168,9 +110,7 @@ export type IdeaStatus = 'default' | 'highlighted';
 
 export const useIdeaStatus = (highlightedIds: Set<string>) => {
   return useCallback(
-    (ideaId: string): IdeaStatus =>
-      highlightedIds.has(ideaId) ? 'highlighted' : 'default',
+    (ideaId: string): IdeaStatus => (highlightedIds.has(ideaId) ? 'highlighted' : 'default'),
     [highlightedIds],
   );
 };
-

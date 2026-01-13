@@ -6,6 +6,7 @@ import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import useIdeaCard from '@/app/(with-sidebar)/issue/hooks/use-idea-card';
 import { ISSUE_STATUS, VOTE_TYPE } from '@/constants/issue';
+import { useIdeaQuery } from '../../hooks/use-idea-query';
 import { useIdeaCardStackStore } from '../../store/use-idea-card-stack-store';
 import { useIdeaStore } from '../../store/use-idea-store';
 import { useIssueStore } from '../../store/use-issue-store';
@@ -13,7 +14,8 @@ import type { Position } from '../../types/idea';
 import * as S from './idea-card.styles';
 
 interface IdeaCardProps {
-  id?: string;
+  id: string;
+  userId: string;
   issueId?: string;
   content?: string;
   author?: string;
@@ -57,9 +59,6 @@ export default function IdeaCard(props: IdeaCardProps) {
   const {
     textareaRef,
     status,
-    userVote,
-    agreeCountState,
-    disagreeCountState,
     isEditing,
     editValue,
     displayContent,
@@ -69,14 +68,16 @@ export default function IdeaCard(props: IdeaCardProps) {
     submitEdit,
     handleKeyDownEdit,
   } = useIdeaCard({
+    id: props.id,
+    userId: props.userId,
     content: props.content,
-    agreeCount: props.agreeCount,
-    disagreeCount: props.disagreeCount,
     isSelected: props.isSelected,
     status: props.status,
     editable: !!props.editable,
     onSave: props.onSave,
   });
+
+  const { data: idea } = useIdeaQuery(props.id, props.userId);
 
   // 드래그 로직
   const inCategory = !!props.categoryId;
@@ -108,10 +109,6 @@ export default function IdeaCard(props: IdeaCardProps) {
       return () => clearTimeout(timer);
     }
   }, [isDragging]);
-
-  useEffect(() => {
-    props.onVoteChange?.(agreeCountState, disagreeCountState);
-  }, [agreeCountState, disagreeCountState, props.onVoteChange]);
 
   // 스타일 계산
   // 자유 배치 모드(categoryId === null)면 absolute positioning
@@ -233,20 +230,20 @@ export default function IdeaCard(props: IdeaCardProps) {
           <S.VoteButton
             kind={VOTE_TYPE.AGREE}
             cardStatus={status}
-            active={userVote === VOTE_TYPE.AGREE}
+            active={idea?.myVote === VOTE_TYPE.AGREE}
             onClick={handleAgree}
             disabled={props.isVoteEnded}
           >
-            찬성 {agreeCountState}
+            찬성 {idea?.agreeCount}
           </S.VoteButton>
           <S.VoteButton
             kind={VOTE_TYPE.DISAGREE}
             cardStatus={status}
-            active={userVote === VOTE_TYPE.DISAGREE}
+            active={idea?.myVote === VOTE_TYPE.DISAGREE}
             onClick={handleDisagree}
             disabled={props.isVoteEnded}
           >
-            반대 {disagreeCountState}
+            반대 {idea?.disagreeCount}
           </S.VoteButton>
         </S.Footer>
       )}
