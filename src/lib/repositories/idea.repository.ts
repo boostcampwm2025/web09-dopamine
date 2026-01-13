@@ -80,4 +80,36 @@ export const ideaRepository = {
       data: { deletedAt: new Date() },
     });
   },
+
+  async update(ideaId: string, data: {
+    positionX?: number;
+    positionY?: number;
+    categoryId?: string;
+  }) {
+    const { positionX, positionY, categoryId } = data;
+    return prisma.idea.update({
+      where: { id: ideaId },
+      data: {
+        positionX,
+        positionY,
+        categoryId,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            displayName: true,
+            avatarUrl: true,
+          },
+        },
+        category: {
+          select: {
+            id: true,
+            title: true,
+          },
+        },
+      },
+    });
+  }
 };
