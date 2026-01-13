@@ -26,6 +26,7 @@ export async function createReport(
     data: {
       issueId,
       selectedIdeaId: selectedIdeaId,
+      memo: memo,
     },
   });
 }
