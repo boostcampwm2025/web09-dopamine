@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import toast from 'react-hot-toast';
-import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
 import { useIdeaCardStackStore } from '@/app/(with-sidebar)/issue/store/use-idea-card-stack-store';
+import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
 import type { IdeaWithPosition, Position } from '@/app/(with-sidebar)/issue/types/idea';
 
 export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) {
@@ -40,6 +40,7 @@ export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) 
       position,
       editable: true,
       isVotePhase: false,
+      isVoteEnded: false,
     };
 
     addIdea(newIdea);
@@ -75,9 +76,7 @@ export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) 
     ) {
       return;
     }
-    setIdeas(
-      ideas.map((idea) => (idea.id === id ? { ...idea, agreeCount, disagreeCount } : idea)),
-    );
+    setIdeas(ideas.map((idea) => (idea.id === id ? { ...idea, agreeCount, disagreeCount } : idea)));
   };
 
   const handleMoveIdeaToCategory = (ideaId: string, targetCategoryId: string | null) => {

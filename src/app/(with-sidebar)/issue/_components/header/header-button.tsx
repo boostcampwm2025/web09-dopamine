@@ -4,14 +4,13 @@ import { MouseEventHandler } from 'react';
 import Image from 'next/image';
 import * as S from './header-button.styles';
 
-type Variant = 'default' | 'dark';
-
 interface HeaderButtonProps {
   text?: string;
   imageSrc?: string;
   imageSize?: number;
   alt?: string;
-  variant?: Variant;
+  color?: S.SolidColor;
+  variant?: S.Variant;
   onClick?: () => void;
   onMouseEnter?: MouseEventHandler<HTMLButtonElement>;
   onMouseLeave?: MouseEventHandler<HTMLButtonElement>;
@@ -22,7 +21,8 @@ const HeaderButton = ({
   imageSrc,
   imageSize = 14,
   alt = '',
-  variant = 'default',
+  color = 'white',
+  variant = 'solid',
   onClick,
   onMouseEnter,
   onMouseLeave,
@@ -30,6 +30,7 @@ const HeaderButton = ({
   return (
     <S.ButtonContainer
       variant={variant}
+      color={color}
       onClick={onClick}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}

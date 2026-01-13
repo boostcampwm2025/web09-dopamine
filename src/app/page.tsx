@@ -1,9 +1,10 @@
 'use client';
 
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
 import styled from '@emotion/styled';
 import Background from '@/components/background/background';
+import CreateIssueModal from '@/components/modal/issue-create-modal/issue-create-modal';
+import { useModalStore } from '@/components/modal/use-modal-store';
 
 const BaseFlex = styled.div`
   display: flex;
@@ -100,7 +101,16 @@ const SOCIAL_ICONS = [
 ];
 
 export default function HomePage() {
-  const router = useRouter();
+  const { openModal } = useModalStore();
+
+  const modalOpen = () => {
+    openModal({
+      title: '이슈 생성',
+      content: <CreateIssueModal />,
+      closeOnOverlayClick: true,
+      hasCloseButton: true,
+    });
+  };
 
   return (
     <>
@@ -139,7 +149,7 @@ export default function HomePage() {
           <Text>길을 안내합니다.</Text>
         </SubTitleContainer>
         <BtnContainer>
-          <StartButton onClick={() => router.push('/issue')}>빠르게 시작하기</StartButton>
+          <StartButton onClick={modalOpen}>빠르게 시작하기</StartButton>
         </BtnContainer>
         <HorizontalLine />
         <SocialLoginContainer>

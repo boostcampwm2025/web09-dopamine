@@ -6,27 +6,29 @@ import Canvas from '@/app/(with-sidebar)/issue/_components/canvas/canvas';
 import CategoryCard from '@/app/(with-sidebar)/issue/_components/category/category-card';
 import FilterPanel from '@/app/(with-sidebar)/issue/_components/filter-panel/filter-panel';
 import IdeaCard from '@/app/(with-sidebar)/issue/_components/idea-card/idea-card';
-import { useIdeaHighlight } from '@/app/(with-sidebar)/issue/hooks/use-highlighted-ideas';
-import { useIssueData } from '@/app/(with-sidebar)/issue/hooks/use-issue-data';
-import { useIdeaOperations } from '@/app/(with-sidebar)/issue/hooks/use-idea-operations';
+import { useAIStructuring } from '@/app/(with-sidebar)/issue/hooks/use-ai-structuring';
 import { useCategoryOperations } from '@/app/(with-sidebar)/issue/hooks/use-category-operations';
 import { useDragAndDrop } from '@/app/(with-sidebar)/issue/hooks/use-drag-and-drop';
-import { useAIStructuring } from '@/app/(with-sidebar)/issue/hooks/use-ai-structuring';
+import { useIdeaHighlight } from '@/app/(with-sidebar)/issue/hooks/use-highlighted-ideas';
+import { useIdeaOperations } from '@/app/(with-sidebar)/issue/hooks/use-idea-operations';
+import { useIssueData } from '@/app/(with-sidebar)/issue/hooks/use-issue-data';
 import { useCanvasStore } from '@/app/(with-sidebar)/issue/store/use-canvas-store';
 import { useCategoryStore } from '@/app/(with-sidebar)/issue/store/use-category-store';
 import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
 import LoadingOverlay from '@/components/loading-overlay/loading-overlay';
+import { useIssueStore } from '../store/use-issue-store';
 
 const IssuePage = () => {
   const params = useParams<{ id: string }>();
   const issueId = params.id;
 
   const scale = useCanvasStore((state) => state.scale);
+  const { status } = useIssueStore();
   const { setIdeas } = useIdeaStore(issueId);
   const { setCategories } = useCategoryStore(issueId);
 
   // 1. 이슈 데이터 초기화
-  const { voteStatus, isAIStructuring, isCreateIdeaActive, isVoteActive } = useIssueData(issueId);
+  const { isAIStructuring, isCreateIdeaActive, isVoteActive, isVoteEnded } = useIssueData(issueId);
 
   // 2. 아이디어 관련 작업
   const {
@@ -74,8 +76,8 @@ const IssuePage = () => {
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        {/* 투표 시작 시 필터 UI 적용 */}
-        {voteStatus === 'IN_PROGRESS' && (
+        {/* 채택 단계 시작 시 필터 UI 적용 */}
+        {status === 'SELECT' && (
           <FilterPanel
             value={activeFilter}
             onChange={setFilter}
@@ -105,6 +107,7 @@ const IssuePage = () => {
                     position={null}
                     status={getIdeaStatus(idea.id)}
                     isVotePhase={isVoteActive}
+                    isVoteEnded={isVoteEnded}
                     onVoteChange={(agreeCount, disagreeCount) =>
                       handleVoteChange(idea.id, agreeCount, disagreeCount)
                     }
@@ -127,6 +130,7 @@ const IssuePage = () => {
                 issueId={issueId}
                 status={getIdeaStatus(idea.id)}
                 isVotePhase={isVoteActive}
+                isVoteEnded={isVoteEnded}
                 onPositionChange={handleIdeaPositionChange}
                 onVoteChange={(agreeCount, disagreeCount) =>
                   handleVoteChange(idea.id, agreeCount, disagreeCount)
@@ -158,6 +162,7 @@ const IssuePage = () => {
                       position={null}
                       status={getIdeaStatus(activeIdea.id)}
                       isVotePhase={isVoteActive}
+                      isVoteEnded={isVoteEnded}
                     />
                   </div>
                 );

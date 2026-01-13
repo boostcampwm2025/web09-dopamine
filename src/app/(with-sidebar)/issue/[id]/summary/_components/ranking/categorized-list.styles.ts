@@ -1,10 +1,11 @@
 import styled from '@emotion/styled';
+import { VOTE_TYPE } from '@/constants/issue';
 import { theme } from '@/styles/theme';
 
 export const Container = styled.div`
   display: flex;
   flex-direction: row;
-  gap: 20px; 
+  gap: 20px;
   position: relative;
   padding: 16px;
 `;
@@ -46,7 +47,7 @@ export const Title = styled.span`
   &::before {
     margin-right: 4px;
     display: inline-block;
-    content: "";
+    content: '';
     width: 8px;
     height: 8px;
     border-radius: ${theme.radius.half};
@@ -94,12 +95,9 @@ export const RankBadge = styled.div<{ highlighted?: boolean }>`
   place-items: center;
   font-weight: 600;
   font-size: ${theme.font.size.small};
-  color: ${({highlighted}) => (
-    highlighted ? theme.colors.yellow[600] : theme.colors.gray[400]
-  )};
-  background: ${({highlighted}) => (
-    highlighted ? theme.colors.yellow[100] : theme.colors.gray[100]
-  )};
+  color: ${({ highlighted }) => (highlighted ? theme.colors.yellow[600] : theme.colors.gray[400])};
+  background: ${({ highlighted }) =>
+    highlighted ? theme.colors.yellow[100] : theme.colors.gray[100]};
 `;
 
 export const VoteInfoSection = styled.span`
@@ -109,8 +107,11 @@ export const VoteInfoSection = styled.span`
   gap: 4px;
 `;
 
-export const VoteInfo = styled.div<{ type?: 'agree' | 'disagree' }>`
-  color: ${({ type }) => (type === 'agree' ? theme.colors.green[600] : theme.colors.red[600])};
+export const VoteInfo = styled.div<{
+  type?: typeof VOTE_TYPE.AGREE | typeof VOTE_TYPE.DISAGREE;
+}>`
+  color: ${({ type }) =>
+    type === VOTE_TYPE.AGREE ? theme.colors.green[600] : theme.colors.red[600]};
   display: flex;
   align-items: center;
   flex-direction: column;
@@ -124,10 +125,13 @@ export const VoteLabel = styled.span`
   line-height: 16px;
 `;
 
-export const VoteCount = styled.span<{ type?: 'agree' | 'disagree' }>`
+export const VoteCount = styled.span<{
+  type?: typeof VOTE_TYPE.AGREE | typeof VOTE_TYPE.DISAGREE;
+}>`
   font-size: ${theme.font.size.small};
   font-weight: 400;
-  color: ${({ type }) => (type === 'agree' ? theme.colors.green[600] : theme.colors.red[600])};
+  color: ${({ type }) =>
+    type === VOTE_TYPE.AGREE ? theme.colors.green[600] : theme.colors.red[600]};
   letter-spacing: 0;
   line-height: 16px;
 `;
@@ -143,7 +147,9 @@ export const MoreButton = styled.button`
   font-size: ${theme.font.size.small};
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
   &:hover {
     background: ${theme.colors.gray[50]};
     color: ${theme.colors.black};
