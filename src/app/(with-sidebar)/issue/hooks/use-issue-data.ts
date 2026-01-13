@@ -19,7 +19,7 @@ export function useIssueData(issueId: string) {
   const isVoteActive = VOTE_LIFECYCLE.includes(status);
   const isVoteEnded = VOTE_FINISHED_STATES.includes(status);
 
-  // Redis에서 이슈 상태 가져와서 초기화
+  // mysql에서 이슈 상태 가져와서 초기화
   useEffect(() => {
     const initializeIssueStatus = async () => {
       const issue = await getIssue(issueId);
@@ -27,6 +27,7 @@ export function useIssueData(issueId: string) {
         setInitialData({
           id: issueId,
           status: issue.status || ISSUE_STATUS.BRAINSTORMING,
+          isQuickIssue: issue.topicId ? true : false,
         });
       }
     };

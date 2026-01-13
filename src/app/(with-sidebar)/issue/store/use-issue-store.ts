@@ -6,8 +6,9 @@ interface IssueStore {
   id: string | null;
   status: IssueStatus;
   isAIStructuring: boolean;
+  isQuickIssue: boolean;
   actions: {
-    setInitialData: (data: { id: string; status: IssueStatus }) => void;
+    setInitialData: (data: { id: string; status: IssueStatus; isQuickIssue: boolean }) => void;
     nextStep: (validate?: () => void) => Promise<void>;
     closeIssue: () => void;
     startAIStructure: () => void;
@@ -19,9 +20,11 @@ export const useIssueStore = create<IssueStore>((set) => ({
   id: null,
   status: ISSUE_STATUS.BRAINSTORMING,
   isAIStructuring: false,
+  isQuickIssue: true,
 
   actions: {
-    setInitialData: (data) => set(() => ({ id: data.id, status: data.status })),
+    setInitialData: (data) =>
+      set(() => ({ id: data.id, status: data.status, isQuickIssue: data.isQuickIssue })),
 
     nextStep: async (validate?: () => void) => {
       if (validate) {
