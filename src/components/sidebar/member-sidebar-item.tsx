@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import styled from '@emotion/styled';
 import { MEMBER_ROLE } from '@/constants/issue';
 import { theme } from '@/styles/theme';
@@ -6,7 +7,7 @@ import * as S from './sidebar.styles';
 interface MemberSidebarItemProps {
   name: string;
   role: typeof MEMBER_ROLE.OWNER | typeof MEMBER_ROLE.MEMBER;
-  onClick?: () => void;
+  isConnected: boolean;
 }
 
 const MemberItemButton = styled.button<{ hasOnClick?: boolean }>`
@@ -21,7 +22,6 @@ const MemberItemButton = styled.button<{ hasOnClick?: boolean }>`
   color: ${theme.colors.gray[700]};
   border: none;
   text-decoration: none;
-  cursor: ${({ hasOnClick }) => (hasOnClick ? 'pointer' : 'default')};
 
   &:hover,
   &:focus {
@@ -29,25 +29,36 @@ const MemberItemButton = styled.button<{ hasOnClick?: boolean }>`
   }
 `;
 
-export default function MemberSidebarItem({ name, role, onClick }: MemberSidebarItemProps) {
+const NameContainer = styled.div`
+  display: flex;
+  gap: 4px;
+  align-items: center;
+`;
+
+const StatusLabel = styled.div<{ isConnected: boolean }>`
+  background-color: ${({ isConnected }) =>
+    isConnected ? theme.colors.green[600] : theme.colors.gray[400]};
+  border-radius: ${theme.radius.full};
+  width: 8px;
+  height: 8px;
+`;
+
+export default function MemberSidebarItem({ name, role, isConnected }: MemberSidebarItemProps) {
   return (
     <S.SidebarListItem>
-      <MemberItemButton
-        onClick={onClick}
-        hasOnClick={!!onClick}
-      >
-        <span>{name}</span>
-        {role === MEMBER_ROLE.OWNER && (
-          <S.StatusLabel
-            status="SELECT"
-            style={{
-              fontSize: '10px',
-              padding: '2px 6px',
-            }}
-          >
-            OWNER
-          </S.StatusLabel>
-        )}
+      <MemberItemButton>
+        <NameContainer>
+          {role === MEMBER_ROLE.OWNER && (
+            <Image
+              src="/yellow-crown.svg"
+              alt="owner"
+              width={18}
+              height={18}
+            />
+          )}
+          <span>{name}</span>
+        </NameContainer>
+        <StatusLabel isConnected={isConnected} />
       </MemberItemButton>
     </S.SidebarListItem>
   );

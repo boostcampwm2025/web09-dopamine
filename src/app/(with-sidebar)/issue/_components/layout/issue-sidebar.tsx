@@ -16,10 +16,10 @@ const ISSUE_LIST = [
 ] as const;
 
 const USER_LIST = [
-  { name: '배고픈 용가리', role: MEMBER_ROLE.OWNER },
-  { name: '생각하는 무지', role: MEMBER_ROLE.MEMBER },
-  { name: '낮잠자는 코끼리', role: MEMBER_ROLE.MEMBER },
-  { name: '간식먹는 도마뱀', role: MEMBER_ROLE.MEMBER },
+  { name: '배고픈 용가리', role: MEMBER_ROLE.OWNER, isConnected: true },
+  { name: '생각하는 무지', role: MEMBER_ROLE.MEMBER, isConnected: false },
+  { name: '낮잠자는 코끼리', role: MEMBER_ROLE.MEMBER, isConnected: false },
+  { name: '간식먹는 도마뱀', role: MEMBER_ROLE.MEMBER, isConnected: true },
 ] as const;
 
 export default function IssueSidebar() {
@@ -30,7 +30,7 @@ export default function IssueSidebar() {
       {isQuickIssue && <IssueGraphLink />}
       <div>
         <S.SidebarTitle>
-          ISSUE LIST
+          <span>ISSUE LIST</span>
           <NewIssueButton />
         </S.SidebarTitle>
         <S.SidebarList>
@@ -52,6 +52,7 @@ export default function IssueSidebar() {
               key={user.name}
               name={user.name}
               role={user.role}
+              isConnected={user.isConnected}
             />
           ))}
         </S.SidebarList>
