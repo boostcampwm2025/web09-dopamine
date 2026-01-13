@@ -19,8 +19,8 @@ interface IdeaCardProps {
   author?: string;
   position?: Position | null;
   isSelected?: boolean;
-  isVotePhase?: boolean;
-  isVoteEnded?: boolean;
+  isVoteButtonVisible?: boolean;
+  isVoteDisabled?: boolean;
   agreeCount?: number;
   disagreeCount?: number;
   editable?: boolean;
@@ -39,8 +39,8 @@ export type DragItemPayload = {
   content?: string;
   author?: string;
   isSelected?: boolean;
-  isVotePhase?: boolean;
-  isVoteEnded?: boolean;
+  isVoteButtonVisible?: boolean;
+  isVoteDisabled?: boolean;
   agreeCount?: number;
   disagreeCount?: number;
   needDiscussion?: boolean;
@@ -203,7 +203,7 @@ export default function IdeaCard(props: IdeaCardProps) {
         )}
         <S.Meta>
           <S.AuthorPill>{props.author}</S.AuthorPill>
-          {props.isVotePhase ? (
+          {props.isVoteButtonVisible ? (
             <S.IconButton aria-label="comment">
               <Image
                 src="/comment.svg"
@@ -228,14 +228,14 @@ export default function IdeaCard(props: IdeaCardProps) {
           />
         </S.DeleteButton>
       </S.Header>
-      {props.isVotePhase && (
+      {props.isVoteButtonVisible && (
         <S.Footer>
           <S.VoteButton
             kind={VOTE_TYPE.AGREE}
             cardStatus={status}
             active={userVote === VOTE_TYPE.AGREE}
             onClick={handleAgree}
-            disabled={props.isVoteEnded}
+            disabled={props.isVoteDisabled}
           >
             찬성 {agreeCountState}
           </S.VoteButton>
@@ -244,7 +244,7 @@ export default function IdeaCard(props: IdeaCardProps) {
             cardStatus={status}
             active={userVote === VOTE_TYPE.DISAGREE}
             onClick={handleDisagree}
-            disabled={props.isVoteEnded}
+            disabled={props.isVoteDisabled}
           >
             반대 {disagreeCountState}
           </S.VoteButton>

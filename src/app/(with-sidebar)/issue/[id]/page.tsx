@@ -29,7 +29,8 @@ const IssuePage = () => {
   const { setCategories } = useCategoryStore(issueId);
 
   // 1. 이슈 데이터 초기화
-  const { isAIStructuring, isCreateIdeaActive, isVoteActive, isVoteEnded } = useIssueData(issueId);
+  const { isAIStructuring, isCreateIdeaActive, isVoteButtonVisible, isVoteDisabled } =
+    useIssueData(issueId);
 
   // 2. 아이디어 관련 작업
   const {
@@ -104,8 +105,8 @@ const IssuePage = () => {
                     issueId={issueId}
                     position={null}
                     status={getIdeaStatus(idea.id)}
-                    isVotePhase={isVoteActive}
-                    isVoteEnded={isVoteEnded}
+                    isVoteButtonVisible={isVoteButtonVisible}
+                    isVoteDisabled={isVoteDisabled}
                     onVoteChange={(agreeCount, disagreeCount) =>
                       handleVoteChange(idea.id, agreeCount, disagreeCount)
                     }
@@ -127,8 +128,8 @@ const IssuePage = () => {
                 {...idea}
                 issueId={issueId}
                 status={getIdeaStatus(idea.id)}
-                isVotePhase={isVoteActive}
-                isVoteEnded={isVoteEnded}
+                isVoteButtonVisible={isVoteButtonVisible}
+                isVoteDisabled={isVoteDisabled}
                 onPositionChange={handleIdeaPositionChange}
                 onVoteChange={(agreeCount, disagreeCount) =>
                   handleVoteChange(idea.id, agreeCount, disagreeCount)
@@ -159,8 +160,8 @@ const IssuePage = () => {
                       content={overlayEditValue ?? activeIdea.content}
                       position={null}
                       status={getIdeaStatus(activeIdea.id)}
-                      isVotePhase={isVoteActive}
-                      isVoteEnded={isVoteEnded}
+                      isVoteButtonVisible={isVoteButtonVisible}
+                      isVoteDisabled={isVoteDisabled}
                     />
                   </div>
                 );
