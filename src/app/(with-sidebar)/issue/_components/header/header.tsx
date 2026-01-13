@@ -5,7 +5,8 @@ import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { useShallow } from 'zustand/shallow';
-import { useCategoryStore } from '@/app/(with-sidebar)/issue/store/use-category-store';
+import { useCategoryOperations } from '@/app/(with-sidebar)/issue/hooks/use-category-operations';
+import { useCanvasStore } from '@/app/(with-sidebar)/issue/store/use-canvas-store';
 import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
 import {
   useIsNextButtonVisible,
@@ -43,8 +44,9 @@ const Header = () => {
   const { openModal, isOpen } = useModalStore();
   const hasOpenedModal = useRef(false);
 
-  const { categories, addCategory } = useCategoryStore(issueId);
   const { ideas } = useIdeaStore(issueId);
+  const scale = useCanvasStore((state) => state.scale);
+  const { categories, handleAddCategory } = useCategoryOperations(issueId, ideas, scale);
 
   useEffect(() => {
     if (issueState.status !== ISSUE_STATUS.CLOSE) {
@@ -115,22 +117,6 @@ const Header = () => {
     } catch (error) {
       toast((error as Error).message);
     }
-  };
-
-  const handleAddCategory = () => {
-    const maxX = categories.length > 0 ? Math.max(...categories.map((cat) => cat.position.x)) : 0;
-
-    const newCategory: Category = {
-      id: `category-${Date.now()}`,
-      title: '새 카테고리',
-      position: {
-        x: maxX + 300,
-        y: 100,
-      },
-      isMuted: false,
-    };
-
-    addCategory(newCategory);
   };
 
   const renderActionButtons = () => {
