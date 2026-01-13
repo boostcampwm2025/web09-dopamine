@@ -9,7 +9,7 @@ import { ISSUE_STATUS, VOTE_TYPE } from '@/constants/issue';
 import { useIdeaCardStackStore } from '../../store/use-idea-card-stack-store';
 import { useIdeaStore } from '../../store/use-idea-store';
 import { useIssueStore } from '../../store/use-issue-store';
-import type { Position } from '../../types/idea';
+import type { CardStatus, Position } from '../../types/idea';
 import * as S from './idea-card.styles';
 
 interface IdeaCardProps {
@@ -24,7 +24,7 @@ interface IdeaCardProps {
   agreeCount?: number;
   disagreeCount?: number;
   editable?: boolean;
-  status?: 'needDiscussion' | 'selected' | 'highlighted' | 'default';
+  status?: CardStatus;
   onVoteChange?: (agreeCount: number, disagreeCount: number) => void;
   categoryId?: string | null;
   onSave?: (content: string) => void;
