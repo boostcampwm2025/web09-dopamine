@@ -5,10 +5,10 @@ import Image from 'next/image';
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import useIdeaCard from '@/app/(with-sidebar)/issue/hooks/use-idea-card';
+import { ISSUE_STATUS, VOTE_TYPE } from '@/constants/issue';
 import { useIdeaCardStackStore } from '../../store/use-idea-card-stack-store';
 import { useIdeaStore } from '../../store/use-idea-store';
 import { useIssueStore } from '../../store/use-issue-store';
-import { ISSUE_STATUS } from '@/constants/issue';
 import type { Position } from '../../types/idea';
 import * as S from './idea-card.styles';
 
@@ -231,17 +231,17 @@ export default function IdeaCard(props: IdeaCardProps) {
       {props.isVotePhase && (
         <S.Footer>
           <S.VoteButton
-            kind="agree"
+            kind={VOTE_TYPE.AGREE}
             cardStatus={status}
-            active={userVote === 'agree'}
+            active={userVote === VOTE_TYPE.AGREE}
             onClick={handleAgree}
           >
             찬성 {agreeCountState}
           </S.VoteButton>
           <S.VoteButton
-            kind="disagree"
+            kind={VOTE_TYPE.DISAGREE}
             cardStatus={status}
-            active={userVote === 'disagree'}
+            active={userVote === VOTE_TYPE.DISAGREE}
             onClick={handleDisagree}
           >
             반대 {disagreeCountState}
