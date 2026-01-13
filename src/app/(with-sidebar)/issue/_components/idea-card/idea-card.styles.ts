@@ -34,8 +34,7 @@ export const Card = styled.article<{
       case 'needDiscussion':
         return `
         border: 2px solid ${theme.colors.red[600]};
-        background: ${theme.colors.white};
-        box-shadow: 0 4px 10px rgba(236, 0, 0, 0.77);
+        background: ${theme.colors.red[50]};
         `;
       case 'mostLiked':
         return `border: 2px solid ${theme.colors.blue[600]};
