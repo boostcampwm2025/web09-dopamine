@@ -224,10 +224,11 @@ export const VoteButton = styled.button<{
     box-shadow 160ms ease;
 
   ${({ kind, active, cardStatus }) => {
+    if (cardStatus === 'selected') {
+      return `background: ${theme.colors.yellow[50]}; color: ${theme.colors.yellow[700]}; box-shadow: inset 0 -2px 0 rgba(250,204,21,0.15); border: 1px solid rgba(250,204,21,0.3);`;
+    }
+
     if (kind === VOTE_TYPE.AGREE) {
-      if (cardStatus === 'selected') {
-        return `background: ${theme.colors.yellow[50]}; color: ${theme.colors.yellow[700]}; box-shadow: inset 0 -2px 0 rgba(250,204,21,0.15);`;
-      }
       if (active) {
         return `background: ${theme.colors.green[600]}; color: ${theme.colors.white};`;
       }
