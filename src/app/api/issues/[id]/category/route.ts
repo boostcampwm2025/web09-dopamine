@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { categoryRepository } from '@/lib/repositories/category-repository';
 
 export async function GET(
   _req: NextRequest,
@@ -8,13 +8,7 @@ export async function GET(
   const { id: issueId } = await params;
 
   try {
-    const categories = await prisma.category.findMany({
-      where: {
-        issueId,
-        deletedAt: null,
-      },
-      orderBy: { createdAt: 'asc' },
-    });
+    const categories = await categoryRepository.findByIssueId(issueId);
 
     return NextResponse.json({ categories });
   } catch (error) {
@@ -34,15 +28,13 @@ export async function POST(
   const { title, positionX, positionY, width, height } = await req.json();
 
   try {
-    const category = await prisma.category.create({
-      data: {
-        issueId,
-        title,
-        positionX,
-        positionY,
-        width,
-        height,
-      },
+    const category = await categoryRepository.create({
+      issueId,
+      title,
+      positionX,
+      positionY,
+      width,
+      height,
     });
 
     return NextResponse.json(category, { status: 201 });

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { categoryRepository } from '@/lib/repositories/category-repository';
 
 export async function PATCH(
   req: NextRequest,
@@ -9,15 +9,12 @@ export async function PATCH(
   const { title, positionX, positionY, width, height } = await req.json();
 
   try {
-    const category = await prisma.category.update({
-      where: { id: categoryId },
-      data: {
-        title,
-        positionX,
-        positionY,
-        width,
-        height,
-      },
+    const category = await categoryRepository.update(categoryId, {
+      title,
+      positionX,
+      positionY,
+      width,
+      height,
     });
 
     return NextResponse.json(category);
@@ -45,10 +42,7 @@ export async function DELETE(
   const { categoryId } = await params;
 
   try {
-    await prisma.category.update({
-      where: { id: categoryId },
-      data: { deletedAt: new Date() },
-    });
+    await categoryRepository.softDelete(categoryId);
 
     return NextResponse.json({ success: true });
   } catch (error: any) {

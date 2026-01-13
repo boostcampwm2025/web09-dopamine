@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+﻿import { useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useIdeaCardStackStore } from '@/app/(with-sidebar)/issue/store/use-idea-card-stack-store';
 import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
@@ -73,7 +73,7 @@ export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) 
     }
 
     try {
-      // TODO: 실제 userId를 가져와야 함
+      // 할 일: 실제 userId를 가져와야 함
       const userId = 'current-user-id';
       const idea = ideas.find((idea) => idea.id === id);
 
@@ -180,3 +180,4 @@ export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) 
     handleMoveIdeaToCategory,
   };
 }
+
