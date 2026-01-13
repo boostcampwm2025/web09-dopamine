@@ -56,6 +56,7 @@ export default function CategoryCard({
   // dnd-kit useDroppable
   const { setNodeRef: setDroppableRef, isOver } = useDroppable({
     id,
+    data: { type: 'category', categoryId: id },
   });
 
   // 카테고리 드래그 기능
