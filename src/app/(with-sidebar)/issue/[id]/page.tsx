@@ -9,7 +9,7 @@ import IdeaCard from '@/app/(with-sidebar)/issue/_components/idea-card/idea-card
 import { useAIStructuring } from '@/app/(with-sidebar)/issue/hooks/use-ai-structuring';
 import { useCategoryOperations } from '@/app/(with-sidebar)/issue/hooks/use-category-operations';
 import { useDragAndDrop } from '@/app/(with-sidebar)/issue/hooks/use-drag-and-drop';
-import { useIdeaHighlight } from '@/app/(with-sidebar)/issue/hooks/use-highlighted-ideas';
+import { useFilterIdea } from '@/app/(with-sidebar)/issue/hooks/use-filter-idea';
 import { useIdeaStatus } from '@/app/(with-sidebar)/issue/hooks/use-idea-card';
 import { useIdeaOperations } from '@/app/(with-sidebar)/issue/hooks/use-idea-operations';
 import { useIssueData } from '@/app/(with-sidebar)/issue/hooks/use-issue-data';
@@ -64,8 +64,8 @@ const IssuePage = () => {
   });
 
   // 하이라이트된 아이디어
-  const { activeFilter, setFilter, highlightedIds } = useIdeaHighlight(issueId, ideas);
-  const getIdeaStatus = useIdeaStatus(highlightedIds, activeFilter);
+  const { activeFilter, setFilter, filteredIds } = useFilterIdea(issueId, ideas);
+  const getIdeaStatus = useIdeaStatus(filteredIds, activeFilter);
 
   return (
     <>
