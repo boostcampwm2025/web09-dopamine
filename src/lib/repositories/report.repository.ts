@@ -65,7 +65,6 @@ export async function findReportWithDetailsById(
             select: {
               id: true,
               content: true,
-              // 투표 및 댓글은 개수만 필요하므로 id만 조회
               votes: {
                 where: { deletedAt: null },
                 select: { id: true, type: true },
@@ -101,7 +100,7 @@ export async function findReportWithDetailsById(
           content: true,
           votes: {
             where: { deletedAt: null },
-            select: { id: true },
+            select: { id: true, type: true },
           },
           comments: {
             where: { deletedAt: null },

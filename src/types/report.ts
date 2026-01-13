@@ -7,23 +7,28 @@ export interface ReportWithDetails {
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date | null;
+  // 라포트 연고나 이슈
   issue: {
     id: string;
     title: string;
+    // 이슈 참여 맴버들
     issueMembers: Array<{
       id: string;
       userId: string;
       deletedAt: Date | null;
     }>;
+    // 이슈에 속한 아이디어들
     ideas: Array<{
       id: string;
       content: string;
       votes: Array<{ id: string; type: string }>;
       comments: Array<{ id: string }>;
+      // 아이디어 카테고리
       category: {
         id: string;
         title: string;
       } | null;
+      // 아이디어 작성자 정보
       user: {
         id: string;
         name: string | null;
@@ -32,10 +37,11 @@ export interface ReportWithDetails {
       };
     }>;
   };
+  // 선택된 아이디어 정보
   selectedIdea: {
     id: string;
     content: string;
-    votes: Array<{ id: string }>;
+    votes: Array<{ id: string; type: string }>;
     comments: Array<{ id: string }>;
     category: {
       id: string;
