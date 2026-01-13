@@ -78,7 +78,14 @@ export interface ReportStatistics {
 // 아이디어 랭킹 정보
 export interface ReportRankings {
   all: RankedIdeaDto[]; // 전체 순위
-  byCategory: Record<string, RankedIdeaDto[]>; // 카테고리별 순위
+  byCategory: CategoryRanking[]; // 카테고리별 순위
+}
+
+// 카테고리별 랭킹 정보
+export interface CategoryRanking {
+  categoryId: string;
+  categoryTitle: string;
+  ideas: RankedIdeaDto[];
 }
 
 // 랭킹에 사용되는 아이디어 정보

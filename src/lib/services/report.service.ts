@@ -1,5 +1,11 @@
 import { findReportWithDetailsById } from '@/lib/repositories/report.repository';
-import { CategoryDto, RankedIdeaDto, ReportResponse, ReportWithDetails } from '@/types/report';
+import {
+  CategoryDto,
+  CategoryRanking,
+  RankedIdeaDto,
+  ReportResponse,
+  ReportWithDetails,
+} from '@/types/report';
 
 type ReportIdea = ReportWithDetails['issue']['ideas'][number];
 
@@ -32,23 +38,32 @@ export async function getReportSummaryByIssueId(issueId: string): Promise<Report
       (a, b) => b.agreeVoteCount - b.disagreeVoteCount - (a.agreeVoteCount - a.disagreeVoteCount),
     ); // 내림차순 정렬
 
-  const categorizedIdeas = report.issue.ideas.reduce(
+  // 카테고리별로 아이디어 그룹핑
+  const categoryMap = report.issue.ideas.reduce(
     (acc, idea) => {
+      const categoryId = idea.category?.id || 'uncategorized';
       const categoryTitle = idea.category?.title || '미분류';
-      if (!acc[categoryTitle]) {
-        acc[categoryTitle] = [];
+
+      if (!acc[categoryId]) {
+        acc[categoryId] = {
+          categoryId,
+          categoryTitle,
+          ideas: [],
+        };
       }
-      acc[categoryTitle].push(mapIdeaToRankedIdea(idea));
+      acc[categoryId].ideas.push(mapIdeaToRankedIdea(idea));
       return acc;
     },
-    {} as Record<string, RankedIdeaDto[]>,
+    {} as Record<string, CategoryRanking>,
   );
 
-  Object.values(categorizedIdeas).forEach((ideas) => {
-    ideas.sort(
+  // 각 카테고리의 아이디어를 정렬하고 배열로 변환
+  const categorizedIdeas: CategoryRanking[] = Object.values(categoryMap).map((category) => ({
+    ...category,
+    ideas: category.ideas.sort(
       (a, b) => b.agreeVoteCount - b.disagreeVoteCount - (a.agreeVoteCount - a.disagreeVoteCount),
-    );
-  });
+    ),
+  }));
 
   return {
     id: report.id,
