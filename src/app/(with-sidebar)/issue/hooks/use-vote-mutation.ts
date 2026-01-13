@@ -23,53 +23,28 @@ export const useVoteMutation = (ideaId: string) => {
       const previousIdea = queryClient.getQueryData(queryKey);
 
       // 캐시된 데이터 강제 수정 (UI 즉시 반영)
-      queryClient.setQueryData(queryKey, (old: VoteResponse) => {
-        if (!old) return old;
-
-        // 백엔드가 값을 안 줘도, 프론트에서 미리 계산하는 로직은 그대로
-        const myVote = old.myVote;
-        let newAgreeCount = old.agreeCount;
-        let newDisagreeCount = old.disagreeCount;
-        let newMyVote: 'AGREE' | 'DISAGREE' | null = voteType;
-
-        // 취소 로직
-        if (myVote === voteType) {
-          if (voteType === 'AGREE') {
-            newAgreeCount--;
-          } else {
-            newDisagreeCount--;
-          }
-          newMyVote = null;
-        }
-
-        // 변경 로직
-        else if (myVote) {
-          if (voteType === 'AGREE') {
-            newAgreeCount++;
-            newDisagreeCount--;
-          } else {
-            newDisagreeCount++;
-            newAgreeCount--;
-          }
-        }
-        // 신규 로직
-        else {
-          if (voteType === 'AGREE') {
-            newAgreeCount++;
-          } else {
-            newDisagreeCount++;
-          }
-        }
+      queryClient.setQueryData(queryKey, (oldData: VoteResponse) => {
+        if (!oldData) return oldData;
 
         return {
-          ...old,
-          agreeCount: newAgreeCount,
-          disagreeCount: newDisagreeCount,
-          myVote: newMyVote,
+          ...oldData,
+          myVote: voteType,
         };
       });
 
       return { previousIdea };
+    },
+
+    onSuccess: (data) => {
+      queryClient.setQueryData(queryKey, (oldData: any) => {
+        if (!oldData) return oldData;
+        return {
+          ...oldData,
+          myVote: data.myVote,
+          agreeCount: data.agreeCount,
+          disagreeCount: data.disagreeCount,
+        };
+      });
     },
 
     onError: (_err, _variables, context) => {

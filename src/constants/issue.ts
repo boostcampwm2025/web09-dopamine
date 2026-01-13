@@ -9,8 +9,8 @@ export const ISSUE_STATUS = {
 } as const;
 
 export const VOTE_TYPE = {
-  AGREE: 'agree',
-  DISAGREE: 'disagree',
+  AGREE: 'AGREE',
+  DISAGREE: 'DISAGREE',
 } as const;
 
 export const STEP_FLOW = [

@@ -42,10 +42,10 @@ export async function deleteIdea(issueId: string, ideaId: string): Promise<{ suc
 
 export const getIdea = async (ideaId: string, userId?: string) => {
   //TODO: userId를 클라이언트에서 전달하지 않는 방식으로 수정 필요
-  userId;
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
   };
+
   if (userId) {
     headers['x-user-id'] = userId;
   }

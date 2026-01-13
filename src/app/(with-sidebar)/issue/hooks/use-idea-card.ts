@@ -2,6 +2,7 @@
 import { useTooltipStore } from '@/components/tooltip/use-tooltip-store';
 import { CardStatus } from '../types/idea';
 import { useVoteMutation } from './use-vote-mutation';
+import { VOTE_TYPE } from '@/constants/issue';
 
 interface UseIdeaCardProps {
   id?: string;
@@ -58,11 +59,11 @@ export default function useIdeaCard(props: UseIdeaCardProps) {
   }, [isSelected, statusOverride]);
 
   const handleAgree = () => {
-    mutate({ userId, voteType: 'AGREE' });
+    mutate({ userId, voteType: VOTE_TYPE.AGREE });
   };
 
   const handleDisagree = () => {
-    mutate({ userId, voteType: 'DISAGREE' });
+    mutate({ userId, voteType: VOTE_TYPE.DISAGREE });
   };
 
   // 편집 내용을 제출합니다. 비어있으면 무시.

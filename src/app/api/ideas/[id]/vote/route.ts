@@ -7,9 +7,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     const ideaId = id;
     const { userId, voteType } = await req.json();
 
-    await voteRepository.castVote(ideaId, userId, voteType);
+    const result = await voteRepository.castVote(ideaId, userId, voteType);
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json(result);
   } catch (error) {
     console.error('투표 실패:', error);
     return NextResponse.json({ message: '투표 처리 중 오류가 발생했습니다.' }, { status: 500 });
