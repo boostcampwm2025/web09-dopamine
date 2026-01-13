@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { getVoteCounts } from '../services/issue-service';
 import type { IdeaWithPosition } from '../types/idea';
 
-type FilterType = 'most-liked' | 'need-discussion' | 'none';
+export type FilterType = 'most-liked' | 'need-discussion' | 'none';
 
 export const useIdeaHighlight = (issueId: string, initialIdeas: IdeaWithPosition[]) => {
   const [activeFilter, setActiveFilter] = useState<FilterType>('none');
@@ -46,15 +46,20 @@ export const useIdeaHighlight = (issueId: string, initialIdeas: IdeaWithPosition
 
     const result = sorted.filter((idea, index) => {
       if (index < 3) return true;
+
       const ideaV = getVoteCounts(idea);
+
       if (ideaV.total === 0) return false;
+
       if (activeFilter === 'need-discussion') {
         return getVoteCounts(idea).agree === thirdAgree;
       }
+
       const ideaDiff = ideaV.agree - ideaV.disagree;
       const thirdDiff = thirdStandard
         ? getVoteCounts(thirdStandard).agree - getVoteCounts(thirdStandard).disagree
         : 0;
+
       return ideaV.agree === thirdAgree && ideaDiff >= thirdDiff;
     });
 

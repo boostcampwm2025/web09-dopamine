@@ -28,4 +28,4 @@ export interface IdeaWithPosition {
   editable?: boolean;
 }
 
-export type CardStatus = 'needDiscussion' | 'selected' | 'default' | 'highlighted';
+export type CardStatus = 'mostLiked' | 'needDiscussion' | 'selected' | 'default';
