@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { randomUUID } from 'crypto';
-import redis from '@/lib/redis';
+import { prisma } from '@/lib/prisma';
 
 export async function POST(req: NextRequest) {
   const { title, nickname } = await req.json();
@@ -9,26 +8,40 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ message: 'nickname과 title은 필수입니다.' }, { status: 400 });
   }
 
-  const issueId = randomUUID();
-  const userId = randomUUID();
-  const now = Date.now();
+  try {
+    const result = await prisma.$transaction(async (tx) => {
+      // 1. 익명 유저 생성
+      const user = await tx.user.create({
+        data: {
+          displayName: nickname,
+          provider: null,
+        },
+      });
 
-  await redis.hset(`issue:${issueId}`, {
-    id: issueId,
-    title,
-    status: 'BRAINSTORMING',
-    created_at: now,
-    updated_at: now,
-  });
+      // 2. 빠른 이슈 생성
+      const issue = await tx.issue.create({
+        data: {
+          title,
+        },
+      });
 
-  await redis.sadd(`issue:${issueId}:users`, userId);
+      // 3. 이슈 참여자(owner)
+      await tx.issueMember.create({
+        data: {
+          issueId: issue.id,
+          userId: user.id,
+        },
+      });
 
-  await redis.hset(`issue:${issueId}:user:${userId}`, {
-    id: userId,
-    display_name: nickname ?? '익명',
-    role: 'owner',
-    joined_at: now,
-  });
+      return {
+        issueId: issue.id,
+        userId: user.id,
+      };
+    });
 
-  return NextResponse.json({ issueId, userId }, { status: 201 });
+    return NextResponse.json(result, { status: 201 });
+  } catch (error) {
+    console.error('빠른 이슈 생성 실패:', error);
+    return NextResponse.json({ message: '이슈 생성 실패' }, { status: 500 });
+  }
 }
