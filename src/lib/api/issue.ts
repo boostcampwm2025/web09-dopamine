@@ -71,3 +71,35 @@ export async function categorizeIdeas(
 
   return JSON.parse(content);
 }
+
+/**
+ * 이슈 상태를 변경합니다.
+ */
+export async function updateIssueStatus(
+  issueId: string,
+  status: string,
+  selectedIdeaId?: string,
+  memo?: string,
+) {
+  try {
+    const response = await fetch(`/api/issues/${issueId}/status`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        status,
+        selectedIdeaId,
+        memo,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error('이슈 상태 변경 실패');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('이슈 상태 변경 실패:', error);
+    throw error;
+  }
+}
