@@ -21,6 +21,12 @@ enum VoteType {
   DISAGREE
 }
 
+enum IssueRole {
+  OWNER
+  MEMBER
+}
+
+
 // Models
 model User {
   id          String   @id @default(uuid()) @db.Char(36)
@@ -124,6 +130,7 @@ model IssueMember {
   id        String   @id @default(uuid()) @db.Char(36)
   issueId   String   @map("issue_id") @db.Char(36)
   userId    String   @map("user_id") @db.Char(36)
+  role      IssueRole @default(MEMBER)
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")

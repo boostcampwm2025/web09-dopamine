@@ -77,6 +77,7 @@ CREATE TABLE `issue_members` (
     `id` CHAR(36) NOT NULL,
     `issue_id` CHAR(36) NOT NULL,
     `user_id` CHAR(36) NOT NULL,
+    `role` ENUM('OWNER', 'MEMBER') NOT NULL DEFAULT 'MEMBER',
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
     `deleted_at` DATETIME(3) NULL,
