@@ -14,12 +14,17 @@ export default function CreateIssueModal() {
   const { closeModal } = useModalStore();
 
   const handleQuickStart = async () => {
-    const { issueId, userId } = await createQuickIssue(title, ownerNickname);
+    if (!title.trim() || !ownerNickname.trim()) {
+      toast.error('이슈 제목과 닉네임을 입력해주세요.');
+      return;
+    }
 
-    if (issueId) {
-      localStorage.setItem('userId', userId);
+    const result = await createQuickIssue(title, ownerNickname);
+
+    if (result?.issueId) {
+      localStorage.setItem('userId', result.userId);
       closeModal();
-      router.push(`/issue/${issueId}`);
+      router.push(`/issue/${result.issueId}`);
     } else {
       toast.error('이슈 생성이 실패했습니다.');
       console.error('이슈 생성에 실패했습니다.');

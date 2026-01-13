@@ -9,19 +9,28 @@ datasource db {
 
 // Enums
 enum IssueStatus {
-  OPEN
-  CLOSED
+  BRAINSTORMING
+  CATEGORIZE
+  VOTE
+  SELECT
+  CLOSE
 }
 
 enum VoteType {
-  UP
-  DOWN
+  AGREE
+  DISAGREE
 }
+
+enum IssueRole {
+  OWNER
+  MEMBER
+}
+
 
 // Models
 model User {
   id          String   @id @default(uuid()) @db.Char(36)
-  email       String   @unique @db.VarChar(255)
+  email       String?   @unique @db.VarChar(255)
   name        String?  @db.VarChar(30)
   displayName String?  @map("display_name") @db.VarChar(30)
   provider    String?  @db.VarChar(30)
@@ -95,16 +104,16 @@ model Topic {
 
 model Issue {
   id        String      @id @default(uuid()) @db.Char(36)
-  topicId   String      @map("topic_id") @db.Char(36)
+  topicId   String?      @map("topic_id") @db.Char(36)
   title     String      @db.VarChar(255)
-  status    IssueStatus @default(OPEN)
+  status    IssueStatus @default(BRAINSTORMING)
   closedAt  DateTime?   @map("closed_at")
   createdAt DateTime    @default(now()) @map("created_at")
   updatedAt DateTime    @updatedAt @map("updated_at")
   deletedAt DateTime?   @map("deleted_at")
 
   // Relations
-  topic               Topic              @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  topic               Topic?              @relation(fields: [topicId], references: [id], onDelete: Cascade)
   issueMembers        IssueMember[]
   connectionsAsA      IssueConnection[]  @relation("IssueA")
   connectionsAsB      IssueConnection[]  @relation("IssueB")
@@ -121,6 +130,7 @@ model IssueMember {
   id        String   @id @default(uuid()) @db.Char(36)
   issueId   String   @map("issue_id") @db.Char(36)
   userId    String   @map("user_id") @db.Char(36)
+  role      IssueRole @default(MEMBER)
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
