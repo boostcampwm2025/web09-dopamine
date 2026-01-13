@@ -24,6 +24,9 @@
     "db:seed": "prisma db seed",
     "db:update": "prisma generate && prisma migrate dev"
   },
+  "prisma": {
+    "seed": "node prisma/seed.js"
+  },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
