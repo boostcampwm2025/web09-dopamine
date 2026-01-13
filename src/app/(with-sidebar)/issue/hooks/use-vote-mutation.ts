@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import toast from 'react-hot-toast';
 import { postVote } from '@/lib/api/vote';
 
 interface VoteResponse {
@@ -48,6 +49,7 @@ export const useVoteMutation = (ideaId: string) => {
     },
 
     onError: (_err, _variables, context) => {
+      toast.error('투표 처리에 실패했습니다.');
       if (context?.previousIdea) {
         queryClient.setQueryData(queryKey, context.previousIdea);
       }
