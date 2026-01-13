@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { ideaRepository } from '@/lib/repositories/idea-repository';
-import { prisma } from '@/lib/prisma';
+import { ideaRepository } from '@/lib/repositories/idea.repository';
 
 export async function GET(
   req: NextRequest,
@@ -14,10 +13,7 @@ export async function GET(
     return NextResponse.json({ ideas });
   } catch (error) {
     console.error('아이디어 조회 실패:', error);
-    return NextResponse.json(
-      { message: '아이디어 조회에 실패했습니다.' },
-      { status: 500 },
-    );
+    return NextResponse.json({ message: '아이디어 조회에 실패했습니다.' }, { status: 500 });
   }
 }
 
@@ -26,8 +22,7 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> },
 ): Promise<NextResponse> {
   const { id: issueId } = await params;
-  const { content, userId, positionX, positionY, categoryId } =
-    await req.json();
+  const { content, userId, positionX, positionY, categoryId } = await req.json();
 
   try {
     const newIdea = await ideaRepository.create({
@@ -42,10 +37,7 @@ export async function POST(
     return NextResponse.json(newIdea, { status: 201 });
   } catch (error) {
     console.error('아이디어 생성 실패:', error);
-    return NextResponse.json(
-      { message: '아이디어 생성에 실패했습니다.' },
-      { status: 500 },
-    );
+    return NextResponse.json({ message: '아이디어 생성에 실패했습니다.' }, { status: 500 });
   }
 }
 
@@ -58,10 +50,7 @@ export async function DELETE(
   const ideaId = searchParams.get('ideaId');
 
   if (!ideaId) {
-    return NextResponse.json(
-      { message: 'ideaId가 필요합니다.' },
-      { status: 400 },
-    );
+    return NextResponse.json({ message: 'ideaId가 필요합니다.' }, { status: 400 });
   }
 
   try {
@@ -72,14 +61,67 @@ export async function DELETE(
     console.error('아이디어 삭제 실패:', error);
 
     if (error.code === 'P2025') {
+      return NextResponse.json({ message: '존재하지 않는 아이디어입니다.' }, { status: 404 });
+    }
+
+    return NextResponse.json({ message: '아이디어 삭제에 실패했습니다.' }, { status: 500 });
+  }
+}
+
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+): Promise<NextResponse> {
+  const { id: issueId } = await params;
+  const { ideaId, positionX, positionY, categoryId } = await req.json();
+  const cacheKey = `issue:${issueId}:ideas`;
+
+  if (!ideaId) {
+    return NextResponse.json(
+      { message: 'ideaId가 필요합니다.' },
+      { status: 400 },
+    );
+  }
+
+  try {
+    const updatedIdea = await prisma.idea.update({
+      where: { id: ideaId },
+      data: {
+        positionX,
+        positionY,
+        categoryId,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            displayName: true,
+            avatarUrl: true,
+          },
+        },
+        category: {
+          select: {
+            id: true,
+            title: true,
+          },
+        },
+      },
+    });
+
+    return NextResponse.json(updatedIdea);
+  } catch (error: any) {
+    console.error('아이디어 수정 실패:', error);
+
+    if (error.code === 'P2025') {
       return NextResponse.json(
-        { message: '존재하지 않는 아이디어입니다.' },
+        { message: '아이디어를 찾을 수 없습니다.' },
         { status: 404 },
       );
     }
 
     return NextResponse.json(
-      { message: '아이디어 삭제에 실패했습니다.' },
+      { message: '아이디어 수정에 실패했습니다.' },
       { status: 500 },
     );
   }

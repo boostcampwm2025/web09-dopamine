@@ -1,22 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
-import redis from '@/lib/redis';
+import { IssueStatus } from '@prisma/client';
+import { findIssueById, updateIssueStatus } from '@/lib/repositories/issue.repository';
 
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ): Promise<NextResponse> {
-  const { status } = await req.json();
-  const { id } = await params;
-  const issueKey = `issue:${id}`;
+  try {
+    const { status } = await req.json();
+    const { id } = await params;
 
-  const exists = await redis.exists(issueKey);
+    if (!Object.values(IssueStatus).includes(status)) {
+      return NextResponse.json({ message: '유효하지 않은 이슈 상태입니다.' }, { status: 400 });
+    }
 
-  if (!exists) {
-    return NextResponse.json({ message: '존재하지 않는 이슈입니다.' }, { status: 404 });
+    const issue = await findIssueById(id);
+
+    if (!issue) {
+      return NextResponse.json({ message: '존재하지 않는 이슈입니다.' }, { status: 404 });
+    }
+
+    const updatedIssue = await updateIssueStatus(id, status);
+
+    return NextResponse.json(updatedIssue);
+  } catch (error) {
+    console.error('이슈 상태 변경 실패:', error);
+    return NextResponse.json({ message: '이슈 상태 변경에 실패했습니다.' }, { status: 500 });
   }
-
-  await redis.hset(issueKey, 'status', status);
-
-  const updated = await redis.hgetall(issueKey);
-  return NextResponse.json(updated);
 }
