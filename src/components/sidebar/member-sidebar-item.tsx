@@ -23,8 +23,7 @@ const MemberItemButton = styled.button<{ hasOnClick?: boolean }>`
   border: none;
   text-decoration: none;
 
-  &:hover,
-  &:focus {
+  &:hover {
     background-color: ${theme.colors.gray[200]};
   }
 `;
