@@ -13,7 +13,13 @@
     "docker:logs": "docker-compose logs -f",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "prisma:studio": "prisma studio"
+    "prisma:migrate:create": "prisma migrate dev --create-only",
+    "prisma:migrate:deploy": "prisma migrate deploy",
+    "prisma:studio": "prisma studio",
+    "prisma:reset": "prisma migrate reset",
+    "db:push": "prisma db push",
+    "db:seed": "prisma db seed",
+    "db:update": "prisma generate && prisma migrate dev"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
