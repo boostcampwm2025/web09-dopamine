@@ -1,7 +1,7 @@
 -- CreateTable
 CREATE TABLE `users` (
     `id` CHAR(36) NOT NULL,
-    `email` VARCHAR(255) NOT NULL,
+    `email` VARCHAR(255) NULL,
     `name` VARCHAR(30) NULL,
     `display_name` VARCHAR(30) NULL,
     `provider` VARCHAR(30) NULL,
@@ -59,9 +59,9 @@ CREATE TABLE `topics` (
 -- CreateTable
 CREATE TABLE `issues` (
     `id` CHAR(36) NOT NULL,
-    `topic_id` CHAR(36) NOT NULL,
+    `topic_id` CHAR(36) NULL,
     `title` VARCHAR(255) NOT NULL,
-    `status` ENUM('OPEN', 'CLOSED') NOT NULL DEFAULT 'OPEN',
+    `status` ENUM('BRAINSTORMING', 'CATEGORIZE', 'VOTE', 'SELECT', 'CLOSE') NOT NULL DEFAULT 'BRAINSTORMING',
     `closed_at` DATETIME(3) NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
@@ -158,7 +158,7 @@ CREATE TABLE `votes` (
     `id` CHAR(36) NOT NULL,
     `idea_id` CHAR(36) NOT NULL,
     `user_id` CHAR(36) NOT NULL,
-    `type` ENUM('UP', 'DOWN') NOT NULL,
+    `type` ENUM('AGREE', 'DISAGREE') NOT NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
     `deleted_at` DATETIME(3) NULL,

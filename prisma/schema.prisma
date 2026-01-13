@@ -9,13 +9,16 @@ datasource db {
 
 // Enums
 enum IssueStatus {
-  OPEN
-  CLOSED
+  BRAINSTORMING
+  CATEGORIZE
+  VOTE
+  SELECT
+  CLOSE
 }
 
 enum VoteType {
-  UP
-  DOWN
+  AGREE
+  DISAGREE
 }
 
 // Models
@@ -97,7 +100,7 @@ model Issue {
   id        String      @id @default(uuid()) @db.Char(36)
   topicId   String?      @map("topic_id") @db.Char(36)
   title     String      @db.VarChar(255)
-  status    IssueStatus @default(OPEN)
+  status    IssueStatus @default(BRAINSTORMING)
   closedAt  DateTime?   @map("closed_at")
   createdAt DateTime    @default(now()) @map("created_at")
   updatedAt DateTime    @updatedAt @map("updated_at")
