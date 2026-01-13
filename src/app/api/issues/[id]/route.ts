@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { findIssueById } from '@/lib/repositories/issue.repository';
 
 export async function GET(
   req: NextRequest,
@@ -8,20 +8,7 @@ export async function GET(
   const { id } = await params;
 
   try {
-    const issue = await prisma.issue.findFirst({
-      where: {
-        id,
-        deletedAt: null,
-      },
-      select: {
-        id: true,
-        title: true,
-        status: true,
-        createdAt: true,
-        updatedAt: true,
-        closedAt: true,
-      },
-    });
+    const issue = await findIssueById(id);
 
     if (!issue) {
       return NextResponse.json({ message: '존재하지 않는 이슈입니다.' }, { status: 404 });
