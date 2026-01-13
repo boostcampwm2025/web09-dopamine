@@ -1,5 +1,6 @@
 import { PrismaTransaction } from '@/types/prisma';
 import { prisma } from '@/lib/prisma';
+import { ReportWithDetails } from '@/types/report';
 
 type PrismaClientOrTx = PrismaTransaction | typeof prisma;
 
@@ -27,6 +28,72 @@ export async function createReport(
       issueId,
       selectedIdeaId: selectedIdeaId,
       memo: memo,
+    },
+  });
+}
+
+// 필요한 정보를 포함한 리포트 조회
+export async function findReportWithDetailsById(
+  issueId: string,
+  tx?: PrismaTransaction,
+): Promise<ReportWithDetails | null> {
+  const client: PrismaClientOrTx = tx ?? prisma;
+
+  return client.report.findFirst({
+    where: {
+      issueId,
+      deletedAt: null,
+    },
+    include: {
+      // 이슈 조인
+      issue: {
+        include: {
+          // 이슈 멤버스 조인 (참가자 수 계산용)
+          issueMembers: {
+            where: { deletedAt: null },
+          },
+          // 아이디어 조인
+          ideas: {
+            where: { deletedAt: null },
+            // 아이디어에 관련되 투표 및 댓글 조인
+            include: {
+              votes: {
+                where: { deletedAt: null },
+              },
+              comments: {
+                where: { deletedAt: null },
+              },
+              // 카테고리 정보도 조인
+              category: true,
+              // 아이디어 작성자 정보 조인
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                  displayName: true,
+                  avatarUrl: true,
+                },
+              },
+            },
+          },
+        },
+      },
+      // 선택된 아이디어 조인
+      selectedIdea: {
+        include: {
+          votes: {
+            where: { deletedAt: null },
+          },
+          comments: {
+            where: { deletedAt: null },
+          },
+          category: true,
+        },
+      },
+      // wordClouds: {
+      //   where: { deletedAt: null },
+      //   orderBy: { count: 'desc' },
+      // },
     },
   });
 }
