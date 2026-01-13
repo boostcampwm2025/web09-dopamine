@@ -4,6 +4,7 @@ import { useIdeaCardStackStore } from '@/app/(with-sidebar)/issue/store/use-idea
 import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
 import type { IdeaWithPosition, Position } from '@/app/(with-sidebar)/issue/types/idea';
 import { createIdea, deleteIdea as deleteIdeaAPI, fetchIdeas } from '@/lib/api/idea';
+import { getTempUserId } from '@/lib/utils/temp-user';
 
 export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) {
   const {
@@ -73,8 +74,7 @@ export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) 
     }
 
     try {
-      // TODO: 실제 userId를 가져와야 함
-      const userId = 'current-user-id';
+      const userId = getTempUserId(); // localStroage에 저장된 임시 사용자 ID
       const idea = ideas.find((idea) => idea.id === id);
 
       const createdIdea = await createIdea(issueId, {
