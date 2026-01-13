@@ -1,5 +1,5 @@
-import { PrismaTransaction } from '@/types/prisma';
 import { prisma } from '@/lib/prisma';
+import { PrismaTransaction } from '@/types/prisma';
 import { ReportWithDetails } from '@/types/report';
 
 type PrismaClientOrTx = PrismaTransaction | typeof prisma;
@@ -47,25 +47,41 @@ export async function findReportWithDetailsById(
     include: {
       // 이슈 조인
       issue: {
-        include: {
+        select: {
+          id: true,
+          title: true,
           // 이슈 멤버스 조인 (참가자 수 계산용)
           issueMembers: {
             where: { deletedAt: null },
+            select: {
+              id: true,
+              userId: true,
+              deletedAt: true,
+            },
           },
           // 아이디어 조인
           ideas: {
             where: { deletedAt: null },
-            // 아이디어에 관련되 투표 및 댓글 조인
-            include: {
+            select: {
+              id: true,
+              content: true,
+              // 투표 및 댓글은 개수만 필요하므로 id만 조회
               votes: {
                 where: { deletedAt: null },
+                select: { id: true },
               },
               comments: {
                 where: { deletedAt: null },
+                select: { id: true },
               },
-              // 카테고리 정보도 조인
-              category: true,
-              // 아이디어 작성자 정보 조인
+              // 카테고리 정보
+              category: {
+                select: {
+                  id: true,
+                  title: true,
+                },
+              },
+              // 아이디어 작성자 정보
               user: {
                 select: {
                   id: true,
@@ -80,14 +96,23 @@ export async function findReportWithDetailsById(
       },
       // 선택된 아이디어 조인
       selectedIdea: {
-        include: {
+        select: {
+          id: true,
+          content: true,
           votes: {
             where: { deletedAt: null },
+            select: { id: true },
           },
           comments: {
             where: { deletedAt: null },
+            select: { id: true },
           },
-          category: true,
+          category: {
+            select: {
+              id: true,
+              title: true,
+            },
+          },
         },
       },
       // wordClouds: {
