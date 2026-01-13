@@ -3,6 +3,7 @@ import { useIssueStore } from '@/app/(with-sidebar)/issue/store/use-issue-store'
 import { ISSUE_STATUS } from '@/constants/issue';
 import { getIssue } from '@/lib/api/issue';
 
+
 export function useIssueData(issueId: string) {
   const { status, voteStatus, isAIStructuring } = useIssueStore();
   const { setInitialData } = useIssueStore((state) => state.actions);

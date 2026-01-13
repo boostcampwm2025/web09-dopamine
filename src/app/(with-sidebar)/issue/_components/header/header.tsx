@@ -147,12 +147,14 @@ const Header = () => {
               alt="카테고리 추가"
               text="카테고리 추가"
               onClick={handleAddCategory}
+              variant="outline"
             />
             <HeaderButton
               imageSrc="/stick.svg"
               alt="AI 구조화"
               text="AI 구조화"
               onClick={startAIStructure}
+              variant="outline"
             />
           </>
         );
@@ -165,7 +167,7 @@ const Header = () => {
             imageSrc="/good.svg"
             alt="투표"
             text={text}
-            variant={isVoting ? 'dark' : undefined}
+            color={isVoting ? 'black' : 'white'}
             onClick={isVoting ? endVote : startVote}
           />
         );
@@ -173,7 +175,7 @@ const Header = () => {
         return (
           <HeaderButton
             text="이슈 종료"
-            variant="dark"
+            color="black"
             onClick={closeIssue}
           />
         );

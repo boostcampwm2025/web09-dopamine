@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+import { VOTE_TYPE } from '@/constants/issue';
 import { theme } from '@/styles/theme';
 
 export const Container = styled.div`
@@ -10,7 +11,7 @@ export const Container = styled.div`
   flex-direction: column;
 `;
 
-export const Item = styled.div<{ highlighted?: boolean, isTop?: boolean }>`
+export const Item = styled.div<{ highlighted?: boolean; isTop?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -18,7 +19,8 @@ export const Item = styled.div<{ highlighted?: boolean, isTop?: boolean }>`
   padding: 14px 16px;
   border-bottom: 1px solid ${theme.colors.gray[100]};
   background: ${({ highlighted }) => (highlighted ? theme.colors.gray[50] : 'transparent')};
-  border-radius: ${isTop => isTop ? theme.radius.medium + ' ' + theme.radius.medium + ' 0 0' : '0'};
+  border-radius: ${(isTop) =>
+    isTop ? theme.radius.medium + ' ' + theme.radius.medium + ' 0 0' : '0'};
   &:last-of-type {
     border-bottom: none;
   }
@@ -45,12 +47,9 @@ export const RankBadge = styled.div<{ highlighted?: boolean }>`
   place-items: center;
   font-weight: 600;
   font-size: ${theme.font.size.medium};
-  color: ${({ highlighted }) => (
-    highlighted ? theme.colors.white : theme.colors.gray[400]
-  )};
-  background: ${({ highlighted }) => (
-    highlighted ? theme.colors.green[600] : theme.colors.gray[100]
-  )};
+  color: ${({ highlighted }) => (highlighted ? theme.colors.white : theme.colors.gray[400])};
+  background: ${({ highlighted }) =>
+    highlighted ? theme.colors.green[600] : theme.colors.gray[100]};
 `;
 
 export const Content = styled.div`
@@ -102,7 +101,9 @@ export const VoteInfoSection = styled.span`
   gap: 4px;
 `;
 
-export const VoteInfo = styled.div<{ type?: 'agree' | 'disagree' }>`
+export const VoteInfo = styled.div<{
+  type?: typeof VOTE_TYPE.AGREE | typeof VOTE_TYPE.DISAGREE;
+}>`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -110,7 +111,7 @@ export const VoteInfo = styled.div<{ type?: 'agree' | 'disagree' }>`
   padding: 4px 10px;
   border-radius: ${theme.radius.medium};
   background-color: ${({ type }) =>
-    type === 'agree' ? theme.colors.green[50] : theme.colors.red[50]};
+    type === VOTE_TYPE.AGREE ? theme.colors.green[50] : theme.colors.red[50]};
 `;
 
 export const VoteLabel = styled.span`
@@ -120,11 +121,13 @@ export const VoteLabel = styled.span`
   letter-spacing: 0;
 `;
 
-export const VoteCount = styled.span<{ type?: 'agree' | 'disagree' }>`
+export const VoteCount = styled.span<{
+  type?: typeof VOTE_TYPE.AGREE | typeof VOTE_TYPE.DISAGREE;
+}>`
   font-size: ${theme.font.size.medium};
   font-weight: 600;
   color: ${({ type }) =>
-    type === 'agree' ? theme.colors.green[600] : theme.colors.red[600]};
+    type === VOTE_TYPE.AGREE ? theme.colors.green[600] : theme.colors.red[600]};
   letter-spacing: 0;
 `;
 
@@ -144,7 +147,9 @@ export const MoreButton = styled.button`
   font-size: ${theme.font.size.small};
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
   &:hover {
     background: ${theme.colors.gray[50]};
     color: ${theme.colors.black};
