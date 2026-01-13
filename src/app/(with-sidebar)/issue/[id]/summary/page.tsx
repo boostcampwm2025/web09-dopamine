@@ -8,12 +8,11 @@ import styles from './page.module.css';
 
 export const dynamic = 'force-dynamic';
 
-export default async function IssueSummaryPage({ params }: { params: { id: string } }) {
-  const report = await getReportSummaryByIssueId(params.id);
+export default async function IssueSummaryPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const report = await getReportSummaryByIssueId(id);
 
-  if (!report) {
-    notFound();
-  }
+  if (!report) notFound();
 
   const selectedIdeaTitle = report.selectedIdea?.content ?? '선택된 아이디어가 없습니다';
   const selectedIdeaVotes = report.selectedIdea?.voteCount ?? 0;
