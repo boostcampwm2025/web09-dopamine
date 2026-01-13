@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { IssueRole } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
+import { addIssueOwner } from '@/lib/repositories/issue-member.repository';
+import { createIssue } from '@/lib/repositories/issue.repository';
+import { createAnonymousUser } from '@/lib/repositories/user.repository';
 
 export async function POST(req: NextRequest) {
   const { title, nickname } = await req.json();
@@ -10,28 +14,9 @@ export async function POST(req: NextRequest) {
 
   try {
     const result = await prisma.$transaction(async (tx) => {
-      // 1. 익명 유저 생성
-      const user = await tx.user.create({
-        data: {
-          displayName: nickname,
-          provider: null,
-        },
-      });
-
-      // 2. 빠른 이슈 생성
-      const issue = await tx.issue.create({
-        data: {
-          title,
-        },
-      });
-
-      // 3. 이슈 참여자(owner)
-      await tx.issueMember.create({
-        data: {
-          issueId: issue.id,
-          userId: user.id,
-        },
-      });
+      const user = await createAnonymousUser(tx, nickname);
+      const issue = await createIssue(tx, title);
+      await addIssueOwner(tx, issue.id, user.id, IssueRole.OWNER);
 
       return {
         issueId: issue.id,
