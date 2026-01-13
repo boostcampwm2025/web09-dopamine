@@ -27,23 +27,28 @@ export default function IssueSidebar() {
 
   return (
     <Sidebar>
-      {isQuickIssue && <IssueGraphLink />}
-      <div>
-        <S.SidebarTitle>
-          <span>ISSUE LIST</span>
-          <NewIssueButton />
-        </S.SidebarTitle>
-        <S.SidebarList>
-          {ISSUE_LIST.map((issue) => (
-            <SidebarItem
-              key={issue.title}
-              title={issue.title}
-              href={issue.href}
-              status={issue.status}
-            />
-          ))}
-        </S.SidebarList>
-      </div>
+      {isQuickIssue && (
+        <>
+          <IssueGraphLink />
+          <div>
+            <S.SidebarTitle>
+              <span>ISSUE LIST</span>
+              <NewIssueButton />
+            </S.SidebarTitle>
+            <S.SidebarList>
+              {ISSUE_LIST.map((issue) => (
+                <SidebarItem
+                  key={issue.title}
+                  title={issue.title}
+                  href={issue.href}
+                  status={issue.status}
+                />
+              ))}
+            </S.SidebarList>
+          </div>
+        </>
+      )}
+
       <div>
         <S.SidebarTitle>MEMBER LIST</S.SidebarTitle>
         <S.SidebarList>
