@@ -1,7 +1,9 @@
-import { useCallback, useEffect } from 'react';
+﻿import { useCallback, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useIssueStore } from '@/app/(with-sidebar)/issue/store/use-issue-store';
 import { categorizeIdeas } from '@/lib/api/issue';
+import { createCategory } from '@/lib/api/category';
+import { updateIdea } from '@/lib/api/idea';
 import type { Category } from '@/app/(with-sidebar)/issue/types/category';
 import type { IdeaWithPosition } from '@/app/(with-sidebar)/issue/types/idea';
 
@@ -73,6 +75,17 @@ export function useAIStructuring({
         });
 
         setIdeas(updatedIdeas);
+        await Promise.all(
+          updatedIdeas
+            .filter((idea) => idea.categoryId !== null)
+            .map((idea) =>
+              updateIdea(issueId, idea.id, {
+                categoryId: idea.categoryId,
+                positionX: null,
+                positionY: null,
+              }),
+            ),
+        );
       }
     } catch (error) {
       console.error('AI 구조화 오류:', error);
