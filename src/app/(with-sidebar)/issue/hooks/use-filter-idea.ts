@@ -4,7 +4,7 @@ import type { IdeaWithPosition } from '../types/idea';
 
 export type FilterType = 'most-liked' | 'need-discussion' | 'none';
 
-export const useIdeaHighlight = (issueId: string, initialIdeas: IdeaWithPosition[]) => {
+export const useFilterIdea = (issueId: string, initialIdeas: IdeaWithPosition[]) => {
   const [activeFilter, setActiveFilter] = useState<FilterType>('none');
 
   // 2. 필터 변경 시 localStorage에 저장
@@ -13,7 +13,7 @@ export const useIdeaHighlight = (issueId: string, initialIdeas: IdeaWithPosition
   }, [issueId, activeFilter]);
 
   // 3. 하이라이트 아이디 계산 (공동 순위 포함 로직)
-  const highlightedIds = useMemo(() => {
+  const filteredIds = useMemo(() => {
     if (activeFilter === 'none' || initialIdeas.length === 0) return new Set<string>();
 
     let sorted = [...initialIdeas];
@@ -69,6 +69,6 @@ export const useIdeaHighlight = (issueId: string, initialIdeas: IdeaWithPosition
   return {
     activeFilter,
     setFilter: setActiveFilter,
-    highlightedIds,
+    filteredIds,
   };
 };

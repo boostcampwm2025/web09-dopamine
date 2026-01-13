@@ -2,7 +2,7 @@
 import { useTooltipStore } from '@/components/tooltip/use-tooltip-store';
 import { VOTE_TYPE } from '@/constants/issue';
 import { CardStatus } from '../types/idea';
-import type { FilterType } from './use-highlighted-ideas';
+import type { FilterType } from './use-filter-idea';
 
 interface UseIdeaCardProps {
   content?: string;
