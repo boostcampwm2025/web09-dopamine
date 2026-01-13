@@ -18,9 +18,9 @@ import { useCanvasStore } from '@/app/(with-sidebar)/issue/store/use-canvas-stor
 import { useCategoryStore } from '@/app/(with-sidebar)/issue/store/use-category-store';
 import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
 import LoadingOverlay from '@/components/loading-overlay/loading-overlay';
-import IssueJoinModal from '@/components/modal/issue-join-modal/issue-join-modal';
 import { useModalStore } from '@/components/modal/use-modal-store';
 import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
+import IssueJoinModal from '../_components/issue-join-modal/issue-join-modal';
 import { useIssueStore } from '../store/use-issue-store';
 
 const IssuePage = () => {
