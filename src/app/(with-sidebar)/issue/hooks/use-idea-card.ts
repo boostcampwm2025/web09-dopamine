@@ -6,7 +6,7 @@ import { VOTE_TYPE } from '@/constants/issue';
 
 interface UseIdeaCardProps {
   id?: string;
-  userId?: string;
+  userId: string;
   content?: string;
   isSelected?: boolean;
   status?: 'needDiscussion' | 'highlighted' | 'selected' | 'default';
