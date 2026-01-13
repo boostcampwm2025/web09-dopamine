@@ -18,7 +18,7 @@ export interface ReportWithDetails {
     ideas: Array<{
       id: string;
       content: string;
-      votes: Array<{ id: string }>;
+      votes: Array<{ id: string; type: string }>;
       comments: Array<{ id: string }>;
       category: {
         id: string;
@@ -85,7 +85,8 @@ export interface ReportRankings {
 export interface RankedIdeaDto {
   id: string;
   content: string;
-  voteCount: number;
+  agreeVoteCount: number;
+  disagreeVoteCount: number;
   commentCount: number;
   category: CategoryDto | null;
   user: UserDto;
