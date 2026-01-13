@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+import { VOTE_TYPE } from '@/constants/issue';
 import { theme } from '@/styles/theme';
 import { CardStatus } from '../../types/idea';
 
@@ -188,7 +189,7 @@ export const Footer = styled.div`
 `;
 
 export const VoteButton = styled.button<{
-  kind: 'agree' | 'disagree';
+  kind: typeof VOTE_TYPE.AGREE | typeof VOTE_TYPE.DISAGREE;
   active?: boolean;
   cardStatus?: CardStatus;
 }>`
@@ -208,7 +209,7 @@ export const VoteButton = styled.button<{
     box-shadow 160ms ease;
 
   ${({ kind, active, cardStatus }) => {
-    if (kind === 'agree') {
+    if (kind === VOTE_TYPE.AGREE) {
       if (cardStatus === 'selected') {
         return `background: ${theme.colors.yellow[50]}; color: ${theme.colors.yellow[700]}; box-shadow: inset 0 -2px 0 rgba(250,204,21,0.15);`;
       }
@@ -227,7 +228,7 @@ export const VoteButton = styled.button<{
   &:hover {
     ${({ kind, active, cardStatus }) => {
       if (active || cardStatus === 'selected') return '';
-      if (kind === 'agree')
+      if (kind === VOTE_TYPE.AGREE)
         return `background: ${theme.colors.green[600]}; color: ${theme.colors.white};`;
       return `background: ${theme.colors.red[200]}; color: ${theme.colors.red[600]};`;
     }}

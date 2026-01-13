@@ -8,6 +8,11 @@ export const ISSUE_STATUS = {
   CLOSE: 'CLOSE',
 } as const;
 
+export const VOTE_TYPE = {
+  AGREE: 'agree',
+  DISAGREE: 'disagree',
+} as const;
+
 export const STEP_FLOW = [
   ISSUE_STATUS.BRAINSTORMING,
   ISSUE_STATUS.CATEGORIZE,

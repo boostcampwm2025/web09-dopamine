@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import toast from 'react-hot-toast';
@@ -14,6 +14,7 @@ import {
 import { useModalStore } from '@/components/modal/use-modal-store';
 import { useTooltipStore } from '@/components/tooltip/use-tooltip-store';
 import { ISSUE_STATUS } from '@/constants/issue';
+import { getIssue } from '@/lib/api/issue';
 import type { Category } from '../../types/category';
 import CloseIssueModal from '../close-issue-modal/close-issue-modal';
 import ProgressBar from '../progress-bar/progress-bar';
@@ -29,7 +30,8 @@ const Header = () => {
       status: state.status,
     })),
   );
-
+  
+  const [title, setTitle] = useState('');
   const { nextStep, closeIssue, startAIStructure } = useIssueStore((state) => state.actions);
 
   const isVisible = useIsNextButtonVisible();
@@ -60,6 +62,18 @@ const Header = () => {
       hasOpenedModal.current = true;
     }
   }, [issueState.status, isOpen, openModal]);
+
+  // 이슈 제목 조회
+  useEffect(() => {
+    const initialIssueTitle = async () => {
+      const issue = await getIssue(issueId);
+      if (issue?.title) {
+        setTitle(issue.title);
+      }
+    };
+
+    initialIssueTitle();
+  }, [issueId]);
 
   const handleNextStep = () => {
     try {
@@ -129,12 +143,14 @@ const Header = () => {
               alt="카테고리 추가"
               text="카테고리 추가"
               onClick={handleAddCategory}
+              variant="outline"
             />
             <HeaderButton
               imageSrc="/stick.svg"
               alt="AI 구조화"
               text="AI 구조화"
               onClick={startAIStructure}
+              variant="outline"
             />
           </>
         );
@@ -142,7 +158,7 @@ const Header = () => {
         return (
           <HeaderButton
             text="이슈 종료"
-            variant="dark"
+            color="black"
             onClick={closeIssue}
           />
         );
@@ -158,7 +174,7 @@ const Header = () => {
           width={18}
           height={18}
         />
-        서비스 홍보 방안
+        {title}
       </S.LeftSection>
       <S.CenterSection>
         <ProgressBar />

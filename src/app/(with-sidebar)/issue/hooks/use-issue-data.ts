@@ -1,8 +1,9 @@
 import { useEffect } from 'react';
 import { useIssueStore } from '@/app/(with-sidebar)/issue/store/use-issue-store';
 import { ISSUE_STATUS } from '@/constants/issue';
-import { fetchIssueStatus } from '@/lib/api/issue';
+import { fetchIssueStatus, getIssue } from '@/lib/api/issue';
 import { IssueStatus } from '@/types/issue';
+
 
 export function useIssueData(issueId: string) {
   const { status, isAIStructuring } = useIssueStore();
@@ -22,11 +23,13 @@ export function useIssueData(issueId: string) {
   // Redis에서 이슈 상태 가져와서 초기화
   useEffect(() => {
     const initializeIssueStatus = async () => {
-      const fetchedStatus = await fetchIssueStatus(issueId);
-      setInitialData({
-        id: issueId,
-        status: fetchedStatus || ISSUE_STATUS.BRAINSTORMING,
-      });
+      const issue = await getIssue(issueId);
+      if (issue) {
+        setInitialData({
+          id: issueId,
+          status: issue.status || ISSUE_STATUS.BRAINSTORMING,
+        });
+      }
     };
 
     initializeIssueStatus();

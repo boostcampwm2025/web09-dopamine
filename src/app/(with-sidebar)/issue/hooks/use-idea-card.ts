@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTooltipStore } from '@/components/tooltip/use-tooltip-store';
 import { CardStatus } from '../types/idea';
+import { VOTE_TYPE } from '@/constants/issue';
 
 interface UseIdeaCardProps {
   content?: string;
@@ -32,9 +33,11 @@ export default function useIdeaCard(props: UseIdeaCardProps) {
   const [status, setStatus] = useState<CardStatus>('default');
 
   // 투표 관련 로컬 상태
-  // `userVote`: 사용자가 현재 어떤 투표를 선택했는지('agree' | 'disagree' | null)
+  // `userVote`: 사용자가 현재 어떤 투표를 선택했는지(VOTE_TYPE.AGREE | VOTE_TYPE.DISAGREE | null)
   // agreeCountState / disagreeCountState: 로컬에서 보여줄 카운트 (낙관적 업데이트)
-  const [userVote, setUserVote] = useState<'agree' | 'disagree' | null>(null);
+  const [userVote, setUserVote] = useState<
+    typeof VOTE_TYPE.AGREE | typeof VOTE_TYPE.DISAGREE | null
+  >(null);
   const [agreeCountState, setAgreeCountState] = useState<number>(agreeCount);
   const [disagreeCountState, setDisagreeCountState] = useState<number>(disagreeCount);
   useEffect(() => {
@@ -80,19 +83,19 @@ export default function useIdeaCard(props: UseIdeaCardProps) {
     (e: React.MouseEvent) => {
       e.stopPropagation(); // 카드 클릭 이벤트 버블링 방지
 
-      if (userVote === 'agree') {
+      if (userVote === VOTE_TYPE.AGREE) {
         // 찬성 취소
         setAgreeCountState((c) => Math.max(0, c - 1));
         setUserVote(null);
-      } else if (userVote === 'disagree') {
+      } else if (userVote === VOTE_TYPE.DISAGREE) {
         // 반대 -> 찬성
         setAgreeCountState((c) => c + 1);
         setDisagreeCountState((c) => Math.max(0, c - 1));
-        setUserVote('agree');
+        setUserVote(VOTE_TYPE.AGREE);
       } else {
         // 미투표 -> 찬성
         setAgreeCountState((c) => c + 1);
-        setUserVote('agree');
+        setUserVote(VOTE_TYPE.AGREE);
       }
     },
     [userVote],
@@ -103,19 +106,19 @@ export default function useIdeaCard(props: UseIdeaCardProps) {
     (e: React.MouseEvent) => {
       e.stopPropagation(); // 카드 클릭 이벤트 버블링 방지
 
-      if (userVote === 'disagree') {
+      if (userVote === VOTE_TYPE.DISAGREE) {
         // 반대 취소
         setDisagreeCountState((c) => Math.max(0, c - 1));
         setUserVote(null);
-      } else if (userVote === 'agree') {
+      } else if (userVote === VOTE_TYPE.AGREE) {
         // 찬성 -> 반대
         setDisagreeCountState((c) => c + 1);
         setAgreeCountState((c) => Math.max(0, c - 1));
-        setUserVote('disagree');
+        setUserVote(VOTE_TYPE.DISAGREE);
       } else {
         // 미투표 -> 반대
         setDisagreeCountState((c) => c + 1);
-        setUserVote('disagree');
+        setUserVote(VOTE_TYPE.DISAGREE);
       }
     },
     [userVote],

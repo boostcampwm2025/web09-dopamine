@@ -233,18 +233,18 @@ export default function IdeaCard(props: IdeaCardProps) {
       {props.isVotePhase && (
         <S.Footer>
           <S.VoteButton
-            kind="agree"
+            kind={VOTE_TYPE.AGREE}
             cardStatus={status}
-            active={userVote === 'agree'}
+            active={userVote === VOTE_TYPE.AGREE}
             onClick={handleAgree}
             disabled={props.isVoteEnded}
           >
             찬성 {agreeCountState}
           </S.VoteButton>
           <S.VoteButton
-            kind="disagree"
+            kind={VOTE_TYPE.DISAGREE}
             cardStatus={status}
-            active={userVote === 'disagree'}
+            active={userVote === VOTE_TYPE.DISAGREE}
             onClick={handleDisagree}
             disabled={props.isVoteEnded}
           >
