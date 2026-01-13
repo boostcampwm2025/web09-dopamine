@@ -5,8 +5,9 @@ import toast from 'react-hot-toast';
 import { useIssueStore } from '@/app/(with-sidebar)/issue/store/use-issue-store';
 import { getIssueMembers, joinIssue } from '@/lib/api/issue';
 import { setUserIdForIssue } from '@/lib/storage/issue-user-storage';
+import { generateRandomNickname } from '@/lib/utils/nickname';
 import type { IssueMember } from '@/types/issue';
-import { useModalStore } from '../use-modal-store';
+import { useModalStore } from '../../../../../components/modal/use-modal-store';
 import * as S from './issue-join-modal.styles';
 
 interface IssueJoinModalProps {
@@ -15,7 +16,7 @@ interface IssueJoinModalProps {
 }
 
 export default function IssueJoinModal({ issueId, onJoinSuccess }: IssueJoinModalProps) {
-  const [nickname, setNickname] = useState('');
+  const [nickname, setNickname] = useState(generateRandomNickname());
   const [isLoading, setIsLoading] = useState(false);
   const { closeModal } = useModalStore();
   const { setMembers } = useIssueStore((state) => state.actions);
