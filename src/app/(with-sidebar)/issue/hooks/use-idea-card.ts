@@ -168,14 +168,14 @@ export default function useIdeaCard(props: UseIdeaCardProps) {
   };
 }
 
-export const useIdeaStatus = (highlightedIds: Set<string>, activeFilter: FilterType) => {
+export const useIdeaStatus = (filteredIds: Set<string>, activeFilter: FilterType) => {
   return useCallback(
     (ideaId: string): CardStatus => {
-      if (!highlightedIds.has(ideaId)) return 'default';
+      if (!filteredIds.has(ideaId)) return 'default';
       if (activeFilter === 'most-liked') return 'mostLiked';
       if (activeFilter === 'need-discussion') return 'needDiscussion';
       return 'default';
     },
-    [highlightedIds, activeFilter],
+    [filteredIds, activeFilter],
   );
 };
