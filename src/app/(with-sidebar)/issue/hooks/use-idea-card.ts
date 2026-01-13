@@ -164,3 +164,13 @@ export default function useIdeaCard(props: UseIdeaCardProps) {
     handleKeyDownEdit,
   };
 }
+export type IdeaStatus = 'default' | 'highlighted';
+
+export const useIdeaStatus = (highlightedIds: Set<string>) => {
+  return useCallback(
+    (ideaId: string): IdeaStatus =>
+      highlightedIds.has(ideaId) ? 'highlighted' : 'default',
+    [highlightedIds],
+  );
+};
+

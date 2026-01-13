@@ -11,6 +11,7 @@ import { useCategoryOperations } from '@/app/(with-sidebar)/issue/hooks/use-cate
 import { useDragAndDrop } from '@/app/(with-sidebar)/issue/hooks/use-drag-and-drop';
 import { useIdeaHighlight } from '@/app/(with-sidebar)/issue/hooks/use-highlighted-ideas';
 import { useIdeaOperations } from '@/app/(with-sidebar)/issue/hooks/use-idea-operations';
+import { useIdeaStatus } from '@/app/(with-sidebar)/issue/hooks/use-idea-card';
 import { useIssueData } from '@/app/(with-sidebar)/issue/hooks/use-issue-data';
 import { useCanvasStore } from '@/app/(with-sidebar)/issue/store/use-canvas-store';
 import { useCategoryStore } from '@/app/(with-sidebar)/issue/store/use-category-store';
@@ -64,10 +65,7 @@ const IssuePage = () => {
 
   // 하이라이트된 아이디어
   const { activeFilter, setFilter, highlightedIds } = useIdeaHighlight(issueId, ideas);
-  const getIdeaStatus = (ideaId: string) => {
-    if (!highlightedIds.has(ideaId)) return 'default';
-    return 'highlighted';
-  };
+  const getIdeaStatus = useIdeaStatus(highlightedIds);
 
   return (
     <>
