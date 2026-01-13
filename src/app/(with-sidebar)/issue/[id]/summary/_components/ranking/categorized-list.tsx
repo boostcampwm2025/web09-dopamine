@@ -1,11 +1,12 @@
 'use client';
 
-import Image from 'next/image';
 import type React from 'react';
 import { useEffect, useMemo, useState } from 'react';
+import Image from 'next/image';
 import { getCategorizedIdeas } from '@/app/(with-sidebar)/issue/services/issue-service';
 import type { Category } from '@/app/(with-sidebar)/issue/types/category';
 import type { Idea } from '@/app/(with-sidebar)/issue/types/idea';
+import { VOTE_TYPE } from '@/constants/issue';
 import * as S from './categorized-list.styles';
 import * as DS from './dialog.styles';
 
@@ -112,13 +113,13 @@ export default function CategorizedList() {
                       </S.ItemContent>
                     </S.ItemLeft>
                     <S.VoteInfoSection>
-                      <S.VoteInfo type="agree">
+                      <S.VoteInfo type={VOTE_TYPE.AGREE}>
                         <S.VoteLabel>찬성</S.VoteLabel>
-                        <S.VoteCount type="agree">{item.agreeCount}</S.VoteCount>
+                        <S.VoteCount type={VOTE_TYPE.AGREE}>{item.agreeCount}</S.VoteCount>
                       </S.VoteInfo>
-                      <S.VoteInfo type="disagree">
+                      <S.VoteInfo type={VOTE_TYPE.DISAGREE}>
                         <S.VoteLabel>반대</S.VoteLabel>
-                        <S.VoteCount type="disagree">{item.disagreeCount}</S.VoteCount>
+                        <S.VoteCount type={VOTE_TYPE.DISAGREE}>{item.disagreeCount}</S.VoteCount>
                       </S.VoteInfo>
                     </S.VoteInfoSection>
                   </S.ItemWrapper>
