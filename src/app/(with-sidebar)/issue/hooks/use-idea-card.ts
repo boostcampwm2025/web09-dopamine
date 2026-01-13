@@ -1,14 +1,14 @@
 ﻿import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTooltipStore } from '@/components/tooltip/use-tooltip-store';
-import { CardStatus } from '../types/idea';
 import { VOTE_TYPE } from '@/constants/issue';
+import { CardStatus } from '../types/idea';
 
 interface UseIdeaCardProps {
   content?: string;
   agreeCount?: number;
   disagreeCount?: number;
   isSelected?: boolean;
-  status?: 'needDiscussion' | 'highlighted' | 'selected' | 'default';
+  status?: CardStatus;
   editable?: boolean;
   onSave?: (content: string) => void;
   onClick?: () => void;
@@ -168,9 +168,7 @@ export type IdeaStatus = 'default' | 'highlighted';
 
 export const useIdeaStatus = (highlightedIds: Set<string>) => {
   return useCallback(
-    (ideaId: string): IdeaStatus =>
-      highlightedIds.has(ideaId) ? 'highlighted' : 'default',
+    (ideaId: string): IdeaStatus => (highlightedIds.has(ideaId) ? 'highlighted' : 'default'),
     [highlightedIds],
   );
 };
-
