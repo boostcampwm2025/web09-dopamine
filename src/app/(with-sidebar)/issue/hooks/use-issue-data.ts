@@ -40,7 +40,7 @@ export function useIssueData(issueId: string) {
         id: member.id,
         displayName: member.displayName,
         role: member.role,
-        isConnected: false, // 초기값
+        isConnected: member.isConnected,
       }));
 
       setMembers(mappedMembers);
