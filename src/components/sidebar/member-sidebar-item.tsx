@@ -29,10 +29,11 @@ const MemberItemButton = styled.button<{ hasOnClick?: boolean }>`
   }
 `;
 
-const NameContainer = styled.div`
+const NameContainer = styled.div<{ isConnected: boolean }>`
   display: flex;
   gap: 4px;
   align-items: center;
+  color: ${({ isConnected }) => !isConnected && theme.colors.gray[400]};
 `;
 
 const StatusLabel = styled.div<{ isConnected: boolean }>`
@@ -47,7 +48,7 @@ export default function MemberSidebarItem({ name, role, isConnected }: MemberSid
   return (
     <S.SidebarListItem>
       <MemberItemButton>
-        <NameContainer>
+        <NameContainer isConnected={isConnected}>
           {role === MEMBER_ROLE.OWNER && (
             <Image
               src="/yellow-crown.svg"
