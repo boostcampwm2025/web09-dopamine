@@ -21,7 +21,7 @@ enum VoteType {
 // Models
 model User {
   id          String   @id @default(uuid()) @db.Char(36)
-  email       String   @unique @db.VarChar(255)
+  email       String?   @unique @db.VarChar(255)
   name        String?  @db.VarChar(30)
   displayName String?  @map("display_name") @db.VarChar(30)
   provider    String?  @db.VarChar(30)
@@ -95,7 +95,7 @@ model Topic {
 
 model Issue {
   id        String      @id @default(uuid()) @db.Char(36)
-  topicId   String      @map("topic_id") @db.Char(36)
+  topicId   String?      @map("topic_id") @db.Char(36)
   title     String      @db.VarChar(255)
   status    IssueStatus @default(OPEN)
   closedAt  DateTime?   @map("closed_at")
@@ -104,7 +104,7 @@ model Issue {
   deletedAt DateTime?   @map("deleted_at")
 
   // Relations
-  topic               Topic              @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  topic               Topic?              @relation(fields: [topicId], references: [id], onDelete: Cascade)
   issueMembers        IssueMember[]
   connectionsAsA      IssueConnection[]  @relation("IssueA")
   connectionsAsB      IssueConnection[]  @relation("IssueB")
