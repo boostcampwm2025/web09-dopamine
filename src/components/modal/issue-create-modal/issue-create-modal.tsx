@@ -42,7 +42,7 @@ export default function CreateIssueModal() {
           <S.Input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="서비스 홍보 방안"
+            placeholder="예시) 서비스 홍보 방안"
           />
         </S.InputWrapper>
         <S.InputWrapper>
@@ -50,7 +50,7 @@ export default function CreateIssueModal() {
           <S.Input
             value={ownerNickname}
             onChange={(e) => setOwnerNickname(e.target.value)}
-            placeholder="생각하는 단무지"
+            placeholder="예시) 생각하는 단무지"
           />
         </S.InputWrapper>
       </S.InfoContainer>
