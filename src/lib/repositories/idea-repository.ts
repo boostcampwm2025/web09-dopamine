@@ -1,0 +1,83 @@
+import { prisma } from '@/lib/prisma';
+
+export const ideaRepository = {
+  async findByIssueId(issueId: string) {
+    return prisma.idea.findMany({
+      where: {
+        issueId,
+        deletedAt: null,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            displayName: true,
+            avatarUrl: true,
+          },
+        },
+        category: {
+          select: {
+            id: true,
+            title: true,
+          },
+        },
+        votes: {
+          where: { deletedAt: null },
+        },
+        comments: {
+          where: { deletedAt: null },
+          select: {
+            id: true,
+            content: true,
+            createdAt: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  },
+
+  async create(data: {
+    issueId: string;
+    userId: string;
+    content: string;
+    positionX?: number;
+    positionY?: number;
+    categoryId?: string;
+  }) {
+    return prisma.idea.create({
+      data: {
+        issueId: data.issueId,
+        userId: data.userId,
+        content: data.content,
+        positionX: data.positionX,
+        positionY: data.positionY,
+        categoryId: data.categoryId,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            displayName: true,
+            avatarUrl: true,
+          },
+        },
+        category: {
+          select: {
+            id: true,
+            title: true,
+          },
+        },
+      },
+    });
+  },
+
+  async softDelete(ideaId: string) {
+    return prisma.idea.update({
+      where: { id: ideaId },
+      data: { deletedAt: new Date() },
+    });
+  },
+};
