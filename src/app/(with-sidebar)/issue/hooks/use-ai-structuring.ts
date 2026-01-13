@@ -42,22 +42,36 @@ export function useAIStructuring({
 
       // AI 응답 처리
       if (aiResponse.categories && Array.isArray(aiResponse.categories)) {
-        // 1. 카테고리 생성
-        const newCategories: Category[] = aiResponse.categories.map(
-          (cat: { title: string; ideaIds: string[] }, index: number) => ({
-            id: `category-${Date.now()}-${index}`,
-            title: cat.title,
-            position: {
-              x: 100 + index * 600,
-              y: 100,
+        // 1. 카테고리를 DB에 생성하고 실제 ID로 동기화
+        const createdCategories = await Promise.all(
+          aiResponse.categories.map(
+            async (cat: { title: string; ideaIds: string[] }, index: number) => {
+              const position = {
+                x: 100 + index * 600,
+                y: 100,
+              };
+              const created = await createCategory(issueId, {
+                title: cat.title,
+                positionX: position.x,
+                positionY: position.y,
+              });
+
+              return {
+                id: created.id,
+                title: created.title,
+                position: {
+                  x: created.positionX ?? position.x,
+                  y: created.positionY ?? position.y,
+                },
+                isMuted: false,
+              } as Category;
             },
-            isMuted: false,
-          }),
+          ),
         );
 
-        setCategories(newCategories);
+        setCategories(createdCategories);
 
-        // 2. 각 아이디어의 categoryId 업데이트
+        // 2. 각 아이디어의 categoryId 업데이트 (실제 DB ID 사용)
         const updatedIdeas = ideas.map((idea) => {
           const categoryIndex = aiResponse.categories.findIndex((cat: any) =>
             cat.ideaIds.includes(idea.id),
@@ -66,7 +80,7 @@ export function useAIStructuring({
           if (categoryIndex !== -1) {
             return {
               ...idea,
-              categoryId: newCategories[categoryIndex].id,
+              categoryId: createdCategories[categoryIndex].id,
               position: null, // 카테고리 내부는 position 불필요
             };
           }
