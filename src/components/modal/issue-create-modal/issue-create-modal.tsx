@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { createQuickIssue } from '@/lib/api/issue';
+import { setUserIdForIssue } from '@/lib/storage/issue-user-storage';
 import { useModalStore } from '../use-modal-store';
 import * as S from './issue-create-modal.styles';
 
@@ -22,7 +23,8 @@ export default function CreateIssueModal() {
     const result = await createQuickIssue(title, ownerNickname);
 
     if (result?.issueId) {
-      localStorage.setItem('userId', result.userId);
+      // 이슈별로 userId 저장
+      setUserIdForIssue(result.issueId, result.userId);
       closeModal();
       router.push(`/issue/${result.issueId}`);
     } else {
