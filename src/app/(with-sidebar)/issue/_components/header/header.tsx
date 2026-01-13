@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import toast from 'react-hot-toast';
@@ -14,6 +14,7 @@ import {
 import { useModalStore } from '@/components/modal/use-modal-store';
 import { useTooltipStore } from '@/components/tooltip/use-tooltip-store';
 import { BUTTON_TEXT_MAP, ISSUE_STATUS } from '@/constants/issue';
+import { getIssue } from '@/lib/api/issue';
 import type { Category } from '../../types/category';
 import CloseIssueModal from '../close-issue-modal/close-issue-modal';
 import ProgressBar from '../progress-bar/progress-bar';
@@ -30,6 +31,8 @@ const Header = () => {
       voteStatus: state.voteStatus,
     })),
   );
+
+  const [title, setTitle] = useState('');
 
   const { nextStep, closeIssue, startVote, endVote, startAIStructure } = useIssueStore(
     (state) => state.actions,
@@ -63,6 +66,18 @@ const Header = () => {
       hasOpenedModal.current = true;
     }
   }, [issueState.status, isOpen, openModal]);
+
+  // 이슈 제목 조회
+  useEffect(() => {
+    const initialIssueTitle = async () => {
+      const issue = await getIssue(issueId);
+      if (issue?.title) {
+        setTitle(issue.title);
+      }
+    };
+
+    initialIssueTitle();
+  }, [issueId]);
 
   const handleNextStep = () => {
     try {
@@ -176,7 +191,7 @@ const Header = () => {
           width={18}
           height={18}
         />
-        서비스 홍보 방안
+        {title}
       </S.LeftSection>
       <S.CenterSection>
         <ProgressBar />
