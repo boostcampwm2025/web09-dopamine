@@ -5,12 +5,13 @@ import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { createQuickIssue } from '@/lib/api/issue';
 import { setUserIdForIssue } from '@/lib/storage/issue-user-storage';
+import { generateRandomNickname } from '@/lib/utils/nickname';
 import { useModalStore } from '../use-modal-store';
 import * as S from './issue-create-modal.styles';
 
 export default function CreateIssueModal() {
   const [title, setTitle] = useState('');
-  const [ownerNickname, setOwnerNickname] = useState('');
+  const [ownerNickname, setOwnerNickname] = useState(generateRandomNickname());
   const router = useRouter();
   const { closeModal } = useModalStore();
 
