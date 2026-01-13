@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE `ideas` ADD COLUMN `agreeCount` INTEGER NOT NULL DEFAULT 0,
+    ADD COLUMN `disagreeCount` INTEGER NOT NULL DEFAULT 0;
