@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { findMembersByIssueId } from '@/lib/repositories/issue-member.repository';
+import { IssueRole } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
+import { addIssueOwner, findMembersByIssueId } from '@/lib/repositories/issue-member.repository';
+import { findIssueById } from '@/lib/repositories/issue.repository';
+import { createAnonymousUser } from '@/lib/repositories/user.repository';
 
 export async function GET(
   req: NextRequest,
@@ -9,8 +13,6 @@ export async function GET(
 
   try {
     const members = await findMembersByIssueId(id);
-
-    console.log(members);
 
     if (!members) {
       return NextResponse.json({ message: '참여자가 존재하지 않습니다.' }, { status: 404 });
@@ -27,5 +29,39 @@ export async function GET(
   } catch (error) {
     console.error('이슈 조회 실패:', error);
     return NextResponse.json({ message: '이슈 조회에 실패했습니다.' }, { status: 500 });
+  }
+}
+
+export async function POST(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+): Promise<NextResponse> {
+  const { id: issueId } = await params;
+  const { nickname } = await req.json();
+
+  if (!nickname) {
+    return NextResponse.json({ message: 'nickname은 필수입니다.' }, { status: 400 });
+  }
+
+  try {
+    const issue = await findIssueById(issueId);
+
+    if (!issue) {
+      return NextResponse.json({ message: '존재하지 않는 이슈입니다.' }, { status: 404 });
+    }
+
+    const result = await prisma.$transaction(async (tx) => {
+      const user = await createAnonymousUser(tx, nickname);
+      await addIssueOwner(tx, issueId, user.id, IssueRole.MEMBER);
+
+      return {
+        userId: user.id,
+      };
+    });
+
+    return NextResponse.json(result, { status: 201 });
+  } catch (error) {
+    console.error('이슈 참여 실패:', error);
+    return NextResponse.json({ message: '이슈 참여에 실패했습니다.' }, { status: 500 });
   }
 }

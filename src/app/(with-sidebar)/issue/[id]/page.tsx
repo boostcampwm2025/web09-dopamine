@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import { DndContext, DragOverlay } from '@dnd-kit/core';
 import Canvas from '@/app/(with-sidebar)/issue/_components/canvas/canvas';
@@ -10,23 +11,44 @@ import { useAIStructuring } from '@/app/(with-sidebar)/issue/hooks/use-ai-struct
 import { useCategoryOperations } from '@/app/(with-sidebar)/issue/hooks/use-category-operations';
 import { useDragAndDrop } from '@/app/(with-sidebar)/issue/hooks/use-drag-and-drop';
 import { useIdeaHighlight } from '@/app/(with-sidebar)/issue/hooks/use-highlighted-ideas';
-import { useIdeaOperations } from '@/app/(with-sidebar)/issue/hooks/use-idea-operations';
 import { useIdeaStatus } from '@/app/(with-sidebar)/issue/hooks/use-idea-card';
+import { useIdeaOperations } from '@/app/(with-sidebar)/issue/hooks/use-idea-operations';
 import { useIssueData } from '@/app/(with-sidebar)/issue/hooks/use-issue-data';
 import { useCanvasStore } from '@/app/(with-sidebar)/issue/store/use-canvas-store';
 import { useCategoryStore } from '@/app/(with-sidebar)/issue/store/use-category-store';
 import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
 import LoadingOverlay from '@/components/loading-overlay/loading-overlay';
+import IssueJoinModal from '@/components/modal/issue-join-modal/issue-join-modal';
+import { useModalStore } from '@/components/modal/use-modal-store';
+import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
 import { useIssueStore } from '../store/use-issue-store';
 
 const IssuePage = () => {
   const params = useParams<{ id: string }>();
   const issueId = params.id;
+  const { openModal, isOpen } = useModalStore();
+  const hasOpenedModal = useRef(false);
 
   const scale = useCanvasStore((state) => state.scale);
   const { status } = useIssueStore();
   const { setIdeas } = useIdeaStore(issueId);
   const { setCategories } = useCategoryStore(issueId);
+
+  // userId 체크 및 모달 표시
+  useEffect(() => {
+    if (!issueId || hasOpenedModal.current || isOpen) return;
+
+    const userId = getUserIdForIssue(issueId);
+    if (!userId) {
+      hasOpenedModal.current = true;
+      openModal({
+        title: '이슈 참여',
+        content: <IssueJoinModal issueId={issueId} />,
+        closeOnOverlayClick: false,
+        hasCloseButton: false,
+      });
+    }
+  }, [issueId, isOpen, openModal]);
 
   // 1. 이슈 데이터 초기화
   const { isAIStructuring, isCreateIdeaActive, isVoteActive, isVoteEnded } = useIssueData(issueId);
