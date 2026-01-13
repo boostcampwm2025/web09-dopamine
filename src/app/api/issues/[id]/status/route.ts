@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { IssueStatus } from '@prisma/client';
-import { prisma } from '@/lib/prisma';
+import { findIssueById, updateIssueStatus } from '@/lib/repositories/issue.repository';
 
 export async function PATCH(
   req: NextRequest,
@@ -14,28 +14,13 @@ export async function PATCH(
       return NextResponse.json({ message: '유효하지 않은 이슈 상태입니다.' }, { status: 400 });
     }
 
-    const issue = await prisma.issue.findFirst({
-      where: {
-        id,
-        deletedAt: null,
-      },
-    });
+    const issue = await findIssueById(id);
 
     if (!issue) {
       return NextResponse.json({ message: '존재하지 않는 이슈입니다.' }, { status: 404 });
     }
 
-    const updatedIssue = await prisma.issue.update({
-      where: { id },
-      data: {
-        status,
-        closedAt: status === IssueStatus.CLOSE ? new Date() : null,
-      },
-      select: {
-        id: true,
-        status: true,
-      },
-    });
+    const updatedIssue = await updateIssueStatus(id, status);
 
     return NextResponse.json(updatedIssue);
   } catch (error) {
