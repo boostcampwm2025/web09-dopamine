@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import MemberSidebarItem from '@/components/sidebar/member-sidebar-item';
 import Sidebar from '@/components/sidebar/sidebar';
 import SidebarItem from '@/components/sidebar/sidebar-item';
@@ -15,15 +16,17 @@ const ISSUE_LIST = [
   { title: 'closed issue', href: '#', status: ISSUE_STATUS.CLOSE },
 ] as const;
 
-const USER_LIST = [
-  { name: '배고픈 용가리', role: MEMBER_ROLE.OWNER, isConnected: true },
-  { name: '생각하는 무지', role: MEMBER_ROLE.MEMBER, isConnected: false },
-  { name: '낮잠자는 코끼리', role: MEMBER_ROLE.MEMBER, isConnected: false },
-  { name: '간식먹는 도마뱀', role: MEMBER_ROLE.MEMBER, isConnected: true },
-] as const;
-
 export default function IssueSidebar() {
-  const { isQuickIssue } = useIssueStore();
+  const { isQuickIssue, members } = useIssueStore();
+
+  const sortedMembers = useMemo(() => {
+    return [...members].sort((a, b) => {
+      if (a.role !== b.role) {
+        return a.role === MEMBER_ROLE.OWNER ? -1 : 1;
+      }
+      return Number(b.isConnected) - Number(a.isConnected);
+    });
+  }, [members]);
 
   return (
     <Sidebar>
@@ -52,10 +55,10 @@ export default function IssueSidebar() {
       <div>
         <S.SidebarTitle>MEMBER LIST</S.SidebarTitle>
         <S.SidebarList>
-          {USER_LIST.map((user) => (
+          {sortedMembers.map((user) => (
             <MemberSidebarItem
-              key={user.name}
-              name={user.name}
+              key={user.displayName}
+              name={user.displayName}
               role={user.role}
               isConnected={user.isConnected}
             />
