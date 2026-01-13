@@ -222,7 +222,7 @@ export const VoteButton = styled.button<{
       if (active || cardStatus === 'selected') return '';
       if (kind === VOTE_TYPE.AGREE)
         return `background: ${theme.colors.green[600]}; color: ${theme.colors.white};`;
-      return `background: ${theme.colors.red[200]}; color: ${theme.colors.red[600]};`;
+      return `background: ${theme.colors.red[600]}; color: ${theme.colors.white};`;
     }}
   }
 
