@@ -14,11 +14,15 @@ export const Card = styled.article<{
   box-shadow: 0 4px 10px rgba(31, 41, 55, 0.06);
   ${({ status }) => {
     switch (status) {
-      case 'highlighted':
+      case 'needDiscussion':
         return `
         border: 2px solid ${theme.colors.red[600]};
         background: ${theme.colors.white};
         box-shadow: 0 4px 10px rgba(236, 0, 0, 0.77);
+        `;
+      case 'mostLiked':
+        return `border: 2px solid ${theme.colors.blue[600]};
+        background: ${theme.colors.blue[50]};
         `;
       case 'selected':
         return `
