@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ideaRepository } from '@/lib/repositories/idea-repository';
+import { userRepository } from '@/lib/repositories/user-repository';
 
 export async function GET(
   req: NextRequest,
@@ -29,6 +30,8 @@ export async function POST(
     await req.json();
 
   try {
+    await userRepository.ensureUserExists(userId);
+
     const newIdea = await ideaRepository.create({
       issueId,
       userId,
