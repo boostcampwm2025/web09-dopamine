@@ -3,13 +3,12 @@ import toast from 'react-hot-toast';
 import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
 import { useIdeaCardStackStore } from '@/app/(with-sidebar)/issue/store/use-idea-card-stack-store';
 import type { IdeaWithPosition, Position } from '@/app/(with-sidebar)/issue/types/idea';
-import { createIdea, deleteIdea as deleteIdeaAPI } from '@/lib/api/idea';
+import { createIdea, deleteIdea as deleteIdeaAPI, fetchIdeas } from '@/lib/api/idea';
 
 export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) {
   const {
     ideas,
     hasEditingIdea,
-    resetEditingIdea,
     addIdea,
     updateIdeaContent,
     updateIdeaPosition,
@@ -19,6 +18,24 @@ export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) 
   } = useIdeaStore(issueId);
 
   const { addCard, removeCard, setInitialCardData } = useIdeaCardStackStore(issueId);
+
+  useEffect(() => {
+    const loadIdeas = async () => {
+      const fetchedIdeas = await fetchIdeas(issueId);
+      if (fetchedIdeas.length > 0) {
+        const ideasWithPosition: IdeaWithPosition[] = fetchedIdeas.map((idea) => ({
+          ...idea,
+          author: idea.user?.displayName || idea.user?.name || '익명',
+          position: idea.positionX && idea.positionY 
+            ? { x: idea.positionX, y: idea.positionY }
+            : null,
+          editable: false,
+        }));
+        setIdeas(ideasWithPosition);
+      }
+    };
+    loadIdeas();
+  }, [issueId, setIdeas]);
 
   useEffect(() => {
     const ideaIds = ideas.map((idea) => idea.id);
@@ -92,10 +109,6 @@ export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) 
   };
 
   const handleDeleteIdea = async (id: string) => {
-    if (hasEditingIdea) {
-      resetEditingIdea();
-    }
-
     if (id.startsWith('temp-')) {
       deleteIdea(id);
       removeCard(id);
@@ -114,7 +127,9 @@ export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) 
     } catch (error) {
       console.error('아이디어 삭제 실패:', error);
       toast.error('아이디어 삭제에 실패했습니다.');
-      setIdeas([...ideas, ideaToDelete]);
+      
+      // 롤백: 삭제된 아이디어를 다시 추가
+      addIdea(ideaToDelete);
       addCard(id);
     }
   };
