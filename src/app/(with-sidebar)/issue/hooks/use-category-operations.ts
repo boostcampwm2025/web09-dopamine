@@ -3,9 +3,10 @@ import toast from 'react-hot-toast';
 import { useCategoryStore } from '@/app/(with-sidebar)/issue/store/use-category-store';
 import type { Position } from '@/app/(with-sidebar)/issue/types/idea';
 import type { IdeaWithPosition } from '@/app/(with-sidebar)/issue/types/idea';
+import type { Category } from '@/app/(with-sidebar)/issue/types/category';
 
 export function useCategoryOperations(issueId: string, ideas: IdeaWithPosition[], scale: number) {
-  const { categories, deleteCategory, updateCategoryPosition } =
+  const { categories, addCategory, deleteCategory, updateCategoryPosition } =
     useCategoryStore(issueId);
 
   const categorySizesRef = useRef<Map<string, { width: number; height: number }>>(new Map());
@@ -93,10 +94,40 @@ export function useCategoryOperations(issueId: string, ideas: IdeaWithPosition[]
     deleteCategory(categoryId);
   };
 
+  const handleAddCategory = useCallback(() => {
+    const DEFAULT_CATEGORY_WIDTH = 320;
+    const CATEGORY_GAP = 40;
+    const START_POSITION = { x: 100, y: 100 };
+
+    // 실제 DOM 너비를(scale 보정) 반영해 가장 오른쪽 바깥에 배치하고,
+    // 아직 측정이 안 된 경우 기본 너비로 겹침을 방지한다.
+    const maxRight = categories.reduce((currentMax, category) => {
+      const element = document.querySelector(`[data-category-id="${category.id}"]`);
+      const width = element
+        ? element.getBoundingClientRect().width / scale
+        : DEFAULT_CATEGORY_WIDTH;
+
+      return Math.max(currentMax, category.position.x + width);
+    }, 0);
+
+    const newCategory: Category = {
+      id: `category-${Date.now()}`,
+      title: '새 카테고리',
+      position: {
+        x: categories.length > 0 ? maxRight + CATEGORY_GAP : START_POSITION.x,
+        y: START_POSITION.y,
+      },
+      isMuted: false,
+    };
+
+    addCategory(newCategory);
+  }, [addCategory, categories, scale]);
+
   return {
     categories,
     checkCategoryOverlap,
     handleCategoryPositionChange,
     handleDeleteCategory,
+    handleAddCategory,
   };
 }

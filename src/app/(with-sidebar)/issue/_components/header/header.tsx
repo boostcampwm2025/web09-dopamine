@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { useShallow } from 'zustand/shallow';
-import { useCategoryStore } from '@/app/(with-sidebar)/issue/store/use-category-store';
+import { useCategoryOperations } from '@/app/(with-sidebar)/issue/hooks/use-category-operations';
 import { useCanvasStore } from '@/app/(with-sidebar)/issue/store/use-canvas-store';
 import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
 import {
@@ -15,7 +15,6 @@ import {
 import { useModalStore } from '@/components/modal/use-modal-store';
 import { useTooltipStore } from '@/components/tooltip/use-tooltip-store';
 import { BUTTON_TEXT_MAP, ISSUE_STATUS } from '@/constants/issue';
-import type { Category } from '../../types/category';
 import CloseIssueModal from '../close-issue-modal/close-issue-modal';
 import ProgressBar from '../progress-bar/progress-bar';
 import HeaderButton from './header-button';
@@ -45,9 +44,9 @@ const Header = () => {
   const { openModal, isOpen } = useModalStore();
   const hasOpenedModal = useRef(false);
 
-  const { categories, addCategory } = useCategoryStore(issueId);
   const { ideas } = useIdeaStore(issueId);
   const scale = useCanvasStore((state) => state.scale);
+  const { categories, handleAddCategory } = useCategoryOperations(issueId, ideas, scale);
 
   useEffect(() => {
     if (issueState.status !== ISSUE_STATUS.CLOSE) {
@@ -106,35 +105,6 @@ const Header = () => {
     } catch (error) {
       toast((error as Error).message);
     }
-  };
-
-  const handleAddCategory = () => {
-    const DEFAULT_CATEGORY_WIDTH = 320;
-    const CATEGORY_GAP = 40;
-    const START_POSITION = { x: 100, y: 100 };
-
-    // 실제 DOM 너비를(scale 보정) 반영해 가장 오른쪽 바깥에 배치하고,
-    // 아직 측정이 안 된 경우 기본 너비로 겹침을 방지한다.
-    const maxRight = categories.reduce((currentMax, category) => {
-      const element = document.querySelector(`[data-category-id="${category.id}"]`);
-      const width = element
-        ? element.getBoundingClientRect().width / scale
-        : DEFAULT_CATEGORY_WIDTH;
-
-      return Math.max(currentMax, category.position.x + width);
-    }, 0);
-
-    const newCategory: Category = {
-      id: `category-${Date.now()}`,
-      title: '새 카테고리',
-      position: {
-        x: categories.length > 0 ? maxRight + CATEGORY_GAP : START_POSITION.x,
-        y: START_POSITION.y,
-      },
-      isMuted: false,
-    };
-
-    addCategory(newCategory);
   };
 
   const renderActionButtons = () => {
