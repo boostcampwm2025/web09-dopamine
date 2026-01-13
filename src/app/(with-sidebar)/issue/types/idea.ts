@@ -20,8 +20,8 @@ export interface IdeaWithPosition {
   categoryId: string | null;
   position: Position | null;
   isSelected?: boolean;
-  isVotePhase?: boolean;
-  isVoteEnded?: boolean;
+  isVoteButtonVisible?: boolean;
+  isVoteDisabled?: boolean;
   agreeCount?: number;
   disagreeCount?: number;
   needDiscussion?: boolean;

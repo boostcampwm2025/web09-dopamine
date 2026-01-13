@@ -26,9 +26,8 @@ export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) 
         const ideasWithPosition: IdeaWithPosition[] = fetchedIdeas.map((idea) => ({
           ...idea,
           author: idea.user?.displayName || idea.user?.name || '익명',
-          position: idea.positionX && idea.positionY 
-            ? { x: idea.positionX, y: idea.positionY }
-            : null,
+          position:
+            idea.positionX && idea.positionY ? { x: idea.positionX, y: idea.positionY } : null,
           editable: false,
         }));
         setIdeas(ideasWithPosition);
@@ -58,8 +57,8 @@ export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) 
       categoryId: null,
       position,
       editable: true,
-      isVotePhase: false,
-      isVoteEnded: false,
+      isVoteButtonVisible: false,
+      isVoteDisabled: false,
     };
 
     addIdea(newIdea);
@@ -128,7 +127,7 @@ export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) 
     } catch (error) {
       console.error('아이디어 삭제 실패:', error);
       toast.error('아이디어 삭제에 실패했습니다.');
-      
+
       // 롤백: 삭제된 아이디어를 다시 추가
       addIdea(ideaToDelete);
       addCard(id);
