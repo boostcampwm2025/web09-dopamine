@@ -1,12 +1,12 @@
 import { useEffect } from 'react';
 import { useIssueStore } from '@/app/(with-sidebar)/issue/store/use-issue-store';
 import { ISSUE_STATUS } from '@/constants/issue';
-import { getIssue } from '@/lib/api/issue';
-import { IssueStatus } from '@/types/issue';
+import { getIssue, getIssueMembers } from '@/lib/api/issue';
+import { IssueMember, IssueStatus } from '@/types/issue';
 
 export function useIssueData(issueId: string) {
   const { status, isAIStructuring } = useIssueStore();
-  const { setInitialData } = useIssueStore((state) => state.actions);
+  const { setInitialData, setMembers } = useIssueStore((state) => state.actions);
 
   const VOTE_LIFECYCLE = [
     ISSUE_STATUS.VOTE,
@@ -32,7 +32,22 @@ export function useIssueData(issueId: string) {
       }
     };
 
+    const initializeIssueMember = async () => {
+      const members = await getIssueMembers(issueId);
+      if (!members) return;
+
+      const mappedMembers = members.map((member: IssueMember) => ({
+        id: member.id,
+        displayName: member.displayName,
+        role: member.role,
+        isConnected: false, // 초기값
+      }));
+
+      setMembers(mappedMembers);
+    };
+
     initializeIssueStatus();
+    initializeIssueMember();
   }, [issueId, setInitialData]);
 
   return {

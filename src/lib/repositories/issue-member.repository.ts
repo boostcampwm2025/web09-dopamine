@@ -1,5 +1,6 @@
 import { IssueRole } from '@prisma/client';
 import { PrismaTransaction } from '@/types/prisma';
+import { prisma } from '../prisma';
 
 export async function addIssueOwner(
   tx: PrismaTransaction,
@@ -12,6 +13,24 @@ export async function addIssueOwner(
       issueId,
       userId,
       role,
+    },
+  });
+}
+
+export async function findMembersByIssueId(issueId: string) {
+  return prisma.issueMember.findMany({
+    where: {
+      issueId,
+      deletedAt: null,
+    },
+    select: {
+      role: true,
+      user: {
+        select: {
+          id: true,
+          displayName: true,
+        },
+      },
     },
   });
 }

@@ -1,18 +1,21 @@
 import { create } from 'zustand';
 import { ISSUE_STATUS, STEP_FLOW } from '@/constants/issue';
-import { IssueStatus } from '@/types/issue';
+import { IssueMember, IssueStatus } from '@/types/issue';
 
 interface IssueStore {
   id: string | null;
   status: IssueStatus;
   isAIStructuring: boolean;
   isQuickIssue: boolean;
+  members: IssueMember[];
   actions: {
     setInitialData: (data: { id: string; status: IssueStatus; isQuickIssue: boolean }) => void;
     nextStep: (validate?: () => void) => Promise<void>;
     closeIssue: () => void;
     startAIStructure: () => void;
     finishAIStructure: () => void;
+    setMembers: (members: IssueMember[]) => void;
+    upsertMember: (member: IssueMember) => void;
   };
 }
 
@@ -21,10 +24,23 @@ export const useIssueStore = create<IssueStore>((set) => ({
   status: ISSUE_STATUS.BRAINSTORMING,
   isAIStructuring: false,
   isQuickIssue: true,
+  members: [],
 
   actions: {
     setInitialData: (data) =>
       set(() => ({ id: data.id, status: data.status, isQuickIssue: data.isQuickIssue })),
+
+    setMembers: (members) => set({ members }),
+
+    upsertMember: (member) =>
+      set((state) => {
+        const idx = state.members.findIndex((m) => m.id === member.id);
+        if (idx === -1) return { members: [...state.members, member] };
+
+        const next = [...state.members];
+        next[idx] = { ...next[idx], ...member };
+        return { members: next };
+      }),
 
     nextStep: async (validate?: () => void) => {
       if (validate) {
