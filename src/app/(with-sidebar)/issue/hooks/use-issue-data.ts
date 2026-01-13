@@ -2,14 +2,22 @@ import { useEffect } from 'react';
 import { useIssueStore } from '@/app/(with-sidebar)/issue/store/use-issue-store';
 import { ISSUE_STATUS } from '@/constants/issue';
 import { getIssue } from '@/lib/api/issue';
-
+import { IssueStatus } from '@/types/issue';
 
 export function useIssueData(issueId: string) {
-  const { status, voteStatus, isAIStructuring } = useIssueStore();
+  const { status, isAIStructuring } = useIssueStore();
   const { setInitialData } = useIssueStore((state) => state.actions);
 
+  const VOTE_LIFECYCLE = [
+    ISSUE_STATUS.VOTE,
+    ISSUE_STATUS.SELECT,
+    ISSUE_STATUS.CLOSE,
+  ] as IssueStatus[];
+  const VOTE_FINISHED_STATES = [ISSUE_STATUS.SELECT, ISSUE_STATUS.CLOSE] as IssueStatus[];
+
   const isCreateIdeaActive = status === ISSUE_STATUS.BRAINSTORMING;
-  const isVoteActive = voteStatus === 'IN_PROGRESS';
+  const isVoteActive = VOTE_LIFECYCLE.includes(status);
+  const isVoteEnded = VOTE_FINISHED_STATES.includes(status);
 
   // Redis에서 이슈 상태 가져와서 초기화
   useEffect(() => {
@@ -28,9 +36,9 @@ export function useIssueData(issueId: string) {
 
   return {
     status,
-    voteStatus,
     isAIStructuring,
     isCreateIdeaActive,
     isVoteActive,
+    isVoteEnded,
   };
 }

@@ -1,9 +1,10 @@
 import styled from '@emotion/styled';
 import { VOTE_TYPE } from '@/constants/issue';
 import { theme } from '@/styles/theme';
+import { CardStatus } from '../../types/idea';
 
 export const Card = styled.article<{
-  status?: 'needDiscussion' | 'selected' | 'default';
+  status?: CardStatus;
   isDragging?: boolean;
   inCategory?: boolean;
   isHighlighted?: boolean;
@@ -190,7 +191,7 @@ export const Footer = styled.div`
 export const VoteButton = styled.button<{
   kind: typeof VOTE_TYPE.AGREE | typeof VOTE_TYPE.DISAGREE;
   active?: boolean;
-  cardStatus?: 'needDiscussion' | 'selected' | 'default';
+  cardStatus?: CardStatus;
 }>`
   flex: 1;
   padding: 14px 18px;
@@ -231,5 +232,9 @@ export const VoteButton = styled.button<{
         return `background: ${theme.colors.green[600]}; color: ${theme.colors.white};`;
       return `background: ${theme.colors.red[200]}; color: ${theme.colors.red[600]};`;
     }}
+  }
+
+  &:disabled {
+    pointer-events: none;
   }
 `;

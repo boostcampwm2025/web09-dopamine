@@ -1,18 +1,15 @@
 import { create } from 'zustand';
 import { ISSUE_STATUS, STEP_FLOW } from '@/constants/issue';
-import { IssueStatus, VoteStatus } from '@/types/issue';
+import { IssueStatus } from '@/types/issue';
 
 interface IssueStore {
   id: string | null;
   status: IssueStatus;
-  voteStatus: VoteStatus;
   isAIStructuring: boolean;
   actions: {
     setInitialData: (data: { id: string; status: IssueStatus }) => void;
     nextStep: (validate?: () => void) => Promise<void>;
     closeIssue: () => void;
-    startVote: () => void;
-    endVote: () => void;
     startAIStructure: () => void;
     finishAIStructure: () => void;
   };
@@ -21,7 +18,6 @@ interface IssueStore {
 export const useIssueStore = create<IssueStore>((set) => ({
   id: null,
   status: ISSUE_STATUS.BRAINSTORMING,
-  voteStatus: 'READY',
   isAIStructuring: false,
 
   actions: {
@@ -53,8 +49,6 @@ export const useIssueStore = create<IssueStore>((set) => ({
     },
 
     closeIssue: () => set(() => ({ status: ISSUE_STATUS.CLOSE })),
-    startVote: () => set({ voteStatus: 'IN_PROGRESS' }),
-    endVote: () => set({ voteStatus: 'COMPLETED' }),
     startAIStructure: () => set({ isAIStructuring: true }),
     finishAIStructure: () => set({ isAIStructuring: false }),
   },

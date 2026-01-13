@@ -21,6 +21,7 @@ interface IdeaCardProps {
   isSelected?: boolean;
   isHighlighted?: boolean;
   isVotePhase?: boolean;
+  isVoteEnded?: boolean;
   agreeCount?: number;
   disagreeCount?: number;
   needDiscussion?: boolean;
@@ -40,6 +41,7 @@ export type DragItemPayload = {
   author?: string;
   isSelected?: boolean;
   isVotePhase?: boolean;
+  isVoteEnded?: boolean;
   agreeCount?: number;
   disagreeCount?: number;
   needDiscussion?: boolean;
@@ -235,6 +237,7 @@ export default function IdeaCard(props: IdeaCardProps) {
             cardStatus={status}
             active={userVote === VOTE_TYPE.AGREE}
             onClick={handleAgree}
+            disabled={props.isVoteEnded}
           >
             찬성 {agreeCountState}
           </S.VoteButton>
@@ -243,6 +246,7 @@ export default function IdeaCard(props: IdeaCardProps) {
             cardStatus={status}
             active={userVote === VOTE_TYPE.DISAGREE}
             onClick={handleDisagree}
+            disabled={props.isVoteEnded}
           >
             반대 {disagreeCountState}
           </S.VoteButton>

@@ -13,7 +13,7 @@ import {
 } from '@/app/(with-sidebar)/issue/store/use-issue-store';
 import { useModalStore } from '@/components/modal/use-modal-store';
 import { useTooltipStore } from '@/components/tooltip/use-tooltip-store';
-import { BUTTON_TEXT_MAP, ISSUE_STATUS } from '@/constants/issue';
+import { ISSUE_STATUS } from '@/constants/issue';
 import { getIssue } from '@/lib/api/issue';
 import type { Category } from '../../types/category';
 import CloseIssueModal from '../close-issue-modal/close-issue-modal';
@@ -28,15 +28,11 @@ const Header = () => {
   const issueState = useIssueStore(
     useShallow((state) => ({
       status: state.status,
-      voteStatus: state.voteStatus,
     })),
   );
-
+  
   const [title, setTitle] = useState('');
-
-  const { nextStep, closeIssue, startVote, endVote, startAIStructure } = useIssueStore(
-    (state) => state.actions,
-  );
+  const { nextStep, closeIssue, startAIStructure } = useIssueStore((state) => state.actions);
 
   const isVisible = useIsNextButtonVisible();
 
@@ -157,19 +153,6 @@ const Header = () => {
               variant="outline"
             />
           </>
-        );
-      case ISSUE_STATUS.VOTE:
-        const isVoting = issueState.voteStatus === 'IN_PROGRESS';
-        const text = BUTTON_TEXT_MAP[issueState.voteStatus];
-
-        return (
-          <HeaderButton
-            imageSrc="/good.svg"
-            alt="투표"
-            text={text}
-            color={isVoting ? 'black' : 'white'}
-            onClick={isVoting ? endVote : startVote}
-          />
         );
       case ISSUE_STATUS.SELECT:
         return (
