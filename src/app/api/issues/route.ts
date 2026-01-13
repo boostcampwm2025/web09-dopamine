@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { randomUUID } from 'crypto';
-import redis from '@/lib/redis';
+import { IssueRole } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
+import { addIssueOwner } from '@/lib/repositories/issue-member.repository';
+import { createIssue } from '@/lib/repositories/issue.repository';
+import { createAnonymousUser } from '@/lib/repositories/user.repository';
 
 export async function POST(req: NextRequest) {
   const { title, nickname } = await req.json();
@@ -9,26 +12,21 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ message: 'nickname과 title은 필수입니다.' }, { status: 400 });
   }
 
-  const issueId = randomUUID();
-  const userId = randomUUID();
-  const now = Date.now();
+  try {
+    const result = await prisma.$transaction(async (tx) => {
+      const user = await createAnonymousUser(tx, nickname);
+      const issue = await createIssue(tx, title);
+      await addIssueOwner(tx, issue.id, user.id, IssueRole.OWNER);
 
-  await redis.hset(`issue:${issueId}`, {
-    id: issueId,
-    title,
-    status: 'BRAINSTORMING',
-    created_at: now,
-    updated_at: now,
-  });
+      return {
+        issueId: issue.id,
+        userId: user.id,
+      };
+    });
 
-  await redis.sadd(`issue:${issueId}:users`, userId);
-
-  await redis.hset(`issue:${issueId}:user:${userId}`, {
-    id: userId,
-    display_name: nickname ?? '익명',
-    role: 'owner',
-    joined_at: now,
-  });
-
-  return NextResponse.json({ issueId, userId }, { status: 201 });
+    return NextResponse.json(result, { status: 201 });
+  } catch (error) {
+    console.error('빠른 이슈 생성 실패:', error);
+    return NextResponse.json({ message: '이슈 생성 실패' }, { status: 500 });
+  }
 }
