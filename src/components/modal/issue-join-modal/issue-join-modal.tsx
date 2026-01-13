@@ -2,8 +2,10 @@
 
 import { useState } from 'react';
 import toast from 'react-hot-toast';
-import { joinIssue } from '@/lib/api/issue';
+import { useIssueStore } from '@/app/(with-sidebar)/issue/store/use-issue-store';
+import { getIssueMembers, joinIssue } from '@/lib/api/issue';
 import { setUserIdForIssue } from '@/lib/storage/issue-user-storage';
+import type { IssueMember } from '@/types/issue';
 import { useModalStore } from '../use-modal-store';
 import * as S from './issue-join-modal.styles';
 
@@ -16,6 +18,7 @@ export default function IssueJoinModal({ issueId, onJoinSuccess }: IssueJoinModa
   const [nickname, setNickname] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { closeModal } = useModalStore();
+  const { setMembers } = useIssueStore((state) => state.actions);
 
   const handleJoin = async () => {
     if (!nickname.trim()) {
@@ -30,6 +33,19 @@ export default function IssueJoinModal({ issueId, onJoinSuccess }: IssueJoinModa
       if (result?.userId) {
         // 이슈별 userId 저장
         setUserIdForIssue(issueId, result.userId);
+
+        // 멤버 리스트 다시 가져오기
+        const updatedMembers = await getIssueMembers(issueId);
+        if (updatedMembers) {
+          const mappedMembers: IssueMember[] = updatedMembers.map((member: IssueMember) => ({
+            id: member.id,
+            displayName: member.displayName,
+            role: member.role,
+            isConnected: member.isConnected ?? false,
+          }));
+          setMembers(mappedMembers);
+        }
+
         toast.success('이슈에 참여했습니다!');
         closeModal();
         onJoinSuccess?.();

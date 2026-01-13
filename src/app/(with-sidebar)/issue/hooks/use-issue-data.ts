@@ -48,7 +48,7 @@ export function useIssueData(issueId: string) {
 
     initializeIssueStatus();
     initializeIssueMember();
-  }, [issueId, setInitialData]);
+  }, [issueId, setInitialData, setMembers]);
 
   return {
     status,
