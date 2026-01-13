@@ -161,6 +161,7 @@ export default function IdeaCard(props: IdeaCardProps) {
   return (
     <S.Card
       ref={setNodeRef}
+      issueStatus={issueStatus}
       status={status}
       isDragging={isDragging}
       inCategory={inCategory}
@@ -174,17 +175,16 @@ export default function IdeaCard(props: IdeaCardProps) {
           ))}
       style={cardStyle}
     >
-      {status === 'selected' && (
-        <S.Badge>
-          <Image
-            src="/crown.svg"
-            alt="채택 아이콘"
-            width={20}
-            height={20}
-          />
-          <span>채택</span>
-        </S.Badge>
-      )}
+      <S.Badge status={status}>
+        <Image
+          src="/crown.svg"
+          alt="채택 아이콘"
+          width={20}
+          height={20}
+        />
+        <span>채택</span>
+      </S.Badge>
+
       <S.Header>
         {isEditing ? (
           <S.EditableInput
