@@ -67,3 +67,43 @@ export async function DELETE(
     return NextResponse.json({ message: '아이디어 삭제에 실패했습니다.' }, { status: 500 });
   }
 }
+
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+): Promise<NextResponse> {
+  const { id: issueId } = await params;
+  const { ideaId, positionX, positionY, categoryId } = await req.json();
+  const cacheKey = `issue:${issueId}:ideas`;
+
+  if (!ideaId) {
+    return NextResponse.json(
+      { message: 'ideaId가 필요합니다.' },
+      { status: 400 },
+    );
+  }
+
+  try {
+    const updatedIdea = await ideaRepository.update(ideaId, {
+      positionX,
+      positionY,
+      categoryId,
+    });
+
+    return NextResponse.json(updatedIdea);
+  } catch (error: any) {
+    console.error('아이디어 수정 실패:', error);
+
+    if (error.code === 'P2025') {
+      return NextResponse.json(
+        { message: '아이디어를 찾을 수 없습니다.' },
+        { status: 404 },
+      );
+    }
+
+    return NextResponse.json(
+      { message: '아이디어 수정에 실패했습니다.' },
+      { status: 500 },
+    );
+  }
+}
