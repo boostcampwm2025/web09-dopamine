@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
 import { findReportByIssueId } from '@/lib/repositories/report.repository';
 import {
   createWordClouds,
+  findIssueTextSourcesForWordCloud,
   findWordCloudsByReportId,
 } from '@/lib/repositories/word-cloud.repository';
 import { generateWordCloudData } from '@/lib/utils/word-cloud-processor';
@@ -44,23 +44,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     // 이슈의 모든 아이디어와 댓글 조회
-    const issue = await prisma.issue.findUnique({
-      where: { id },
-      include: {
-        ideas: {
-          where: { deletedAt: null },
-          select: {
-            content: true,
-            comments: {
-              where: { deletedAt: null },
-              select: {
-                content: true,
-              },
-            },
-          },
-        },
-      },
-    });
+    const issue = await findIssueTextSourcesForWordCloud(id);
 
     if (!issue) {
       return NextResponse.json({ error: '이슈를 찾을 수 없습니다.' }, { status: 404 });

@@ -48,3 +48,21 @@ export async function findWordCloudsByReportId(reportId: string) {
     },
   });
 }
+
+export async function findIssueTextSourcesForWordCloud(issueId: string, tx?: PrismaTransaction) {
+  return prisma.issue.findUnique({
+    where: { id: issueId },
+    include: {
+      ideas: {
+        where: { deletedAt: null },
+        select: {
+          content: true,
+          comments: {
+            where: { deletedAt: null },
+            select: { content: true },
+          },
+        },
+      },
+    },
+  });
+}
