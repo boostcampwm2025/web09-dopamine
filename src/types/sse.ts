@@ -1,5 +1,7 @@
+import { SSEEventType } from '@/constants/sse-events';
+
 export interface SSEEvent {
-  type: string;
+  type: SSEEventType;
   data: any;
 }
 
