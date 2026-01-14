@@ -1,10 +1,15 @@
-import { useEffect } from 'react';
+﻿import { useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useIdeaCardStackStore } from '@/app/(with-sidebar)/issue/store/use-idea-card-stack-store';
 import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
 import type { IdeaWithPosition, Position } from '@/app/(with-sidebar)/issue/types/idea';
-import { createIdea, deleteIdea as deleteIdeaAPI, fetchIdeas } from '@/lib/api/idea';
 import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
+import {
+  createIdea,
+  deleteIdea as deleteIdeaAPI,
+  fetchIdeas,
+  updateIdea as updateIdeaAPI,
+} from '@/lib/api/idea';
 
 export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) {
   const {
@@ -27,9 +32,8 @@ export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) 
         const ideasWithPosition: IdeaWithPosition[] = fetchedIdeas.map((idea) => ({
           ...idea,
           author: idea.user?.displayName || idea.user?.name || '익명',
-          position: idea.positionX && idea.positionY 
-            ? { x: idea.positionX, y: idea.positionY }
-            : null,
+          position:
+            idea.positionX && idea.positionY ? { x: idea.positionX, y: idea.positionY } : null,
           editable: false,
         }));
         setIdeas(ideasWithPosition);
@@ -79,7 +83,7 @@ export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) 
         toast.error('사용자 정보를 찾을 수 없습니다.');
         return;
       }
-      
+
       const idea = ideas.find((idea) => idea.id === id);
 
       const createdIdea = await createIdea(issueId, {
@@ -133,7 +137,7 @@ export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) 
     } catch (error) {
       console.error('아이디어 삭제 실패:', error);
       toast.error('아이디어 삭제에 실패했습니다.');
-      
+
       // 롤백: 삭제된 아이디어를 다시 추가
       addIdea(ideaToDelete);
       addCard(id);
@@ -160,18 +164,37 @@ export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) 
     setIdeas(ideas.map((idea) => (idea.id === id ? { ...idea, agreeCount, disagreeCount } : idea)));
   };
 
-  const handleMoveIdeaToCategory = (ideaId: string, targetCategoryId: string | null) => {
-    setIdeas(
-      ideas.map((idea) =>
-        idea.id === ideaId
-          ? {
-              ...idea,
-              categoryId: targetCategoryId,
-              position: targetCategoryId === null ? idea.position || { x: 100, y: 100 } : null,
-            }
-          : idea,
-      ),
+  const handleMoveIdeaToCategory = async (ideaId: string, targetCategoryId: string | null) => {
+    const previousIdeas = ideas;
+    const nextIdeas = ideas.map((idea) =>
+      idea.id === ideaId
+        ? {
+            ...idea,
+            categoryId: targetCategoryId,
+            position: targetCategoryId === null ? idea.position || { x: 100, y: 100 } : null,
+          }
+        : idea,
     );
+    setIdeas(nextIdeas);
+
+    if (ideaId.startsWith('temp-')) {
+      return;
+    }
+
+    const movedIdea = nextIdeas.find((idea) => idea.id === ideaId);
+    if (!movedIdea) return;
+
+    try {
+      await updateIdeaAPI(issueId, ideaId, {
+        categoryId: targetCategoryId,
+        positionX: movedIdea.position?.x ?? null,
+        positionY: movedIdea.position?.y ?? null,
+      });
+    } catch (error) {
+      console.error('카테고리 이동 실패:', error);
+      toast.error('카테고리 이동에 실패했습니다.');
+      setIdeas(previousIdeas);
+    }
   };
 
   return {
@@ -185,3 +208,4 @@ export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) 
     handleMoveIdeaToCategory,
   };
 }
+
