@@ -35,4 +35,19 @@ export const issueMemberRepository = {
       },
     });
   },
+
+  async findMemberByNickname(issueId: string, nickname: string) {
+    return prisma.issueMember.findFirst({
+      where: {
+        issueId,
+        deletedAt: null,
+        user: {
+          displayName: nickname,
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+  },
 };

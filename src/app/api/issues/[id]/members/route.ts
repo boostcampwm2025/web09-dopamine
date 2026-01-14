@@ -4,12 +4,20 @@ import { prisma } from '@/lib/prisma';
 import { issueMemberRepository } from '@/lib/repositories/issue-member.repository';
 import { findIssueById } from '@/lib/repositories/issue.repository';
 import { createAnonymousUser } from '@/lib/repositories/user.repository';
+import { issueMemberService } from '@/lib/services/issue-member.service';
 
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ): Promise<NextResponse> {
   const { id } = await params;
+  const { searchParams } = new URL(req.url);
+  const nickname = searchParams.get('nickname');
+
+  if (nickname) {
+    const isDuplicate = await issueMemberService.checkNicknameDuplicate(id, nickname);
+    return NextResponse.json({ isDuplicate });
+  }
 
   try {
     const members = await issueMemberRepository.findMembersByIssueId(id);
