@@ -1,14 +1,15 @@
 ﻿import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTooltipStore } from '@/components/tooltip/use-tooltip-store';
-import { CardStatus } from '../types/idea';
 import { VOTE_TYPE } from '@/constants/issue';
+import { CardStatus } from '../types/idea';
+import type { FilterType } from './use-filter-idea';
 
 interface UseIdeaCardProps {
   content?: string;
   agreeCount?: number;
   disagreeCount?: number;
   isSelected?: boolean;
-  status?: 'needDiscussion' | 'highlighted' | 'selected' | 'default';
+  status?: CardStatus;
   editable?: boolean;
   onSave?: (content: string) => void;
   onClick?: () => void;
@@ -40,6 +41,7 @@ export default function useIdeaCard(props: UseIdeaCardProps) {
   >(null);
   const [agreeCountState, setAgreeCountState] = useState<number>(agreeCount);
   const [disagreeCountState, setDisagreeCountState] = useState<number>(disagreeCount);
+
   useEffect(() => {
     setAgreeCountState(agreeCount);
   }, [agreeCount]);
@@ -62,7 +64,8 @@ export default function useIdeaCard(props: UseIdeaCardProps) {
     setDisplayContent(content);
   }, [content]);
 
-  // isSelected / highlighted 플래그에 따라 status를 설정합니다.
+  // 상태 우선순위: isSelected(선택된 카드) 가 최우선으로 'selected'를 적용합니다.
+  // 그 외에는 부모에서 전달된 `status`(예: 'highlighted')를 그대로 사용합니다.
   useEffect(() => {
     if (isSelected) {
       setStatus('selected');
@@ -164,13 +167,15 @@ export default function useIdeaCard(props: UseIdeaCardProps) {
     handleKeyDownEdit,
   };
 }
-export type IdeaStatus = 'default' | 'highlighted';
 
-export const useIdeaStatus = (highlightedIds: Set<string>) => {
+export const useIdeaStatus = (filteredIds: Set<string>, activeFilter: FilterType) => {
   return useCallback(
-    (ideaId: string): IdeaStatus =>
-      highlightedIds.has(ideaId) ? 'highlighted' : 'default',
-    [highlightedIds],
+    (ideaId: string): CardStatus => {
+      if (!filteredIds.has(ideaId)) return 'default';
+      if (activeFilter === 'most-liked') return 'mostLiked';
+      if (activeFilter === 'need-discussion') return 'needDiscussion';
+      return 'default';
+    },
+    [filteredIds, activeFilter],
   );
 };
-

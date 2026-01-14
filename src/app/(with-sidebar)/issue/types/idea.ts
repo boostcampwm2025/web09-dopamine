@@ -20,12 +20,12 @@ export interface IdeaWithPosition {
   categoryId: string | null;
   position: Position | null;
   isSelected?: boolean;
-  isVotePhase?: boolean;
-  isVoteEnded?: boolean;
+  isVoteButtonVisible?: boolean;
+  isVoteDisabled?: boolean;
   agreeCount?: number;
   disagreeCount?: number;
   needDiscussion?: boolean;
   editable?: boolean;
 }
 
-export type CardStatus = 'needDiscussion' | 'selected' | 'default' | 'highlighted';
+export type CardStatus = 'mostLiked' | 'needDiscussion' | 'selected' | 'default';
