@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useReducer, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 interface UseCategoryProps {
   title: string;
@@ -11,45 +11,10 @@ export default function useCategory(props: UseCategoryProps) {
   const [draftTitle, setDraftTitle] = useState<string>(title);
   const [isEditing, setIsEditing] = useState<boolean>(false);
 
-  const initialState = {
-    curTitle: '',
-    draftTitle: '',
-    isEditing: false,
-  };
-
-  type TitleAction =
-    | { type: 'SET_CUR_TITLE'; payload: string }
-    | { type: 'SET_DRAFT_TITLE'; payload: string }
-    | { type: 'SET_IS_EDITING'; payload: boolean };
-
-  const titleReducer = (state: typeof initialState, action: TitleAction) => {
-    switch (action.type) {
-      case 'SET_CUR_TITLE':
-        return {
-          ...state,
-          curTitle: action.payload,
-        };
-      case 'SET_DRAFT_TITLE':
-        return {
-          ...state,
-          draftTitle: action.payload,
-        };
-      case 'SET_IS_EDITING':
-        return {
-          ...state,
-          isEditing: action.payload,
-        };
-      default:
-        return state;
-    }
-  };
-
-  const [_, dispatch] = useReducer(titleReducer, initialState);
-
   useEffect(() => {
-    dispatch({ type: 'SET_CUR_TITLE', payload: title });
-    dispatch({ type: 'SET_DRAFT_TITLE', payload: title });
-    dispatch({ type: 'SET_IS_EDITING', payload: false });
+    setCurTitle(title);
+    setDraftTitle(title);
+    setIsEditing(false);
   }, [title]);
 
   const submitEditedTitle = useCallback(

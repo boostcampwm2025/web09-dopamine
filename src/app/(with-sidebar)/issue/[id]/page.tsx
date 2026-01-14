@@ -9,7 +9,7 @@ import IdeaCard from '@/app/(with-sidebar)/issue/_components/idea-card/idea-card
 import { useAIStructuring } from '@/app/(with-sidebar)/issue/hooks/use-ai-structuring';
 import { useCategoryOperations } from '@/app/(with-sidebar)/issue/hooks/use-category-operations';
 import { useDragAndDrop } from '@/app/(with-sidebar)/issue/hooks/use-drag-and-drop';
-import { useIdeaHighlight } from '@/app/(with-sidebar)/issue/hooks/use-highlighted-ideas';
+import { useFilterIdea } from '@/app/(with-sidebar)/issue/hooks/use-filter-idea';
 import { useIdeaStatus } from '@/app/(with-sidebar)/issue/hooks/use-idea-card';
 import { useIdeaOperations } from '@/app/(with-sidebar)/issue/hooks/use-idea-operations';
 import { useIssueData } from '@/app/(with-sidebar)/issue/hooks/use-issue-data';
@@ -29,7 +29,8 @@ const IssuePage = () => {
   const { setCategories } = useCategoryStore(issueId);
 
   // 1. 이슈 데이터 초기화
-  const { isAIStructuring, isCreateIdeaActive, isVoteActive, isVoteEnded } = useIssueData(issueId);
+  const { isAIStructuring, isCreateIdeaActive, isVoteButtonVisible, isVoteDisabled } =
+    useIssueData(issueId);
 
   // 2. 아이디어 관련 작업
   const {
@@ -44,8 +45,13 @@ const IssuePage = () => {
   } = useIdeaOperations(issueId, isCreateIdeaActive);
 
   // 3. 카테고리 관련 작업
-  const { categories, checkCategoryOverlap, handleCategoryPositionChange, handleDeleteCategory } =
-    useCategoryOperations(issueId, ideas, scale);
+  const {
+    categories,
+    checkCategoryOverlap,
+    handleCategoryPositionChange,
+    handleDeleteCategory,
+    handleCategoryTitleChange,
+  } = useCategoryOperations(issueId, ideas, scale);
 
   // 4. DnD 관련 작업
   const { sensors, activeId, overlayEditValue, handleDragStart, handleDragEnd } = useDragAndDrop({
@@ -64,8 +70,8 @@ const IssuePage = () => {
   });
 
   // 하이라이트된 아이디어
-  const { activeFilter, setFilter, highlightedIds } = useIdeaHighlight(issueId, ideas);
-  const getIdeaStatus = useIdeaStatus(highlightedIds);
+  const { activeFilter, setFilter, filteredIds } = useFilterIdea(issueId, ideas);
+  const getIdeaStatus = useIdeaStatus(filteredIds, activeFilter);
 
   return (
     <>
@@ -95,6 +101,7 @@ const IssuePage = () => {
                 onPositionChange={handleCategoryPositionChange}
                 checkCollision={checkCategoryOverlap}
                 onRemove={() => handleDeleteCategory(category.id)}
+                onTitleChange={handleCategoryTitleChange}
                 onDropIdea={(ideaId) => handleMoveIdeaToCategory(ideaId, category.id)}
               >
                 {categoryIdeas.map((idea) => (
@@ -104,8 +111,8 @@ const IssuePage = () => {
                     issueId={issueId}
                     position={null}
                     status={getIdeaStatus(idea.id)}
-                    isVotePhase={isVoteActive}
-                    isVoteEnded={isVoteEnded}
+                    isVoteButtonVisible={isVoteButtonVisible}
+                    isVoteDisabled={isVoteDisabled}
                     onVoteChange={(agreeCount, disagreeCount) =>
                       handleVoteChange(idea.id, agreeCount, disagreeCount)
                     }
@@ -127,8 +134,8 @@ const IssuePage = () => {
                 {...idea}
                 issueId={issueId}
                 status={getIdeaStatus(idea.id)}
-                isVotePhase={isVoteActive}
-                isVoteEnded={isVoteEnded}
+                isVoteButtonVisible={isVoteButtonVisible}
+                isVoteDisabled={isVoteDisabled}
                 onPositionChange={handleIdeaPositionChange}
                 onVoteChange={(agreeCount, disagreeCount) =>
                   handleVoteChange(idea.id, agreeCount, disagreeCount)
@@ -159,8 +166,8 @@ const IssuePage = () => {
                       content={overlayEditValue ?? activeIdea.content}
                       position={null}
                       status={getIdeaStatus(activeIdea.id)}
-                      isVotePhase={isVoteActive}
-                      isVoteEnded={isVoteEnded}
+                      isVoteButtonVisible={isVoteButtonVisible}
+                      isVoteDisabled={isVoteDisabled}
                     />
                   </div>
                 );

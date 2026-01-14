@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { DragEndEvent, DragStartEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import type { IdeaWithPosition, Position } from '@/app/(with-sidebar)/issue/types/idea';
 
@@ -49,8 +49,8 @@ export function useDragAndDrop({
     if (!idea) return;
 
     // 카테고리로 드롭한 경우
-    if (over && over.id.toString().startsWith('category-')) {
-      onMoveIdeaToCategory(ideaId, over.id as string);
+    if (over && over.data?.current?.type === 'category') {
+      onMoveIdeaToCategory(ideaId, over.data.current.categoryId as string);
     }
     // 자유 배치 영역 (over가 없거나 카테고리가 아닌 경우)
     else if (idea.position) {

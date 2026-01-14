@@ -10,7 +10,7 @@ import { useIdeaQuery } from '../../hooks/use-idea-query';
 import { useIdeaCardStackStore } from '../../store/use-idea-card-stack-store';
 import { useIdeaStore } from '../../store/use-idea-store';
 import { useIssueStore } from '../../store/use-issue-store';
-import type { Position } from '../../types/idea';
+import type { CardStatus, Position } from '../../types/idea';
 import * as S from './idea-card.styles';
 
 interface IdeaCardProps {
@@ -21,12 +21,12 @@ interface IdeaCardProps {
   author?: string;
   position?: Position | null;
   isSelected?: boolean;
-  isVotePhase?: boolean;
-  isVoteEnded?: boolean;
+  isVoteButtonVisible?: boolean;
+  isVoteDisabled?: boolean;
   agreeCount?: number;
   disagreeCount?: number;
   editable?: boolean;
-  status?: 'needDiscussion' | 'selected' | 'highlighted' | 'default';
+  status?: CardStatus;
   onVoteChange?: (agreeCount: number, disagreeCount: number) => void;
   categoryId?: string | null;
   onSave?: (content: string) => void;
@@ -41,8 +41,8 @@ export type DragItemPayload = {
   content?: string;
   author?: string;
   isSelected?: boolean;
-  isVotePhase?: boolean;
-  isVoteEnded?: boolean;
+  isVoteButtonVisible?: boolean;
+  isVoteDisabled?: boolean;
   agreeCount?: number;
   disagreeCount?: number;
   needDiscussion?: boolean;
@@ -158,6 +158,7 @@ export default function IdeaCard(props: IdeaCardProps) {
   return (
     <S.Card
       ref={setNodeRef}
+      issueStatus={issueStatus}
       status={status}
       isDragging={isDragging}
       inCategory={inCategory}
@@ -171,17 +172,16 @@ export default function IdeaCard(props: IdeaCardProps) {
           ))}
       style={cardStyle}
     >
-      {status === 'selected' && (
-        <S.Badge>
-          <Image
-            src="/crown.svg"
-            alt="채택 아이콘"
-            width={20}
-            height={20}
-          />
-          <span>채택</span>
-        </S.Badge>
-      )}
+      <S.Badge status={status}>
+        <Image
+          src="/crown.svg"
+          alt="채택 아이콘"
+          width={20}
+          height={20}
+        />
+        <span>채택</span>
+      </S.Badge>
+
       <S.Header>
         {isEditing ? (
           <S.EditableInput
@@ -200,7 +200,7 @@ export default function IdeaCard(props: IdeaCardProps) {
         )}
         <S.Meta>
           <S.AuthorPill>{props.author}</S.AuthorPill>
-          {props.isVotePhase ? (
+          {props.isVoteButtonVisible ? (
             <S.IconButton aria-label="comment">
               <Image
                 src="/comment.svg"
@@ -213,26 +213,28 @@ export default function IdeaCard(props: IdeaCardProps) {
             <>{isEditing ? <S.SubmitButton onClick={submitEdit}>제출</S.SubmitButton> : null}</>
           )}
         </S.Meta>
-        <S.DeleteButton
-          aria-label="delete"
-          onClick={handleDeleteClick}
-        >
-          <Image
-            src="/close.svg"
-            alt="삭제"
-            width={14}
-            height={14}
-          />
-        </S.DeleteButton>
+        {issueStatus === ISSUE_STATUS.BRAINSTORMING && (
+          <S.DeleteButton
+            aria-label="delete"
+            onClick={handleDeleteClick}
+          >
+            <Image
+              src="/close.svg"
+              alt="삭제"
+              width={14}
+              height={14}
+            />
+          </S.DeleteButton>
+        )}
       </S.Header>
-      {props.isVotePhase && (
+      {props.isVoteButtonVisible && (
         <S.Footer>
           <S.VoteButton
             kind={VOTE_TYPE.AGREE}
             cardStatus={status}
             active={idea?.myVote === VOTE_TYPE.AGREE}
             onClick={handleAgree}
-            disabled={props.isVoteEnded}
+            disabled={props.isVoteDisabled}
           >
             찬성 {idea?.agreeCount}
           </S.VoteButton>
@@ -241,7 +243,7 @@ export default function IdeaCard(props: IdeaCardProps) {
             cardStatus={status}
             active={idea?.myVote === VOTE_TYPE.DISAGREE}
             onClick={handleDisagree}
-            disabled={props.isVoteEnded}
+            disabled={props.isVoteDisabled}
           >
             반대 {idea?.disagreeCount}
           </S.VoteButton>
