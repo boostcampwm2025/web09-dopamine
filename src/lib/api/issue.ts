@@ -23,6 +23,7 @@ export async function createQuickIssue(title: string, nickname: string) {
   }
 }
 
+// 이슈 아이디로 이슈에 참여한 멤버들 조회
 export async function getIssueMembers(issueId: string) {
   try {
     const response = await fetch(`/api/issues/${issueId}/members`);
@@ -32,7 +33,26 @@ export async function getIssueMembers(issueId: string) {
     }
     return null;
   } catch (error) {
-    console.error('이슈 상태 가져오기 실패:', error);
+    console.error('이슈 멤버 조회 실패:', error);
+    return null;
+  }
+}
+
+// 이슈에 참가
+export async function joinIssue(issueId: string, nickname: string) {
+  try {
+    const response = await fetch(`/api/issues/${issueId}/members`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nickname }),
+    });
+    if (response.ok) {
+      const data = await response.json();
+      return data;
+    }
+    return null;
+  } catch (error) {
+    console.error('이슈 참여 실패:', error);
     return null;
   }
 }

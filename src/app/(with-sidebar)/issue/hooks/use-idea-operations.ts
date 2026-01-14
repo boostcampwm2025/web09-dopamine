@@ -3,6 +3,7 @@ import toast from 'react-hot-toast';
 import { useIdeaCardStackStore } from '@/app/(with-sidebar)/issue/store/use-idea-card-stack-store';
 import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
 import type { IdeaWithPosition, Position } from '@/app/(with-sidebar)/issue/types/idea';
+import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
 import {
   createIdea,
   deleteIdea as deleteIdeaAPI,
@@ -77,10 +78,10 @@ export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) 
     }
 
     try {
-      const userId = localStorage.getItem('userId');
+      const userId = getUserIdForIssue(issueId);
       if (!userId) {
         toast.error('사용자 정보를 찾을 수 없습니다.');
-        throw new Error('User ID not found');
+        return;
       }
 
       const idea = ideas.find((idea) => idea.id === id);

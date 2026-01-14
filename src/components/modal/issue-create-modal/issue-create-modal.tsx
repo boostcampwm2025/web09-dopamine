@@ -4,12 +4,14 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { createQuickIssue } from '@/lib/api/issue';
+import { setUserIdForIssue } from '@/lib/storage/issue-user-storage';
+import { generateRandomNickname } from '@/lib/utils/nickname';
 import { useModalStore } from '../use-modal-store';
 import * as S from './issue-create-modal.styles';
 
 export default function CreateIssueModal() {
   const [title, setTitle] = useState('');
-  const [ownerNickname, setOwnerNickname] = useState('');
+  const [ownerNickname, setOwnerNickname] = useState(generateRandomNickname());
   const router = useRouter();
   const { closeModal } = useModalStore();
 
@@ -22,7 +24,8 @@ export default function CreateIssueModal() {
     const result = await createQuickIssue(title, ownerNickname);
 
     if (result?.issueId) {
-      localStorage.setItem('userId', result.userId);
+      // 이슈별로 userId 저장
+      setUserIdForIssue(result.issueId, result.userId);
       closeModal();
       router.push(`/issue/${result.issueId}`);
     } else {
@@ -39,7 +42,7 @@ export default function CreateIssueModal() {
           <S.Input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="서비스 홍보 방안"
+            placeholder="예시) 서비스 홍보 방안"
           />
         </S.InputWrapper>
         <S.InputWrapper>
@@ -47,7 +50,7 @@ export default function CreateIssueModal() {
           <S.Input
             value={ownerNickname}
             onChange={(e) => setOwnerNickname(e.target.value)}
-            placeholder="생각하는 단무지"
+            placeholder="예시) 생각하는 단무지"
           />
         </S.InputWrapper>
       </S.InfoContainer>
