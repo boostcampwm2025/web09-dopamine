@@ -1,10 +1,9 @@
 ﻿import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTooltipStore } from '@/components/tooltip/use-tooltip-store';
-import { CardStatus } from '../types/idea';
-import { useVoteMutation } from './use-vote-mutation';
 import { VOTE_TYPE } from '@/constants/issue';
 import { CardStatus } from '../types/idea';
 import type { FilterType } from './use-filter-idea';
+import { useVoteMutation } from './use-vote-mutation';
 
 interface UseIdeaCardProps {
   id?: string;
