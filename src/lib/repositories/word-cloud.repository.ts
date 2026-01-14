@@ -50,7 +50,9 @@ export async function findWordCloudsByReportId(reportId: string) {
 }
 
 export async function findIssueTextSourcesForWordCloud(issueId: string, tx?: PrismaTransaction) {
-  return prisma.issue.findUnique({
+  const client = tx ?? prisma;
+
+  return client.issue.findUnique({
     where: { id: issueId },
     include: {
       ideas: {
