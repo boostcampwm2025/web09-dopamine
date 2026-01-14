@@ -71,7 +71,7 @@ export async function findReportWithDetailsById(
               },
               comments: {
                 where: { deletedAt: null },
-                select: { id: true },
+                select: { id: true, content: true },
               },
               // 카테고리 정보
               category: {
