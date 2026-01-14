@@ -45,16 +45,20 @@ export const useFilterIdea = (issueId: string, initialIdeas: IdeaWithPosition[])
     const thirdAgree = getVoteCounts(thirdStandard).agree;
 
     const result = sorted.filter((idea, index) => {
-      if (index < 3) return true;
-
       const ideaV = getVoteCounts(idea);
 
+      // 득표 수가 0인 경우 포함하지 않음
       if (ideaV.total === 0) return false;
 
+      // 1~3등 아이디어까지는 기본적으로 포함
+      if (index < 3) return true;
+
+      // "논의 필요" 기준으로 정렬된 경우 경우 3등과 득표수가 같은 아이디어를 필터에 포함
       if (activeFilter === 'need-discussion') {
         return getVoteCounts(idea).agree === thirdAgree;
       }
 
+      // "찬성 많은" 기준으로 정렬된 경우 [찬성 - 반대] 수치가 동일하면서 찬성 수가 같은 아이디어를 필터에 추가
       const ideaDiff = ideaV.agree - ideaV.disagree;
       const thirdDiff = thirdStandard
         ? getVoteCounts(thirdStandard).agree - getVoteCounts(thirdStandard).disagree
