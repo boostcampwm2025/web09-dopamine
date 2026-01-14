@@ -23,6 +23,20 @@ export async function createQuickIssue(title: string, nickname: string) {
   }
 }
 
+export async function getIssueMembers(issueId: string) {
+  try {
+    const response = await fetch(`/api/issues/${issueId}/members`);
+    if (response.ok) {
+      const data = await response.json();
+      return data;
+    }
+    return null;
+  } catch (error) {
+    console.error('이슈 상태 가져오기 실패:', error);
+    return null;
+  }
+}
+
 /**
  * 이슈의 현재 상태를 가져옵니다.
  */
