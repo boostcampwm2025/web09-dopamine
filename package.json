@@ -50,6 +50,7 @@
     "react": "19.2.1",
     "react-dom": "19.2.1",
     "react-hot-toast": "^2.6.0",
+    "wordcloud": "^1.2.3",
     "zustand": "^5.0.9"
   },
   "devDependencies": {
