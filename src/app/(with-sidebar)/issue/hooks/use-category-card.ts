@@ -1,15 +1,19 @@
 import { useCallback, useEffect, useState } from 'react';
+import { useCategoryMutations } from './queries/use-category-mutation';
 
 interface UseCategoryProps {
+  id: string;
+  issueId: string;
   title: string;
-  onTitleChange?: (newTitle: string) => void;
 }
 
 export default function useCategory(props: UseCategoryProps) {
-  const { title, onTitleChange } = props;
+  const { id, issueId, title } = props;
   const [curTitle, setCurTitle] = useState<string>(title);
   const [draftTitle, setDraftTitle] = useState<string>(title);
   const [isEditing, setIsEditing] = useState<boolean>(false);
+
+  const { update } = useCategoryMutations(issueId);
 
   useEffect(() => {
     setCurTitle(title);
@@ -21,16 +25,23 @@ export default function useCategory(props: UseCategoryProps) {
     (nextTitle: string) => {
       const value = nextTitle.trim();
       const finalTitle = value || curTitle;
+
+      // 변경이 없으면 API 호출 안 함
+      if (finalTitle === curTitle) {
+        setIsEditing(false);
+        return;
+      }
+
       setCurTitle(finalTitle);
       setDraftTitle(finalTitle);
       setIsEditing(false);
 
-      // 서버에 변경사항 전달
-
-      // Zustand 스토어 업데이트
-      onTitleChange?.(finalTitle);
+      update.mutate({
+        categoryId: id,
+        payload: { title: finalTitle },
+      });
     },
-    [curTitle, onTitleChange],
+    [curTitle, id, update],
   );
 
   const cancelEditingTitle = () => {
