@@ -17,6 +17,7 @@ export default async function IssueSummaryPage({ params }: { params: Promise<{ i
   const selectedIdeaTitle = report.selectedIdea?.content ?? '선택된 아이디어가 없습니다';
   const selectedIdeaVotes = report.selectedIdea?.voteCount ?? 0;
   const candidateCount = report.rankings.all.length;
+  const memo = report.memo ?? undefined;
 
   const Ranking = {
     normal: report.rankings.all,
@@ -30,6 +31,7 @@ export default async function IssueSummaryPage({ params }: { params: Promise<{ i
           title={selectedIdeaTitle}
           votes={selectedIdeaVotes}
           candidates={candidateCount}
+          memo={memo}
         />
         <div className={styles.wordCloudAndVoteBox}>
           <div className={`${styles.componentBox} ${styles.componentBoxFlex2}`}>

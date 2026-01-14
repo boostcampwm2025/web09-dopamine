@@ -1,23 +1,13 @@
 'use client';
 
 import Image from 'next/image';
-import {
-  Badge,
-  Border,
-  Card,
-  CandidatesValue,
-  LeftStat,
-  RightStat,
-  StatLabel,
-  Stats,
-  Title,
-  VotesValue,
-} from './conclusion-section.styles';
+import * as S from './conclusion-section.styles';
 
 type ConclusionSectionProps = {
   badgeText?: string;
   title: string;
   votes: number;
+  memo?: string;
   candidates: number;
 };
 
@@ -25,10 +15,11 @@ export default function ConclusionSection({
   title,
   votes,
   candidates,
+  memo,
 }: ConclusionSectionProps) {
   return (
-    <Card>
-      <Badge>
+    <S.Card>
+      <S.Badge>
         <Image
           src="/summary-crown.svg"
           alt="채택 아이콘"
@@ -36,19 +27,20 @@ export default function ConclusionSection({
           height={14}
         />
         <span>Selected Idea</span>
-      </Badge>
-      <Title>{title}</Title>
-      <Stats>
-        <LeftStat>
-          <VotesValue>{votes}</VotesValue>
-          <StatLabel>Votes</StatLabel>
-        </LeftStat>
-        <Border />
-        <RightStat>
-          <CandidatesValue>{candidates}</CandidatesValue>
-          <StatLabel>Candidates</StatLabel>
-        </RightStat>
-      </Stats>
-    </Card>
+      </S.Badge>
+      <S.Title>{title}</S.Title>
+      {memo && <S.Memo>{memo}</S.Memo>}
+      <S.Stats>
+        <S.LeftStat>
+          <S.VotesValue>{votes}</S.VotesValue>
+          <S.StatLabel>Votes</S.StatLabel>
+        </S.LeftStat>
+        <S.Border />
+        <S.RightStat>
+          <S.CandidatesValue>{candidates}</S.CandidatesValue>
+          <S.StatLabel>Candidates</S.StatLabel>
+        </S.RightStat>
+      </S.Stats>
+    </S.Card>
   );
 }
