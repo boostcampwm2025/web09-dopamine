@@ -6,7 +6,7 @@ export default function NewIssueButton() {
   return (
     <S.StyledNewIssueButton>
       <Image
-        src="/add.svg"
+        src="/white-add.svg"
         alt="플러스 아이콘"
         width={18}
         height={18}

@@ -8,6 +8,11 @@ export const ISSUE_STATUS = {
   CLOSE: 'CLOSE',
 } as const;
 
+export const MEMBER_ROLE = {
+  OWNER: 'OWNER',
+  MEMBER: 'MEMBER',
+};
+
 export const VOTE_TYPE = {
   AGREE: 'agree',
   DISAGREE: 'disagree',
