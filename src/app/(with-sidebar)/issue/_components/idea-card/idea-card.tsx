@@ -218,7 +218,7 @@ export default function IdeaCard(props: IdeaCardProps) {
             <>{isEditing ? <S.SubmitButton onClick={submitEdit}>제출</S.SubmitButton> : null}</>
           )}
         </S.Meta>
-        {issueStatus === ISSUE_STATUS.BRAINSTORMING && (
+        {issueStatus === ISSUE_STATUS.BRAINSTORMING && isCurrentUser && (
           <S.DeleteButton
             aria-label="delete"
             onClick={handleDeleteClick}
