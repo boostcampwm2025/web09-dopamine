@@ -1,9 +1,26 @@
 import styled from '@emotion/styled';
-import { VOTE_TYPE } from '@/constants/issue';
+import { ISSUE_STATUS, VOTE_TYPE } from '@/constants/issue';
 import { theme } from '@/styles/theme';
+import { IssueStatus } from '@/types/issue';
 import { CardStatus } from '../../types/idea';
 
+export const Badge = styled.div<{ status?: CardStatus }>`
+  position: absolute;
+  top: -20px;
+  right: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 10px 16px;
+  background: ${theme.colors.yellow[500]};
+  color: ${theme.colors.white};
+  border-radius: ${theme.radius.large};
+  box-shadow: 0 6px 18px rgba(18, 18, 14, 0.18);
+  font-weight: 800;
+  opacity: ${({ status }) => (status === 'selected' ? 1 : 0)};
+`;
 export const Card = styled.article<{
+  issueStatus?: IssueStatus;
   status?: CardStatus;
   isDragging?: boolean;
   inCategory?: boolean;
@@ -14,11 +31,14 @@ export const Card = styled.article<{
   box-shadow: 0 4px 10px rgba(31, 41, 55, 0.06);
   ${({ status }) => {
     switch (status) {
-      case 'highlighted':
+      case 'needDiscussion':
         return `
         border: 2px solid ${theme.colors.red[600]};
-        background: ${theme.colors.white};
-        box-shadow: 0 4px 10px rgba(236, 0, 0, 0.77);
+        background: ${theme.colors.red[50]};
+        `;
+      case 'mostLiked':
+        return `border: 2px solid ${theme.colors.blue[600]};
+        background: ${theme.colors.blue[50]};
         `;
       case 'selected':
         return `
@@ -37,6 +57,23 @@ export const Card = styled.article<{
   }}
   min-width: 30em;
   max-width: 30em;
+
+  &:hover {
+    ${({ issueStatus, status }) => {
+      if (issueStatus === ISSUE_STATUS.SELECT && status !== 'selected') {
+        return `
+        border: 2px solid ${theme.colors.yellow[400]};
+        background: ${theme.colors.white};
+        box-shadow: 0 4px 10px rgba(252, 220, 89, 0.86);
+
+        ${Badge}{
+        opacity: 1;
+        background: ${theme.colors.yellow[400]};
+        }
+        `;
+      }
+    }}
+  }
 
   /* 등장 애니메이션 */
   @keyframes ideaCardAppear {
@@ -61,21 +98,6 @@ export const Header = styled.div`
   gap: 12px;
   width: 100%;
   position: relative;
-`;
-
-export const Badge = styled.div`
-  position: absolute;
-  top: -20px;
-  right: 12px;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 10px 16px;
-  background: ${theme.colors.yellow[500]};
-  color: ${theme.colors.white};
-  border-radius: ${theme.radius.large};
-  box-shadow: 0 6px 18px rgba(18, 18, 14, 0.18);
-  font-weight: 800;
 `;
 
 export const Content = styled.pre`
@@ -201,10 +223,11 @@ export const VoteButton = styled.button<{
     box-shadow 160ms ease;
 
   ${({ kind, active, cardStatus }) => {
+    if (cardStatus === 'selected') {
+      return `background: ${theme.colors.yellow[50]}; color: ${theme.colors.yellow[700]}; box-shadow: inset 0 -2px 0 rgba(250,204,21,0.15); border: 1px solid rgba(250,204,21,0.3);`;
+    }
+
     if (kind === VOTE_TYPE.AGREE) {
-      if (cardStatus === 'selected') {
-        return `background: ${theme.colors.yellow[50]}; color: ${theme.colors.yellow[700]}; box-shadow: inset 0 -2px 0 rgba(250,204,21,0.15);`;
-      }
       if (active) {
         return `background: ${theme.colors.green[600]}; color: ${theme.colors.white};`;
       }
@@ -222,7 +245,7 @@ export const VoteButton = styled.button<{
       if (active || cardStatus === 'selected') return '';
       if (kind === VOTE_TYPE.AGREE)
         return `background: ${theme.colors.green[600]}; color: ${theme.colors.white};`;
-      return `background: ${theme.colors.red[200]}; color: ${theme.colors.red[600]};`;
+      return `background: ${theme.colors.red[600]}; color: ${theme.colors.white};`;
     }}
   }
 

@@ -63,8 +63,8 @@ export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) 
       categoryId: null,
       position,
       editable: true,
-      isVotePhase: false,
-      isVoteEnded: false,
+      isVoteButtonVisible: false,
+      isVoteDisabled: false,
     };
 
     addIdea(newIdea);

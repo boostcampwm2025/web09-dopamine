@@ -17,15 +17,17 @@ export const FilterPanel = styled.div`
 export const Btn = styled.button<{ $selected: boolean }>`
   border-radius: ${theme.radius.large};
   padding: 10px;
-  transition: transform 120ms ease, box-shadow 120ms ease;
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
   &:hover {
     transform: translateY(-1px);
   }
   font-size: ${theme.font.size.small};
   ${({ $selected }) => `
-    border: ${$selected ? '2px' : '1px'} solid ${theme.colors.yellow[400]};
-    background: ${$selected ? theme.colors.yellow[200] : 'none'};
-    color: ${$selected ? theme.colors.yellow[800] : theme.colors.yellow[600]};
+    border: ${$selected ? '2px' : '1px'} solid ${theme.colors.blue[400]};
+    background: ${$selected ? theme.colors.blue[100] : 'none'};
+    color: ${$selected ? theme.colors.blue[800] : theme.colors.blue[600]};
   `}
 `;
