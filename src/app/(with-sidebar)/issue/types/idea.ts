@@ -5,6 +5,7 @@ export interface Position {
 
 export interface Idea {
   id: string;
+  userId: string;
   content: string;
   author: string;
   category: string;
@@ -15,6 +16,7 @@ export interface Idea {
 
 export interface IdeaWithPosition {
   id: string;
+  userId: string;
   content: string;
   author: string;
   categoryId: string | null;

@@ -58,6 +58,7 @@ export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) 
     const tempId = `temp-${Date.now()}`;
     const newIdea: IdeaWithPosition = {
       id: tempId,
+      userId: '',
       content: '',
       author: '나',
       categoryId: null,

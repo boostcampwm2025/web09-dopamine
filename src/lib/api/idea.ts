@@ -14,10 +14,7 @@ export async function fetchIdeas(issueId: string): Promise<Idea[]> {
   }
 }
 
-export async function createIdea(
-  issueId: string,
-  ideaData: CreateIdeaRequest,
-): Promise<Idea> {
+export async function createIdea(issueId: string, ideaData: CreateIdeaRequest): Promise<Idea> {
   const response = await fetch(`/api/issues/${issueId}/idea`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -31,16 +28,10 @@ export async function createIdea(
   return response.json();
 }
 
-export async function deleteIdea(
-  issueId: string,
-  ideaId: string,
-): Promise<{ success: boolean }> {
-  const response = await fetch(
-    `/api/issues/${issueId}/idea?ideaId=${ideaId}`,
-    {
-      method: 'DELETE',
-    },
-  );
+export async function deleteIdea(issueId: string, ideaId: string): Promise<{ success: boolean }> {
+  const response = await fetch(`/api/issues/${issueId}/idea?ideaId=${ideaId}`, {
+    method: 'DELETE',
+  });
 
   if (!response.ok) {
     throw new Error('아이디어 삭제에 실패했습니다.');
@@ -48,6 +39,28 @@ export async function deleteIdea(
 
   return response.json();
 }
+
+export const getIdea = async (ideaId: string, userId?: string) => {
+  //TODO: userId를 클라이언트에서 전달하지 않는 방식으로 수정 필요
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+
+  if (userId) {
+    headers['x-user-id'] = userId;
+  }
+
+  const response = await fetch(`/api/ideas/${ideaId}`, {
+    method: 'GET',
+    headers: headers,
+  });
+
+  if (!response.ok) {
+    throw new Error('아이디어 조회에 실패했습니다.');
+  }
+
+  return response.json();
+};
 
 export async function updateIdea(
   issueId: string,

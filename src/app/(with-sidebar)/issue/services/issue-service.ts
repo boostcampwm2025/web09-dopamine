@@ -13,9 +13,10 @@ export async function getCategorizedIdeas() {
   const rawData: Idea[] = mockIdeasWithCategory.map((idea, index) => {
     const category = (idea.categoryId && categoriesById[idea.categoryId]) || 'Uncategorized';
     return {
-      id: idea.id,
-      author: idea.author,
-      content: idea.content,
+      id: idea.id ?? '',
+      userId: idea.userId ?? '',
+      author: idea.author ?? '나',
+      content: idea.content ?? '',
       category,
       agreeCount: idea.agreeCount ?? 0,
       disagreeCount: idea.disagreeCount ?? 0,
@@ -39,9 +40,9 @@ export async function getAllIdeas() {
 }
 
 export function getVoteCounts(idea: IdeaWithPosition) {
-    const agree = idea.agreeCount ?? 0;
-    const disagree = idea.disagreeCount ?? 0;
-    const total = agree + disagree;
-    const diff = Math.abs(agree - disagree);
-    return { agree, disagree, total, diff };
+  const agree = idea.agreeCount ?? 0;
+  const disagree = idea.disagreeCount ?? 0;
+  const total = agree + disagree;
+  const diff = Math.abs(agree - disagree);
+  return { agree, disagree, total, diff };
 }
