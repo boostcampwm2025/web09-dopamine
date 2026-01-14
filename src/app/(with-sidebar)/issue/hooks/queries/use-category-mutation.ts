@@ -13,7 +13,7 @@ type CategoryPayload = {
 
 export const useCategoryMutations = (issueId: string) => {
   const queryClient = useQueryClient();
-  const queryKey = ['categories', issueId];
+  const queryKey = ['issues', issueId, 'categories'];
 
   const create = useMutation({
     mutationFn: (payload: CategoryPayload) => createCategory(issueId, payload),

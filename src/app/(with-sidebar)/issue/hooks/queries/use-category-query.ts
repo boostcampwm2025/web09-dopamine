@@ -3,7 +3,7 @@ import { fetchCategories } from '@/lib/api/category';
 
 export const useCategoryQuery = (issueId: string) => {
   return useQuery({
-    queryKey: ['categories', issueId],
+    queryKey: ['issues', issueId, 'categories'],
     queryFn: () => fetchCategories(issueId),
     staleTime: 1000 * 10,
   });
