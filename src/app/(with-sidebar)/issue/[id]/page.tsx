@@ -10,7 +10,6 @@ import IdeaCard from '@/app/(with-sidebar)/issue/_components/idea-card/idea-card
 import { useAIStructuring } from '@/app/(with-sidebar)/issue/hooks/use-ai-structuring';
 import { useCategoryOperations } from '@/app/(with-sidebar)/issue/hooks/use-category-operations';
 import { useDragAndDrop } from '@/app/(with-sidebar)/issue/hooks/use-drag-and-drop';
-import { useIdeaHighlight } from '@/app/(with-sidebar)/issue/hooks/use-highlighted-ideas';
 import { useFilterIdea } from '@/app/(with-sidebar)/issue/hooks/use-filter-idea';
 import { useIdeaStatus } from '@/app/(with-sidebar)/issue/hooks/use-idea-card';
 import { useIdeaOperations } from '@/app/(with-sidebar)/issue/hooks/use-idea-operations';
