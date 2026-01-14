@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { voteRepository } from '@/lib/repositories/vote.repository';
+import { getFilteredIdeaIds } from '@/lib/idea-filter';
 import type { IdeaWithPosition } from '../types/idea';
 
 export type FilterType = 'most-liked' | 'need-discussion' | 'none';
@@ -14,7 +14,7 @@ export const useFilterIdea = (issueId: string, initialIdeas: IdeaWithPosition[])
 
   // 하이라이트 아이디 계산 (공동 순위 포함 로직)
   const filteredIds = useMemo(
-    () => voteRepository.getFilteredIdeaIds(initialIdeas, activeFilter),
+    () => getFilteredIdeaIds(initialIdeas, activeFilter),
     [initialIdeas, activeFilter],
   );
 
