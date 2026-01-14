@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getFilteredIdeaIds } from '@/lib/idea-filter';
+import type { FilterType } from '@/app/(with-sidebar)/issue/hooks/use-filter-idea';
 import { ideaRepository } from '@/lib/repositories/idea.repository';
 
 export async function GET(
@@ -20,7 +21,7 @@ export async function GET(
           agreeCount: idea.agreeCount ?? 0,
           disagreeCount: idea.disagreeCount ?? 0,
         })),
-        filter as 'most-liked' | 'need-discussion' | 'none',
+        filter as FilterType,
       );
 
       return NextResponse.json({ filteredIds: Array.from(filteredIds) });

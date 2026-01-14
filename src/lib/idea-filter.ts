@@ -1,10 +1,10 @@
+import { FilterType } from '@/app/(with-sidebar)/issue/hooks/use-filter-idea';
+
 type IdeaVoteSnapshot = {
   id: string;
   agreeCount?: number;
   disagreeCount?: number;
 };
-
-export type FilterType = 'most-liked' | 'need-discussion' | 'none';
 
 /**
  * 아이디어의 투표 현황(찬성, 반대, 총합, 차이)을 계산하는 헬퍼 함수
