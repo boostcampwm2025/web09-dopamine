@@ -9,8 +9,8 @@ export const dynamic = 'force-dynamic';
  *
  * 특정 이슈에 대한 실시간 이벤트 스트림을 제공
  */
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
-  const issueId = params.id;
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id: issueId } = await params;
   // AbortSignal 객체 추출
   const { signal } = request;
 
