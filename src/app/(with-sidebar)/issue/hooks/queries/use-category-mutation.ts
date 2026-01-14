@@ -18,6 +18,12 @@ export const useCategoryMutations = (issueId: string) => {
   const create = useMutation({
     mutationFn: (payload: CategoryPayload) => createCategory(issueId, payload),
 
+    onMutate: async () => {
+      // 진행 중인 쿼리 취소 (race condition 방지)
+      // TODO: 낙관적 업데이트 논의 필요
+      await queryClient.cancelQueries({ queryKey });
+    },
+
     onSuccess: (newCategory) => {
       queryClient.setQueryData(queryKey, (oldData: DbCategory[] | undefined) => {
         if (!oldData) return [newCategory];
