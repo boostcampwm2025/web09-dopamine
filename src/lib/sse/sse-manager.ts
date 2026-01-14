@@ -1,22 +1,4 @@
-export interface SSEEvent {
-  type: string;
-  data: any;
-}
-
-export interface SSEConnectionInfo {
-  issueId: string;
-  userId: string | null;
-}
-
-export interface SSEManagerStats {
-  [issueId: string]: number;
-}
-
-export interface CreateStreamParams {
-  issueId: string;
-  userId: string | null;
-  signal: AbortSignal;
-}
+import { BroadcastingEvent, CreateStreamParams } from '@/types/sse';
 
 export class SSEManager {
   private connections = new Map<string, Set<ReadableStreamDefaultController>>();
@@ -86,12 +68,38 @@ export class SSEManager {
     });
   }
 
+  broadcast({ issueId, event }: BroadcastingEvent): void {
+    const issueConnections = this.connections.get(issueId);
+
+    if (!issueConnections || issueConnections.size === 0) {
+      console.log(`[SSE] 이슈에 연결된 유저가 없습니다 Issue: ${issueId}`);
+      return;
+    }
+
+    const encoder = new TextEncoder();
+    const message = `event: ${event.type}\ndata: ${JSON.stringify(event.data)}\n\n`;
+    const encoded = encoder.encode(message);
+
+    console.log(
+      `[SSE] ${issueConnections.size}개의 client에게 브로드캐스팅 - Issue: ${issueId}, Event: ${event.type}`,
+    );
+
+    issueConnections.forEach((controller) => {
+      try {
+        controller.enqueue(encoded);
+      } catch (error) {
+        console.error('[SSE] Failed to send message:', error);
+        issueConnections.delete(controller);
+      }
+    });
+  }
+
   getConnectionCount(issueId: string): number {
     return this.connections.get(issueId)?.size ?? 0;
   }
 
-  getConnectionsInfo(): SSEManagerStats {
-    const info: SSEManagerStats = {};
+  getConnectionsInfo(): Record<string, number> {
+    const info: Record<string, number> = {};
     this.connections.forEach((connections, issueId) => {
       info[issueId] = connections.size;
     });
@@ -99,5 +107,4 @@ export class SSEManager {
   }
 }
 
-// 싱글톤 인스턴스 export
 export const sseManager = new SSEManager();

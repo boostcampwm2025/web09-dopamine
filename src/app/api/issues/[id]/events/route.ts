@@ -35,25 +35,3 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
     },
   });
 }
-
-/**
- * 특정 이슈의 모든 클라이언트에게 이벤트 브로드캐스트
- * 다른 API 라우트에서 이 함수를 import해서 사용
- *
- * @example
- * import { broadcastToIssue } from '@/app/api/issues/[id]/events/route';
- *
- * broadcastToIssue(issueId, {
- *   type: 'idea:created',
- *   data: { id: '123', content: 'New idea' }
- * });
- */
-export function broadcastToIssue(
-  issueId: string,
-  event: {
-    type: string;
-    data: any;
-  },
-) {
-  sseManager.broadcast(issueId, event);
-}
