@@ -7,12 +7,12 @@ export type FilterType = 'most-liked' | 'need-discussion' | 'none';
 export const useFilterIdea = (issueId: string, initialIdeas: IdeaWithPosition[]) => {
   const [activeFilter, setActiveFilter] = useState<FilterType>('none');
 
-  // 2. 필터 변경 시 localStorage에 저장
+  // 필터 변경 시 localStorage에 저장
   useEffect(() => {
     localStorage.setItem(`idea-filter-${issueId}`, activeFilter);
   }, [issueId, activeFilter]);
 
-  // 3. 하이라이트 아이디 계산 (공동 순위 포함 로직)
+  // 하이라이트 아이디 계산 (공동 순위 포함 로직)
   const filteredIds = useMemo(() => {
     if (activeFilter === 'none' || initialIdeas.length === 0) return new Set<string>();
 
@@ -45,11 +45,10 @@ export const useFilterIdea = (issueId: string, initialIdeas: IdeaWithPosition[])
     const thirdAgree = getVoteCounts(thirdStandard).agree;
 
     const result = sorted.filter((idea, index) => {
-      if (index < 3) return true;
-
       const ideaV = getVoteCounts(idea);
-
       if (ideaV.total === 0) return false;
+
+      if (index < 3) return true;
 
       if (activeFilter === 'need-discussion') {
         return getVoteCounts(idea).agree === thirdAgree;
