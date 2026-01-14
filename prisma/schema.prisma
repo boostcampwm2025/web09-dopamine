@@ -188,7 +188,6 @@ model Idea {
   userId     String   @map("user_id") @db.Char(36)
   categoryId String?  @map("category_id") @db.Char(36)
   content    String   @db.Text
-  memo       String?  @db.Text
   positionX  Float?   @map("position_x") @db.Float
   positionY  Float?   @map("position_y") @db.Float
   createdAt  DateTime @default(now()) @map("created_at")
@@ -250,6 +249,7 @@ model Report {
   id             String   @id @default(uuid()) @db.Char(36)
   issueId        String   @map("issue_id") @db.Char(36)
   selectedIdeaId String?  @map("selected_idea_id") @db.Char(36)
+  memo           String?  @db.Text
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
   deletedAt      DateTime? @map("deleted_at")
