@@ -1,7 +1,7 @@
-import { useCallback, useEffect } from 'react';
+﻿import { useCallback, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useIssueStore } from '@/app/(with-sidebar)/issue/store/use-issue-store';
-import { categorizeIdeas } from '@/lib/api/issue';
+import { applyAIStructure, categorizeIdeas } from '@/lib/api/issue';
 import type { Category } from '@/app/(with-sidebar)/issue/types/category';
 import type { IdeaWithPosition } from '@/app/(with-sidebar)/issue/types/idea';
 
@@ -38,42 +38,35 @@ export function useAIStructuring({
     try {
       const aiResponse = await categorizeIdeas(issueId, validIdeas);
 
-      // AI 응답 처리
-      if (aiResponse.categories && Array.isArray(aiResponse.categories)) {
-        // 1. 카테고리 생성
-        const newCategories: Category[] = aiResponse.categories.map(
-          (cat: { title: string; ideaIds: string[] }, index: number) => ({
-            id: `category-${Date.now()}-${index}`,
-            title: cat.title,
-            position: {
-              x: 100 + index * 600,
-              y: 100,
-            },
-            isMuted: false,
-          }),
-        );
-
-        setCategories(newCategories);
-
-        // 2. 각 아이디어의 categoryId 업데이트
-        const updatedIdeas = ideas.map((idea) => {
-          const categoryIndex = aiResponse.categories.findIndex((cat: any) =>
-            cat.ideaIds.includes(idea.id),
-          );
-
-          if (categoryIndex !== -1) {
-            return {
-              ...idea,
-              categoryId: newCategories[categoryIndex].id,
-              position: null, // 카테고리 내부는 position 불필요
-            };
-          }
-
-          return idea;
-        });
-
-        setIdeas(updatedIdeas);
+      if (!aiResponse.categories || !Array.isArray(aiResponse.categories)) {
+        throw new Error('AI 응답 형식이 올바르지 않습니다.');
       }
+
+      const structureResult = await applyAIStructure(issueId, aiResponse.categories);
+      const createdCategories = Array.isArray(structureResult.categories)
+        ? structureResult.categories
+        : [];
+      const ideaCategoryMap = structureResult.ideaCategoryMap ?? {};
+
+      const nextCategories = createdCategories.map((category: any) => ({
+        id: category.id,
+        title: category.title,
+        position: {
+          x: category.positionX ?? 0,
+          y: category.positionY ?? 0,
+        },
+        isMuted: false,
+      })) as Category[];
+
+      setCategories(nextCategories);
+
+      const updatedIdeas = ideas.map((idea) => ({
+        ...idea,
+        categoryId: ideaCategoryMap[idea.id] ?? null,
+        position: null,
+      }));
+
+      setIdeas(updatedIdeas);
     } catch (error) {
       console.error('AI 구조화 오류:', error);
       toast.error('AI 구조화 중 오류가 발생했습니다.');

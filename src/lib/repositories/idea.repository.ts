@@ -1,4 +1,5 @@
-import { prisma } from '@/lib/prisma';
+﻿import { prisma } from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 
 export const ideaRepository = {
   async findByIssueId(issueId: string) {
@@ -35,6 +36,16 @@ export const ideaRepository = {
         },
       },
       orderBy: { createdAt: 'desc' },
+    });
+  },
+
+  async resetCategoriesByIssueId(
+    issueId: string,
+    tx: Prisma.TransactionClient = prisma,
+  ) {
+    return tx.idea.updateMany({
+      where: { issueId },
+      data: { categoryId: null, positionX: null, positionY: null },
     });
   },
 
@@ -80,4 +91,39 @@ export const ideaRepository = {
       data: { deletedAt: new Date() },
     });
   },
+
+  async update(ideaId: string, data: {
+    positionX?: number;
+    positionY?: number;
+    categoryId?: string;
+  }) {
+    const { positionX, positionY, categoryId } = data;
+    return prisma.idea.update({
+      where: { id: ideaId },
+      data: {
+        positionX,
+        positionY,
+        categoryId,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            displayName: true,
+            avatarUrl: true,
+          },
+        },
+        category: {
+          select: {
+            id: true,
+            title: true,
+          },
+        },
+      },
+    });
+  }
 };
+
+
+

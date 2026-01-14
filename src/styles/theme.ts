@@ -80,6 +80,7 @@ export const theme = {
     large: '16px',
     medium: '12px',
     small: '8px',
+    full: '100%',
   },
   font: {
     size: {
