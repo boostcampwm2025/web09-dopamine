@@ -2,6 +2,7 @@
 import toast from 'react-hot-toast';
 import { useIdeaCardStackStore } from '@/app/(with-sidebar)/issue/store/use-idea-card-stack-store';
 import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
+import { useIssueStore } from '@/app/(with-sidebar)/issue/store/use-issue-store';
 import type { IdeaWithPosition, Position } from '@/app/(with-sidebar)/issue/types/idea';
 import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
 import {
@@ -24,6 +25,12 @@ export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) 
   } = useIdeaStore(issueId);
 
   const { addCard, removeCard, setInitialCardData } = useIdeaCardStackStore(issueId);
+
+  // 현재 사용자 정보 가져오기
+  const members = useIssueStore((state) => state.members);
+  const currentUserId = getUserIdForIssue(issueId);
+  const currentUser = members.find((m) => m.id === currentUserId);
+  const currentUserDisplayName = currentUser?.displayName || '나';
 
   useEffect(() => {
     const loadIdeas = async () => {
@@ -58,9 +65,9 @@ export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) 
     const tempId = `temp-${Date.now()}`;
     const newIdea: IdeaWithPosition = {
       id: tempId,
-      userId: '',
+      userId: currentUserId || '',
       content: '',
-      author: '나',
+      author: currentUserDisplayName,
       categoryId: null,
       position,
       editable: true,

@@ -6,6 +6,7 @@ import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import useIdeaCard from '@/app/(with-sidebar)/issue/hooks/use-idea-card';
 import { ISSUE_STATUS, VOTE_TYPE } from '@/constants/issue';
+import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
 import { useIdeaQuery } from '../../hooks/use-idea-query';
 import { useIdeaCardStackStore } from '../../store/use-idea-card-stack-store';
 import { useIdeaStore } from '../../store/use-idea-store';
@@ -54,6 +55,10 @@ export default function IdeaCard(props: IdeaCardProps) {
   const issueStatus = useIssueStore((state) => state.status);
   const { bringToFront, getZIndex } = useIdeaCardStackStore(props.issueId);
   const zIndex = props.id ? getZIndex(props.id) : 0;
+
+  // 현재 로그인한 사용자가 이 아이디어의 작성자인지 확인
+  const currentUserId = props.issueId ? getUserIdForIssue(props.issueId) : null;
+  const isCurrentUser = currentUserId === props.userId;
 
   // 비즈니스 로직 (투표, 편집 등)
   const {
@@ -199,7 +204,7 @@ export default function IdeaCard(props: IdeaCardProps) {
           <S.Content>{displayContent}</S.Content>
         )}
         <S.Meta>
-          <S.AuthorPill>{props.author}</S.AuthorPill>
+          <S.AuthorPill isCurrentUser={isCurrentUser}>{props.author}</S.AuthorPill>
           {props.isVoteButtonVisible ? (
             <S.IconButton aria-label="comment">
               <Image
