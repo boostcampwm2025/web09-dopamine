@@ -10,7 +10,23 @@ export async function GET(
   try {
     const ideas = await ideaRepository.findByIssueId(id);
 
-    return NextResponse.json({ ideas });
+    // ideas 배열을 순회하며 각 아이디어 객체에 찬성/반대 카운트를 추가
+    const ideasWithCounts = ideas.map((idea) => {
+      const agreeCount =
+        idea.votes?.filter((vote) => vote.type === 'AGREE').length ?? 0;
+      const disagreeCount =
+        idea.votes?.filter((vote) => vote.type === 'DISAGREE').length ?? 0;
+      const { votes, ...rest } = idea;
+
+      // 아이디어 데이터(rest)에 계산된 카운트를 합쳐서 새로운 객체 반환
+      return {
+        ...rest,
+        agreeCount,
+        disagreeCount,
+      };
+    });
+
+    return NextResponse.json({ ideas: ideasWithCounts });
   } catch (error) {
     console.error('아이디어 조회 실패:', error);
     return NextResponse.json({ message: '아이디어 조회에 실패했습니다.' }, { status: 500 });

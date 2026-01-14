@@ -69,6 +69,8 @@ export default function IdeaCard(props: IdeaCardProps) {
     submitEdit,
     handleKeyDownEdit,
   } = useIdeaCard({
+    issueId: props.issueId,
+    ideaId: props.id,
     content: props.content,
     agreeCount: props.agreeCount,
     disagreeCount: props.disagreeCount,
