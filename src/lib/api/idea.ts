@@ -48,3 +48,25 @@ export async function deleteIdea(
 
   return response.json();
 }
+
+export async function updateIdea(
+  issueId: string,
+  ideaId: string,
+  payload: {
+    positionX?: number | null;
+    positionY?: number | null;
+    categoryId?: string | null;
+  },
+): Promise<Idea> {
+  const response = await fetch(`/api/issues/${issueId}/idea`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ideaId, ...payload }),
+  });
+
+  if (!response.ok) {
+    throw new Error('아이디어 수정에 실패했습니다.');
+  }
+
+  return response.json();
+}

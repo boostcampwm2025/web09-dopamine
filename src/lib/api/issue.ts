@@ -71,3 +71,23 @@ export async function categorizeIdeas(
 
   return JSON.parse(content);
 }
+
+/**
+ * AI 카테고리 결과를 DB에 반영합니다.
+ */
+export async function applyAIStructure(
+  issueId: string,
+  categories: Array<{ title: string; ideaIds: string[] }>,
+) {
+  const response = await fetch(`/api/issues/${issueId}/ai-structure`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ categories }),
+  });
+
+  if (!response.ok) {
+    throw new Error('AI 구조화 적용 실패');
+  }
+
+  return response.json();
+}
