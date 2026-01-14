@@ -1,13 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useIssueStore } from '@/app/(with-sidebar)/issue/store/use-issue-store';
+import { useModalStore } from '@/components/modal/use-modal-store';
 import { getIssueMembers, joinIssue } from '@/lib/api/issue';
 import { setUserIdForIssue } from '@/lib/storage/issue-user-storage';
-import { generateRandomNickname } from '@/lib/utils/nickname';
 import type { IssueMember } from '@/types/issue';
-import { useModalStore } from '../../../../../components/modal/use-modal-store';
+import {
+  useNicknameGenerateQuery,
+  useNicknameValidator,
+} from '../../hooks/queries/use-issue-member-query';
 import * as S from './issue-join-modal.styles';
 
 interface IssueJoinModalProps {
@@ -16,10 +19,19 @@ interface IssueJoinModalProps {
 }
 
 export default function IssueJoinModal({ issueId, onJoinSuccess }: IssueJoinModalProps) {
-  const [nickname, setNickname] = useState(generateRandomNickname());
+  const [nickname, setNickname] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { closeModal } = useModalStore();
   const { setMembers } = useIssueStore((state) => state.actions);
+
+  const { data: generateData } = useNicknameGenerateQuery(issueId);
+  const { checkDuplicate } = useNicknameValidator();
+
+  useEffect(() => {
+    if (generateData?.nickname) {
+      setNickname(generateData?.nickname);
+    }
+  }, [generateData]);
 
   const handleJoin = async () => {
     if (!nickname.trim()) {
@@ -28,6 +40,20 @@ export default function IssueJoinModal({ issueId, onJoinSuccess }: IssueJoinModa
     }
 
     setIsLoading(true);
+
+    try {
+      const result = await checkDuplicate(issueId, nickname);
+      if (result.isDuplicate) {
+        toast.error('이미 사용 중인 닉네임입니다. 다른 이름을 써주세요!');
+        setIsLoading(false);
+        return;
+      }
+    } catch (error) {
+      toast.error('잠시 후 다시 시도해주세요.');
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const result = await joinIssue(issueId, nickname.trim());
 
@@ -69,7 +95,7 @@ export default function IssueJoinModal({ issueId, onJoinSuccess }: IssueJoinModa
           <S.Input
             value={nickname}
             onChange={(e) => setNickname(e.target.value)}
-            placeholder="생각하는 단무지"
+            placeholder="예) 생각하는 단무지"
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !isLoading) {
                 handleJoin();
