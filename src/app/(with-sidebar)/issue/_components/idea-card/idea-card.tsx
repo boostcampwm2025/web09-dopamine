@@ -216,17 +216,19 @@ export default function IdeaCard(props: IdeaCardProps) {
             <>{isEditing ? <S.SubmitButton onClick={submitEdit}>제출</S.SubmitButton> : null}</>
           )}
         </S.Meta>
-        <S.DeleteButton
-          aria-label="delete"
-          onClick={handleDeleteClick}
-        >
-          <Image
-            src="/close.svg"
-            alt="삭제"
-            width={14}
-            height={14}
-          />
-        </S.DeleteButton>
+        {issueStatus === ISSUE_STATUS.BRAINSTORMING && (
+          <S.DeleteButton
+            aria-label="delete"
+            onClick={handleDeleteClick}
+          >
+            <Image
+              src="/close.svg"
+              alt="삭제"
+              width={14}
+              height={14}
+            />
+          </S.DeleteButton>
+        )}
       </S.Header>
       {props.isVotePhase && (
         <S.Footer>
