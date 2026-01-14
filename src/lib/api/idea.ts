@@ -70,3 +70,22 @@ export async function updateIdea(
 
   return response.json();
 }
+
+export async function fetchFilteredIdeaIds(
+  issueId: string,
+  filter: 'most-liked' | 'need-discussion' | 'none',
+): Promise<string[]> {
+  if (filter === 'none') return [];
+
+  try {
+    const response = await fetch(`/api/issues/${issueId}/idea/filter?type=${filter}`);
+    if (response.ok) {
+      const data = await response.json();
+      return data.ids ?? [];
+    }
+    return [];
+  } catch (error) {
+    console.error('filtered idea fetch failed:', error);
+    return [];
+  }
+}

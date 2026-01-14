@@ -1,74 +1,37 @@
-import { useEffect, useMemo, useState } from 'react';
-import { getVoteCounts } from '../services/issue-service';
+import { useEffect, useState } from 'react';
+import { fetchFilteredIdeaIds } from '@/lib/api/idea';
 import type { IdeaWithPosition } from '../types/idea';
 
 export type FilterType = 'most-liked' | 'need-discussion' | 'none';
 
 export const useFilterIdea = (issueId: string, initialIdeas: IdeaWithPosition[]) => {
   const [activeFilter, setActiveFilter] = useState<FilterType>('none');
+  const [filteredIds, setFilteredIds] = useState<Set<string>>(new Set());
 
-  // 2. 필터 변경 시 localStorage에 저장
   useEffect(() => {
     localStorage.setItem(`idea-filter-${issueId}`, activeFilter);
   }, [issueId, activeFilter]);
 
-  // 3. 하이라이트 아이디 계산 (공동 순위 포함 로직)
-  const filteredIds = useMemo(() => {
-    if (activeFilter === 'none' || initialIdeas.length === 0) return new Set<string>();
+  useEffect(() => {
+    let isActive = true;
 
-    let sorted = [...initialIdeas];
-
-    if (activeFilter === 'most-liked') {
-      // 찬성 많은 순 -> 전체 참여 많은 순 정렬
-      sorted.sort((a, b) => {
-        const aV = getVoteCounts(a);
-        const bV = getVoteCounts(b);
-        const aDiff = aV.agree - aV.disagree;
-        const bDiff = bV.agree - bV.disagree;
-        if (aDiff === bDiff) return bV.agree - aV.agree;
-        return bDiff - aDiff;
-      });
-    } else if (activeFilter === 'need-discussion') {
-      // 찬반 비율 20% 이내 후보군 필터링 후 찬성순 정렬
-      const candidates = initialIdeas.filter((idea) => {
-        const { total, diff } = getVoteCounts(idea);
-        return total > 0 && diff / total <= 0.2;
-      });
-      sorted = candidates.sort((a, b) => getVoteCounts(b).agree - getVoteCounts(a).agree);
-    }
-
-    if (sorted.length === 0) return new Set<string>();
-
-    // 상위 3등 기준값 추출 (공동 순위 포함)
-    const limit = Math.min(sorted.length, 3);
-    const thirdStandard = sorted[limit - 1];
-    const thirdAgree = getVoteCounts(thirdStandard).agree;
-
-    const result = sorted.filter((idea, index) => {
-      const ideaV = getVoteCounts(idea);
-
-      // 득표 수가 0인 경우 포함하지 않음
-      if (ideaV.total === 0) return false;
-
-      // 1~3등 아이디어까지는 기본적으로 포함
-      if (index < 3) return true;
-
-      // "논의 필요" 기준으로 정렬된 경우 경우 3등과 득표수가 같은 아이디어를 필터에 포함
-      if (activeFilter === 'need-discussion') {
-        return getVoteCounts(idea).agree === thirdAgree;
+    const loadFilteredIds = async () => {
+      if (activeFilter === 'none' || initialIdeas.length === 0) {
+        setFilteredIds(new Set());
+        return;
       }
 
-      // "찬성 많은" 기준으로 정렬된 경우 [찬성 - 반대] 수치가 동일하면서 찬성 수가 같은 아이디어를 필터에 추가
-      const ideaDiff = ideaV.agree - ideaV.disagree;
-      const thirdDiff = thirdStandard
-        ? getVoteCounts(thirdStandard).agree - getVoteCounts(thirdStandard).disagree
-        : 0;
+      const ids = await fetchFilteredIdeaIds(issueId, activeFilter);
+      if (!isActive) return;
+      setFilteredIds(new Set(ids));
+    };
 
-      return ideaV.agree === thirdAgree && ideaDiff >= thirdDiff;
-    });
+    loadFilteredIds();
 
-    return new Set(result.map((i) => i.id));
-  }, [initialIdeas, activeFilter]);
+    return () => {
+      isActive = false;
+    };
+  }, [issueId, activeFilter, initialIdeas]);
 
   return {
     activeFilter,
