@@ -1,10 +1,13 @@
 'use client';
 
 import { useCallback, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
 import { useModalStore } from '@/components/modal/use-modal-store';
+import { ISSUE_STATUS } from '@/constants/issue';
+import { updateIssueStatus } from '@/lib/api/issue';
 import * as S from './close-issue-modal.styles';
-import { usePathname, useRouter } from 'next/navigation';
 
 interface CloseIssueModalProps {
   issueId: string;
@@ -14,13 +17,25 @@ export default function CloseIssueModal({ issueId }: CloseIssueModalProps) {
   const { ideas } = useIdeaStore(issueId);
   const { closeModal } = useModalStore();
   const [memo, setMemo] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const selectedIdea = ideas.find((idea) => idea.isSelected);
 
-  const closeAndGoSummary = useCallback(() => {
-    closeModal();
-    router.push('/issue/summary');
-  }, []);
+  const closeAndGoSummary = useCallback(async () => {
+    if (isLoading) return;
+
+    try {
+      setIsLoading(true);
+      await updateIssueStatus(issueId, ISSUE_STATUS.CLOSE, selectedIdea?.id, memo || undefined);
+      closeModal();
+      router.push(`/issue/${issueId}/summary`);
+    } catch (error) {
+      console.error('이슈 종료 실패:', error);
+      toast.error('이슈 종료에 실패했습니다. 다시 시도해주세요.');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [issueId, selectedIdea?.id, memo, isLoading, closeModal, router]);
 
   return (
     <S.Container>
@@ -52,8 +67,9 @@ export default function CloseIssueModal({ issueId }: CloseIssueModalProps) {
         <S.SubmitButton
           type="button"
           onClick={closeAndGoSummary}
+          disabled={isLoading}
         >
-          종료
+          {isLoading ? '종료 중...' : '종료'}
         </S.SubmitButton>
       </S.Footer>
     </S.Container>

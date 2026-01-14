@@ -2,28 +2,28 @@
 
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
-import { getAllIdeas } from '@/app/(with-sidebar)/issue/services/issue-service';
-import type { Idea } from '@/app/(with-sidebar)/issue/types/idea';
 import { VOTE_TYPE } from '@/constants/issue';
+import type { RankedIdeaDto } from '@/types/report';
 import * as DS from './dialog.styles';
 import * as S from './normal-list.styles';
 
-export default function NormalList() {
-  const [rawData, setRawData] = useState<Idea[]>([]);
+type NormalListProps = {
+  normalRankings: RankedIdeaDto[];
+};
+
+export default function NormalList({ normalRankings }: NormalListProps) {
   const [showAll, setShowAll] = useState(false);
   const [dialogContent, setDialogContent] = useState<string | null>(null);
+  const [visibleItems, setVisibleItems] = useState<RankedIdeaDto[]>(normalRankings.slice(0, 5));
+  const hasMore = normalRankings.length > 5; // 최초 5개 표시
 
   useEffect(() => {
-    const fetchIssues = async () => {
-      const ideas = await getAllIdeas();
-      setRawData(ideas);
-    };
-
-    fetchIssues();
-  }, []);
-
-  const visibleItems = showAll ? rawData : rawData.slice(0, 5);
-  const hasMore = rawData.length > 5;
+    if (showAll) {
+      setVisibleItems(normalRankings);
+    } else {
+      setVisibleItems(normalRankings.slice(0, 5));
+    }
+  }, [normalRankings, showAll]);
 
   const closeDialog = () => {
     setDialogContent(null);
@@ -34,11 +34,11 @@ export default function NormalList() {
       {visibleItems.map((item, index) => (
         <S.Item
           key={item.id}
-          highlighted={item.highlighted}
+          highlighted={index === 0}
           isTop={index === 0}
         >
           <S.ItemLeft>
-            <S.RankBadge highlighted={item.highlighted}>{index + 1}</S.RankBadge>
+            <S.RankBadge highlighted={index === 0}>{index + 1}</S.RankBadge>
             <S.Content>
               <S.Title
                 title={item.content}
@@ -55,9 +55,9 @@ export default function NormalList() {
                 {item.content}
               </S.Title>
               <S.MetaRow>
-                <S.Author>{item.author}</S.Author>
+                <S.Author>{item.user?.displayName || item.user?.name || '익명'}</S.Author>
                 <S.Divider />
-                <span>{item.category}</span>
+                <span>{item.category?.title || '미분류'}</span>
               </S.MetaRow>
             </S.Content>
           </S.ItemLeft>
@@ -65,11 +65,11 @@ export default function NormalList() {
             <S.VoteInfoSection>
               <S.VoteInfo type={VOTE_TYPE.AGREE}>
                 <S.VoteLabel>찬성</S.VoteLabel>
-                <S.VoteCount type={VOTE_TYPE.AGREE}>{item.agreeCount}</S.VoteCount>
+                <S.VoteCount type={VOTE_TYPE.AGREE}>{item.agreeVoteCount}</S.VoteCount>
               </S.VoteInfo>
               <S.VoteInfo type={VOTE_TYPE.DISAGREE}>
                 <S.VoteLabel>반대</S.VoteLabel>
-                <S.VoteCount type={VOTE_TYPE.DISAGREE}>{item.disagreeCount}</S.VoteCount>
+                <S.VoteCount type={VOTE_TYPE.DISAGREE}>{item.disagreeVoteCount}</S.VoteCount>
               </S.VoteInfo>
             </S.VoteInfoSection>
           </S.ItemRight>
