@@ -1,5 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
+﻿import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { categoryRepository } from '@/lib/repositories/category-repository';
+import { ideaRepository } from '@/lib/repositories/idea.repository';
 
 type CategoryPayload = {
   title: string;
@@ -32,28 +34,11 @@ export async function POST(
   const result = await prisma.$transaction(async (tx) => {
     const now = new Date();
 
-    await tx.category.updateMany({
-      where: { issueId, deletedAt: null },
-      data: { deletedAt: now },
-    });
+    await categoryRepository.softDeleteByIssueId(issueId, now, tx);
 
-    await tx.idea.updateMany({
-      where: { issueId },
-      data: { categoryId: null, positionX: null, positionY: null },
-    });
+    await ideaRepository.resetCategoriesByIssueId(issueId, tx);
 
-    const createdCategories = await Promise.all(
-      categoryPayloads.map((category, index) =>
-        tx.category.create({
-          data: {
-            issueId,
-            title: category.title,
-            positionX: 100 + index * 600,
-            positionY: 100,
-          },
-        }),
-      ),
-    );
+    const createdCategories = await categoryRepository.createManyForIssue(issueId, categoryPayloads, tx);
 
     const ideaCategoryMap = new Map<string, string>();
     categoryPayloads.forEach((category, index) => {
@@ -81,3 +66,5 @@ export async function POST(
 
   return NextResponse.json(result);
 }
+
+

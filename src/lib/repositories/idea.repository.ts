@@ -1,4 +1,5 @@
-import { prisma } from '@/lib/prisma';
+﻿import { prisma } from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 
 export const ideaRepository = {
   async findByIssueId(issueId: string) {
@@ -35,6 +36,16 @@ export const ideaRepository = {
         },
       },
       orderBy: { createdAt: 'desc' },
+    });
+  },
+
+  async resetCategoriesByIssueId(
+    issueId: string,
+    tx: Prisma.TransactionClient = prisma,
+  ) {
+    return tx.idea.updateMany({
+      where: { issueId },
+      data: { categoryId: null, positionX: null, positionY: null },
     });
   },
 
@@ -113,3 +124,6 @@ export const ideaRepository = {
     });
   }
 };
+
+
+
