@@ -52,12 +52,42 @@ const Header = () => {
   const scale = useCanvasStore((state) => state.scale);
   const { categories, handleAddCategory } = useCategoryOperations(issueId, ideas, scale);
 
-  const handleCloseIssue = () => {
+  const handleCloseIssue = async () => {
+    if (!isOwner) {
+      toast.error('방장만 이슈를 종료할 수 있습니다.');
+      return;
+    }
+
+    try {
+      // API 호출하여 SSE 브로드캐스팅
+      const response = await fetch(`/api/issues/${issueId}/close-modal`, {
+        method: 'POST',
+        headers: {
+          'x-user-id': userId,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to broadcast close modal');
+      }
+    } catch (error) {
+      console.error('Failed to open close modal:', error);
+      toast.error('모달 열기에 실패했습니다.');
+      return;
+    }
+
+    // 방장 본인에게도 모달 열기
     openModal({
       title: '이슈 종료',
-      content: <CloseIssueModal issueId={issueId} />,
+      content: (
+        <CloseIssueModal
+          issueId={issueId}
+          isOwner={isOwner}
+        />
+      ),
       closeOnOverlayClick: false,
       hasCloseButton: false,
+      modalType: 'close-issue',
     });
   };
 

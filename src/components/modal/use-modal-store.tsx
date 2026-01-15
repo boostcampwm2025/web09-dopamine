@@ -1,5 +1,7 @@
-import { create } from 'zustand';
 import type { ReactNode } from 'react';
+import { create } from 'zustand';
+
+export type ModalType = 'close-issue' | 'default';
 
 interface OpenModalPayload {
   title?: string;
@@ -7,6 +9,7 @@ interface OpenModalPayload {
   closeOnOverlayClick?: boolean;
   hasCloseButton?: boolean;
   onClose?: () => void;
+  modalType?: ModalType;
 }
 
 interface ModalState {
@@ -16,6 +19,7 @@ interface ModalState {
   closeOnOverlayClick: boolean;
   hasCloseButton?: boolean;
   onClose?: () => void;
+  modalType: ModalType;
   openModal: (payload: OpenModalPayload) => void;
   closeModal: () => void;
 }
@@ -27,8 +31,16 @@ export const useModalStore = create<ModalState>((set, get) => ({
   closeOnOverlayClick: true,
   hasCloseButton: true,
   onClose: undefined,
+  modalType: 'default',
 
-  openModal: ({ title, content, closeOnOverlayClick = true, hasCloseButton = true, onClose }) => {
+  openModal: ({
+    title,
+    content,
+    closeOnOverlayClick = true,
+    hasCloseButton = true,
+    onClose,
+    modalType = 'default',
+  }) => {
     set({
       isOpen: true,
       title,
@@ -36,6 +48,7 @@ export const useModalStore = create<ModalState>((set, get) => ({
       closeOnOverlayClick,
       hasCloseButton,
       onClose,
+      modalType,
     });
   },
 
@@ -49,6 +62,7 @@ export const useModalStore = create<ModalState>((set, get) => ({
       closeOnOverlayClick: true,
       hasCloseButton: true,
       onClose: undefined,
+      modalType: 'default',
     });
   },
 }));

@@ -19,6 +19,9 @@ export const SSE_EVENT_TYPES = {
 
   // 이슈 상태
   ISSUE_STATUS_CHANGED: 'issue:status_changed',
+  CLOSE_MODAL_OPENED: 'close_modal:opened',
+  CLOSE_MODAL_CLOSED: 'close_modal:closed',
+  CLOSE_MODAL_MEMO_UPDATED: 'close_modal:memo_updated',
 
   // 멤버
   MEMBER_JOINED: 'member:joined',

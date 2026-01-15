@@ -2,18 +2,22 @@
 
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { useModalStore } from './use-modal-store';
 import * as S from './modal.styles';
+import { useModalStore } from './use-modal-store';
 
 export default function Modal() {
-  const { isOpen, title, content, closeOnOverlayClick, hasCloseButton, closeModal } = useModalStore();
+  const { isOpen, title, content, closeOnOverlayClick, hasCloseButton, modalType, closeModal } =
+    useModalStore();
 
   useEffect(() => {
     if (!isOpen) return;
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        closeModal();
+        // 종료 모달의 경우 CloseIssueModal에서 처리
+        if (modalType !== 'close-issue') {
+          closeModal();
+        }
       }
     };
 
@@ -25,7 +29,7 @@ export default function Modal() {
       document.body.style.overflow = previousOverflow;
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isOpen, closeModal]);
+  }, [isOpen, closeModal, modalType]);
 
   if (!isOpen || !content) return null;
 
@@ -39,15 +43,15 @@ export default function Modal() {
         {title ? (
           <S.Header>
             <span>{title}</span>
-            {hasCloseButton ? 
-            <S.CloseButton
-              type="button"
-              aria-label="닫기"
-              onClick={closeModal}
-            >
-              &times;
-            </S.CloseButton>
-            : null}
+            {hasCloseButton ? (
+              <S.CloseButton
+                type="button"
+                aria-label="닫기"
+                onClick={closeModal}
+              >
+                &times;
+              </S.CloseButton>
+            ) : null}
           </S.Header>
         ) : null}
         <S.Body>{content}</S.Body>
