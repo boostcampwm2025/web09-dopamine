@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { useCategoryOperations } from '@/app/(with-sidebar)/issue/hooks/use-category-operations';
 import { useCanvasStore } from '@/app/(with-sidebar)/issue/store/use-canvas-store';
@@ -9,7 +10,9 @@ import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
 import { useIssueStore } from '@/app/(with-sidebar)/issue/store/use-issue-store';
 import { useModalStore } from '@/components/modal/use-modal-store';
 import { useTooltipStore } from '@/components/tooltip/use-tooltip-store';
-import { ISSUE_STATUS } from '@/constants/issue';
+import { ISSUE_STATUS, MEMBER_ROLE } from '@/constants/issue';
+import { getIssueMember } from '@/lib/api/issue';
+import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
 import { IssueStatus } from '@/types/issue';
 import { useIssueStatusMutations } from '../../hooks/queries/use-issue-mutation';
 import { useIssueQuery } from '../../hooks/queries/use-issue-query';
@@ -24,6 +27,16 @@ const Header = () => {
 
   const { data: issue } = useIssueQuery(issueId);
   const { nextStep } = useIssueStatusMutations(issueId);
+  const userId = getUserIdForIssue(issueId) ?? '';
+
+  // 현재 사용자의 정보 조회
+  const { data: currentUser } = useQuery({
+    queryKey: ['issues', issueId, 'members', userId],
+    queryFn: () => getIssueMember(issueId, userId),
+    enabled: !!userId,
+  });
+
+  const isOwner = currentUser?.role === MEMBER_ROLE.OWNER;
 
   const { startAIStructure } = useIssueStore((state) => state.actions);
 
@@ -88,10 +101,17 @@ const Header = () => {
 
   const handleNextStep = () => {
     try {
+      // owner 체크
+      if (!isOwner) {
+        toast.error('방장만 다음 단계로 넘어갈 수 있습니다.');
+        return;
+      }
+
       validateStep();
       nextStep();
     } catch (error) {
-      toast((error as Error).message);
+      // toast((error as Error).message);
+      console.error(error);
     }
   };
 
