@@ -16,7 +16,7 @@ export const useIssueMemberMutations = (issueId: string) => {
     },
 
     onError: (error) => {
-      console.error(error);
+      console.error('이슈 참여 실패:', error);
       toast.error('참여 중 문제가 발생했습니다.');
     },
   });
