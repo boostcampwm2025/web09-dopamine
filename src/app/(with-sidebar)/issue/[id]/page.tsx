@@ -35,7 +35,6 @@ const IssuePage = () => {
   const { status } = useIssueStore();
   const { setIdeas } = useIdeaStore(issueId);
   const { setCategories } = useCategoryStore(issueId);
-  const userId = getUserIdForIssue(issueId) ?? '';
 
   // userId 체크 및 모달 표시
   useEffect(() => {

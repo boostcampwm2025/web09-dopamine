@@ -102,7 +102,9 @@ export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) 
   };
 
   const handleIdeaPositionChange = (id: string, position: Position) => {
-    updateIdeaPosition(id, position);
+    if (id.startsWith('temp-')) return;
+
+    updateIdea({ ideaId: id, positionX: position.x, positionY: position.y, categoryId: null });
   };
 
   const handleVoteChange = (id: string, agreeCount: number, disagreeCount: number) => {
