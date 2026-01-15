@@ -141,9 +141,11 @@ export const Meta = styled.div`
   margin-top: 10px;
 `;
 
-export const AuthorPill = styled.span`
-  background: ${theme.colors.gray[100]};
-  color: ${theme.colors.gray[400]};
+export const AuthorPill = styled.span<{ isCurrentUser?: boolean }>`
+  background: ${({ isCurrentUser }) =>
+    isCurrentUser ? theme.colors.green[100] : theme.colors.gray[100]};
+  color: ${({ isCurrentUser }) =>
+    isCurrentUser ? theme.colors.green[600] : theme.colors.gray[400]};
   padding: 8px 14px;
   border-radius: ${theme.radius.large};
   font-weight: 600;

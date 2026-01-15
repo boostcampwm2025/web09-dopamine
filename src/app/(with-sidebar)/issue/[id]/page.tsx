@@ -21,8 +21,8 @@ import { useCategoryStore } from '@/app/(with-sidebar)/issue/store/use-category-
 import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
 import LoadingOverlay from '@/components/loading-overlay/loading-overlay';
 import { useModalStore } from '@/components/modal/use-modal-store';
-import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
 import { ISSUE_STATUS } from '@/constants/issue';
+import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
 import IssueJoinModal from '../_components/issue-join-modal/issue-join-modal';
 import { useIssueStore } from '../store/use-issue-store';
 
@@ -140,8 +140,9 @@ const IssuePage = () => {
                   <IdeaCard
                     key={idea.id}
                     {...idea}
+                    author={idea.author}
+                    userId={idea.userId}
                     issueId={issueId}
-                    userId={userId}
                     position={null}
                     isSelected={idea.id === selectedIdeaId}
                     status={getIdeaStatus(idea.id)}
@@ -167,7 +168,8 @@ const IssuePage = () => {
                 key={idea.id}
                 {...idea}
                 issueId={issueId}
-                userId={userId}
+                author={idea.author}
+                userId={idea.userId}
                 isSelected={idea.id === selectedIdeaId}
                 status={getIdeaStatus(idea.id)}
                 isVoteButtonVisible={isVoteButtonVisible}
@@ -199,10 +201,11 @@ const IssuePage = () => {
                     <IdeaCard
                       {...activeIdea}
                       issueId={issueId}
-                      userId={userId}
                       content={overlayEditValue ?? activeIdea.content}
                       position={null}
                       isSelected={activeIdea.id === selectedIdeaId}
+                      author={activeIdea.author}
+                      userId={activeIdea.userId}
                       status={getIdeaStatus(activeIdea.id)}
                       isVoteButtonVisible={isVoteButtonVisible}
                       isVoteDisabled={isVoteDisabled}
