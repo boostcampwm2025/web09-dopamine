@@ -38,9 +38,6 @@ export function useAIStructuring({ issueId, ideas, setIdeas }: UseAIStructuringP
       }
 
       const structureResult = await applyAIStructure(issueId, aiResponse.categories);
-      const createdCategories = Array.isArray(structureResult.categories)
-        ? structureResult.categories
-        : [];
       const ideaCategoryMap = structureResult.ideaCategoryMap ?? {};
 
       // TanStack Query 캐시 갱신 → 서버에서 최신 카테고리 데이터 fetch
