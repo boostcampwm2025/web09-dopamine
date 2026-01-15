@@ -3,7 +3,7 @@ import styled from '@emotion/styled';
 export const Card = styled.div`
   width: 100%;
   background: #ffffff;
-  border: 2px solid #00A94F;
+  border: 2px solid #00a94f;
   border-radius: 14px;
   box-shadow: 0 10px 30px rgba(34, 197, 94, 0.12);
   padding: 18px 20px 16px;
@@ -37,13 +37,20 @@ export const Title = styled.h2`
   line-height: 1.5;
 `;
 
+export const Memo = styled.div`
+  font-size: 15px;
+  line-height: 1.6;
+  color: ${({ theme }) => theme.colors.gray[600]};
+  white-space: pre-line;
+`;
+
 export const Stats = styled.div`
   min-height: 80px;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  border-top: 1px solid #F3F4F6;
+  border-top: 1px solid #f3f4f6;
   gap: 16px;
   width: 100%;
   text-align: center;
@@ -52,7 +59,7 @@ export const Stats = styled.div`
 export const Border = styled.div`
   width: 1px;
   height: 40px;
-  background: #E5E7EB;
+  background: #e5e7eb;
 `;
 
 export const LeftStat = styled.div`
@@ -70,14 +77,14 @@ export const RightStat = styled.div`
 export const VotesValue = styled.span`
   font-size: 30px;
   font-weight: 700;
-  color: #00A94F;
+  color: #00a94f;
   letter-spacing: 0.01em;
 `;
 
 export const CandidatesValue = styled.span`
   font-size: 30px;
   font-weight: 700;
-  color: #1F2937;
+  color: #1f2937;
   letter-spacing: 0.01em;
 `;
 

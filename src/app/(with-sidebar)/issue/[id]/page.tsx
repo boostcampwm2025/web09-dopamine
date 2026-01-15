@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { DndContext, DragOverlay } from '@dnd-kit/core';
 import Canvas from '@/app/(with-sidebar)/issue/_components/canvas/canvas';
 import CategoryCard from '@/app/(with-sidebar)/issue/_components/category/category-card';
@@ -20,12 +20,14 @@ import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
 import LoadingOverlay from '@/components/loading-overlay/loading-overlay';
 import { useModalStore } from '@/components/modal/use-modal-store';
 import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
+import { ISSUE_STATUS } from '@/constants/issue';
 import IssueJoinModal from '../_components/issue-join-modal/issue-join-modal';
 import { useIssueStore } from '../store/use-issue-store';
 
 const IssuePage = () => {
   const params = useParams<{ id: string }>();
   const issueId = params.id;
+  const router = useRouter();
   const { openModal, isOpen } = useModalStore();
   const hasOpenedModal = useRef(false);
 
@@ -50,6 +52,13 @@ const IssuePage = () => {
       });
     }
   }, [issueId, isOpen, openModal]);
+
+  // 이슈가 종료된 경우 summary 페이지로 리다이렉트
+  useEffect(() => {
+    if (status === ISSUE_STATUS.CLOSE && issueId) {
+      router.replace(`/issue/${issueId}/summary`);
+    }
+  }, [status, issueId, router]);
 
   // 1. 이슈 데이터 초기화
   const { isAIStructuring, isCreateIdeaActive, isVoteButtonVisible, isVoteDisabled } =

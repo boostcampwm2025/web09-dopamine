@@ -16,4 +16,16 @@ export const WordCloudBox = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  position: relative;
+  overflow: hidden;
+`;
+
+export const LoadingText = styled.div`
+  color: ${theme.colors.gray[500]};
+  font-size: ${theme.font.size.medium};
+`;
+
+export const EmptyText = styled.div`
+  color: ${theme.colors.gray[500]};
+  font-size: ${theme.font.size.medium};
 `;

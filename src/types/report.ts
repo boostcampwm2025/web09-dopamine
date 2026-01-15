@@ -22,7 +22,7 @@ export interface ReportWithDetails {
       id: string;
       content: string;
       votes: Array<{ id: string; type: string }>;
-      comments: Array<{ id: string }>;
+      comments: Array<{ id: string; content: string }>;
       // 아이디어 카테고리
       category: {
         id: string;
