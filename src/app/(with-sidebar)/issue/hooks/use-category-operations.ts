@@ -1,34 +1,16 @@
-﻿import { useCallback, useEffect, useMemo, useRef } from 'react';
+﻿import { useCallback, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
 import { useCategoryMutations } from '@/app/(with-sidebar)/issue/hooks/queries/use-category-mutation';
 import { useCategoryQuery } from '@/app/(with-sidebar)/issue/hooks/queries/use-category-query';
-import type { Category } from '@/app/(with-sidebar)/issue/types/category';
 import type { Position } from '@/app/(with-sidebar)/issue/types/idea';
 import type { IdeaWithPosition } from '@/app/(with-sidebar)/issue/types/idea';
-import type { Category as DbCategory } from '@/types/category';
 
 export function useCategoryOperations(issueId: string, ideas: IdeaWithPosition[], scale: number) {
   const categorySizesRef = useRef<Map<string, { width: number; height: number }>>(new Map());
 
-  const { data: rawCategories } = useCategoryQuery(issueId);
+  const { data: categories = [] } = useCategoryQuery(issueId);
 
   const { create, update, remove } = useCategoryMutations(issueId);
-
-  // 데이터 변환 (DB 타입 → UI 타입)
-  const categories = useMemo((): Category[] => {
-    if (!rawCategories) return [];
-    return rawCategories.map(
-      (category: DbCategory): Category => ({
-        id: category.id,
-        title: category.title,
-        position: {
-          x: category.positionX ?? 100,
-          y: category.positionY ?? 100,
-        },
-        isMuted: false,
-      }),
-    );
-  }, [rawCategories]);
 
   // 카테고리 위치 및 크기 업데이트
   useEffect(() => {
