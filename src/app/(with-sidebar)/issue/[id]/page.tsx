@@ -22,6 +22,7 @@ import { useModalStore } from '@/components/modal/use-modal-store';
 import { ISSUE_STATUS } from '@/constants/issue';
 import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
 import IssueJoinModal from '../_components/issue-join-modal/issue-join-modal';
+import { useIssueQuery } from '../hooks/queries/use-issue-query';
 
 const IssuePage = () => {
   const params = useParams<{ id: string }>();
@@ -36,6 +37,7 @@ const IssuePage = () => {
   const userId = getUserIdForIssue(issueId) ?? '';
 
   // 1. 이슈 데이터 초기화
+  const { isLoading } = useIssueQuery(issueId);
   const { status, isAIStructuring, isCreateIdeaActive, isVoteButtonVisible, isVoteDisabled } =
     useIssueData(issueId);
 
@@ -203,6 +205,7 @@ const IssuePage = () => {
         </DragOverlay>
       </DndContext>
 
+      {isLoading && <LoadingOverlay />}
       {/* AI 구조화 로딩 오버레이 */}
       {isAIStructuring && <LoadingOverlay message="AI가 아이디어를 분류하고 있습니다..." />}
     </>
