@@ -24,7 +24,7 @@ import { useModalStore } from '@/components/modal/use-modal-store';
 import { ISSUE_STATUS } from '@/constants/issue';
 import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
 import IssueJoinModal from '../_components/issue-join-modal/issue-join-modal';
-import { useIssueStore } from '../store/use-issue-store';
+import { useIssueQuery } from '../hooks/queries/use-issue-query';
 
 const IssuePage = () => {
   const params = useParams<{ id: string }>();
@@ -36,18 +36,22 @@ const IssuePage = () => {
   const hasOpenedModal = useRef(false);
 
   const scale = useCanvasStore((state) => state.scale);
-  const { status } = useIssueStore();
   const { setIdeas } = useIdeaStore(issueId);
   const { setCategories } = useCategoryStore(issueId);
   const userId = getUserIdForIssue(issueId) ?? '';
   useIssueEvents({ issueId, enabled: issueId.length > 0 });
   const { data: selectedIdeaId } = useSelectedIdeaQuery(issueId);
 
+  // 1. 이슈 데이터 초기화
+  const { isLoading } = useIssueQuery(issueId);
+  const { status, isAIStructuring, isCreateIdeaActive, isVoteButtonVisible, isVoteDisabled } =
+    useIssueData(issueId);
+  const userId = getUserIdForIssue(issueId);
+
   // userId 체크 및 모달 표시
   useEffect(() => {
     if (!issueId || hasOpenedModal.current || isOpen) return;
 
-    const userId = getUserIdForIssue(issueId);
     if (!userId) {
       hasOpenedModal.current = true;
       openModal({
@@ -65,10 +69,6 @@ const IssuePage = () => {
       router.replace(`/issue/${issueId}/summary`);
     }
   }, [status, issueId, router]);
-
-  // 1. 이슈 데이터 초기화
-  const { isAIStructuring, isCreateIdeaActive, isVoteButtonVisible, isVoteDisabled } =
-    useIssueData(issueId);
 
   // SSE 연결
   useIssueEvents({ issueId, enabled: !!userId });
@@ -220,6 +220,7 @@ const IssuePage = () => {
         </DragOverlay>
       </DndContext>
 
+      {isLoading && <LoadingOverlay />}
       {/* AI 구조화 로딩 오버레이 */}
       {isAIStructuring && <LoadingOverlay message="AI가 아이디어를 분류하고 있습니다..." />}
     </>

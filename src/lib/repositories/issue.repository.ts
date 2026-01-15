@@ -16,6 +16,11 @@ export async function findIssueById(issueId: string) {
       id: issueId,
       deletedAt: null,
     },
+    select: {
+      title: true,
+      status: true,
+      topicId: true,
+    },
   });
 }
 
