@@ -16,11 +16,11 @@ import * as S from './idea-card.styles';
 
 interface IdeaCardProps {
   id: string;
+  issueId: string;
+  content: string;
+  author: string;
   userId: string;
-  issueId?: string;
-  content?: string;
-  author?: string;
-  position?: Position | null;
+  position: Position | null;
   isSelected?: boolean;
   isVoteButtonVisible?: boolean;
   isVoteDisabled?: boolean;
@@ -57,7 +57,7 @@ export default function IdeaCard(props: IdeaCardProps) {
   const zIndex = props.id ? getZIndex(props.id) : 0;
 
   // 현재 로그인한 사용자가 이 아이디어의 작성자인지 확인
-  const currentUserId = props.issueId ? getUserIdForIssue(props.issueId) : null;
+  const currentUserId = getUserIdForIssue(props.issueId);
   const isCurrentUser = currentUserId === props.userId;
 
   // 비즈니스 로직 (투표, 편집 등)
@@ -74,7 +74,7 @@ export default function IdeaCard(props: IdeaCardProps) {
     handleKeyDownEdit,
   } = useIdeaCard({
     id: props.id,
-    userId: props.userId,
+    userId: currentUserId,
     content: props.content,
     isSelected: props.isSelected,
     status: props.status,
@@ -82,7 +82,7 @@ export default function IdeaCard(props: IdeaCardProps) {
     onSave: props.onSave,
   });
 
-  const { data: idea } = useIdeaQuery(props.id, props.userId);
+  const { data: idea } = useIdeaQuery(props.id, currentUserId);
 
   // 드래그 로직
   const inCategory = !!props.categoryId;
