@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
+import type { IdeaWithPosition } from '@/app/(with-sidebar)/issue/types/idea';
 import { fetchIdeas } from '@/lib/api/idea';
-import type { IdeaWithPosition } from '../types/idea';
 
 export const useIdeasQuery = (issueId: string) => {
   return useQuery({

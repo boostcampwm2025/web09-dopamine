@@ -7,7 +7,7 @@ import { CSS } from '@dnd-kit/utilities';
 import useIdeaCard from '@/app/(with-sidebar)/issue/hooks/use-idea-card';
 import { ISSUE_STATUS, VOTE_TYPE } from '@/constants/issue';
 import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
-import { useIdeaQuery } from '../../hooks/use-idea-query';
+import { useIdeaQuery } from '../../hooks/queries/use-idea-query';
 import { useIdeaCardStackStore } from '../../store/use-idea-card-stack-store';
 import { useIdeaStore } from '../../store/use-idea-store';
 import { useIssueStore } from '../../store/use-issue-store';
