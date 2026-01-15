@@ -1,10 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
-import { createQuickIssue } from '@/lib/api/issue';
-import { setUserIdForIssue } from '@/lib/storage/issue-user-storage';
+import { useQuickStartMutation } from '@/app/(with-sidebar)/issue/hooks/queries/use-issue-mutation';
 import { generateRandomNickname } from '@/lib/utils/nickname';
 import { useModalStore } from '../use-modal-store';
 import * as S from './issue-create-modal.styles';
@@ -12,8 +10,9 @@ import * as S from './issue-create-modal.styles';
 export default function CreateIssueModal() {
   const [title, setTitle] = useState('');
   const [ownerNickname, setOwnerNickname] = useState(generateRandomNickname());
-  const router = useRouter();
   const { closeModal } = useModalStore();
+
+  const { mutate } = useQuickStartMutation(closeModal);
 
   const handleQuickStart = async () => {
     if (!title.trim() || !ownerNickname.trim()) {
@@ -21,17 +20,7 @@ export default function CreateIssueModal() {
       return;
     }
 
-    const result = await createQuickIssue(title, ownerNickname);
-
-    if (result?.issueId) {
-      // 이슈별로 userId 저장
-      setUserIdForIssue(result.issueId, result.userId);
-      closeModal();
-      router.push(`/issue/${result.issueId}`);
-    } else {
-      toast.error('이슈 생성이 실패했습니다.');
-      console.error('이슈 생성에 실패했습니다.');
-    }
+    mutate({ title, nickname: ownerNickname });
   };
 
   return (
