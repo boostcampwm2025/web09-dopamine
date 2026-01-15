@@ -6,11 +6,11 @@ import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import useIdeaCard from '@/app/(with-sidebar)/issue/hooks/use-idea-card';
 import { ISSUE_STATUS, VOTE_TYPE } from '@/constants/issue';
+import { useIssueData } from '../../hooks/use-issue-data';
 import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
 import { useIdeaQuery } from '../../hooks/queries/use-idea-query';
 import { useIdeaCardStackStore } from '../../store/use-idea-card-stack-store';
 import { useIdeaStore } from '../../store/use-idea-store';
-import { useIssueStore } from '../../store/use-issue-store';
 import type { CardStatus, Position } from '../../types/idea';
 import * as S from './idea-card.styles';
 
@@ -52,7 +52,7 @@ export type DragItemPayload = {
 
 export default function IdeaCard(props: IdeaCardProps) {
   const { selectIdea } = useIdeaStore(props.issueId);
-  const issueStatus = useIssueStore((state) => state.status);
+  const { status: issueStatus } = useIssueData(props.issueId);
   const { bringToFront, getZIndex } = useIdeaCardStackStore(props.issueId);
   const zIndex = props.id ? getZIndex(props.id) : 0;
 

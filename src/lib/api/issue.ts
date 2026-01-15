@@ -19,7 +19,7 @@ export async function createQuickIssue(title: string, nickname: string) {
     return null;
   } catch (error) {
     console.error('빠른 이슈 생성 실패:', error);
-    return null;
+    throw new Error('빠른 이슈 생성 실패');
   }
 }
 

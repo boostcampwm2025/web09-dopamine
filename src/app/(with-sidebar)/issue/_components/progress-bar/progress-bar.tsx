@@ -1,11 +1,13 @@
-import { useIssueStore } from '@/app/(with-sidebar)/issue/store/use-issue-store';
 import { STATUS_LABEL, STEP_FLOW } from '@/constants/issue';
+import { useIssueData } from '../../hooks/use-issue-data';
+import { useIssueId } from '../../hooks/use-issue-id';
 import * as S from './progress-bar.styles';
 
 const PROGRESS_BAR_DURATION = 0.3;
 
 const ProgressBar = () => {
-  const status = useIssueStore((state) => state.status);
+  const issueId = useIssueId();
+  const { status } = useIssueData(issueId);
   const currentIndex = STEP_FLOW.indexOf(status);
 
   return (
