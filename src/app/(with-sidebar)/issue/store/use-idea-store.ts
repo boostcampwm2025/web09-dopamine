@@ -8,7 +8,7 @@ interface IdeaStore {
   resetEditingIdea: () => void;
   addIdea: (idea: IdeaWithPosition) => void;
   updateIdeaContent: (id: string, content: string) => void;
-  updateIdeaPosition: (id: string, position: Position) => void;
+  updateIdeaPosition: (id: string, position: Position | null) => void;
   updateIdeaEditable: (id: string, editable: boolean) => void;
   selectIdea: (id: string | null) => void;
   deleteIdea: (id: string) => void;
@@ -21,7 +21,7 @@ const createIdeaStore = (issueId: string) => {
     persist(
       (set, get) => ({
         ideas: [],
-        
+
         get hasEditingIdea() {
           return get().ideas.some((idea) => idea.editable);
         },
@@ -40,7 +40,7 @@ const createIdeaStore = (issueId: string) => {
             ),
           })),
 
-        updateIdeaPosition: (id: string, position: Position) =>
+        updateIdeaPosition: (id: string, position: Position | null) =>
           set((state) => ({
             ideas: state.ideas.map((idea) => (idea.id === id ? { ...idea, position } : idea)),
           })),
