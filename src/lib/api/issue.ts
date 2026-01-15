@@ -88,7 +88,7 @@ export async function joinIssue(issueId: string, nickname: string) {
     return null;
   } catch (error) {
     console.error('이슈 참여 실패:', error);
-    return null;
+    throw new Error('이슈 참여 실패');
   }
 }
 
@@ -174,7 +174,7 @@ export async function updateIssueStatus(
 }
 
 /**
- * 이슈가 SELECT 상태인 경우 selected-idea를 브로드캐스팅합니다. 
+ * 이슈가 SELECT 상태인 경우 selected-idea를 브로드캐스팅합니다.
  */
 export async function selectIdea(issueId: string, selectedIdeaId: string) {
   try {

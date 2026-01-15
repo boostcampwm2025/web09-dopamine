@@ -1,23 +1,19 @@
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useModalStore } from '@/components/modal/use-modal-store';
-import { getIssueMembers, joinIssue } from '@/lib/api/issue';
-import { setUserIdForIssue } from '@/lib/storage/issue-user-storage';
-import { IssueMember } from '@/types/issue';
-import { useIssueStore } from '../store/use-issue-store';
+import { useIssueMemberMutations } from './queries/use-issue-member-mutation';
 import { useNicknameGenerateQuery, useNicknameValidator } from './queries/use-issue-member-query';
 
 export interface IssueJoinModalProps {
   issueId: string;
-  onJoinSuccess?: () => void;
 }
 
-export function useIssueJoinModal({ issueId, onJoinSuccess }: IssueJoinModalProps) {
-  const { setMembers } = useIssueStore((state) => state.actions);
+export function useIssueJoinModal({ issueId }: IssueJoinModalProps) {
   const { closeModal } = useModalStore();
 
   const { data: generateData } = useNicknameGenerateQuery(issueId);
   const { checkDuplicate } = useNicknameValidator();
+  const { join } = useIssueMemberMutations(issueId);
 
   const [nickname, setNickname] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -52,27 +48,6 @@ export function useIssueJoinModal({ issueId, onJoinSuccess }: IssueJoinModalProp
     }
   };
 
-  // 가입 성공 후 상태 업데이트 함수 (멤버 리스트 갱신)
-  const updateAfterJoin = async (userId: string) => {
-    // 이슈별 userId 저장
-    setUserIdForIssue(issueId, userId);
-    // 멤버 리스트 다시 가져오기
-    const updatedMembers = await getIssueMembers(issueId);
-    if (updatedMembers) {
-      const mappedMembers: IssueMember[] = updatedMembers.map((member: IssueMember) => ({
-        id: member.id,
-        displayName: member.displayName,
-        role: member.role,
-        isConnected: member.isConnected ?? false,
-      }));
-      setMembers(mappedMembers);
-    }
-
-    toast.success('이슈에 참여했습니다!');
-    closeModal();
-    onJoinSuccess?.();
-  };
-
   const handleJoin = async () => {
     // 입력 검증
     if (!isValidInput()) return;
@@ -85,14 +60,11 @@ export function useIssueJoinModal({ issueId, onJoinSuccess }: IssueJoinModalProp
 
     // 이슈 조인
     try {
-      const result = await joinIssue(issueId, nickname.trim());
-
-      if (result?.userId) {
-        // 성공 후 처리 로직
-        await updateAfterJoin(result.userId);
-      } else {
-        toast.error('이슈 참여에 실패했습니다.');
-      }
+      join.mutate(nickname, {
+        onSuccess: () => {
+          closeModal();
+        },
+      });
     } catch (error) {
       console.error('이슈 참여 실패:', error);
       toast.error('이슈 참여에 실패했습니다.');

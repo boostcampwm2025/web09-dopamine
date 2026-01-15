@@ -1,7 +1,6 @@
 import { notFound } from 'next/navigation';
 import { getReportSummaryByIssueId } from '@/lib/services/report.service';
 import ConclusionSection from './_components/conclusion/conclusion-section';
-import IssueStatusInitializer from './_components/issue-status-initializer';
 import RankingList from './_components/ranking/ranking-list';
 import VoteResult from './_components/vote-result/vote-result';
 import WordCloud from './_components/word-cloud/word-cloud';
@@ -27,7 +26,6 @@ export default async function IssueSummaryPage({ params }: { params: Promise<{ i
 
   return (
     <div className={styles.background}>
-      <IssueStatusInitializer issueId={id} />
       <div className={styles.container}>
         <ConclusionSection
           title={selectedIdeaTitle}
