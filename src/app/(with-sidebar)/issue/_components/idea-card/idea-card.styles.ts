@@ -65,11 +65,6 @@ export const Card = styled.article<{
         border: 2px solid ${theme.colors.yellow[400]};
         background: ${theme.colors.white};
         box-shadow: 0 4px 10px rgba(252, 220, 89, 0.86);
-
-        ${Badge}{
-        opacity: 1;
-        background: ${theme.colors.yellow[400]};
-        }
         `;
       }
     }}
