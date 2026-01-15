@@ -8,7 +8,7 @@ import useIdeaCard from '@/app/(with-sidebar)/issue/hooks/use-idea-card';
 import { ISSUE_STATUS, VOTE_TYPE } from '@/constants/issue';
 import { useIdeaQuery } from '../../hooks/use-idea-query';
 import { useIdeaCardStackStore } from '../../store/use-idea-card-stack-store';
-import { useIdeaStore } from '../../store/use-idea-store';
+import { useSelectedIdeaMutation } from '../../hooks/queries/use-selected-idea-mutation';
 import { useIssueStore } from '../../store/use-issue-store';
 import type { CardStatus, Position } from '../../types/idea';
 import * as S from './idea-card.styles';
@@ -50,7 +50,8 @@ export type DragItemPayload = {
 };
 
 export default function IdeaCard(props: IdeaCardProps) {
-  const { selectIdea } = useIdeaStore(props.issueId);
+  const issueId = props.issueId ?? '';
+  const { mutate: selectIdea } = useSelectedIdeaMutation(issueId);
   const issueStatus = useIssueStore((state) => state.status);
   const { bringToFront, getZIndex } = useIdeaCardStackStore(props.issueId);
   const zIndex = props.id ? getZIndex(props.id) : 0;

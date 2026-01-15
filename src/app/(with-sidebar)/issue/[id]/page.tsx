@@ -15,6 +15,7 @@ import { useIdeaStatus } from '@/app/(with-sidebar)/issue/hooks/use-idea-card';
 import { useIdeaOperations } from '@/app/(with-sidebar)/issue/hooks/use-idea-operations';
 import { useIssueEvents } from '@/app/(with-sidebar)/issue/hooks/use-issue-events';
 import { useIssueData } from '@/app/(with-sidebar)/issue/hooks/use-issue-data';
+import { useSelectedIdeaQuery } from '@/app/(with-sidebar)/issue/hooks/queries/use-selected-idea-query';
 import { useCanvasStore } from '@/app/(with-sidebar)/issue/store/use-canvas-store';
 import { useCategoryStore } from '@/app/(with-sidebar)/issue/store/use-category-store';
 import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
@@ -40,6 +41,7 @@ const IssuePage = () => {
   const { setCategories } = useCategoryStore(issueId);
   const userId = getUserIdForIssue(issueId) ?? '';
   useIssueEvents({ issueId, enabled: issueId.length > 0 });
+  const { data: selectedIdeaId } = useSelectedIdeaQuery(issueId);
 
   // userId 체크 및 모달 표시
   useEffect(() => {
@@ -141,6 +143,7 @@ const IssuePage = () => {
                     issueId={issueId}
                     userId={userId}
                     position={null}
+                    isSelected={idea.id === selectedIdeaId}
                     status={getIdeaStatus(idea.id)}
                     isVoteButtonVisible={isVoteButtonVisible}
                     isVoteDisabled={isVoteDisabled}
@@ -165,6 +168,7 @@ const IssuePage = () => {
                 {...idea}
                 issueId={issueId}
                 userId={userId}
+                isSelected={idea.id === selectedIdeaId}
                 status={getIdeaStatus(idea.id)}
                 isVoteButtonVisible={isVoteButtonVisible}
                 isVoteDisabled={isVoteDisabled}
@@ -198,6 +202,7 @@ const IssuePage = () => {
                       userId={userId}
                       content={overlayEditValue ?? activeIdea.content}
                       position={null}
+                      isSelected={activeIdea.id === selectedIdeaId}
                       status={getIdeaStatus(activeIdea.id)}
                       isVoteButtonVisible={isVoteButtonVisible}
                       isVoteDisabled={isVoteDisabled}

@@ -3,6 +3,7 @@ import toast from 'react-hot-toast';
 import { useIdeaCardStackStore } from '@/app/(with-sidebar)/issue/store/use-idea-card-stack-store';
 import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
 import type { IdeaWithPosition, Position } from '@/app/(with-sidebar)/issue/types/idea';
+import { useSelectedIdeaMutation } from '@/app/(with-sidebar)/issue/hooks/queries/use-selected-idea-mutation';
 import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
 import {
   createIdea,
@@ -10,7 +11,6 @@ import {
   fetchIdeas,
   updateIdea as updateIdeaAPI,
 } from '@/lib/api/idea';
-import { selectIdea as selectIdeaAPI } from '@/lib/api/issue';
 
 export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) {
   const {
@@ -21,10 +21,10 @@ export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) 
     updateIdeaPosition,
     deleteIdea,
     setIdeas,
-    selectIdea,
   } = useIdeaStore(issueId);
 
   const { addCard, removeCard, setInitialCardData } = useIdeaCardStackStore(issueId);
+  const { mutate: selectIdea } = useSelectedIdeaMutation(issueId);
 
   useEffect(() => {
     const loadIdeas = async () => {
@@ -148,7 +148,6 @@ export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) 
 
   const handleSelectIdea = (id: string) => {
     selectIdea(id);
-    selectIdeaAPI(issueId, id);
   };
 
   const handleIdeaPositionChange = (id: string, position: Position) => {
