@@ -33,25 +33,34 @@ export const useIssueStatusMutations = (issueId: string) => {
   const queryKey = ['issues', issueId];
 
   const update = useMutation({
-    mutationFn: async () => {
-      const issue = queryClient.getQueryData<DbIssue>(queryKey);
-
-      if (!issue) throw new Error('이슈 정보가 없습니다.');
-
-      const currentIndex = STEP_FLOW.indexOf(issue.status);
-      const nextStatus = STEP_FLOW[currentIndex + 1];
-
+    mutationFn: async (nextStatus: IssueStatus) => {
       await updateIssueStatus(issueId, nextStatus);
-
       return nextStatus;
     },
 
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey });
+    onMutate: async (nextStatus) => {
+      await queryClient.cancelQueries({ queryKey });
+
+      const previousIssue = queryClient.getQueryData<DbIssue>(queryKey);
+
+      if (previousIssue) {
+        queryClient.setQueryData<DbIssue>(queryKey, {
+          ...previousIssue,
+          status: nextStatus,
+        });
+      }
+      return { previousIssue };
     },
 
-    onError: (error) => {
-      console.error('상태 변경 실패:', error);
+    onError: (_err, _variables, context) => {
+      if (context?.previousIssue) {
+        queryClient.setQueryData(queryKey, context.previousIssue);
+        toast.error('이슈 업데이트를 실패했습니다.');
+      }
+    },
+
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey });
     },
   });
 
@@ -71,5 +80,19 @@ export const useIssueStatusMutations = (issueId: string) => {
     },
   });
 
-  return { update, close };
+  // 다음 단계 계산
+  const handleNextStep = () => {
+    const issue = queryClient.getQueryData<DbIssue>(queryKey);
+    if (!issue) return;
+
+    const currentIndex = STEP_FLOW.indexOf(issue.status);
+    const nextStatus = STEP_FLOW[currentIndex + 1];
+
+    // 계산된 값을 넘기면서 뮤테이션 실행
+    if (nextStatus) {
+      update.mutate(nextStatus);
+    }
+  };
+
+  return { nextStep: handleNextStep, close };
 };

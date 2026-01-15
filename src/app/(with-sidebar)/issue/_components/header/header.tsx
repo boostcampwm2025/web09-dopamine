@@ -23,7 +23,7 @@ const Header = () => {
   const issueId = params.id || 'default';
 
   const { data: issue } = useIssueQuery(issueId);
-  const { update } = useIssueStatusMutations(issueId);
+  const { nextStep } = useIssueStatusMutations(issueId);
 
   const { startAIStructure } = useIssueStore((state) => state.actions);
 
@@ -89,7 +89,7 @@ const Header = () => {
   const handleNextStep = () => {
     try {
       validateStep();
-      update.mutate();
+      nextStep();
     } catch (error) {
       toast((error as Error).message);
     }
