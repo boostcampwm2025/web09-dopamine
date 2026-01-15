@@ -64,8 +64,9 @@ const IssuePage = () => {
   const { isAIStructuring, isCreateIdeaActive, isVoteButtonVisible, isVoteDisabled } =
     useIssueData(issueId);
 
-  // SSE 연결 설정 (실시간 이벤트 수신)
-  useIssueEvents({ issueId });
+
+  // SSE 연결
+  useIssueEvents({ issueId, enabled: !!userId });
 
   // 2. 아이디어 관련 작업
   const {
