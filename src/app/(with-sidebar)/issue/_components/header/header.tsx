@@ -2,21 +2,9 @@
 
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
-import { useQuery } from '@tanstack/react-query';
-import toast from 'react-hot-toast';
-import { useCategoryOperations } from '@/app/(with-sidebar)/issue/hooks/use-category-operations';
-import { useCanvasStore } from '@/app/(with-sidebar)/issue/store/use-canvas-store';
-import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
-import { useIssueStore } from '@/app/(with-sidebar)/issue/store/use-issue-store';
-import { useModalStore } from '@/components/modal/use-modal-store';
 import { useTooltipStore } from '@/components/tooltip/use-tooltip-store';
-import { ISSUE_STATUS, MEMBER_ROLE } from '@/constants/issue';
-import { getIssueMember } from '@/lib/api/issue';
-import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
-import { IssueStatus } from '@/types/issue';
-import { useIssueStatusMutations } from '../../hooks/queries/use-issue-mutation';
-import { useIssueQuery } from '../../hooks/queries/use-issue-query';
-import CloseIssueModal from '../close-issue-modal/close-issue-modal';
+import { ISSUE_STATUS } from '@/constants/issue';
+import { useHeader } from '../../hooks/use-header';
 import ProgressBar from '../progress-bar/progress-bar';
 import HeaderButton from './header-button';
 import * as S from './header.styles';
@@ -25,125 +13,17 @@ const Header = () => {
   const params = useParams<{ id: string }>();
   const issueId = params.id || 'default';
 
-  const { data: issue } = useIssueQuery(issueId);
-  const { nextStep } = useIssueStatusMutations(issueId);
-  const userId = getUserIdForIssue(issueId) ?? '';
-
-  // 현재 사용자의 정보 조회
-  const { data: currentUser } = useQuery({
-    queryKey: ['issues', issueId, 'members', userId],
-    queryFn: () => getIssueMember(issueId, userId),
-    enabled: !!userId,
-  });
-
-  const isOwner = currentUser?.role === MEMBER_ROLE.OWNER;
-
-  const { startAIStructure } = useIssueStore((state) => state.actions);
-
-  const hiddenStatus = [ISSUE_STATUS.SELECT, ISSUE_STATUS.CLOSE] as IssueStatus[];
-  const isVisible = !hiddenStatus.includes(issue?.status);
-
-  const { hasEditingIdea } = useIdeaStore(issueId);
+  const {
+    issue,
+    isVisible,
+    handleCloseIssue,
+    handleNextStep,
+    handleAddCategory,
+    startAIStructure,
+  } = useHeader({ issueId });
 
   const openTooltip = useTooltipStore((state) => state.openTooltip);
   const closeTooltip = useTooltipStore((state) => state.closeTooltip);
-  const { openModal } = useModalStore();
-  const { ideas } = useIdeaStore(issueId);
-  const scale = useCanvasStore((state) => state.scale);
-  const { categories, handleAddCategory } = useCategoryOperations(issueId, ideas, scale);
-
-  const handleCloseIssue = async () => {
-    if (!isOwner) {
-      toast.error('방장만 이슈를 종료할 수 있습니다.');
-      return;
-    }
-
-    try {
-      // API 호출하여 SSE 브로드캐스팅
-      const response = await fetch(`/api/issues/${issueId}/close-modal`, {
-        method: 'POST',
-        headers: {
-          'x-user-id': userId,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to broadcast close modal');
-      }
-    } catch (error) {
-      console.error('Failed to open close modal:', error);
-      toast.error('모달 열기에 실패했습니다.');
-      return;
-    }
-
-    // 방장 본인에게도 모달 열기
-    openModal({
-      title: '이슈 종료',
-      content: (
-        <CloseIssueModal
-          issueId={issueId}
-          isOwner={isOwner}
-        />
-      ),
-      closeOnOverlayClick: false,
-      hasCloseButton: false,
-      modalType: 'close-issue',
-    });
-  };
-
-  const validateStep = () => {
-    if (issue?.status === ISSUE_STATUS.BRAINSTORMING) {
-      if (ideas.length === 0) {
-        toast.error('최소 1개 이상의 아이디어를 제출해야합니다.');
-        throw new Error('아이디어가 존재하지 않습니다.');
-      }
-      if (hasEditingIdea) {
-        toast.error('입력 중인 아이디어가 있습니다.');
-        throw new Error('입력 중인 아이디어가 있습니다.');
-      }
-    }
-    if (issue?.status === ISSUE_STATUS.CATEGORIZE) {
-      if (categories.length === 0) {
-        toast.error('카테고리가 없습니다.');
-        throw new Error('카테고리가 없습니다.');
-      }
-    }
-
-    if (issue?.status === ISSUE_STATUS.CATEGORIZE) {
-      const uncategorizedIdeas = ideas.filter((idea) => idea.categoryId === null);
-      if (uncategorizedIdeas.length > 0) {
-        toast.error('카테고리가 지정되지 않은 아이디어가 있습니다.');
-        throw new Error('카테고리가 지정되지 않은 아이디어가 있습니다.');
-      }
-
-      // 빈 카테고리 검사: 각 카테고리에 속한 아이디어가 없는지 확인
-      const emptyCategories = categories.filter(
-        (category) => !ideas.some((idea) => idea.categoryId === category.id),
-      );
-      if (emptyCategories.length > 0) {
-        toast.error(`빈 카테고리가 있습니다.`);
-        throw new Error('빈 카테고리가 있습니다.');
-      }
-    }
-
-    return true;
-  };
-
-  const handleNextStep = () => {
-    try {
-      // owner 체크
-      if (!isOwner) {
-        toast.error('방장만 다음 단계로 넘어갈 수 있습니다.');
-        return;
-      }
-
-      validateStep();
-      nextStep();
-    } catch (error) {
-      // toast((error as Error).message);
-      console.error(error);
-    }
-  };
 
   const renderActionButtons = () => {
     switch (issue?.status) {
