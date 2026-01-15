@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getFilteredIdeaIds } from '@/lib/idea-filter';
+import { ideaFilterService } from '@/lib/services/idea-filter.service';
 import type { FilterType } from '@/app/(with-sidebar)/issue/hooks/use-filter-idea';
 import { ideaRepository } from '@/lib/repositories/idea.repository';
 
@@ -15,7 +15,7 @@ export async function GET(
     const ideas = await ideaRepository.findByIssueId(id);
 
     if (filter && filter !== 'none') {
-      const filteredIds = getFilteredIdeaIds(
+      const filteredIds = ideaFilterService.getFilteredIdeaIds(
         ideas.map((idea) => ({
           id: idea.id,
           agreeCount: idea.agreeCount ?? 0,

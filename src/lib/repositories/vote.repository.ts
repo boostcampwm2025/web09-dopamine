@@ -1,4 +1,3 @@
-import { prisma } from '@/lib/prisma';
 import { Prisma, VoteType } from '@prisma/client';
 
 export const voteRepository = {
