@@ -1,14 +1,17 @@
-import { useRouter } from 'next/navigation';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { ISSUE_STATUS, STEP_FLOW } from '@/constants/issue';
 import { createQuickIssue, updateIssueStatus } from '@/lib/api/issue';
 import { setUserIdForIssue } from '@/lib/storage/issue-user-storage';
-import { useIssueQuery } from './use-issue-query';
+import { IssueStatus } from '@/types/issue';
 
-export const useQuickStartMutation = (closeModal: () => void) => {
-  const router = useRouter();
+interface DbIssue {
+  id: string;
+  status: IssueStatus;
+  topicId?: string;
+}
 
+export const useQuickStartMutation = () => {
   return useMutation({
     mutationFn: (data: { title: string; nickname: string }) =>
       createQuickIssue(data.title, data.nickname),
@@ -16,8 +19,6 @@ export const useQuickStartMutation = (closeModal: () => void) => {
     onSuccess: (newIssue) => {
       // 이슈별로 userId 저장
       setUserIdForIssue(newIssue.issueId, newIssue.userId);
-      closeModal();
-      router.push(`/issue/${newIssue.issueId}`);
     },
 
     onError: (error) => {
@@ -27,13 +28,14 @@ export const useQuickStartMutation = (closeModal: () => void) => {
   });
 };
 
-export const useIssueStatusMutation = (issueId: string) => {
+export const useIssueStatusMutations = (issueId: string) => {
   const queryClient = useQueryClient();
+  const queryKey = ['issues', issueId];
 
-  const { data: issue } = useIssueQuery(issueId);
-
-  return useMutation({
+  const update = useMutation({
     mutationFn: async () => {
+      const issue = queryClient.getQueryData<DbIssue>(queryKey);
+
       if (!issue) throw new Error('이슈 정보가 없습니다.');
 
       const currentIndex = STEP_FLOW.indexOf(issue.status);
@@ -45,25 +47,21 @@ export const useIssueStatusMutation = (issueId: string) => {
     },
 
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['issues', issueId] });
+      queryClient.invalidateQueries({ queryKey });
     },
 
     onError: (error) => {
       console.error('상태 변경 실패:', error);
     },
   });
-};
 
-export const useCloseIssueMutation = (issueId: string) => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
+  const close = useMutation({
     mutationFn: async () => {
       await updateIssueStatus(issueId, ISSUE_STATUS.CLOSE);
     },
 
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['issues', issueId] });
+      queryClient.invalidateQueries({ queryKey });
       toast.success('이슈가 종료되었습니다.');
     },
 
@@ -72,4 +70,6 @@ export const useCloseIssueMutation = (issueId: string) => {
       toast.error('이슈 종료에 실패했습니다.');
     },
   });
+
+  return { update, close };
 };

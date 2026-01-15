@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
 import { useModalStore } from '@/components/modal/use-modal-store';
-import { useCloseIssueMutation } from '../../hooks/queries/use-issue-mutation';
+import { useIssueStatusMutations } from '../../hooks/queries/use-issue-mutation';
 import * as S from './close-issue-modal.styles';
 
 interface CloseIssueModalProps {
@@ -14,7 +14,7 @@ interface CloseIssueModalProps {
 
 export default function CloseIssueModal({ issueId }: CloseIssueModalProps) {
   const { ideas } = useIdeaStore(issueId);
-  const { mutate: closeIssue } = useCloseIssueMutation(issueId);
+  const { close } = useIssueStatusMutations(issueId);
   const { closeModal } = useModalStore();
   const [memo, setMemo] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -26,7 +26,7 @@ export default function CloseIssueModal({ issueId }: CloseIssueModalProps) {
 
     try {
       setIsLoading(true);
-      closeIssue();
+      close.mutate();
       closeModal();
       router.push(`/issue/${issueId}/summary`);
     } catch (error) {

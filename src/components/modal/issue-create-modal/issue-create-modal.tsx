@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { useQuickStartMutation } from '@/app/(with-sidebar)/issue/hooks/queries/use-issue-mutation';
 import LoadingOverlay from '@/components/loading-overlay/loading-overlay';
@@ -9,11 +10,12 @@ import { useModalStore } from '../use-modal-store';
 import * as S from './issue-create-modal.styles';
 
 export default function CreateIssueModal() {
+  const router = useRouter();
   const [title, setTitle] = useState('');
   const [ownerNickname, setOwnerNickname] = useState(generateRandomNickname());
   const { closeModal } = useModalStore();
 
-  const { mutate, isPending } = useQuickStartMutation(closeModal);
+  const { mutate, isPending } = useQuickStartMutation();
 
   const handleQuickStart = async () => {
     if (!title.trim() || !ownerNickname.trim()) {
@@ -21,7 +23,15 @@ export default function CreateIssueModal() {
       return;
     }
 
-    mutate({ title, nickname: ownerNickname });
+    mutate(
+      { title, nickname: ownerNickname },
+      {
+        onSuccess: (newIssue) => {
+          closeModal();
+          router.push(`/issue/${newIssue.issueId}`);
+        },
+      },
+    );
   };
 
   return (

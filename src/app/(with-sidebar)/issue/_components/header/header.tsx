@@ -11,7 +11,7 @@ import { useModalStore } from '@/components/modal/use-modal-store';
 import { useTooltipStore } from '@/components/tooltip/use-tooltip-store';
 import { ISSUE_STATUS } from '@/constants/issue';
 import { IssueStatus } from '@/types/issue';
-import { useIssueStatusMutation } from '../../hooks/queries/use-issue-mutation';
+import { useIssueStatusMutations } from '../../hooks/queries/use-issue-mutation';
 import { useIssueQuery } from '../../hooks/queries/use-issue-query';
 import CloseIssueModal from '../close-issue-modal/close-issue-modal';
 import ProgressBar from '../progress-bar/progress-bar';
@@ -23,7 +23,7 @@ const Header = () => {
   const issueId = params.id || 'default';
 
   const { data: issue } = useIssueQuery(issueId);
-  const { mutate: nextStep } = useIssueStatusMutation(issueId);
+  const { update } = useIssueStatusMutations(issueId);
 
   const { startAIStructure } = useIssueStore((state) => state.actions);
 
@@ -89,7 +89,7 @@ const Header = () => {
   const handleNextStep = () => {
     try {
       validateStep();
-      nextStep();
+      update.mutate();
     } catch (error) {
       toast((error as Error).message);
     }
