@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useModalStore } from '@/components/modal/use-modal-store';
-import { useIssueMemberMutations } from './queries/use-issue-member-mutation';
-import { useNicknameGenerateQuery, useNicknameValidator } from './queries/use-issue-member-query';
+import { useIssueMemberMutations, useNicknameMutations } from './queries/use-issue-member-mutation';
 
 export interface IssueJoinModalProps {
   issueId: string;
@@ -11,18 +10,21 @@ export interface IssueJoinModalProps {
 export function useIssueJoinModal({ issueId }: IssueJoinModalProps) {
   const { closeModal } = useModalStore();
 
-  const { data: generateData } = useNicknameGenerateQuery(issueId);
-  const { checkDuplicate } = useNicknameValidator();
+  const { generate, checkDuplicate } = useNicknameMutations(issueId);
   const { join } = useIssueMemberMutations(issueId);
 
   const [nickname, setNickname] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (generateData?.nickname) {
-      setNickname(generateData?.nickname);
-    }
-  }, [generateData]);
+    generate.mutate(undefined, {
+      onSuccess: (data) => {
+        if (data?.nickname) {
+          setNickname(data.nickname);
+        }
+      },
+    });
+  }, []);
 
   const isValidInput = (): boolean => {
     if (!nickname.trim()) {
@@ -34,9 +36,9 @@ export function useIssueJoinModal({ issueId }: IssueJoinModalProps) {
 
   const validateNickname = async (): Promise<boolean> => {
     try {
-      const result = await checkDuplicate(issueId, nickname);
+      const result = await checkDuplicate(nickname);
       if (result.isDuplicate) {
-        toast.error('이미 사용 중인 닉네임입니다. 다른 이름을 써주세요!');
+        toast.error('이미 사용 중인 닉네임입니다. 다른 닉네임을 써주세요!');
         setIsLoading(false);
         return false;
       }
