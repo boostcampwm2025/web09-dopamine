@@ -2,7 +2,6 @@
 
 import { useDroppable } from '@dnd-kit/core';
 import useCategory from '@/app/(with-sidebar)/issue/hooks/use-category-card';
-import { useCategoryStore } from '@/app/(with-sidebar)/issue/store/use-category-store';
 import { useDraggable } from '../../hooks/use-draggable';
 import type { Position } from '../../types/idea';
 import { useCanvasContext } from '../canvas/canvas-context';
@@ -21,7 +20,7 @@ import {
 
 interface CategoryCardProps {
   id: string;
-  issueId?: string;
+  issueId: string;
   title: string;
   position: Position;
   isMuted?: boolean;
@@ -37,7 +36,7 @@ interface CategoryCardProps {
 
 export default function CategoryCard({
   id,
-  issueId = 'default',
+  issueId,
   title,
   position,
   isMuted = false,
@@ -51,11 +50,11 @@ export default function CategoryCard({
   checkCollision,
 }: CategoryCardProps) {
   const { scale } = useCanvasContext();
-  const { updateCategoryTitle } = useCategoryStore(issueId);
 
   // dnd-kit useDroppable
   const { setNodeRef: setDroppableRef, isOver } = useDroppable({
     id,
+    data: { type: 'category', categoryId: id },
   });
 
   // 카테고리 드래그 기능
@@ -87,11 +86,10 @@ export default function CategoryCard({
     setDraftTitle,
     submitEditedTitle,
     cancelEditingTitle,
-  } = useCategory({ 
+  } = useCategory({
+    id,
+    issueId,
     title,
-    onTitleChange: (newTitle: string) => {
-      updateCategoryTitle(id, newTitle);
-    },
   });
 
   return (

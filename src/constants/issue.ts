@@ -1,4 +1,4 @@
-import { IssueStatus, VoteStatus } from '@/types/issue';
+import { IssueStatus } from '@/types/issue';
 
 export const ISSUE_STATUS = {
   BRAINSTORMING: 'BRAINSTORMING',
@@ -6,6 +6,16 @@ export const ISSUE_STATUS = {
   VOTE: 'VOTE',
   SELECT: 'SELECT',
   CLOSE: 'CLOSE',
+} as const;
+
+export const MEMBER_ROLE = {
+  OWNER: 'OWNER',
+  MEMBER: 'MEMBER',
+};
+
+export const VOTE_TYPE = {
+  AGREE: 'AGREE',
+  DISAGREE: 'DISAGREE',
 } as const;
 
 export const STEP_FLOW = [
@@ -22,12 +32,6 @@ export const STATUS_LABEL = {
   [ISSUE_STATUS.VOTE]: '투표',
   [ISSUE_STATUS.SELECT]: '채택',
   [ISSUE_STATUS.CLOSE]: '종료',
-};
-
-export const BUTTON_TEXT_MAP: Record<VoteStatus, string> = {
-  READY: '투표 시작',
-  IN_PROGRESS: '투표 종료',
-  COMPLETED: '재투표 시작',
 };
 
 export const ISSUE_STATUS_DESCRIPTION: Record<IssueStatus, string> = {

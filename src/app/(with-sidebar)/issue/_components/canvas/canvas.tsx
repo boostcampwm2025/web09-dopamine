@@ -3,8 +3,9 @@
 import { useCallback, useRef, useState } from 'react';
 import Image from 'next/image';
 import { ISSUE_STATUS, ISSUE_STATUS_DESCRIPTION } from '@/constants/issue';
+import { useIssueData } from '../../hooks/use-issue-data';
+import { useIssueId } from '../../hooks/use-issue-id';
 import { useCanvasStore } from '../../store/use-canvas-store';
-import { useIssueStore } from '../../store/use-issue-store';
 import { CanvasContext } from './canvas-context';
 import {
   AddIdeaButton,
@@ -24,8 +25,9 @@ const DEFAULT_OFFSET = { x: 0, y: 0 };
 
 export default function Canvas({ children, onDoubleClick }: CanvasProps) {
   const canvasRef = useRef<HTMLDivElement>(null);
+  const issueId = useIssueId();
 
-  const { status } = useIssueStore();
+  const { status } = useIssueData(issueId);
   const isBrainStorming = status == ISSUE_STATUS.BRAINSTORMING;
 
   const description = ISSUE_STATUS_DESCRIPTION[status];

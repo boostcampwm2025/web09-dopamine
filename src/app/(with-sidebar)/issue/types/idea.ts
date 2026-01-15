@@ -5,6 +5,7 @@ export interface Position {
 
 export interface Idea {
   id: string;
+  userId: string;
   content: string;
   author: string;
   category: string;
@@ -15,14 +16,18 @@ export interface Idea {
 
 export interface IdeaWithPosition {
   id: string;
+  userId: string;
   content: string;
   author: string;
   categoryId: string | null;
   position: Position | null;
   isSelected?: boolean;
-  isVotePhase?: boolean;
+  isVoteButtonVisible?: boolean;
+  isVoteDisabled?: boolean;
   agreeCount?: number;
   disagreeCount?: number;
   needDiscussion?: boolean;
   editable?: boolean;
 }
+
+export type CardStatus = 'mostLiked' | 'needDiscussion' | 'selected' | 'default';

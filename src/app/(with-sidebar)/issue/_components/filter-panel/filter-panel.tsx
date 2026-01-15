@@ -28,7 +28,7 @@ export default function FilterPanel({ value, onChange }: FilterPanelProps) {
         $selected={value === 'most-liked'}
         onClick={handleClick}
       >
-        최다 찬성
+        찬반순
       </S.Btn>
       <S.Btn
         type="button"

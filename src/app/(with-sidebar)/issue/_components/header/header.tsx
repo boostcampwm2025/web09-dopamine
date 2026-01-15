@@ -1,20 +1,18 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import toast from 'react-hot-toast';
-import { useShallow } from 'zustand/shallow';
-import { useCategoryStore } from '@/app/(with-sidebar)/issue/store/use-category-store';
+import { useCategoryOperations } from '@/app/(with-sidebar)/issue/hooks/use-category-operations';
+import { useCanvasStore } from '@/app/(with-sidebar)/issue/store/use-canvas-store';
 import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
-import {
-  useIsNextButtonVisible,
-  useIssueStore,
-} from '@/app/(with-sidebar)/issue/store/use-issue-store';
+import { useIssueStore } from '@/app/(with-sidebar)/issue/store/use-issue-store';
 import { useModalStore } from '@/components/modal/use-modal-store';
 import { useTooltipStore } from '@/components/tooltip/use-tooltip-store';
-import { BUTTON_TEXT_MAP, ISSUE_STATUS } from '@/constants/issue';
-import type { Category } from '../../types/category';
+import { ISSUE_STATUS } from '@/constants/issue';
+import { IssueStatus } from '@/types/issue';
+import { useIssueStatusMutations } from '../../hooks/queries/use-issue-mutation';
+import { useIssueQuery } from '../../hooks/queries/use-issue-query';
 import CloseIssueModal from '../close-issue-modal/close-issue-modal';
 import ProgressBar from '../progress-bar/progress-bar';
 import HeaderButton from './header-button';
@@ -24,106 +22,81 @@ const Header = () => {
   const params = useParams<{ id: string }>();
   const issueId = params.id || 'default';
 
-  const issueState = useIssueStore(
-    useShallow((state) => ({
-      status: state.status,
-      voteStatus: state.voteStatus,
-    })),
-  );
+  const { data: issue } = useIssueQuery(issueId);
+  const { nextStep } = useIssueStatusMutations(issueId);
 
-  const { nextStep, closeIssue, startVote, endVote, startAIStructure } = useIssueStore(
-    (state) => state.actions,
-  );
+  const { startAIStructure } = useIssueStore((state) => state.actions);
 
-  const isVisible = useIsNextButtonVisible();
+  const hiddenStatus = [ISSUE_STATUS.SELECT, ISSUE_STATUS.CLOSE] as IssueStatus[];
+  const isVisible = !hiddenStatus.includes(issue?.status);
 
   const { hasEditingIdea } = useIdeaStore(issueId);
 
   const openTooltip = useTooltipStore((state) => state.openTooltip);
   const closeTooltip = useTooltipStore((state) => state.closeTooltip);
-  const { openModal, isOpen } = useModalStore();
-  const hasOpenedModal = useRef(false);
-
-  const { categories, addCategory } = useCategoryStore(issueId);
+  const { openModal } = useModalStore();
   const { ideas } = useIdeaStore(issueId);
+  const scale = useCanvasStore((state) => state.scale);
+  const { categories, handleAddCategory } = useCategoryOperations(issueId, ideas, scale);
 
-  useEffect(() => {
-    if (issueState.status !== ISSUE_STATUS.CLOSE) {
-      hasOpenedModal.current = false;
-      return;
+  const handleCloseIssue = () => {
+    openModal({
+      title: '이슈 종료',
+      content: <CloseIssueModal issueId={issueId} />,
+      closeOnOverlayClick: false,
+      hasCloseButton: false,
+    });
+  };
+
+  const validateStep = () => {
+    if (issue?.status === ISSUE_STATUS.BRAINSTORMING) {
+      if (ideas.length === 0) {
+        toast.error('최소 1개 이상의 아이디어를 제출해야합니다.');
+        throw new Error('아이디어가 존재하지 않습니다.');
+      }
+      if (hasEditingIdea) {
+        toast.error('입력 중인 아이디어가 있습니다.');
+        throw new Error('입력 중인 아이디어가 있습니다.');
+      }
+    }
+    if (issue?.status === ISSUE_STATUS.CATEGORIZE) {
+      if (categories.length === 0) {
+        toast.error('카테고리가 없습니다.');
+        throw new Error('카테고리가 없습니다.');
+      }
     }
 
-    if (!hasOpenedModal.current && !isOpen) {
-      openModal({
-        title: '이슈 종료',
-        content: <CloseIssueModal />,
-        closeOnOverlayClick: false,
-        hasCloseButton: false,
-      });
-      hasOpenedModal.current = true;
+    if (issue?.status === ISSUE_STATUS.CATEGORIZE) {
+      const uncategorizedIdeas = ideas.filter((idea) => idea.categoryId === null);
+      if (uncategorizedIdeas.length > 0) {
+        toast.error('카테고리가 지정되지 않은 아이디어가 있습니다.');
+        throw new Error('카테고리가 지정되지 않은 아이디어가 있습니다.');
+      }
+
+      // 빈 카테고리 검사: 각 카테고리에 속한 아이디어가 없는지 확인
+      const emptyCategories = categories.filter(
+        (category) => !ideas.some((idea) => idea.categoryId === category.id),
+      );
+      if (emptyCategories.length > 0) {
+        toast.error(`빈 카테고리가 있습니다.`);
+        throw new Error('빈 카테고리가 있습니다.');
+      }
     }
-  }, [issueState.status, isOpen, openModal]);
+
+    return true;
+  };
 
   const handleNextStep = () => {
     try {
-      nextStep(() => {
-        if (issueState.status === ISSUE_STATUS.BRAINSTORMING) {
-          if (ideas.length === 0) {
-            toast.error('최소 1개 이상의 아이디어를 제출해야합니다.');
-            throw new Error('아이디어가 존재하지 않습니다.');
-          }
-          if (hasEditingIdea) {
-            toast.error('입력 중인 아이디어가 있습니다.');
-            throw new Error('입력 중인 아이디어가 있습니다.');
-          }
-        }
-        if (issueState.status === ISSUE_STATUS.CATEGORIZE) {
-          if (categories.length === 0) {
-            toast.error('카테고리가 없습니다.');
-            throw new Error('카테고리가 없습니다.');
-          }
-        }
-
-        if (issueState.status === ISSUE_STATUS.CATEGORIZE) {
-          const uncategorizedIdeas = ideas.filter((idea) => idea.categoryId === null);
-          if (uncategorizedIdeas.length > 0) {
-            toast.error('카테고리가 지정되지 않은 아이디어가 있습니다.');
-            throw new Error('카테고리가 지정되지 않은 아이디어가 있습니다.');
-          }
-
-          // 빈 카테고리 검사: 각 카테고리에 속한 아이디어가 없는지 확인
-          const emptyCategories = categories.filter(
-            (category) => !ideas.some((idea) => idea.categoryId === category.id),
-          );
-          if (emptyCategories.length > 0) {
-            toast.error(`빈 카테고리가 있습니다.`);
-            throw new Error('빈 카테고리가 있습니다.');
-          }
-        }
-      });
+      validateStep();
+      nextStep();
     } catch (error) {
       toast((error as Error).message);
     }
   };
 
-  const handleAddCategory = () => {
-    const maxX = categories.length > 0 ? Math.max(...categories.map((cat) => cat.position.x)) : 0;
-
-    const newCategory: Category = {
-      id: `category-${Date.now()}`,
-      title: '새 카테고리',
-      position: {
-        x: maxX + 300,
-        y: 100,
-      },
-      isMuted: false,
-    };
-
-    addCategory(newCategory);
-  };
-
   const renderActionButtons = () => {
-    switch (issueState.status) {
+    switch (issue?.status) {
       case ISSUE_STATUS.CATEGORIZE:
         return (
           <>
@@ -132,34 +105,23 @@ const Header = () => {
               alt="카테고리 추가"
               text="카테고리 추가"
               onClick={handleAddCategory}
+              variant="outline"
             />
             <HeaderButton
               imageSrc="/stick.svg"
               alt="AI 구조화"
               text="AI 구조화"
               onClick={startAIStructure}
+              variant="outline"
             />
           </>
-        );
-      case ISSUE_STATUS.VOTE:
-        const isVoting = issueState.voteStatus === 'IN_PROGRESS';
-        const text = BUTTON_TEXT_MAP[issueState.voteStatus];
-
-        return (
-          <HeaderButton
-            imageSrc="/good.svg"
-            alt="투표"
-            text={text}
-            variant={isVoting ? 'dark' : undefined}
-            onClick={isVoting ? endVote : startVote}
-          />
         );
       case ISSUE_STATUS.SELECT:
         return (
           <HeaderButton
             text="이슈 종료"
-            variant="dark"
-            onClick={closeIssue}
+            color="black"
+            onClick={handleCloseIssue}
           />
         );
     }
@@ -174,7 +136,7 @@ const Header = () => {
           width={18}
           height={18}
         />
-        서비스 홍보 방안
+        {issue?.title}
       </S.LeftSection>
       <S.CenterSection>
         <ProgressBar />

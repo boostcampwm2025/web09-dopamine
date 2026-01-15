@@ -1,68 +1,38 @@
 import { create } from 'zustand';
-import { ISSUE_STATUS, STEP_FLOW } from '@/constants/issue';
-import { IssueStatus, VoteStatus } from '@/types/issue';
+import { IssueMember } from '@/types/issue';
 
 interface IssueStore {
   id: string | null;
-  status: IssueStatus;
-  voteStatus: VoteStatus;
   isAIStructuring: boolean;
+  isQuickIssue: boolean;
+  members: IssueMember[];
   actions: {
-    setInitialData: (data: { id: string; status: IssueStatus }) => void;
-    nextStep: (validate?: () => void) => Promise<void>;
-    closeIssue: () => void;
-    startVote: () => void;
-    endVote: () => void;
     startAIStructure: () => void;
     finishAIStructure: () => void;
+    setMembers: (members: IssueMember[]) => void;
+    upsertMember: (member: IssueMember) => void;
   };
 }
 
 export const useIssueStore = create<IssueStore>((set) => ({
   id: null,
-  status: ISSUE_STATUS.BRAINSTORMING,
-  voteStatus: 'READY',
   isAIStructuring: false,
+  isQuickIssue: true,
+  members: [],
 
   actions: {
-    setInitialData: (data) => set(() => ({ id: data.id, status: data.status })),
+    setMembers: (members) => set({ members }),
 
-    nextStep: async (validate?: () => void) => {
-      if (validate) {
-        validate();
-      }
+    upsertMember: (member) =>
+      set((state) => {
+        const idx = state.members.findIndex((m) => m.id === member.id);
+        if (idx === -1) return { members: [...state.members, member] };
 
-      const state = useIssueStore.getState();
-      const currentIndex = STEP_FLOW.indexOf(state.status);
-      const nextStatus = STEP_FLOW[currentIndex + 1];
-
-      // 서버에 저장
-      try {
-        const response = await fetch(`/api/issues/${state.id}/status`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ status: nextStatus }),
-        });
-
-        if (!response.ok) throw new Error('Failed to update status');
-
-        set({ status: nextStatus });
-      } catch (error) {
-        console.error('이슈 상태 업데이트 실패', error);
-      }
-    },
-
-    closeIssue: () => set(() => ({ status: ISSUE_STATUS.CLOSE })),
-    startVote: () => set({ voteStatus: 'IN_PROGRESS' }),
-    endVote: () => set({ voteStatus: 'COMPLETED' }),
+        const next = [...state.members];
+        next[idx] = { ...next[idx], ...member };
+        return { members: next };
+      }),
     startAIStructure: () => set({ isAIStructuring: true }),
     finishAIStructure: () => set({ isAIStructuring: false }),
   },
 }));
-
-export const useIsNextButtonVisible = () => {
-  return useIssueStore((state) => {
-    const hiddenStatus = [ISSUE_STATUS.SELECT, ISSUE_STATUS.CLOSE] as IssueStatus[];
-    return !hiddenStatus.includes(state.status);
-  });
-};

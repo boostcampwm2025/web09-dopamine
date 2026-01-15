@@ -1,6 +1,6 @@
-import type { IdeaWithPosition, Idea } from '../types/idea';
+import type { Idea, IdeaWithPosition } from '../types/idea';
 
-export const mockIdeas: Idea[] = [
+export const mockIdeas: Partial<Idea>[] = [
   {
     id: 'idea-001',
     content: 'SaaS 릴스 콘텐츠로 핵심 기능을 짧게 보여주고 실제 성공 사례를 덧붙여 반복 노출하기',
@@ -21,7 +21,8 @@ export const mockIdeas: Idea[] = [
   },
   {
     id: 'idea-003',
-    content: '커뮤니티에서 주간 성과를 실명으로 공유하며 신뢰도를 높이고 참여를 유도하는 캠페인 진행',
+    content:
+      '커뮤니티에서 주간 성과를 실명으로 공유하며 신뢰도를 높이고 참여를 유도하는 캠페인 진행',
     author: '민수',
     category: 'SNS 마케팅',
     agreeCount: 18,
@@ -39,7 +40,8 @@ export const mockIdeas: Idea[] = [
   },
   {
     id: 'idea-005',
-    content: '주간 활용사례 인터뷰를 표준 스크립트로 제작해 시리즈화하고 다운로드 자료로도 제공하기',
+    content:
+      '주간 활용사례 인터뷰를 표준 스크립트로 제작해 시리즈화하고 다운로드 자료로도 제공하기',
     author: '주원',
     category: 'SNS 마케팅',
     agreeCount: 9,
@@ -48,7 +50,8 @@ export const mockIdeas: Idea[] = [
   },
   {
     id: 'idea-006',
-    content: '개발자 커뮤니티에 API 예제와 코드 샘플을 담은 기술 블로그 글을 공유하며 트래픽 유입 늘리기',
+    content:
+      '개발자 커뮤니티에 API 예제와 코드 샘플을 담은 기술 블로그 글을 공유하며 트래픽 유입 늘리기',
     author: '민지',
     category: '커뮤니티 활동',
     agreeCount: 12,
@@ -57,7 +60,7 @@ export const mockIdeas: Idea[] = [
   },
 ];
 
-export const mockIdeasWithPosition: IdeaWithPosition[] = [
+export const mockIdeasWithPosition: Partial<IdeaWithPosition>[] = [
   // 캔버스에 자유 배치된 아이디어들(categoryId: null)
   {
     id: 'idea-001',
@@ -79,7 +82,8 @@ export const mockIdeasWithPosition: IdeaWithPosition[] = [
   },
   {
     id: 'idea-003',
-    content: '커뮤니티에서 주간 성과를 실명으로 공유하며 신뢰도를 높이고 참여를 유도하는 캠페인 진행',
+    content:
+      '커뮤니티에서 주간 성과를 실명으로 공유하며 신뢰도를 높이고 참여를 유도하는 캠페인 진행',
     author: '민수',
     categoryId: null,
     position: { x: 320, y: 380 },
@@ -97,7 +101,8 @@ export const mockIdeasWithPosition: IdeaWithPosition[] = [
   },
   {
     id: 'idea-005',
-    content: '주간 활용사례 인터뷰를 표준 스크립트로 제작해 시리즈화하고 다운로드 자료로도 제공하기',
+    content:
+      '주간 활용사례 인터뷰를 표준 스크립트로 제작해 시리즈화하고 다운로드 자료로도 제공하기',
     author: '주원',
     categoryId: null,
     position: { x: 180, y: 620 },
@@ -106,7 +111,8 @@ export const mockIdeasWithPosition: IdeaWithPosition[] = [
   },
   {
     id: 'idea-006',
-    content: '개발자 커뮤니티에 API 예제와 코드 샘플을 담은 기술 블로그 글을 공유하며 트래픽 유입 늘리기',
+    content:
+      '개발자 커뮤니티에 API 예제와 코드 샘플을 담은 기술 블로그 글을 공유하며 트래픽 유입 늘리기',
     author: '민지',
     categoryId: null,
     position: { x: 580, y: 700 },
@@ -124,7 +130,8 @@ export const mockIdeasWithPosition: IdeaWithPosition[] = [
   },
   {
     id: 'idea-008',
-    content: '무료 체험 플로우에서 핵심 액션까지의 단계를 줄이고 인앱 안내를 추가해 완료율을 끌어올리기',
+    content:
+      '무료 체험 플로우에서 핵심 액션까지의 단계를 줄이고 인앱 안내를 추가해 완료율을 끌어올리기',
     author: '소연',
     categoryId: null,
     position: { x: 420, y: 150 },
@@ -133,7 +140,7 @@ export const mockIdeasWithPosition: IdeaWithPosition[] = [
   },
 ];
 
-export const mockIdeasWithCategory: IdeaWithPosition[] = [
+export const mockIdeasWithCategory: Partial<IdeaWithPosition>[] = [
   // 카테고리에 속해 배치된 아이디어들
   {
     id: 'idea-001',
@@ -155,7 +162,8 @@ export const mockIdeasWithCategory: IdeaWithPosition[] = [
   },
   {
     id: 'idea-003',
-    content: '커뮤니티에서 주간 성과를 실명으로 공유하며 신뢰도를 높이고 참여를 유도하는 캠페인 진행',
+    content:
+      '커뮤니티에서 주간 성과를 실명으로 공유하며 신뢰도를 높이고 참여를 유도하는 캠페인 진행',
     author: '민수',
     categoryId: 'cat-1',
     position: { x: 320, y: 380 },
@@ -173,7 +181,8 @@ export const mockIdeasWithCategory: IdeaWithPosition[] = [
   },
   {
     id: 'idea-005',
-    content: '주간 활용사례 인터뷰를 표준 스크립트로 제작해 시리즈화하고 다운로드 자료로도 제공하기',
+    content:
+      '주간 활용사례 인터뷰를 표준 스크립트로 제작해 시리즈화하고 다운로드 자료로도 제공하기',
     author: '주원',
     categoryId: 'cat-1',
     position: { x: 180, y: 620 },
@@ -182,7 +191,8 @@ export const mockIdeasWithCategory: IdeaWithPosition[] = [
   },
   {
     id: 'idea-006',
-    content: '개발자 커뮤니티에 API 예제와 코드 샘플을 담은 기술 블로그 글을 공유하며 트래픽 유입 늘리기',
+    content:
+      '개발자 커뮤니티에 API 예제와 코드 샘플을 담은 기술 블로그 글을 공유하며 트래픽 유입 늘리기',
     author: '민지',
     categoryId: 'cat-3',
     position: { x: 580, y: 700 },
@@ -200,7 +210,8 @@ export const mockIdeasWithCategory: IdeaWithPosition[] = [
   },
   {
     id: 'idea-008',
-    content: '무료 체험 플로우에서 핵심 액션까지의 단계를 줄이고 인앱 안내를 추가해 완료율을 끌어올리기',
+    content:
+      '무료 체험 플로우에서 핵심 액션까지의 단계를 줄이고 인앱 안내를 추가해 완료율을 끌어올리기',
     author: '소연',
     categoryId: 'cat-2',
     position: { x: 420, y: 150 },
@@ -209,7 +220,8 @@ export const mockIdeasWithCategory: IdeaWithPosition[] = [
   },
   {
     id: 'idea-009',
-    content: '카테고리별 베스트 글을 모아 주간 뉴스레터로 발행하고 각 아이디어 링크를 함께 제공하기',
+    content:
+      '카테고리별 베스트 글을 모아 주간 뉴스레터로 발행하고 각 아이디어 링크를 함께 제공하기',
     author: '유진',
     categoryId: 'cat-1',
     position: { x: 510, y: 260 },
@@ -245,7 +257,8 @@ export const mockIdeasWithCategory: IdeaWithPosition[] = [
   },
   {
     id: 'idea-013',
-    content: 'AI 글쓰기 팁과 전/후 사례를 묶어 블로그 시리즈로 발행하고 프롬프트 예시를 함께 제공하기',
+    content:
+      'AI 글쓰기 팁과 전/후 사례를 묶어 블로그 시리즈로 발행하고 프롬프트 예시를 함께 제공하기',
     author: '도윤',
     categoryId: 'cat-3',
     position: { x: 640, y: 560 },

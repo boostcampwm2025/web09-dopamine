@@ -8,7 +8,7 @@ interface IdeaStore {
   resetEditingIdea: () => void;
   addIdea: (idea: IdeaWithPosition) => void;
   updateIdeaContent: (id: string, content: string) => void;
-  updateIdeaPosition: (id: string, position: Position) => void;
+  updateIdeaPosition: (id: string, position: Position | null) => void;
   updateIdeaEditable: (id: string, editable: boolean) => void;
   selectIdea: (id: string | null) => void;
   deleteIdea: (id: string) => void;
@@ -21,26 +21,26 @@ const createIdeaStore = (issueId: string) => {
     persist(
       (set, get) => ({
         ideas: [],
-        hasEditingIdea: false,
 
-        resetEditingIdea: () => set({ hasEditingIdea: false }),
+        get hasEditingIdea() {
+          return get().ideas.some((idea) => idea.editable);
+        },
+
+        resetEditingIdea: () => {},
 
         addIdea: (idea: IdeaWithPosition) =>
           set((state) => ({
             ideas: [...state.ideas, idea],
-            hasEditingIdea: true,
           })),
 
-        updateIdeaContent: (id: string, content: string) => {
+        updateIdeaContent: (id: string, content: string) =>
           set((state) => ({
             ideas: state.ideas.map((idea) =>
               idea.id === id ? { ...idea, content, editable: false } : idea,
             ),
-          }));
-          get().resetEditingIdea();
-        },
+          })),
 
-        updateIdeaPosition: (id: string, position: Position) =>
+        updateIdeaPosition: (id: string, position: Position | null) =>
           set((state) => ({
             ideas: state.ideas.map((idea) => (idea.id === id ? { ...idea, position } : idea)),
           })),
@@ -65,10 +65,7 @@ const createIdeaStore = (issueId: string) => {
 
         setIdeas: (ideas: IdeaWithPosition[]) => set({ ideas }),
 
-        clearIdeas: () => {
-          set({ ideas: [] });
-          get().resetEditingIdea();
-        },
+        clearIdeas: () => set({ ideas: [] }),
       }),
       {
         name: `idea-storage-${issueId}`, // 이슈별 localStorage key

@@ -70,18 +70,43 @@ export const useDraggable = ({
       };
 
       if (checkCollision && checkCollision(newPosition)) {
-        return; 
+        const candidateX = { x: newPosition.x, y: position.y };
+        const candidateY = { x: position.x, y: newPosition.y };
+        const canMoveX = !checkCollision(candidateX);
+        const canMoveY = !checkCollision(candidateY);
+
+        if (canMoveX && canMoveY) {
+          if (Math.abs(deltaX) >= Math.abs(deltaY)) {
+            newPosition.x = candidateX.x;
+            newPosition.y = candidateX.y;
+          } else {
+            newPosition.x = candidateY.x;
+            newPosition.y = candidateY.y;
+          }
+        } else if (canMoveX) {
+          newPosition.x = candidateX.x;
+          newPosition.y = candidateX.y;
+        } else if (canMoveY) {
+          newPosition.x = candidateY.x;
+          newPosition.y = candidateY.y;
+        } else {
+          return;
+        }
       }
 
       setPosition(newPosition);
 
-      // 이전 프레임과의 차이만 전달 (증분 delta)
+      // 이전 프레임과의 차이만 전달
+      const actualDelta = {
+        dx: newPosition.x - elementStartPos.current.x,
+        dy: newPosition.y - elementStartPos.current.y,
+      };
       const incrementalDelta = {
-        dx: deltaX - lastDelta.current.dx,
-        dy: deltaY - lastDelta.current.dy,
+        dx: actualDelta.dx - lastDelta.current.dx,
+        dy: actualDelta.dy - lastDelta.current.dy,
       };
 
-      lastDelta.current = { dx: deltaX, dy: deltaY };
+      lastDelta.current = actualDelta;
       onDrag?.(newPosition, incrementalDelta);
     },
     [isDragging, scale, hasMoved, onDrag, checkCollision],

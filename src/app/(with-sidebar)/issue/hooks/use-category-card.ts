@@ -1,71 +1,47 @@
-import { useCallback, useEffect, useReducer, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { useCategoryMutations } from './queries/use-category-mutation';
 
 interface UseCategoryProps {
+  id: string;
+  issueId: string;
   title: string;
-  onTitleChange?: (newTitle: string) => void;
 }
 
 export default function useCategory(props: UseCategoryProps) {
-  const { title, onTitleChange } = props;
+  const { id, issueId, title } = props;
   const [curTitle, setCurTitle] = useState<string>(title);
   const [draftTitle, setDraftTitle] = useState<string>(title);
   const [isEditing, setIsEditing] = useState<boolean>(false);
 
-  const initialState = {
-    curTitle: '',
-    draftTitle: '',
-    isEditing: false,
-  };
-
-  type TitleAction =
-    | { type: 'SET_CUR_TITLE'; payload: string }
-    | { type: 'SET_DRAFT_TITLE'; payload: string }
-    | { type: 'SET_IS_EDITING'; payload: boolean };
-
-  const titleReducer = (state: typeof initialState, action: TitleAction) => {
-    switch (action.type) {
-      case 'SET_CUR_TITLE':
-        return {
-          ...state,
-          curTitle: action.payload,
-        };
-      case 'SET_DRAFT_TITLE':
-        return {
-          ...state,
-          draftTitle: action.payload,
-        };
-      case 'SET_IS_EDITING':
-        return {
-          ...state,
-          isEditing: action.payload,
-        };
-      default:
-        return state;
-    }
-  };
-
-  const [_, dispatch] = useReducer(titleReducer, initialState);
+  const { update } = useCategoryMutations(issueId);
 
   useEffect(() => {
-    dispatch({ type: 'SET_CUR_TITLE', payload: title });
-    dispatch({ type: 'SET_DRAFT_TITLE', payload: title });
-    dispatch({ type: 'SET_IS_EDITING', payload: false });
+    setCurTitle(title);
+    setDraftTitle(title);
+    setIsEditing(false);
   }, [title]);
 
   const submitEditedTitle = useCallback(
     (nextTitle: string) => {
       const value = nextTitle.trim();
       const finalTitle = value || curTitle;
+
+      // 변경이 없으면 API 호출 안 함
+      if (finalTitle === curTitle) {
+        setIsEditing(false);
+        return;
+      }
+
       setCurTitle(finalTitle);
       setDraftTitle(finalTitle);
       setIsEditing(false);
 
-      // 서버에 변경사항 전달
-
-      // Zustand 스토어 업데이트
-      onTitleChange?.(finalTitle);
+      update.mutate({
+        categoryId: id,
+        payload: { title: finalTitle },
+      });
     },
-    [curTitle, onTitleChange],
+    [curTitle, id, update],
   );
 
   const cancelEditingTitle = () => {

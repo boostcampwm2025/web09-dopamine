@@ -1,5 +1,12 @@
-import { ISSUE_STATUS } from '@/constants/issue';
+import { ISSUE_STATUS, MEMBER_ROLE } from '@/constants/issue';
 
 export type IssueStatus = (typeof ISSUE_STATUS)[keyof typeof ISSUE_STATUS];
 
-export type VoteStatus = 'READY' | 'IN_PROGRESS' | 'COMPLETED';
+type MemberRole = (typeof MEMBER_ROLE)[keyof typeof MEMBER_ROLE];
+
+export type IssueMember = {
+  id: string;
+  displayName: string;
+  role: MemberRole;
+  isConnected: boolean;
+};

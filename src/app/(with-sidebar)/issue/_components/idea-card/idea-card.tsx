@@ -5,26 +5,31 @@ import Image from 'next/image';
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import useIdeaCard from '@/app/(with-sidebar)/issue/hooks/use-idea-card';
+import { ISSUE_STATUS, VOTE_TYPE } from '@/constants/issue';
+import { useIssueData } from '../../hooks/use-issue-data';
+import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
+import { useIdeaQuery } from '../../hooks/queries/use-idea-query';
 import { useIdeaCardStackStore } from '../../store/use-idea-card-stack-store';
 import { useIdeaStore } from '../../store/use-idea-store';
+import { useSelectedIdeaMutation } from '../../hooks/queries/use-selected-idea-mutation';
 import { useIssueStore } from '../../store/use-issue-store';
-import { ISSUE_STATUS } from '@/constants/issue';
-import type { Position } from '../../types/idea';
+import type { CardStatus, Position } from '../../types/idea';
 import * as S from './idea-card.styles';
 
 interface IdeaCardProps {
-  id?: string;
-  issueId?: string;
-  content?: string;
-  author?: string;
-  position?: Position | null;
+  id: string;
+  issueId: string;
+  content: string;
+  author: string;
+  userId: string;
+  position: Position | null;
   isSelected?: boolean;
-  isHighlighted?: boolean;
-  isVotePhase?: boolean;
+  isVoteButtonVisible?: boolean;
+  isVoteDisabled?: boolean;
   agreeCount?: number;
   disagreeCount?: number;
-  needDiscussion?: boolean;
   editable?: boolean;
+  status?: CardStatus;
   onVoteChange?: (agreeCount: number, disagreeCount: number) => void;
   categoryId?: string | null;
   onSave?: (content: string) => void;
@@ -39,7 +44,8 @@ export type DragItemPayload = {
   content?: string;
   author?: string;
   isSelected?: boolean;
-  isVotePhase?: boolean;
+  isVoteButtonVisible?: boolean;
+  isVoteDisabled?: boolean;
   agreeCount?: number;
   disagreeCount?: number;
   needDiscussion?: boolean;
@@ -47,18 +53,20 @@ export type DragItemPayload = {
 };
 
 export default function IdeaCard(props: IdeaCardProps) {
-  const { selectIdea } = useIdeaStore(props.issueId);
-  const issueStatus = useIssueStore((state) => state.status);
+  const issueId = props.issueId ?? '';
+  const { mutate: selectIdea } = useSelectedIdeaMutation(issueId);
+  const { status: issueStatus } = useIssueData(props.issueId);
   const { bringToFront, getZIndex } = useIdeaCardStackStore(props.issueId);
   const zIndex = props.id ? getZIndex(props.id) : 0;
+
+  // 현재 로그인한 사용자가 이 아이디어의 작성자인지 확인
+  const currentUserId = getUserIdForIssue(props.issueId);
+  const isCurrentUser = currentUserId === props.userId;
 
   // 비즈니스 로직 (투표, 편집 등)
   const {
     textareaRef,
     status,
-    userVote,
-    agreeCountState,
-    disagreeCountState,
     isEditing,
     editValue,
     displayContent,
@@ -68,14 +76,16 @@ export default function IdeaCard(props: IdeaCardProps) {
     submitEdit,
     handleKeyDownEdit,
   } = useIdeaCard({
+    id: props.id,
+    userId: currentUserId,
     content: props.content,
-    agreeCount: props.agreeCount,
-    disagreeCount: props.disagreeCount,
     isSelected: props.isSelected,
-    needDiscussion: props.needDiscussion,
+    status: props.status,
     editable: !!props.editable,
     onSave: props.onSave,
   });
+
+  const { data: idea } = useIdeaQuery(props.id, currentUserId);
 
   // 드래그 로직
   const inCategory = !!props.categoryId;
@@ -107,10 +117,6 @@ export default function IdeaCard(props: IdeaCardProps) {
       return () => clearTimeout(timer);
     }
   }, [isDragging]);
-
-  useEffect(() => {
-    props.onVoteChange?.(agreeCountState, disagreeCountState);
-  }, [agreeCountState, disagreeCountState, props.onVoteChange]);
 
   // 스타일 계산
   // 자유 배치 모드(categoryId === null)면 absolute positioning
@@ -154,18 +160,22 @@ export default function IdeaCard(props: IdeaCardProps) {
     if (!props.id || !props.categoryId || isEditing || issueStatus !== ISSUE_STATUS.SELECT) {
       return;
     }
+    if (props.onClick) {
+      props.onClick();
+      return;
+    }
     selectIdea(props.id);
   };
 
   return (
     <S.Card
       ref={setNodeRef}
+      issueStatus={issueStatus}
       status={status}
       isDragging={isDragging}
       inCategory={inCategory}
       onClick={handleCardClick}
       onPointerDown={handlePointerDown}
-      isHighlighted={props.isHighlighted}
       {...attributes}
       {...(inCategory
         ? {}
@@ -174,17 +184,16 @@ export default function IdeaCard(props: IdeaCardProps) {
           ))}
       style={cardStyle}
     >
-      {status === 'selected' && (
-        <S.Badge>
-          <Image
-            src="/crown.svg"
-            alt="채택 아이콘"
-            width={20}
-            height={20}
-          />
-          <span>채택</span>
-        </S.Badge>
-      )}
+      <S.Badge status={status}>
+        <Image
+          src="/crown.svg"
+          alt="채택 아이콘"
+          width={20}
+          height={20}
+        />
+        <span>채택</span>
+      </S.Badge>
+
       <S.Header>
         {isEditing ? (
           <S.EditableInput
@@ -202,8 +211,8 @@ export default function IdeaCard(props: IdeaCardProps) {
           <S.Content>{displayContent}</S.Content>
         )}
         <S.Meta>
-          <S.AuthorPill>{props.author}</S.AuthorPill>
-          {props.isVotePhase ? (
+          <S.AuthorPill isCurrentUser={isCurrentUser}>{props.author}</S.AuthorPill>
+          {props.isVoteButtonVisible ? (
             <S.IconButton aria-label="comment">
               <Image
                 src="/comment.svg"
@@ -216,35 +225,39 @@ export default function IdeaCard(props: IdeaCardProps) {
             <>{isEditing ? <S.SubmitButton onClick={submitEdit}>제출</S.SubmitButton> : null}</>
           )}
         </S.Meta>
-        <S.DeleteButton
-          aria-label="delete"
-          onClick={handleDeleteClick}
-        >
-          <Image
-            src="/close.svg"
-            alt="삭제"
-            width={14}
-            height={14}
-          />
-        </S.DeleteButton>
+        {issueStatus === ISSUE_STATUS.BRAINSTORMING && isCurrentUser && (
+          <S.DeleteButton
+            aria-label="delete"
+            onClick={handleDeleteClick}
+          >
+            <Image
+              src="/close.svg"
+              alt="삭제"
+              width={14}
+              height={14}
+            />
+          </S.DeleteButton>
+        )}
       </S.Header>
-      {props.isVotePhase && (
+      {props.isVoteButtonVisible && (
         <S.Footer>
           <S.VoteButton
-            kind="agree"
+            kind={VOTE_TYPE.AGREE}
             cardStatus={status}
-            active={userVote === 'agree'}
+            active={idea?.myVote === VOTE_TYPE.AGREE}
             onClick={handleAgree}
+            disabled={props.isVoteDisabled}
           >
-            찬성 {agreeCountState}
+            찬성 {idea?.agreeCount}
           </S.VoteButton>
           <S.VoteButton
-            kind="disagree"
+            kind={VOTE_TYPE.DISAGREE}
             cardStatus={status}
-            active={userVote === 'disagree'}
+            active={idea?.myVote === VOTE_TYPE.DISAGREE}
             onClick={handleDisagree}
+            disabled={props.isVoteDisabled}
           >
-            반대 {disagreeCountState}
+            반대 {idea?.disagreeCount}
           </S.VoteButton>
         </S.Footer>
       )}
