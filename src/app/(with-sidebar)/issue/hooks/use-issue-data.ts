@@ -1,30 +1,24 @@
 import { useEffect } from 'react';
 import { useIssueStore } from '@/app/(with-sidebar)/issue/store/use-issue-store';
 import { ISSUE_STATUS } from '@/constants/issue';
-import { getIssue, getIssueMembers } from '@/lib/api/issue';
+import { getIssueMembers } from '@/lib/api/issue';
 import { IssueMember, IssueStatus } from '@/types/issue';
+import { useIssueQuery } from './queries/use-issue-query';
 
 export function useIssueData(issueId: string) {
-  const { status, isAIStructuring } = useIssueStore();
-  const { setInitialData, setMembers } = useIssueStore((state) => state.actions);
+  const { data: issue } = useIssueQuery(issueId);
+
+  const status = issue?.status as IssueStatus;
+  const isQuickIssue = !issue?.topicId;
+
+  const { isAIStructuring } = useIssueStore();
+  const { setMembers } = useIssueStore((state) => state.actions);
 
   const isCreateIdeaActive = status === ISSUE_STATUS.BRAINSTORMING;
   const isVoteButtonVisible = status === ISSUE_STATUS.VOTE || status === ISSUE_STATUS.SELECT;
   const isVoteDisabled = status === ISSUE_STATUS.SELECT;
 
-  // mysql에서 이슈 상태 가져와서 초기화
   useEffect(() => {
-    const initializeIssueStatus = async () => {
-      const issue = await getIssue(issueId);
-      if (issue) {
-        setInitialData({
-          id: issueId,
-          status: issue.status || ISSUE_STATUS.BRAINSTORMING,
-          isQuickIssue: issue.topicId ? true : false,
-        });
-      }
-    };
-
     const initializeIssueMember = async () => {
       const members = await getIssueMembers(issueId);
       if (!members) return;
@@ -38,13 +32,12 @@ export function useIssueData(issueId: string) {
 
       setMembers(mappedMembers);
     };
-
-    initializeIssueStatus();
     initializeIssueMember();
-  }, [issueId, setInitialData, setMembers]);
+  }, [issueId, setMembers]);
 
   return {
     status,
+    isQuickIssue,
     isAIStructuring,
     isCreateIdeaActive,
     isVoteButtonVisible,

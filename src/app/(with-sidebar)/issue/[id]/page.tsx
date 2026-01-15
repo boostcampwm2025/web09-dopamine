@@ -19,10 +19,9 @@ import { useCategoryStore } from '@/app/(with-sidebar)/issue/store/use-category-
 import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
 import LoadingOverlay from '@/components/loading-overlay/loading-overlay';
 import { useModalStore } from '@/components/modal/use-modal-store';
-import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
 import { ISSUE_STATUS } from '@/constants/issue';
+import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
 import IssueJoinModal from '../_components/issue-join-modal/issue-join-modal';
-import { useIssueStore } from '../store/use-issue-store';
 
 const IssuePage = () => {
   const params = useParams<{ id: string }>();
@@ -32,10 +31,13 @@ const IssuePage = () => {
   const hasOpenedModal = useRef(false);
 
   const scale = useCanvasStore((state) => state.scale);
-  const { status } = useIssueStore();
   const { setIdeas } = useIdeaStore(issueId);
   const { setCategories } = useCategoryStore(issueId);
   const userId = getUserIdForIssue(issueId) ?? '';
+
+  // 1. 이슈 데이터 초기화
+  const { status, isAIStructuring, isCreateIdeaActive, isVoteButtonVisible, isVoteDisabled } =
+    useIssueData(issueId);
 
   // userId 체크 및 모달 표시
   useEffect(() => {
@@ -59,10 +61,6 @@ const IssuePage = () => {
       router.replace(`/issue/${issueId}/summary`);
     }
   }, [status, issueId, router]);
-
-  // 1. 이슈 데이터 초기화
-  const { isAIStructuring, isCreateIdeaActive, isVoteButtonVisible, isVoteDisabled } =
-    useIssueData(issueId);
 
   // 2. 아이디어 관련 작업
   const {
