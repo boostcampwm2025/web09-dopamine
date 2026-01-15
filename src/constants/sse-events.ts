@@ -6,7 +6,7 @@ export const SSE_EVENT_TYPES = {
   IDEA_CREATED: 'idea:created',
   IDEA_MOVED: 'idea:moved',
   IDEA_DELETED: 'idea:deleted',
-  IDEA_SEELECTED: 'idea:selected',
+  IDEA_SELECTED: 'idea:selected',
 
   // 카테고리
   CATEGORY_CREATED: 'category:created',
