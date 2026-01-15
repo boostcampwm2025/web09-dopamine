@@ -3,6 +3,11 @@ import { IssueStatus } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { findIssueById, updateIssueStatus } from '@/lib/repositories/issue.repository';
 import { createReport, findReportByIssueId } from '@/lib/repositories/report.repository';
+import {
+  createWordClouds,
+  findIssueTextSourcesForWordCloud,
+} from '@/lib/repositories/word-cloud.repository';
+import { generateWordCloudData } from '@/lib/utils/word-cloud-processor';
 
 export async function PATCH(
   req: NextRequest,
@@ -28,8 +33,33 @@ export async function PATCH(
 
       if (status === IssueStatus.CLOSE) {
         const existingReport = await findReportByIssueId(id, tx);
+        let report;
+
         if (!existingReport) {
-          await createReport(id, selectedIdeaId, memo, tx);
+          report = await createReport(id, selectedIdeaId, memo, tx);
+        } else {
+          report = existingReport;
+        }
+
+        // 워드클라우드 생성
+        if (report) {
+          // 이슈의 모든 아이디어와 댓글 조회
+          const issueWithData = await findIssueTextSourcesForWordCloud(id, tx);
+
+          if (issueWithData) {
+            // 모든 댓글 수집
+            const allComments = issueWithData.ideas.flatMap((idea) => idea.comments);
+
+            // 워드클라우드 데이터 생성
+            const wordCloudData = generateWordCloudData({
+              ideas: issueWithData.ideas.map((idea) => ({ content: idea.content })),
+              comments: allComments,
+              memo: memo,
+            });
+
+            // 워드클라우드 데이터 저장
+            await createWordClouds(report.id, wordCloudData, tx);
+          }
         }
       }
 

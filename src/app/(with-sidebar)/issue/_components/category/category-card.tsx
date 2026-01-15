@@ -20,7 +20,7 @@ import {
 
 interface CategoryCardProps {
   id: string;
-  issueId?: string;
+  issueId: string;
   title: string;
   position: Position;
   isMuted?: boolean;
@@ -32,12 +32,11 @@ interface CategoryCardProps {
   onDragEnd?: () => void;
   onDropIdea?: (ideaId: string) => void;
   checkCollision?: (id: string, position: Position) => boolean;
-  onTitleChange?: (id: string, title: string) => void;
 }
 
 export default function CategoryCard({
   id,
-  issueId = 'default',
+  issueId,
   title,
   position,
   isMuted = false,
@@ -49,7 +48,6 @@ export default function CategoryCard({
   onDragEnd,
   onDropIdea,
   checkCollision,
-  onTitleChange,
 }: CategoryCardProps) {
   const { scale } = useCanvasContext();
 
@@ -88,11 +86,10 @@ export default function CategoryCard({
     setDraftTitle,
     submitEditedTitle,
     cancelEditingTitle,
-  } = useCategory({ 
+  } = useCategory({
+    id,
+    issueId,
     title,
-    onTitleChange: (newTitle: string) => {
-      onTitleChange?.(id, newTitle);
-    },
   });
 
   return (

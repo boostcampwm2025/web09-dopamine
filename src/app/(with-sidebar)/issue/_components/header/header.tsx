@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import toast from 'react-hot-toast';
@@ -16,7 +16,6 @@ import { useModalStore } from '@/components/modal/use-modal-store';
 import { useTooltipStore } from '@/components/tooltip/use-tooltip-store';
 import { ISSUE_STATUS } from '@/constants/issue';
 import { getIssue } from '@/lib/api/issue';
-import type { Category } from '../../types/category';
 import CloseIssueModal from '../close-issue-modal/close-issue-modal';
 import ProgressBar from '../progress-bar/progress-bar';
 import HeaderButton from './header-button';
@@ -31,9 +30,9 @@ const Header = () => {
       status: state.status,
     })),
   );
-  
+
   const [title, setTitle] = useState('');
-  const { nextStep, closeIssue, startAIStructure } = useIssueStore((state) => state.actions);
+  const { nextStep, startAIStructure } = useIssueStore((state) => state.actions);
 
   const isVisible = useIsNextButtonVisible();
 
@@ -41,29 +40,19 @@ const Header = () => {
 
   const openTooltip = useTooltipStore((state) => state.openTooltip);
   const closeTooltip = useTooltipStore((state) => state.closeTooltip);
-  const { openModal, isOpen } = useModalStore();
-  const hasOpenedModal = useRef(false);
-
+  const { openModal } = useModalStore();
   const { ideas } = useIdeaStore(issueId);
   const scale = useCanvasStore((state) => state.scale);
   const { categories, handleAddCategory } = useCategoryOperations(issueId, ideas, scale);
 
-  useEffect(() => {
-    if (issueState.status !== ISSUE_STATUS.CLOSE) {
-      hasOpenedModal.current = false;
-      return;
-    }
-
-    if (!hasOpenedModal.current && !isOpen) {
-      openModal({
-        title: '이슈 종료',
-        content: <CloseIssueModal issueId={issueId} />,
-        closeOnOverlayClick: false,
-        hasCloseButton: false,
-      });
-      hasOpenedModal.current = true;
-    }
-  }, [issueState.status, isOpen, openModal]);
+  const handleCloseIssue = () => {
+    openModal({
+      title: '이슈 종료',
+      content: <CloseIssueModal issueId={issueId} />,
+      closeOnOverlayClick: false,
+      hasCloseButton: false,
+    });
+  };
 
   // 이슈 제목 조회
   useEffect(() => {
@@ -145,7 +134,7 @@ const Header = () => {
           <HeaderButton
             text="이슈 종료"
             color="black"
-            onClick={closeIssue}
+            onClick={handleCloseIssue}
           />
         );
     }

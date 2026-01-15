@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { DndContext, DragOverlay } from '@dnd-kit/core';
 import Canvas from '@/app/(with-sidebar)/issue/_components/canvas/canvas';
 import CategoryCard from '@/app/(with-sidebar)/issue/_components/category/category-card';
@@ -20,12 +20,14 @@ import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
 import LoadingOverlay from '@/components/loading-overlay/loading-overlay';
 import { useModalStore } from '@/components/modal/use-modal-store';
 import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
+import { ISSUE_STATUS } from '@/constants/issue';
 import IssueJoinModal from '../_components/issue-join-modal/issue-join-modal';
 import { useIssueStore } from '../store/use-issue-store';
 
 const IssuePage = () => {
   const params = useParams<{ id: string }>();
   const issueId = params.id;
+  const router = useRouter();
   const { openModal, isOpen } = useModalStore();
   const hasOpenedModal = useRef(false);
 
@@ -33,6 +35,7 @@ const IssuePage = () => {
   const { status } = useIssueStore();
   const { setIdeas } = useIdeaStore(issueId);
   const { setCategories } = useCategoryStore(issueId);
+  const userId = getUserIdForIssue(issueId) ?? '';
 
   // userId 체크 및 모달 표시
   useEffect(() => {
@@ -49,6 +52,13 @@ const IssuePage = () => {
       });
     }
   }, [issueId, isOpen, openModal]);
+
+  // 이슈가 종료된 경우 summary 페이지로 리다이렉트
+  useEffect(() => {
+    if (status === ISSUE_STATUS.CLOSE && issueId) {
+      router.replace(`/issue/${issueId}/summary`);
+    }
+  }, [status, issueId, router]);
 
   // 1. 이슈 데이터 초기화
   const { isAIStructuring, isCreateIdeaActive, isVoteButtonVisible, isVoteDisabled } =
@@ -67,13 +77,8 @@ const IssuePage = () => {
   } = useIdeaOperations(issueId, isCreateIdeaActive);
 
   // 3. 카테고리 관련 작업
-  const {
-    categories,
-    checkCategoryOverlap,
-    handleCategoryPositionChange,
-    handleDeleteCategory,
-    handleCategoryTitleChange,
-  } = useCategoryOperations(issueId, ideas, scale);
+  const { categories, checkCategoryOverlap, handleCategoryPositionChange, handleDeleteCategory } =
+    useCategoryOperations(issueId, ideas, scale);
 
   // 4. DnD 관련 작업
   const { sensors, activeId, overlayEditValue, handleDragStart, handleDragEnd } = useDragAndDrop({
@@ -123,7 +128,6 @@ const IssuePage = () => {
                 onPositionChange={handleCategoryPositionChange}
                 checkCollision={checkCategoryOverlap}
                 onRemove={() => handleDeleteCategory(category.id)}
-                onTitleChange={handleCategoryTitleChange}
                 onDropIdea={(ideaId) => handleMoveIdeaToCategory(ideaId, category.id)}
               >
                 {categoryIdeas.map((idea) => (
@@ -131,6 +135,7 @@ const IssuePage = () => {
                     key={idea.id}
                     {...idea}
                     issueId={issueId}
+                    userId={userId}
                     position={null}
                     status={getIdeaStatus(idea.id)}
                     isVoteButtonVisible={isVoteButtonVisible}
@@ -155,6 +160,7 @@ const IssuePage = () => {
                 key={idea.id}
                 {...idea}
                 issueId={issueId}
+                userId={userId}
                 status={getIdeaStatus(idea.id)}
                 isVoteButtonVisible={isVoteButtonVisible}
                 isVoteDisabled={isVoteDisabled}
@@ -185,6 +191,7 @@ const IssuePage = () => {
                     <IdeaCard
                       {...activeIdea}
                       issueId={issueId}
+                      userId={userId}
                       content={overlayEditValue ?? activeIdea.content}
                       position={null}
                       status={getIdeaStatus(activeIdea.id)}
