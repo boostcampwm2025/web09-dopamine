@@ -104,6 +104,10 @@ export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) 
   const handleIdeaPositionChange = (id: string, position: Position) => {
     if (id.startsWith('temp-')) return;
 
+    // Zustand 스토어 즉시 업데이트 (낙관적 업데이트)
+    // 이 코드가 없으면 React Query 캐시와 Zustand 상태가 불일치하여 UI가 튕기는 현상 발생...
+    updateIdeaPosition(id, position);
+
     updateIdea({ ideaId: id, positionX: position.x, positionY: position.y, categoryId: null });
   };
 
