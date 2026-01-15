@@ -17,7 +17,6 @@ import { useIssueEvents } from '@/app/(with-sidebar)/issue/hooks/use-issue-event
 import { useIssueData } from '@/app/(with-sidebar)/issue/hooks/use-issue-data';
 import { useSelectedIdeaQuery } from '@/app/(with-sidebar)/issue/hooks/queries/use-selected-idea-query';
 import { useCanvasStore } from '@/app/(with-sidebar)/issue/store/use-canvas-store';
-import { useCategoryStore } from '@/app/(with-sidebar)/issue/store/use-category-store';
 import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
 import LoadingOverlay from '@/components/loading-overlay/loading-overlay';
 import { useModalStore } from '@/components/modal/use-modal-store';
@@ -37,7 +36,6 @@ const IssuePage = () => {
 
   const scale = useCanvasStore((state) => state.scale);
   const { setIdeas } = useIdeaStore(issueId);
-  const { setCategories } = useCategoryStore(issueId);
   const userId = getUserIdForIssue(issueId) ?? '';
   useIssueEvents({ issueId, enabled: issueId.length > 0 });
   const { data: selectedIdeaId } = useSelectedIdeaQuery(issueId);
@@ -46,7 +44,6 @@ const IssuePage = () => {
   const { isLoading } = useIssueQuery(issueId);
   const { status, isAIStructuring, isCreateIdeaActive, isVoteButtonVisible, isVoteDisabled } =
     useIssueData(issueId);
-  const userId = getUserIdForIssue(issueId);
 
   // userId 체크 및 모달 표시
   useEffect(() => {
@@ -102,7 +99,6 @@ const IssuePage = () => {
     issueId,
     ideas,
     setIdeas,
-    setCategories,
   });
 
   // 하이라이트된 아이디어
