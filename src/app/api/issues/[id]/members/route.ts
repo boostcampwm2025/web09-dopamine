@@ -1,18 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { IssueRole } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
-import { addIssueOwner, findMembersByIssueId } from '@/lib/repositories/issue-member.repository';
+import { issueMemberRepository } from '@/lib/repositories/issue-member.repository';
 import { findIssueById } from '@/lib/repositories/issue.repository';
 import { createAnonymousUser } from '@/lib/repositories/user.repository';
+import { issueMemberService } from '@/lib/services/issue-member.service';
 
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ): Promise<NextResponse> {
   const { id } = await params;
+  const { searchParams } = new URL(req.url);
+  const nickname = searchParams.get('nickname');
+
+  if (nickname) {
+    const isDuplicate = await issueMemberService.checkNicknameDuplicate(id, nickname);
+    return NextResponse.json({ isDuplicate });
+  }
 
   try {
-    const members = await findMembersByIssueId(id);
+    const members = await issueMemberRepository.findMembersByIssueId(id);
 
     if (!members) {
       return NextResponse.json({ message: '참여자가 존재하지 않습니다.' }, { status: 404 });
@@ -52,7 +60,7 @@ export async function POST(
 
     const result = await prisma.$transaction(async (tx) => {
       const user = await createAnonymousUser(tx, nickname);
-      await addIssueOwner(tx, issueId, user.id, IssueRole.MEMBER);
+      await issueMemberRepository.addIssueOwner(tx, issueId, user.id, IssueRole.MEMBER);
 
       return {
         userId: user.id,

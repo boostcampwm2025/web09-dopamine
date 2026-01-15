@@ -38,6 +38,41 @@ export async function getIssueMembers(issueId: string) {
   }
 }
 
+export async function checkNicknameDuplicate(issueId: string, nickname: string) {
+  const encodedNickname = encodeURIComponent(nickname);
+  try {
+    const response = await fetch(`/api/issues/${issueId}/members?nickname=${encodedNickname}`);
+
+    if (response.ok) {
+      const data = await response.json();
+      return data;
+    }
+
+    return null;
+  } catch (error) {
+    console.error('멤버 조회 실패:', error);
+    throw new Error('멤버 조회 실패');
+  }
+}
+
+export async function generateNickname(issueId: string) {
+  const response = await fetch(`/api/issues/${issueId}/members-nickname`, {
+    method: 'POST',
+  });
+
+  try {
+    if (response.ok) {
+      const data = await response.json();
+      return data;
+    }
+
+    return null;
+  } catch (error) {
+    console.error('닉네임 생성 실패:', error);
+    throw new Error('닉네임 생성 실패');
+  }
+}
+
 // 이슈에 참가
 export async function joinIssue(issueId: string, nickname: string) {
   try {

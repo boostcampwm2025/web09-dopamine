@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { IssueRole } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
-import { addIssueOwner } from '@/lib/repositories/issue-member.repository';
+import { issueMemberRepository } from '@/lib/repositories/issue-member.repository';
 import { createIssue } from '@/lib/repositories/issue.repository';
 import { createAnonymousUser } from '@/lib/repositories/user.repository';
 
@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
     const result = await prisma.$transaction(async (tx) => {
       const user = await createAnonymousUser(tx, nickname);
       const issue = await createIssue(tx, title);
-      await addIssueOwner(tx, issue.id, user.id, IssueRole.OWNER);
+      await issueMemberRepository.addIssueOwner(tx, issue.id, user.id, IssueRole.OWNER);
 
       return {
         issueId: issue.id,
