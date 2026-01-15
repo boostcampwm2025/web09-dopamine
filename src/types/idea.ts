@@ -3,7 +3,7 @@ export interface CreateIdeaRequest {
   userId: string;
   positionX?: number;
   positionY?: number;
-  categoryId?: string;
+  categoryId: string | null;
 }
 
 export interface Idea {

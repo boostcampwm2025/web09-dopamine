@@ -6,7 +6,8 @@ import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import useIdeaCard from '@/app/(with-sidebar)/issue/hooks/use-idea-card';
 import { ISSUE_STATUS, VOTE_TYPE } from '@/constants/issue';
-import { useIdeaQuery } from '../../hooks/use-idea-query';
+import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
+import { useIdeaQuery } from '../../hooks/queries/use-idea-query';
 import { useIdeaCardStackStore } from '../../store/use-idea-card-stack-store';
 import { useIdeaStore } from '../../store/use-idea-store';
 import { useIssueStore } from '../../store/use-issue-store';
@@ -15,11 +16,11 @@ import * as S from './idea-card.styles';
 
 interface IdeaCardProps {
   id: string;
+  issueId: string;
+  content: string;
+  author: string;
   userId: string;
-  issueId?: string;
-  content?: string;
-  author?: string;
-  position?: Position | null;
+  position: Position | null;
   isSelected?: boolean;
   isVoteButtonVisible?: boolean;
   isVoteDisabled?: boolean;
@@ -55,6 +56,10 @@ export default function IdeaCard(props: IdeaCardProps) {
   const { bringToFront, getZIndex } = useIdeaCardStackStore(props.issueId);
   const zIndex = props.id ? getZIndex(props.id) : 0;
 
+  // 현재 로그인한 사용자가 이 아이디어의 작성자인지 확인
+  const currentUserId = getUserIdForIssue(props.issueId);
+  const isCurrentUser = currentUserId === props.userId;
+
   // 비즈니스 로직 (투표, 편집 등)
   const {
     textareaRef,
@@ -69,7 +74,7 @@ export default function IdeaCard(props: IdeaCardProps) {
     handleKeyDownEdit,
   } = useIdeaCard({
     id: props.id,
-    userId: props.userId,
+    userId: currentUserId,
     content: props.content,
     isSelected: props.isSelected,
     status: props.status,
@@ -77,7 +82,7 @@ export default function IdeaCard(props: IdeaCardProps) {
     onSave: props.onSave,
   });
 
-  const { data: idea } = useIdeaQuery(props.id, props.userId);
+  const { data: idea } = useIdeaQuery(props.id, currentUserId);
 
   // 드래그 로직
   const inCategory = !!props.categoryId;
@@ -199,7 +204,7 @@ export default function IdeaCard(props: IdeaCardProps) {
           <S.Content>{displayContent}</S.Content>
         )}
         <S.Meta>
-          <S.AuthorPill>{props.author}</S.AuthorPill>
+          <S.AuthorPill isCurrentUser={isCurrentUser}>{props.author}</S.AuthorPill>
           {props.isVoteButtonVisible ? (
             <S.IconButton aria-label="comment">
               <Image
@@ -213,7 +218,7 @@ export default function IdeaCard(props: IdeaCardProps) {
             <>{isEditing ? <S.SubmitButton onClick={submitEdit}>제출</S.SubmitButton> : null}</>
           )}
         </S.Meta>
-        {issueStatus === ISSUE_STATUS.BRAINSTORMING && (
+        {issueStatus === ISSUE_STATUS.BRAINSTORMING && isCurrentUser && (
           <S.DeleteButton
             aria-label="delete"
             onClick={handleDeleteClick}

@@ -39,9 +39,9 @@ function setIssueUserMap(map: IssueUserMap): void {
 /**
  * 특정 이슈의 사용자 ID를 가져옵니다.
  */
-export function getUserIdForIssue(issueId: string): string | null {
+export function getUserIdForIssue(issueId: string): string {
   const map = getIssueUserMap();
-  return map[issueId] || null;
+  return map[issueId];
 }
 
 /**

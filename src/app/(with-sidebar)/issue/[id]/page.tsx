@@ -135,8 +135,9 @@ const IssuePage = () => {
                   <IdeaCard
                     key={idea.id}
                     {...idea}
+                    author={idea.author}
+                    userId={idea.userId}
                     issueId={issueId}
-                    userId={userId}
                     position={null}
                     status={getIdeaStatus(idea.id)}
                     isVoteButtonVisible={isVoteButtonVisible}
@@ -161,7 +162,8 @@ const IssuePage = () => {
                 key={idea.id}
                 {...idea}
                 issueId={issueId}
-                userId={userId}
+                author={idea.author}
+                userId={idea.userId}
                 status={getIdeaStatus(idea.id)}
                 isVoteButtonVisible={isVoteButtonVisible}
                 isVoteDisabled={isVoteDisabled}
@@ -192,9 +194,10 @@ const IssuePage = () => {
                     <IdeaCard
                       {...activeIdea}
                       issueId={issueId}
-                      userId={userId}
                       content={overlayEditValue ?? activeIdea.content}
                       position={null}
+                      author={activeIdea.author}
+                      userId={activeIdea.userId}
                       status={getIdeaStatus(activeIdea.id)}
                       isVoteButtonVisible={isVoteButtonVisible}
                       isVoteDisabled={isVoteDisabled}
