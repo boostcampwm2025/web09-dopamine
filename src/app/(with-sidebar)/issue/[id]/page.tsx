@@ -14,6 +14,7 @@ import { useFilterIdea } from '@/app/(with-sidebar)/issue/hooks/use-filter-idea'
 import { useIdeaStatus } from '@/app/(with-sidebar)/issue/hooks/use-idea-card';
 import { useIdeaOperations } from '@/app/(with-sidebar)/issue/hooks/use-idea-operations';
 import { useIssueData } from '@/app/(with-sidebar)/issue/hooks/use-issue-data';
+import { useIssueEvents } from '@/app/(with-sidebar)/issue/hooks/use-issue-events';
 import { useCanvasStore } from '@/app/(with-sidebar)/issue/store/use-canvas-store';
 import { useCategoryStore } from '@/app/(with-sidebar)/issue/store/use-category-store';
 import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
@@ -62,6 +63,9 @@ const IssuePage = () => {
   // 1. 이슈 데이터 초기화
   const { isAIStructuring, isCreateIdeaActive, isVoteButtonVisible, isVoteDisabled } =
     useIssueData(issueId);
+
+  // SSE 연결 설정 (실시간 이벤트 수신)
+  useIssueEvents({ issueId });
 
   // 2. 아이디어 관련 작업
   const {
