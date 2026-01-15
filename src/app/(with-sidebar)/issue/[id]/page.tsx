@@ -64,12 +64,6 @@ const IssuePage = () => {
     }
   }, [status, issueId, router]);
 
-
-  // 1. 이슈 데이터 초기화
-  const { isAIStructuring, isCreateIdeaActive, isVoteButtonVisible, isVoteDisabled } =
-    useIssueData(issueId);
-
-
   // SSE 연결
   useIssueEvents({ issueId, enabled: !!userId });
 
