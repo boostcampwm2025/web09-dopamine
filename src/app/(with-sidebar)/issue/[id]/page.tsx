@@ -16,7 +16,6 @@ import { useIdeaOperations } from '@/app/(with-sidebar)/issue/hooks/use-idea-ope
 import { useIssueData } from '@/app/(with-sidebar)/issue/hooks/use-issue-data';
 import { useIssueEvents } from '@/app/(with-sidebar)/issue/hooks/use-issue-events';
 import { useCanvasStore } from '@/app/(with-sidebar)/issue/store/use-canvas-store';
-import { useCategoryStore } from '@/app/(with-sidebar)/issue/store/use-category-store';
 import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
 import LoadingOverlay from '@/components/loading-overlay/loading-overlay';
 import { useModalStore } from '@/components/modal/use-modal-store';
@@ -34,7 +33,7 @@ const IssuePage = () => {
 
   const scale = useCanvasStore((state) => state.scale);
   const { setIdeas } = useIdeaStore(issueId);
-  const { setCategories } = useCategoryStore(issueId);
+  const userId = getUserIdForIssue(issueId) ?? '';
 
   // 1. 이슈 데이터 초기화
   const { isLoading } = useIssueQuery(issueId);
@@ -96,7 +95,6 @@ const IssuePage = () => {
     issueId,
     ideas,
     setIdeas,
-    setCategories,
   });
 
   // 하이라이트된 아이디어

@@ -1,23 +1,18 @@
-﻿import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { useIssueStore } from '@/app/(with-sidebar)/issue/store/use-issue-store';
-import { applyAIStructure, categorizeIdeas } from '@/lib/api/issue';
-import type { Category } from '@/app/(with-sidebar)/issue/types/category';
 import type { IdeaWithPosition } from '@/app/(with-sidebar)/issue/types/idea';
+import { applyAIStructure, categorizeIdeas } from '@/lib/api/issue';
 
 interface UseAIStructuringProps {
   issueId: string;
   ideas: IdeaWithPosition[];
   setIdeas: (ideas: IdeaWithPosition[]) => void;
-  setCategories: (categories: Category[]) => void;
 }
 
-export function useAIStructuring({
-  issueId,
-  ideas,
-  setIdeas,
-  setCategories,
-}: UseAIStructuringProps) {
+export function useAIStructuring({ issueId, ideas, setIdeas }: UseAIStructuringProps) {
+  const queryClient = useQueryClient();
   const { isAIStructuring } = useIssueStore();
   const { finishAIStructure } = useIssueStore((state) => state.actions);
 
@@ -43,22 +38,10 @@ export function useAIStructuring({
       }
 
       const structureResult = await applyAIStructure(issueId, aiResponse.categories);
-      const createdCategories = Array.isArray(structureResult.categories)
-        ? structureResult.categories
-        : [];
       const ideaCategoryMap = structureResult.ideaCategoryMap ?? {};
 
-      const nextCategories = createdCategories.map((category: any) => ({
-        id: category.id,
-        title: category.title,
-        position: {
-          x: category.positionX ?? 0,
-          y: category.positionY ?? 0,
-        },
-        isMuted: false,
-      })) as Category[];
-
-      setCategories(nextCategories);
+      // TanStack Query 캐시 갱신 → 서버에서 최신 카테고리 데이터 fetch
+      await queryClient.invalidateQueries({ queryKey: ['issues', issueId, 'categories'] });
 
       const updatedIdeas = ideas.map((idea) => ({
         ...idea,
@@ -73,7 +56,7 @@ export function useAIStructuring({
     } finally {
       finishAIStructure();
     }
-  }, [ideas, issueId, setIdeas, setCategories, finishAIStructure]);
+  }, [ideas, issueId, setIdeas, queryClient, finishAIStructure]);
 
   // isAIStructuring이 true가 되면 자동 실행
   useEffect(() => {
