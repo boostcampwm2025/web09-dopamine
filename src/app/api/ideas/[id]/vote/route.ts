@@ -1,4 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { SSE_EVENT_TYPES } from '@/constants/sse-events';
+import { prisma } from '@/lib/prisma';
+import { broadcast } from '@/lib/services/sse-service';
 import { voteService } from '@/lib/services/vote.service';
 
 export async function POST(
@@ -17,6 +20,27 @@ export async function POST(
     }
 
     const result = await voteService.castVote(ideaId, userId, voteType);
+
+    // 투표한 아이디어를 DB에서 조회
+    const idea = await prisma.idea.findUnique({
+      where: { id: ideaId },
+      select: { issueId: true },
+    });
+
+    // 아이디어가 존재하는 경우 아이디어의 상태를 브로드캐스트
+    if (idea?.issueId) {
+      broadcast({
+        issueId: idea.issueId,
+        event: {
+          type: SSE_EVENT_TYPES.VOTE_CHANGED,
+          data: {
+            ideaId,
+            agreeCount: result.agreeCount,
+            disagreeCount: result.disagreeCount,
+          },
+        },
+      });
+    }
 
     return NextResponse.json(result);
     

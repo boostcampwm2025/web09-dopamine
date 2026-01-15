@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, usePathname, useRouter } from 'next/navigation';
 import { DndContext, DragOverlay } from '@dnd-kit/core';
 import Canvas from '@/app/(with-sidebar)/issue/_components/canvas/canvas';
 import CategoryCard from '@/app/(with-sidebar)/issue/_components/category/category-card';
@@ -13,8 +13,9 @@ import { useDragAndDrop } from '@/app/(with-sidebar)/issue/hooks/use-drag-and-dr
 import { useFilterIdea } from '@/app/(with-sidebar)/issue/hooks/use-filter-idea';
 import { useIdeaStatus } from '@/app/(with-sidebar)/issue/hooks/use-idea-card';
 import { useIdeaOperations } from '@/app/(with-sidebar)/issue/hooks/use-idea-operations';
-import { useIssueData } from '@/app/(with-sidebar)/issue/hooks/use-issue-data';
 import { useIssueEvents } from '@/app/(with-sidebar)/issue/hooks/use-issue-events';
+import { useIssueData } from '@/app/(with-sidebar)/issue/hooks/use-issue-data';
+import { useSelectedIdeaQuery } from '@/app/(with-sidebar)/issue/hooks/queries/use-selected-idea-query';
 import { useCanvasStore } from '@/app/(with-sidebar)/issue/store/use-canvas-store';
 import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
 import LoadingOverlay from '@/components/loading-overlay/loading-overlay';
@@ -26,7 +27,9 @@ import { useIssueQuery } from '../hooks/queries/use-issue-query';
 
 const IssuePage = () => {
   const params = useParams<{ id: string }>();
-  const issueId = params.id;
+  const pathname = usePathname();
+  const issueIdFromPath = pathname?.split('/issue/')[1]?.split('/')[0] ?? '';
+  const issueId = Array.isArray(params.id) ? params.id[0] : params.id ?? issueIdFromPath;
   const router = useRouter();
   const { openModal, isOpen } = useModalStore();
   const hasOpenedModal = useRef(false);
@@ -34,12 +37,13 @@ const IssuePage = () => {
   const scale = useCanvasStore((state) => state.scale);
   const { setIdeas } = useIdeaStore(issueId);
   const userId = getUserIdForIssue(issueId) ?? '';
+  useIssueEvents({ issueId, enabled: issueId.length > 0 });
+  const { data: selectedIdeaId } = useSelectedIdeaQuery(issueId);
 
   // 1. 이슈 데이터 초기화
   const { isLoading } = useIssueQuery(issueId);
   const { status, isAIStructuring, isCreateIdeaActive, isVoteButtonVisible, isVoteDisabled } =
     useIssueData(issueId);
-  const userId = getUserIdForIssue(issueId);
 
   // userId 체크 및 모달 표시
   useEffect(() => {
@@ -139,6 +143,7 @@ const IssuePage = () => {
                     userId={idea.userId}
                     issueId={issueId}
                     position={null}
+                    isSelected={idea.id === selectedIdeaId}
                     status={getIdeaStatus(idea.id)}
                     isVoteButtonVisible={isVoteButtonVisible}
                     isVoteDisabled={isVoteDisabled}
@@ -164,6 +169,7 @@ const IssuePage = () => {
                 issueId={issueId}
                 author={idea.author}
                 userId={idea.userId}
+                isSelected={idea.id === selectedIdeaId}
                 status={getIdeaStatus(idea.id)}
                 isVoteButtonVisible={isVoteButtonVisible}
                 isVoteDisabled={isVoteDisabled}
@@ -196,6 +202,7 @@ const IssuePage = () => {
                       issueId={issueId}
                       content={overlayEditValue ?? activeIdea.content}
                       position={null}
+                      isSelected={activeIdea.id === selectedIdeaId}
                       author={activeIdea.author}
                       userId={activeIdea.userId}
                       status={getIdeaStatus(activeIdea.id)}

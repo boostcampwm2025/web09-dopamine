@@ -4,12 +4,13 @@ import { useIdeaCardStackStore } from '@/app/(with-sidebar)/issue/store/use-idea
 import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
 import { useIssueStore } from '@/app/(with-sidebar)/issue/store/use-issue-store';
 import type { IdeaWithPosition, Position } from '@/app/(with-sidebar)/issue/types/idea';
+import { useSelectedIdeaMutation } from '@/app/(with-sidebar)/issue/hooks/queries/use-selected-idea-mutation';
 import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
 import { useIdeasQuery } from './queries/use-ideas-query';
 import { useIdeaMutations } from './use-idea-mutations';
 
 export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) {
-  const { ideas, hasEditingIdea, addIdea, updateIdeaPosition, deleteIdea, setIdeas, selectIdea } =
+  const { ideas, hasEditingIdea, addIdea, updateIdeaPosition, deleteIdea, setIdeas } =
     useIdeaStore(issueId);
 
   const { addCard, removeCard, setInitialCardData } = useIdeaCardStackStore(issueId);
@@ -22,6 +23,7 @@ export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) 
   const currentUserDisplayName = currentUser?.displayName || '나';
 
   const { data: ideasFromServer } = useIdeasQuery(issueId);
+  const { mutate: selectIdea } = useSelectedIdeaMutation(issueId);
 
   useEffect(() => {
     if (!ideasFromServer) return;

@@ -3,9 +3,12 @@
 import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
+import { useSelectedIdeaQuery } from '@/app/(with-sidebar)/issue/hooks/queries/use-selected-idea-query';
 import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
 import { useModalStore } from '@/components/modal/use-modal-store';
 import { useIssueStatusMutations } from '../../hooks/queries/use-issue-mutation';
+import { ISSUE_STATUS } from '@/constants/issue';
+import { updateIssueStatus } from '@/lib/api/issue';
 import * as S from './close-issue-modal.styles';
 
 interface CloseIssueModalProps {
@@ -14,18 +17,26 @@ interface CloseIssueModalProps {
 
 export default function CloseIssueModal({ issueId }: CloseIssueModalProps) {
   const { ideas } = useIdeaStore(issueId);
+  const { data: selectedIdeaId } = useSelectedIdeaQuery(issueId);
   const { close } = useIssueStatusMutations(issueId);
   const { closeModal } = useModalStore();
   const [memo, setMemo] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const selectedIdea = ideas.find((idea) => idea.isSelected);
+  const selectedIdea = selectedIdeaId
+    ? ideas.find((idea) => idea.id === selectedIdeaId)
+    : undefined;
 
   const closeAndGoSummary = useCallback(async () => {
     if (isLoading) return;
+    if (!selectedIdea) {
+      toast.error('채택할 아이디어를 선택하세요.');
+      return;
+    }
 
     try {
       setIsLoading(true);
+      await updateIssueStatus(issueId, ISSUE_STATUS.CLOSE, selectedIdea.id, memo || undefined);
       close.mutate();
       closeModal();
       router.push(`/issue/${issueId}/summary`);

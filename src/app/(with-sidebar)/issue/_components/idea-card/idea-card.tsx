@@ -11,6 +11,8 @@ import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
 import { useIdeaQuery } from '../../hooks/queries/use-idea-query';
 import { useIdeaCardStackStore } from '../../store/use-idea-card-stack-store';
 import { useIdeaStore } from '../../store/use-idea-store';
+import { useSelectedIdeaMutation } from '../../hooks/queries/use-selected-idea-mutation';
+import { useIssueStore } from '../../store/use-issue-store';
 import type { CardStatus, Position } from '../../types/idea';
 import * as S from './idea-card.styles';
 
@@ -51,7 +53,8 @@ export type DragItemPayload = {
 };
 
 export default function IdeaCard(props: IdeaCardProps) {
-  const { selectIdea } = useIdeaStore(props.issueId);
+  const issueId = props.issueId ?? '';
+  const { mutate: selectIdea } = useSelectedIdeaMutation(issueId);
   const { status: issueStatus } = useIssueData(props.issueId);
   const { bringToFront, getZIndex } = useIdeaCardStackStore(props.issueId);
   const zIndex = props.id ? getZIndex(props.id) : 0;
@@ -155,6 +158,10 @@ export default function IdeaCard(props: IdeaCardProps) {
 
   const handleCardClick = () => {
     if (!props.id || !props.categoryId || isEditing || issueStatus !== ISSUE_STATUS.SELECT) {
+      return;
+    }
+    if (props.onClick) {
+      props.onClick();
       return;
     }
     selectIdea(props.id);

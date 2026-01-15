@@ -174,6 +174,28 @@ export async function updateIssueStatus(
 }
 
 /**
+ * 이슈가 SELECT 상태인 경우 selected-idea를 브로드캐스팅합니다. 
+ */
+export async function selectIdea(issueId: string, selectedIdeaId: string) {
+  try {
+    const response = await fetch(`/api/issues/${issueId}/selected-idea`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ selectedIdeaId }),
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error('Failed to select idea:', error);
+    return null;
+  }
+}
+
+/**
  * AI 카테고리 결과를 DB에 반영합니다.
  */
 export async function applyAIStructure(
