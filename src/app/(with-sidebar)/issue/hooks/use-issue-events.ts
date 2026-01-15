@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
+import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
 
 interface UseIssueEventsParams {
   issueId: string;
@@ -21,6 +22,7 @@ export function useIssueEvents({
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState<Event | null>(null);
   const eventSourceRef = useRef<EventSource | null>(null);
+  const { selectIdea } = useIdeaStore(issueId);
 
   const SSE_REQ_URL = `/api/issues/${issueId}/events`;
 
@@ -114,12 +116,20 @@ export function useIssueEvents({
       queryClient.invalidateQueries({ queryKey: ['issues', issueId, 'members'] });
     });
 
+    // 채택된 아이디어 이벤트 핸들러
+    eventSource.addEventListener(SSE_EVENT_TYPES.IDEA_SELECTED, (event) => {
+      const data = JSON.parse((event as MessageEvent).data);
+      if (data.ideaId) {
+        selectIdea(data.ideaId);
+      }
+    });
+
     // Cleanup
     return () => {
       eventSource.close();
       eventSourceRef.current = null;
     };
-  }, [issueId, enabled, queryClient]);
+  }, [issueId, enabled, queryClient, selectIdea]);
 
   return { isConnected, error };
 }

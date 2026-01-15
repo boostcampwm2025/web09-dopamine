@@ -152,6 +152,10 @@ export default function IdeaCard(props: IdeaCardProps) {
     if (!props.id || !props.categoryId || isEditing || issueStatus !== ISSUE_STATUS.SELECT) {
       return;
     }
+    if (props.onClick) {
+      props.onClick();
+      return;
+    }
     selectIdea(props.id);
   };
 

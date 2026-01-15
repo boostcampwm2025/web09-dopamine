@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, usePathname, useRouter } from 'next/navigation';
 import { DndContext, DragOverlay } from '@dnd-kit/core';
 import Canvas from '@/app/(with-sidebar)/issue/_components/canvas/canvas';
 import CategoryCard from '@/app/(with-sidebar)/issue/_components/category/category-card';
@@ -13,6 +13,7 @@ import { useDragAndDrop } from '@/app/(with-sidebar)/issue/hooks/use-drag-and-dr
 import { useFilterIdea } from '@/app/(with-sidebar)/issue/hooks/use-filter-idea';
 import { useIdeaStatus } from '@/app/(with-sidebar)/issue/hooks/use-idea-card';
 import { useIdeaOperations } from '@/app/(with-sidebar)/issue/hooks/use-idea-operations';
+import { useIssueEvents } from '@/app/(with-sidebar)/issue/hooks/use-issue-events';
 import { useIssueData } from '@/app/(with-sidebar)/issue/hooks/use-issue-data';
 import { useCanvasStore } from '@/app/(with-sidebar)/issue/store/use-canvas-store';
 import { useCategoryStore } from '@/app/(with-sidebar)/issue/store/use-category-store';
@@ -26,7 +27,9 @@ import { useIssueStore } from '../store/use-issue-store';
 
 const IssuePage = () => {
   const params = useParams<{ id: string }>();
-  const issueId = params.id;
+  const pathname = usePathname();
+  const issueIdFromPath = pathname?.split('/issue/')[1]?.split('/')[0] ?? '';
+  const issueId = Array.isArray(params.id) ? params.id[0] : params.id ?? issueIdFromPath;
   const router = useRouter();
   const { openModal, isOpen } = useModalStore();
   const hasOpenedModal = useRef(false);
@@ -36,6 +39,7 @@ const IssuePage = () => {
   const { setIdeas } = useIdeaStore(issueId);
   const { setCategories } = useCategoryStore(issueId);
   const userId = getUserIdForIssue(issueId) ?? '';
+  useIssueEvents({ issueId, enabled: issueId.length > 0 });
 
   // userId 체크 및 모달 표시
   useEffect(() => {

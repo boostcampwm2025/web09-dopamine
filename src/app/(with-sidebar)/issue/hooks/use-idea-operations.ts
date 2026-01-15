@@ -10,6 +10,7 @@ import {
   fetchIdeas,
   updateIdea as updateIdeaAPI,
 } from '@/lib/api/idea';
+import { selectIdea as selectIdeaAPI } from '@/lib/api/issue';
 
 export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) {
   const {
@@ -147,6 +148,7 @@ export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) 
 
   const handleSelectIdea = (id: string) => {
     selectIdea(id);
+    selectIdeaAPI(issueId, id);
   };
 
   const handleIdeaPositionChange = (id: string, position: Position) => {
