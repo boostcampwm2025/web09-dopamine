@@ -107,18 +107,4 @@ export class SSEManager {
   }
 }
 
-/**
- * 라우트별 번들로 인해 인스턴스가 분리되는 문제를 방지하기 위해
- * globalThis에 싱글턴을 고정
- * (SSE 연결/브로드캐스트가 서로 다른 인스턴스로 갈라지는 이슈 대응)
- */
-declare global {
-  var __sseManager: SSEManager | undefined;
-}
-
-const globalSseManager = globalThis.__sseManager ?? new SSEManager();
-if (!globalThis.__sseManager) {
-  globalThis.__sseManager = globalSseManager;
-}
-
-export const sseManager = globalSseManager;
+export const sseManager = new SSEManager();
