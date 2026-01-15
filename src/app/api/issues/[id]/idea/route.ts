@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { ideaFilterService } from '@/lib/services/idea-filter.service';
 import type { FilterType } from '@/app/(with-sidebar)/issue/hooks/use-filter-idea';
+import { SSE_EVENT_TYPES } from '@/constants/sse-events';
 import { ideaRepository } from '@/lib/repositories/idea.repository';
+import { ideaFilterService } from '@/lib/services/idea-filter.service';
+import { broadcast } from '@/lib/services/sse-service';
 
 export async function GET(
   req: NextRequest,
@@ -51,6 +53,15 @@ export async function POST(
       categoryId,
     });
 
+    // SSE 브로드캐스팅: 아이디어 생성 이벤트
+    broadcast({
+      issueId,
+      event: {
+        type: SSE_EVENT_TYPES.IDEA_CREATED,
+        data: { ideaId: newIdea.id },
+      },
+    });
+
     return NextResponse.json(newIdea, { status: 201 });
   } catch (error) {
     console.error('아이디어 생성 실패:', error);
@@ -75,6 +86,15 @@ export async function DELETE(
     // 아직 인증/인가 로직이 없으므로 생략
 
     await ideaRepository.softDelete(ideaId);
+
+    // SSE 브로드캐스팅: 아이디어 삭제 이벤트
+    broadcast({
+      issueId,
+      event: {
+        type: SSE_EVENT_TYPES.IDEA_DELETED,
+        data: { ideaId },
+      },
+    });
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
@@ -105,6 +125,15 @@ export async function PATCH(
       positionX,
       positionY,
       categoryId,
+    });
+
+    // SSE 브로드캐스팅: 아이디어 이동 이벤트
+    broadcast({
+      issueId,
+      event: {
+        type: SSE_EVENT_TYPES.IDEA_MOVED,
+        data: { ideaId, positionX, positionY, categoryId },
+      },
     });
 
     return NextResponse.json(updatedIdea);
