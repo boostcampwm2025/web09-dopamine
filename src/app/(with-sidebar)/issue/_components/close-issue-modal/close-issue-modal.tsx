@@ -23,10 +23,14 @@ export default function CloseIssueModal({ issueId }: CloseIssueModalProps) {
 
   const closeAndGoSummary = useCallback(async () => {
     if (isLoading) return;
+    if (!selectedIdea) {
+      toast.error('채택할 아이디어를 선택하세요.');
+      return;
+    }
 
     try {
       setIsLoading(true);
-      await updateIssueStatus(issueId, ISSUE_STATUS.CLOSE, selectedIdea?.id, memo || undefined);
+      await updateIssueStatus(issueId, ISSUE_STATUS.CLOSE, selectedIdea.id, memo || undefined);
       closeModal();
       router.push(`/issue/${issueId}/summary`);
     } catch (error) {
