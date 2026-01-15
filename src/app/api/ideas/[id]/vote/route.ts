@@ -11,7 +11,7 @@ export async function POST(
 
     if (!userId || !voteType) {
       return NextResponse.json(
-        { message: 'userId와 voteType은 필수입니다.' }, 
+        { message: '잘못된 요청입니다.' }, 
         { status: 400 }
       );
     }
