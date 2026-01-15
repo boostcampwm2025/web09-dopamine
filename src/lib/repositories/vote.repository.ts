@@ -1,77 +1,38 @@
-import { VoteType } from '@prisma/client';
-import { prisma } from '@/lib/prisma';
+import { Prisma, VoteType } from '@prisma/client';
 
 export const voteRepository = {
-  async castVote(ideaId: string, userId: string, voteType: VoteType) {
-    const existingVote = await prisma.vote.findFirst({
-      where: {
-        ideaId,
-        userId,
-        deletedAt: null,
-      },
-    });
-
-    return await prisma.$transaction(async (tx) => {
-      const selectFields = {
-        agreeCount: true,
-        disagreeCount: true,
-      };
-
-      if (existingVote) {
-        // 같은 버튼 클릭 -> 기존 투표 삭제
-        if (existingVote.type === voteType) {
-          await tx.vote.update({
-            where: { id: existingVote.id },
-            data: {
-              deletedAt: new Date(),
-            },
-          });
-
-          const updatedIdea = await tx.idea.update({
-            where: { id: ideaId },
-            data: {
-              [voteType === 'AGREE' ? 'agreeCount' : 'disagreeCount']: { decrement: 1 },
-            },
-            select: selectFields,
-          });
-
-          return { ...updatedIdea, myVote: null };
-        }
-
-        // 다른 버튼 클릭
-        else {
-          await tx.vote.update({
-            where: { id: existingVote.id },
-            data: { type: voteType },
-          });
-
-          const updatedIdea = await tx.idea.update({
-            where: { id: ideaId },
-            data: {
-              [existingVote.type === 'AGREE' ? 'agreeCount' : 'disagreeCount']: { decrement: 1 },
-              [voteType === 'AGREE' ? 'agreeCount' : 'disagreeCount']: { increment: 1 },
-            },
-            select: selectFields,
-          });
-          return { ...updatedIdea, myVote: voteType };
-        }
-      }
-
-      // 새로운 투표
-      else {
-        await tx.vote.create({
-          data: { ideaId, userId, type: voteType },
-        });
-
-        const updatedIdea = await tx.idea.update({
-          where: { id: ideaId },
-          data: {
-            [voteType === 'AGREE' ? 'agreeCount' : 'disagreeCount']: { increment: 1 },
-          },
-          select: selectFields,
-        });
-        return { ...updatedIdea, myVote: voteType };
-      }
+  // 사용자의 활성 투표 찾기
+  findActiveVote(ideaId: string, userId: string, tx: Prisma.TransactionClient) {
+    return tx.vote.findFirst({
+      where: { ideaId, userId, deletedAt: null },
     });
   },
+
+  // 투표 생성
+  createVote(ideaId: string, userId: string, type: VoteType, tx: Prisma.TransactionClient) {
+    return tx.vote.create({ data: { ideaId, userId, type } });
+  },
+
+  // 투표 타입 변경
+  updateVoteType(voteId: string, type: VoteType, tx: Prisma.TransactionClient) {
+    return tx.vote.update({ where: { id: voteId }, data: { type } });
+  },
+
+  // 투표 삭제 (Soft Delete)
+  softDeleteVote(voteId: string, tx: Prisma.TransactionClient) {
+    return tx.vote.update({ where: { id: voteId }, data: { deletedAt: new Date() } });
+  },
+
+  // 아이디어 테이블의 카운트 업데이트 (atomic increment/decrement)
+  updateIdeaCounts(
+    ideaId: string, 
+    data: Prisma.IdeaUpdateInput, 
+    tx: Prisma.TransactionClient
+  ) {
+    return tx.idea.update({
+      where: { id: ideaId },
+      data,
+      select: { agreeCount: true, disagreeCount: true },
+    });
+  }
 };

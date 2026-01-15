@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { ideaFilterService } from '@/lib/services/idea-filter.service';
+import type { FilterType } from '@/app/(with-sidebar)/issue/hooks/use-filter-idea';
 import { ideaRepository } from '@/lib/repositories/idea.repository';
 
 export async function GET(
@@ -6,9 +8,24 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> },
 ): Promise<NextResponse> {
   const { id } = await params;
+  const { searchParams } = new URL(req.url);
+  const filter = searchParams.get('filter');
 
   try {
     const ideas = await ideaRepository.findByIssueId(id);
+
+    if (filter && filter !== 'none') {
+      const filteredIds = ideaFilterService.getFilteredIdeaIds(
+        ideas.map((idea) => ({
+          id: idea.id,
+          agreeCount: idea.agreeCount ?? 0,
+          disagreeCount: idea.disagreeCount ?? 0,
+        })),
+        filter as FilterType,
+      );
+
+      return NextResponse.json({ filteredIds: Array.from(filteredIds) });
+    }
 
     return NextResponse.json({ ideas });
   } catch (error) {

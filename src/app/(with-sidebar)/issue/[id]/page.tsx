@@ -33,6 +33,7 @@ const IssuePage = () => {
   const { status } = useIssueStore();
   const { setIdeas } = useIdeaStore(issueId);
   const { setCategories } = useCategoryStore(issueId);
+  const userId = getUserIdForIssue(issueId) ?? '';
 
   // userId 체크 및 모달 표시
   useEffect(() => {
@@ -125,6 +126,7 @@ const IssuePage = () => {
                     key={idea.id}
                     {...idea}
                     issueId={issueId}
+                    userId={userId}
                     position={null}
                     status={getIdeaStatus(idea.id)}
                     isVoteButtonVisible={isVoteButtonVisible}
@@ -149,6 +151,7 @@ const IssuePage = () => {
                 key={idea.id}
                 {...idea}
                 issueId={issueId}
+                userId={userId}
                 status={getIdeaStatus(idea.id)}
                 isVoteButtonVisible={isVoteButtonVisible}
                 isVoteDisabled={isVoteDisabled}
@@ -179,6 +182,7 @@ const IssuePage = () => {
                     <IdeaCard
                       {...activeIdea}
                       issueId={issueId}
+                      userId={userId}
                       content={overlayEditValue ?? activeIdea.content}
                       position={null}
                       status={getIdeaStatus(activeIdea.id)}
