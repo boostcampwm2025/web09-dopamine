@@ -5,7 +5,6 @@ export const useNicknameGenerateQuery = (issueId: string) => {
   return useQuery({
     queryKey: ['nickname-generate', issueId],
     queryFn: () => generateNickname(issueId),
-    enabled: false,
     staleTime: 0,
   });
 };
