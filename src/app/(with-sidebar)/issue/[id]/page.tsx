@@ -70,6 +70,9 @@ const IssuePage = () => {
   const { isAIStructuring, isCreateIdeaActive, isVoteButtonVisible, isVoteDisabled } =
     useIssueData(issueId);
 
+  // SSE 연결
+  useIssueEvents({ issueId, enabled: !!userId });
+
   // 2. 아이디어 관련 작업
   const {
     ideas,
