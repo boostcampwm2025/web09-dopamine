@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { issueMemberService } from '@/lib/services/issue-member.service';
 
-export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
   try {

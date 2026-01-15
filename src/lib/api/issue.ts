@@ -56,7 +56,10 @@ export async function checkNicknameDuplicate(issueId: string, nickname: string) 
 }
 
 export async function generateNickname(issueId: string) {
-  const response = await fetch(`/api/issues/${issueId}/members/generate`);
+  const response = await fetch(`/api/issues/${issueId}/members-nickname`, {
+    method: 'POST',
+  });
+
   try {
     if (response.ok) {
       const data = await response.json();
