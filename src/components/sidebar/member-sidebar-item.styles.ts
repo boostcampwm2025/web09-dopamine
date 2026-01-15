@@ -24,7 +24,22 @@ export const NameContainer = styled.div<{ isConnected: boolean }>`
   display: flex;
   gap: 4px;
   align-items: center;
+  justify-content: center;
   color: ${({ isConnected }) => !isConnected && theme.colors.gray[400]};
+`;
+
+export const CurrentUserLabel = styled.span`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 8px;
+  font-size: ${theme.font.size.xs};
+  font-weight: ${theme.font.weight.semibold};
+  line-height: 1;
+  color: ${theme.colors.green[600]};
+  background-color: ${theme.colors.green[100]};
+  border: 1px solid ${theme.colors.green[600]};
+  border-radius: ${theme.radius.large};
 `;
 
 export const StatusLabel = styled.div<{ isConnected: boolean }>`

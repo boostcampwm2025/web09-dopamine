@@ -60,6 +60,7 @@ export default function IssueSidebar() {
           {sortedMembers.map((user) => (
             <MemberSidebarItem
               key={user.displayName}
+              id={user.id}
               name={user.displayName}
               role={user.role}
               isConnected={user.isConnected}
