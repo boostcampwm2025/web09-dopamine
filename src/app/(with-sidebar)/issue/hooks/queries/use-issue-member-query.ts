@@ -1,5 +1,12 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { checkNicknameDuplicate, generateNickname } from '@/lib/api/issue';
+import { checkNicknameDuplicate, generateNickname, getIssueMembers } from '@/lib/api/issue';
+
+export const useIssueMemberQuery = (issueId: string) => {
+  return useQuery({
+    queryKey: ['issues', issueId, 'members'],
+    queryFn: () => getIssueMembers(issueId),
+  });
+};
 
 export const useNicknameGenerateQuery = (issueId: string) => {
   return useQuery({
