@@ -63,7 +63,6 @@ export const useCloseIssueMutation = (issueId: string) => {
     },
 
     onSuccess: () => {
-      // 데이터 갱신
       queryClient.invalidateQueries({ queryKey: ['issues', issueId] });
       toast.success('이슈가 종료되었습니다.');
     },
