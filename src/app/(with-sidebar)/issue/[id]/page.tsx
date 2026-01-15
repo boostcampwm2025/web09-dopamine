@@ -40,12 +40,12 @@ const IssuePage = () => {
   const { isLoading } = useIssueQuery(issueId);
   const { status, isAIStructuring, isCreateIdeaActive, isVoteButtonVisible, isVoteDisabled } =
     useIssueData(issueId);
+  const userId = getUserIdForIssue(issueId);
 
   // userId 체크 및 모달 표시
   useEffect(() => {
     if (!issueId || hasOpenedModal.current || isOpen) return;
 
-    const userId = getUserIdForIssue(issueId);
     if (!userId) {
       hasOpenedModal.current = true;
       openModal({
@@ -63,10 +63,6 @@ const IssuePage = () => {
       router.replace(`/issue/${issueId}/summary`);
     }
   }, [status, issueId, router]);
-
-  // 1. 이슈 데이터 초기화
-  const { isAIStructuring, isCreateIdeaActive, isVoteButtonVisible, isVoteDisabled } =
-    useIssueData(issueId);
 
   // SSE 연결
   useIssueEvents({ issueId, enabled: !!userId });
