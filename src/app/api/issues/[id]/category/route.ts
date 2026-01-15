@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { SSE_EVENT_TYPES } from '@/constants/sse-events';
 import { categoryRepository } from '@/lib/repositories/category-repository';
+import { sseManager } from '@/lib/sse/sse-manager';
 
 export async function GET(
   _req: NextRequest,
@@ -13,10 +15,7 @@ export async function GET(
     return NextResponse.json({ categories });
   } catch (error) {
     console.error('카테고리 조회 실패:', error);
-    return NextResponse.json(
-      { message: '카테고리 조회에 실패했습니다.' },
-      { status: 500 },
-    );
+    return NextResponse.json({ message: '카테고리 조회에 실패했습니다.' }, { status: 500 });
   }
 }
 
@@ -37,12 +36,17 @@ export async function POST(
       height,
     });
 
+    sseManager.broadcast({
+      issueId,
+      event: {
+        type: SSE_EVENT_TYPES.CATEGORY_CREATED,
+        data: { categoryId: category.id },
+      },
+    });
+
     return NextResponse.json(category, { status: 201 });
   } catch (error) {
     console.error('카테고리 생성 실패:', error);
-    return NextResponse.json(
-      { message: '카테고리 생성에 실패했습니다.' },
-      { status: 500 },
-    );
+    return NextResponse.json({ message: '카테고리 생성에 실패했습니다.' }, { status: 500 });
   }
 }
