@@ -1,28 +1,16 @@
 ﻿import { useCallback, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
-import { useCategoryStore } from '@/app/(with-sidebar)/issue/store/use-category-store';
+import { useCategoryMutations } from '@/app/(with-sidebar)/issue/hooks/queries/use-category-mutation';
+import { useCategoryQuery } from '@/app/(with-sidebar)/issue/hooks/queries/use-category-query';
 import type { Position } from '@/app/(with-sidebar)/issue/types/idea';
 import type { IdeaWithPosition } from '@/app/(with-sidebar)/issue/types/idea';
-import type { Category } from '@/app/(with-sidebar)/issue/types/category';
-import {
-  createCategory as createCategoryAPI,
-  deleteCategory as deleteCategoryAPI,
-  fetchCategories,
-  updateCategory as updateCategoryAPI,
-} from '@/lib/api/category';
-import type { Category as DbCategory } from '@/types/category';
 
 export function useCategoryOperations(issueId: string, ideas: IdeaWithPosition[], scale: number) {
-  const {
-    categories,
-    addCategory,
-    deleteCategory,
-    updateCategoryPosition,
-    updateCategoryTitle,
-    setCategories,
-  } = useCategoryStore(issueId);
-
   const categorySizesRef = useRef<Map<string, { width: number; height: number }>>(new Map());
+
+  const { data: categories = [] } = useCategoryQuery(issueId);
+
+  const { create, update, remove } = useCategoryMutations(issueId);
 
   // 카테고리 위치 및 크기 업데이트
   useEffect(() => {
@@ -45,25 +33,6 @@ export function useCategoryOperations(issueId: string, ideas: IdeaWithPosition[]
 
     updateCategorySizes();
   }, [categories, ideas, scale]);
-
-  // 카테고리 초기 로드
-  useEffect(() => {
-    const loadCategories = async () => {
-      const fetched = await fetchCategories(issueId);
-      const mapped = fetched.map((category: DbCategory): Category => ({
-        id: category.id,
-        title: category.title,
-        position: {
-          x: category.positionX ?? 100,
-          y: category.positionY ?? 100,
-        },
-        isMuted: false,
-      }));
-      setCategories(mapped);
-    };
-
-    loadCategories();
-  }, [issueId, setCategories]);
 
   // 카테고리 겹침 체크
   const checkCategoryOverlap = useCallback(
@@ -105,8 +74,9 @@ export function useCategoryOperations(issueId: string, ideas: IdeaWithPosition[]
         return false;
       };
 
-      const currentPosition = categories.find((category) => category.id === draggingCategoryId)
-        ?.position;
+      const currentPosition = categories.find(
+        (category) => category.id === draggingCategoryId,
+      )?.position;
       if (currentPosition && isOverlapping(currentPosition)) {
         return false;
       }
@@ -116,28 +86,22 @@ export function useCategoryOperations(issueId: string, ideas: IdeaWithPosition[]
     [categories],
   );
 
-  const handleCategoryPositionChange = async (id: string, position: Position) => {
+  const handleCategoryPositionChange = (id: string, position: Position) => {
     const hasOverlap = checkCategoryOverlap(id, position);
     if (hasOverlap) {
       return;
     }
 
-    const previous = categories.find((category) => category.id === id)?.position;
-    updateCategoryPosition(id, position);
-    try {
-      await updateCategoryAPI(issueId, id, {
+    update.mutate({
+      categoryId: id,
+      payload: {
         positionX: position.x,
         positionY: position.y,
-      });
-    } catch (error) {
-      console.error('카테고리 위치 업데이트 실패:', error);
-      if (previous) {
-        updateCategoryPosition(id, previous);
-      }
-    }
+      },
+    });
   };
 
-  const handleDeleteCategory = async (categoryId: string) => {
+  const handleDeleteCategory = (categoryId: string) => {
     const categoryIdeas = ideas.filter((idea) => idea.categoryId === categoryId);
 
     if (categoryIdeas.length > 0) {
@@ -145,17 +109,10 @@ export function useCategoryOperations(issueId: string, ideas: IdeaWithPosition[]
       return;
     }
 
-    const previous = categories;
-    deleteCategory(categoryId);
-    try {
-      await deleteCategoryAPI(issueId, categoryId);
-    } catch (error) {
-      console.error('카테고리 삭제 실패:', error);
-      setCategories(previous);
-    }
+    remove.mutate(categoryId);
   };
 
-  const handleAddCategory = useCallback(async () => {
+  const handleAddCategory = useCallback(() => {
     const DEFAULT_CATEGORY_WIDTH = 320;
     const CATEGORY_GAP = 40;
     const START_POSITION = { x: 100, y: 100 };
@@ -170,45 +127,16 @@ export function useCategoryOperations(issueId: string, ideas: IdeaWithPosition[]
       return Math.max(currentMax, category.position.x + width);
     }, 0);
 
-    try {
-      const created = await createCategoryAPI(issueId, {
-        title: '새 카테고리',
-        positionX: categories.length > 0 ? maxRight + CATEGORY_GAP : START_POSITION.x,
-        positionY: START_POSITION.y,
-      });
-
-      addCategory({
-        id: created.id,
-        title: created.title,
-        position: {
-          x: created.positionX ?? START_POSITION.x,
-          y: created.positionY ?? START_POSITION.y,
-        },
-        isMuted: false,
-      });
-    } catch (error) {
-      console.error('카테고리 생성 실패:', error);
-      toast.error('카테고리 생성에 실패했습니다.');
-    }
-  }, [addCategory, categories, issueId, scale]);
-
-  const handleCategoryTitleChange = async (id: string, title: string) => {
-    const previous = categories.find((category) => category.id === id)?.title;
-    updateCategoryTitle(id, title);
-    try {
-      await updateCategoryAPI(issueId, id, { title });
-    } catch (error) {
-      console.error('카테고리 제목 업데이트 실패:', error);
-      if (previous) {
-        updateCategoryTitle(id, previous);
-      }
-    }
-  };
+    create.mutate({
+      title: '새 카테고리',
+      positionX: categories.length > 0 ? maxRight + CATEGORY_GAP : START_POSITION.x,
+      positionY: START_POSITION.y,
+    });
+  }, [categories, create, scale]);
 
   return {
     categories,
     checkCategoryOverlap,
-    handleCategoryTitleChange,
     handleCategoryPositionChange,
     handleDeleteCategory,
     handleAddCategory,

@@ -67,13 +67,8 @@ const IssuePage = () => {
   } = useIdeaOperations(issueId, isCreateIdeaActive);
 
   // 3. 카테고리 관련 작업
-  const {
-    categories,
-    checkCategoryOverlap,
-    handleCategoryPositionChange,
-    handleDeleteCategory,
-    handleCategoryTitleChange,
-  } = useCategoryOperations(issueId, ideas, scale);
+  const { categories, checkCategoryOverlap, handleCategoryPositionChange, handleDeleteCategory } =
+    useCategoryOperations(issueId, ideas, scale);
 
   // 4. DnD 관련 작업
   const { sensors, activeId, overlayEditValue, handleDragStart, handleDragEnd } = useDragAndDrop({
@@ -123,7 +118,6 @@ const IssuePage = () => {
                 onPositionChange={handleCategoryPositionChange}
                 checkCollision={checkCategoryOverlap}
                 onRemove={() => handleDeleteCategory(category.id)}
-                onTitleChange={handleCategoryTitleChange}
                 onDropIdea={(ideaId) => handleMoveIdeaToCategory(ideaId, category.id)}
               >
                 {categoryIdeas.map((idea) => (
