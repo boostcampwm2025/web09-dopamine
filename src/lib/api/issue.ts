@@ -103,7 +103,7 @@ export async function joinIssue(issueId: string, nickname: string) {
     return null;
   } catch (error) {
     console.error('이슈 참여 실패:', error);
-    return null;
+    throw new Error('이슈 참여 실패');
   }
 }
 
