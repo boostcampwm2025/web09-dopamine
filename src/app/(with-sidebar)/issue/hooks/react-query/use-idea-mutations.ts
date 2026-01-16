@@ -1,12 +1,12 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
+import type { IdeaWithPosition } from '@/app/(with-sidebar)/issue/types/idea';
 import {
   createIdea as createIdeaAPI,
   deleteIdea as deleteIdeaAPI,
   updateIdea as updateIdeaAPI,
 } from '@/lib/api/idea';
 import type { CreateIdeaRequest } from '@/types/idea';
-import type { IdeaWithPosition } from '../types/idea';
 
 export const useIdeaMutations = (issueId: string) => {
   const queryClient = useQueryClient();

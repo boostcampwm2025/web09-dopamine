@@ -11,8 +11,8 @@ import { ISSUE_STATUS, MEMBER_ROLE } from '@/constants/issue';
 import { getIssueMember } from '@/lib/api/issue';
 import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
 import { IssueStatus } from '@/types/issue';
-import { useIssueStatusMutations } from './queries/use-issue-mutation';
-import { useIssueQuery } from './queries/use-issue-query';
+import { useIssueStatusMutations } from './react-query/use-issue-mutation';
+import { useIssueQuery } from './react-query/use-issue-query';
 
 interface UseHeaderParams {
   issueId: string;

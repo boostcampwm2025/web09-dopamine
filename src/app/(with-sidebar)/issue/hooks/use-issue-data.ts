@@ -1,8 +1,8 @@
 import { useIssueStore } from '@/app/(with-sidebar)/issue/store/use-issue-store';
 import { ISSUE_STATUS } from '@/constants/issue';
 import { IssueStatus } from '@/types/issue';
-import { useIssueMemberQuery } from './queries/use-issue-member-query';
-import { useIssueQuery } from './queries/use-issue-query';
+import { useIssueMemberQuery } from './react-query/use-issue-member-query';
+import { useIssueQuery } from './react-query/use-issue-query';
 
 export function useIssueData(issueId: string) {
   const { data: issue } = useIssueQuery(issueId);
