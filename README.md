@@ -3,12 +3,8 @@
 
 <div align="center">
 
-
-[팀 노션](https://ethereal-canidae-ba8.notion.site/web09-2cafec439d3681bd8068f91e8dd8bae5?source=copy_link) | [BackLog](https://github.com/orgs/boostcampwm2025/projects/257) | [피그마](https://www.figma.com/design/hFx7ysCIjz5cXFpHTK24kA/Web09?node-id=0-1&t=h7DOJVONEL17ZzYn-1)
+[BackLog](https://github.com/orgs/boostcampwm2025/projects/257) | [피그마](https://www.figma.com/design/hFx7ysCIjz5cXFpHTK24kA/Web09?node-id=0-1&t=h7DOJVONEL17ZzYn-1)
 | [위키](https://github.com/boostcampwm2025/web09-dopamine/wiki)
-
-
-[🔗 배포 링크](http://223.130.162.102/)
 
 <br />
 
@@ -30,7 +26,6 @@ Murphy는 팀의 의사결정 과정을 구조화하고, 흩어진 아이디어�
 버튼 한 번으로 비슷한 의견끼리 묶이고, 드래그 앤 드롭으로 수동 조정도 가능합니다.
 
 <img width="1440" height="900" alt="AI 기반 카테고리화" src="https://github.com/user-attachments/assets/763fc4b4-f20f-4824-b4ae-929eff0e2d19" />
-
 
 ### 투표와 의사결정
 
