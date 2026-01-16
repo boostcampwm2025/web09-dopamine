@@ -6,13 +6,11 @@ import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import useIdeaCard from '@/app/(with-sidebar)/issue/hooks/use-idea-card';
 import { ISSUE_STATUS, VOTE_TYPE } from '@/constants/issue';
-import { useIssueData } from '../../hooks/use-issue-data';
 import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
 import { useIdeaQuery } from '../../hooks/queries/use-idea-query';
-import { useIdeaCardStackStore } from '../../store/use-idea-card-stack-store';
-import { useIdeaStore } from '../../store/use-idea-store';
 import { useSelectedIdeaMutation } from '../../hooks/queries/use-selected-idea-mutation';
-import { useIssueStore } from '../../store/use-issue-store';
+import { useIssueData } from '../../hooks/use-issue-data';
+import { useIdeaCardStackStore } from '../../store/use-idea-card-stack-store';
 import type { CardStatus, Position } from '../../types/idea';
 import * as S from './idea-card.styles';
 
