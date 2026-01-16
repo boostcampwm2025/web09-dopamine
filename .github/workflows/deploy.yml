@@ -2,7 +2,7 @@ name: CD - Deploy to Docker Hub
 
 on:
   push:
-    branches: [ "main" ] # main 브랜치에 merge되었을 때만 배포
+    branches: ['main'] # main 브랜치에 merge되었을 때만 배포
 
 jobs:
   deploy:

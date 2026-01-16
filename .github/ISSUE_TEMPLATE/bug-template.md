@@ -1,13 +1,13 @@
 ---
 name: Bug template
 about: 버그 관련 사항에 대해 작성해주세요.
-title: "[Bug]"
+title: '[Bug]'
 labels: ''
 assignees: ''
-
 ---
 
 ## 🛠️ Description for bug features
+
 버그 관련 사항에 대해 작성해주세요.
 
 ### 어떤 버그인가요?
@@ -29,4 +29,5 @@ assignees: ''
 <br><br>
 
 ## 📝 Todo-lists
+
 - [ ]

@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma';
-import { findReportByIssueId, createReport } from '@/lib/repositories/report.repository';
+import { createReport, findReportByIssueId } from '@/lib/repositories/report.repository';
 import { PrismaTransaction } from '@/types/prisma';
 
 jest.mock('@/lib/prisma', () => ({

@@ -1,9 +1,9 @@
 import { NextRequest } from 'next/server';
 import { IssueStatus } from '@prisma/client';
 import { PATCH } from '@/app/api/issues/[id]/status/route';
+import { prisma } from '@/lib/prisma';
 import { findIssueById, updateIssueStatus } from '@/lib/repositories/issue.repository';
 import { createReport, findReportByIssueId } from '@/lib/repositories/report.repository';
-import { prisma } from '@/lib/prisma';
 
 // 레파지토리 모킹
 jest.mock('@/lib/repositories/issue.repository');
@@ -24,7 +24,6 @@ const mockedCreateReport = createReport as jest.MockedFunction<typeof createRepo
 const mockedPrismaTransaction = prisma.$transaction as jest.MockedFunction<
   typeof prisma.$transaction
 >;
-
 
 describe('PATCH /api/issues/[id]/status', () => {
   const mockIssueId = 'test-issue-id';
@@ -54,7 +53,6 @@ describe('PATCH /api/issues/[id]/status', () => {
       params: Promise.resolve({ id }),
     };
   };
-
 
   describe('유효성 검증', () => {
     it('유효하지 않은 상태값을 받으면 400 에러를 반환한다', async () => {
@@ -87,7 +85,6 @@ describe('PATCH /api/issues/[id]/status', () => {
   });
 
   describe('일반 상태 변경', () => {
-
     it('CLOSE 이외로 상태 변경 시 리포트를 생성하지 않는다', async () => {
       const req = createMockRequest({ status: IssueStatus.VOTE });
       const context = createMockParams(mockIssueId);
@@ -160,14 +157,14 @@ describe('PATCH /api/issues/[id]/status', () => {
       expect(mockedUpdateIssueStatus).toHaveBeenCalledWith(
         mockIssueId,
         IssueStatus.CLOSE,
-        expect.any(Object)
+        expect.any(Object),
       );
       expect(mockedFindReportByIssueId).toHaveBeenCalledWith(mockIssueId, expect.any(Object));
       expect(mockedCreateReport).toHaveBeenCalledWith(
         mockIssueId,
         selectedIdeaId,
         memo,
-        expect.any(Object)
+        expect.any(Object),
       );
     });
 

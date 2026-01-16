@@ -1,5 +1,5 @@
-﻿import { prisma } from '@/lib/prisma';
-import { Prisma } from '@prisma/client';
+﻿import { Prisma } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 
 /**
  * 카테고리 관련 DB 조작 로직
@@ -94,6 +94,3 @@ export const categoryRepository = {
     });
   },
 };
-
-
-

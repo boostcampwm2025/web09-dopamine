@@ -16,9 +16,8 @@ export const Container = styled.div`
 export const HeaderTitle = styled.span`
   font-size: 20px;
   font-weight: ${theme.font.weight.semibold};
-  color: ${theme.colors.black}
+  color: ${theme.colors.black};
 `;
-
 
 export const ComponentBox = styled.div<{ flexRatio?: number }>`
   flex: ${({ flexRatio }) => flexRatio ?? 1};

@@ -8,7 +8,7 @@ interface UseDraggableProps {
   onDragStart?: () => void;
   onDragEnd?: (position: Position) => void;
   onDrag?: (position: Position, delta: { dx: number; dy: number }) => void;
-  checkCollision?: (position: Position) => boolean; 
+  checkCollision?: (position: Position) => boolean;
   disabled?: boolean;
   scale?: number;
 }
@@ -24,7 +24,7 @@ export const useDraggable = ({
 }: UseDraggableProps) => {
   const [position, setPosition] = useState(initialPosition);
   const [isDragging, setIsDragging] = useState(false);
-  const [hasMoved, setHasMoved] = useState(false); 
+  const [hasMoved, setHasMoved] = useState(false);
   const dragStartPos = useRef<Position>({ x: 0, y: 0 });
   const elementStartPos = useRef<Position>(initialPosition);
   const lastDelta = useRef({ dx: 0, dy: 0 });
@@ -39,7 +39,7 @@ export const useDraggable = ({
 
       e.stopPropagation();
       setIsDragging(true);
-      setHasMoved(false); 
+      setHasMoved(false);
       dragStartPos.current = { x: e.clientX, y: e.clientY };
       elementStartPos.current = position;
       lastDelta.current = { dx: 0, dy: 0 };

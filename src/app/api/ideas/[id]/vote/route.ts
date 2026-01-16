@@ -1,22 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
 import { prisma } from '@/lib/prisma';
-import { broadcast } from '@/lib/services/sse-service';
 import { voteService } from '@/lib/services/vote.service';
+import { broadcast } from '@/lib/sse/sse-service';
 
-export async function POST(
-  req: NextRequest, 
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id: ideaId } = await params;
     const { userId, voteType } = await req.json();
 
     if (!userId || !voteType) {
-      return NextResponse.json(
-        { message: '잘못된 요청입니다.' }, 
-        { status: 400 }
-      );
+      return NextResponse.json({ message: '잘못된 요청입니다.' }, { status: 400 });
     }
 
     const result = await voteService.castVote(ideaId, userId, voteType);
@@ -43,12 +37,8 @@ export async function POST(
     }
 
     return NextResponse.json(result);
-    
   } catch (error) {
     console.error('투표 실패:', error);
-    return NextResponse.json(
-      { message: '투표 처리 중 오류가 발생했습니다.' }, 
-      { status: 500 }
-    );
+    return NextResponse.json({ message: '투표 처리 중 오류가 발생했습니다.' }, { status: 500 });
   }
 }
