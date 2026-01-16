@@ -5,10 +5,10 @@ import { categoryRepository } from '@/lib/repositories/category-repository';
 import { ideaRepository } from '@/lib/repositories/idea.repository';
 import { sseManager } from '@/lib/sse/sse-manager';
 
-type CategoryPayload = {
+interface CategoryPayload {
   title: string;
   ideaIds: string[];
-};
+}
 
 export async function POST(
   req: NextRequest,
