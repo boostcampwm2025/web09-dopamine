@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import { IssueMember } from '@/types/issue';
 
 interface IssueStore {
   isAIStructuring: boolean;
