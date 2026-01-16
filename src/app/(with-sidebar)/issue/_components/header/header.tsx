@@ -2,18 +2,9 @@
 
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
-import toast from 'react-hot-toast';
-import { useCategoryOperations } from '@/app/(with-sidebar)/issue/hooks/use-category-operations';
-import { useCanvasStore } from '@/app/(with-sidebar)/issue/store/use-canvas-store';
-import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
-import { useIssueStore } from '@/app/(with-sidebar)/issue/store/use-issue-store';
-import { useModalStore } from '@/components/modal/use-modal-store';
 import { useTooltipStore } from '@/components/tooltip/use-tooltip-store';
 import { ISSUE_STATUS } from '@/constants/issue';
-import { IssueStatus } from '@/types/issue';
-import { useIssueStatusMutations } from '../../hooks/queries/use-issue-mutation';
-import { useIssueQuery } from '../../hooks/queries/use-issue-query';
-import CloseIssueModal from '../close-issue-modal/close-issue-modal';
+import { useHeader } from '../../hooks/use-header';
 import ProgressBar from '../progress-bar/progress-bar';
 import HeaderButton from './header-button';
 import * as S from './header.styles';
@@ -22,78 +13,17 @@ const Header = () => {
   const params = useParams<{ id: string }>();
   const issueId = params.id || 'default';
 
-  const { data: issue } = useIssueQuery(issueId);
-  const { nextStep } = useIssueStatusMutations(issueId);
-
-  const { startAIStructure } = useIssueStore((state) => state.actions);
-
-  const hiddenStatus = [ISSUE_STATUS.SELECT, ISSUE_STATUS.CLOSE] as IssueStatus[];
-  const isVisible = !hiddenStatus.includes(issue?.status);
-
-  const { hasEditingIdea } = useIdeaStore(issueId);
+  const {
+    issue,
+    isVisible,
+    handleCloseIssue,
+    handleNextStep,
+    handleAddCategory,
+    startAIStructure,
+  } = useHeader({ issueId });
 
   const openTooltip = useTooltipStore((state) => state.openTooltip);
   const closeTooltip = useTooltipStore((state) => state.closeTooltip);
-  const { openModal } = useModalStore();
-  const { ideas } = useIdeaStore(issueId);
-  const scale = useCanvasStore((state) => state.scale);
-  const { categories, handleAddCategory } = useCategoryOperations(issueId, ideas, scale);
-
-  const handleCloseIssue = () => {
-    openModal({
-      title: '이슈 종료',
-      content: <CloseIssueModal issueId={issueId} />,
-      closeOnOverlayClick: false,
-      hasCloseButton: false,
-    });
-  };
-
-  const validateStep = () => {
-    if (issue?.status === ISSUE_STATUS.BRAINSTORMING) {
-      if (ideas.length === 0) {
-        toast.error('최소 1개 이상의 아이디어를 제출해야합니다.');
-        throw new Error('아이디어가 존재하지 않습니다.');
-      }
-      if (hasEditingIdea) {
-        toast.error('입력 중인 아이디어가 있습니다.');
-        throw new Error('입력 중인 아이디어가 있습니다.');
-      }
-    }
-    if (issue?.status === ISSUE_STATUS.CATEGORIZE) {
-      if (categories.length === 0) {
-        toast.error('카테고리가 없습니다.');
-        throw new Error('카테고리가 없습니다.');
-      }
-    }
-
-    if (issue?.status === ISSUE_STATUS.CATEGORIZE) {
-      const uncategorizedIdeas = ideas.filter((idea) => idea.categoryId === null);
-      if (uncategorizedIdeas.length > 0) {
-        toast.error('카테고리가 지정되지 않은 아이디어가 있습니다.');
-        throw new Error('카테고리가 지정되지 않은 아이디어가 있습니다.');
-      }
-
-      // 빈 카테고리 검사: 각 카테고리에 속한 아이디어가 없는지 확인
-      const emptyCategories = categories.filter(
-        (category) => !ideas.some((idea) => idea.categoryId === category.id),
-      );
-      if (emptyCategories.length > 0) {
-        toast.error(`빈 카테고리가 있습니다.`);
-        throw new Error('빈 카테고리가 있습니다.');
-      }
-    }
-
-    return true;
-  };
-
-  const handleNextStep = () => {
-    try {
-      validateStep();
-      nextStep();
-    } catch (error) {
-      toast((error as Error).message);
-    }
-  };
 
   const renderActionButtons = () => {
     switch (issue?.status) {

@@ -38,6 +38,21 @@ export async function getIssueMembers(issueId: string) {
   }
 }
 
+// 특정 사용자의 정보 조회
+export async function getIssueMember(issueId: string, userId: string) {
+  try {
+    const response = await fetch(`/api/issues/${issueId}/members/${userId}`);
+    if (response.ok) {
+      const data = await response.json();
+      return data;
+    }
+    return null;
+  } catch (error) {
+    console.error('사용자 정보 조회 실패:', error);
+    return null;
+  }
+}
+
 export async function checkNicknameDuplicate(issueId: string, nickname: string) {
   const encodedNickname = encodeURIComponent(nickname);
   try {
@@ -174,7 +189,7 @@ export async function updateIssueStatus(
 }
 
 /**
- * 이슈가 SELECT 상태인 경우 selected-idea를 브로드캐스팅합니다. 
+ * 이슈가 SELECT 상태인 경우 selected-idea를 브로드캐스팅합니다.
  */
 export async function selectIdea(issueId: string, selectedIdeaId: string) {
   try {
