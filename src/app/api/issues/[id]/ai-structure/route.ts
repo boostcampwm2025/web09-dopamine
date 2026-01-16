@@ -1,12 +1,14 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { SSE_EVENT_TYPES } from '@/constants/sse-events';
 import { prisma } from '@/lib/prisma';
 import { categoryRepository } from '@/lib/repositories/category-repository';
 import { ideaRepository } from '@/lib/repositories/idea.repository';
+import { sseManager } from '@/lib/sse/sse-manager';
 
-type CategoryPayload = {
+interface CategoryPayload {
   title: string;
   ideaIds: string[];
-};
+}
 
 export async function POST(
   req: NextRequest,
@@ -38,7 +40,11 @@ export async function POST(
 
     await ideaRepository.resetCategoriesByIssueId(issueId, tx);
 
-    const createdCategories = await categoryRepository.createManyForIssue(issueId, categoryPayloads, tx);
+    const createdCategories = await categoryRepository.createManyForIssue(
+      issueId,
+      categoryPayloads,
+      tx,
+    );
 
     const ideaCategoryMap = new Map<string, string>();
     categoryPayloads.forEach((category, index) => {
@@ -64,7 +70,21 @@ export async function POST(
     };
   });
 
+  sseManager.broadcast({
+    issueId,
+    event: {
+      type: SSE_EVENT_TYPES.CATEGORY_CREATED,
+      data: { categoryIds: result.categories.map((category) => category.id) },
+    },
+  });
+
+  sseManager.broadcast({
+    issueId,
+    event: {
+      type: SSE_EVENT_TYPES.IDEA_MOVED,
+      data: { ideaIds: Object.keys(result.ideaCategoryMap) },
+    },
+  });
+
   return NextResponse.json(result);
 }
-
-

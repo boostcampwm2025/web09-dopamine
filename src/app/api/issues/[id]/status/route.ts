@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { IssueStatus } from '@prisma/client';
+import { SSE_EVENT_TYPES } from '@/constants/sse-events';
 import { prisma } from '@/lib/prisma';
 import { findIssueById, updateIssueStatus } from '@/lib/repositories/issue.repository';
 import { createReport, findReportByIssueId } from '@/lib/repositories/report.repository';
@@ -7,6 +8,7 @@ import {
   createWordClouds,
   findIssueTextSourcesForWordCloud,
 } from '@/lib/repositories/word-cloud.repository';
+import { broadcast } from '@/lib/services/sse-service';
 import { generateWordCloudData } from '@/lib/utils/word-cloud-processor';
 
 export async function PATCH(
@@ -64,6 +66,15 @@ export async function PATCH(
       }
 
       return issue;
+    });
+
+    // SSE 브로드캐스팅: 이슈 상태 변경 이벤트
+    broadcast({
+      issueId: id,
+      event: {
+        type: SSE_EVENT_TYPES.ISSUE_STATUS_CHANGED,
+        data: { status: updatedIssue.status, issueId: id },
+      },
     });
 
     return NextResponse.json(updatedIssue);

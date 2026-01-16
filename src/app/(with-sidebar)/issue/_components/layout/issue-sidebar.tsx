@@ -6,7 +6,6 @@ import * as S from '@/components/sidebar/sidebar.styles';
 import { ISSUE_STATUS, MEMBER_ROLE } from '@/constants/issue';
 import { useIssueData } from '../../hooks/use-issue-data';
 import { useIssueId } from '../../hooks/use-issue-id';
-import { useIssueStore } from '../../store/use-issue-store';
 import IssueGraphLink from './issue-graph-link';
 import NewIssueButton from './new-issue-button';
 
@@ -20,8 +19,7 @@ const ISSUE_LIST = [
 
 export default function IssueSidebar() {
   const issueId = useIssueId();
-  const { members } = useIssueStore();
-  const { isQuickIssue } = useIssueData(issueId);
+  const { isQuickIssue, members } = useIssueData(issueId);
 
   const sortedMembers = useMemo(() => {
     return [...members].sort((a, b) => {
@@ -62,6 +60,7 @@ export default function IssueSidebar() {
           {sortedMembers.map((user) => (
             <MemberSidebarItem
               key={user.displayName}
+              id={user.id}
               name={user.displayName}
               role={user.role}
               isConnected={user.isConnected}

@@ -1,34 +1,46 @@
-﻿import { useEffect } from 'react';
+﻿import { useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
+import { useSelectedIdeaMutation } from '@/app/(with-sidebar)/issue/hooks/queries/use-selected-idea-mutation';
 import { useIdeaCardStackStore } from '@/app/(with-sidebar)/issue/store/use-idea-card-stack-store';
 import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
-import { useIssueStore } from '@/app/(with-sidebar)/issue/store/use-issue-store';
 import type { IdeaWithPosition, Position } from '@/app/(with-sidebar)/issue/types/idea';
-import { useSelectedIdeaMutation } from '@/app/(with-sidebar)/issue/hooks/queries/use-selected-idea-mutation';
 import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
+import { IssueMember } from '@/types/issue';
 import { useIdeasQuery } from './queries/use-ideas-query';
 import { useIdeaMutations } from './use-idea-mutations';
+import { useIssueData } from './use-issue-data';
 
 export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) {
   const { ideas, hasEditingIdea, addIdea, updateIdeaPosition, deleteIdea, setIdeas } =
     useIdeaStore(issueId);
+  const tempIdeasRef = useRef<IdeaWithPosition[]>([]);
 
   const { addCard, removeCard, setInitialCardData } = useIdeaCardStackStore(issueId);
   const { createIdea, updateIdea, removeIdea } = useIdeaMutations(issueId);
 
   // 현재 사용자 정보 가져오기
-  const members = useIssueStore((state) => state.members);
+  const { members } = useIssueData(issueId);
   const currentUserId = getUserIdForIssue(issueId);
-  const currentUser = members.find((m) => m.id === currentUserId);
+  const currentUser = members.find((m: IssueMember) => m.id === currentUserId);
   const currentUserDisplayName = currentUser?.displayName || '나';
 
   const { data: ideasFromServer } = useIdeasQuery(issueId);
   const { mutate: selectIdea } = useSelectedIdeaMutation(issueId);
 
   useEffect(() => {
+    const tempIdeas = ideas.filter((idea) => idea.id.startsWith('temp-'));
+    tempIdeasRef.current = tempIdeas;
+  }, [ideas]);
+
+  useEffect(() => {
     if (!ideasFromServer) return;
 
-    setIdeas(ideasFromServer);
+    // 서버에서 받은 아이디어 + 현재 temp 아이디어
+    const currentTempIdeas = tempIdeasRef.current;
+    const serverIdeaIds = new Set(ideasFromServer.map((idea) => idea.id));
+    const remainingTempIdeas = currentTempIdeas.filter((idea) => !serverIdeaIds.has(idea.id));
+
+    setIdeas([...ideasFromServer, ...remainingTempIdeas]);
   }, [ideasFromServer, setIdeas]);
 
   useEffect(() => {

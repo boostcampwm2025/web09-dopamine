@@ -3,11 +3,8 @@
 import { IssueJoinModalProps, useIssueJoinModal } from '../../hooks/use-issue-join-modal';
 import * as S from './issue-join-modal.styles';
 
-export default function IssueJoinModal({ issueId, onJoinSuccess }: IssueJoinModalProps) {
-  const { nickname, isLoading, setNickname, handleJoin } = useIssueJoinModal({
-    issueId,
-    onJoinSuccess,
-  });
+export default function IssueJoinModal({ issueId }: IssueJoinModalProps) {
+  const { nickname, isLoading, setNickname, handleJoin } = useIssueJoinModal({ issueId });
   return (
     <S.Container>
       <S.InfoContainer>

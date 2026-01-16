@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { IssueRole } from '@prisma/client';
+import { useFilterIdea } from '@/app/(with-sidebar)/issue/hooks/use-filter-idea';
+import { SSE_EVENT_TYPES } from '@/constants/sse-events';
 import { prisma } from '@/lib/prisma';
 import { issueMemberRepository } from '@/lib/repositories/issue-member.repository';
 import { findIssueById } from '@/lib/repositories/issue.repository';
 import { createAnonymousUser } from '@/lib/repositories/user.repository';
 import { issueMemberService } from '@/lib/services/issue-member.service';
+import { sseManager } from '@/lib/sse/sse-manager';
 
 export async function GET(
   req: NextRequest,
@@ -65,6 +68,14 @@ export async function POST(
       return {
         userId: user.id,
       };
+    });
+
+    sseManager.broadcast({
+      issueId,
+      event: {
+        type: SSE_EVENT_TYPES.MEMBER_JOINED,
+        data: {},
+      },
     });
 
     return NextResponse.json(result, { status: 201 });

@@ -1,52 +1,18 @@
 'use client';
 
-import { useCallback, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import toast from 'react-hot-toast';
-import { useSelectedIdeaQuery } from '@/app/(with-sidebar)/issue/hooks/queries/use-selected-idea-query';
-import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
-import { useModalStore } from '@/components/modal/use-modal-store';
-import { useIssueStatusMutations } from '../../hooks/queries/use-issue-mutation';
-import { ISSUE_STATUS } from '@/constants/issue';
-import { updateIssueStatus } from '@/lib/api/issue';
+import { useCloseIssueModal } from '../../hooks/use-close-issue-modal';
 import * as S from './close-issue-modal.styles';
 
 interface CloseIssueModalProps {
   issueId: string;
+  isOwner?: boolean;
 }
 
-export default function CloseIssueModal({ issueId }: CloseIssueModalProps) {
-  const { ideas } = useIdeaStore(issueId);
-  const { data: selectedIdeaId } = useSelectedIdeaQuery(issueId);
-  const { close } = useIssueStatusMutations(issueId);
-  const { closeModal } = useModalStore();
-  const [memo, setMemo] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
-  const selectedIdea = selectedIdeaId
-    ? ideas.find((idea) => idea.id === selectedIdeaId)
-    : undefined;
-
-  const closeAndGoSummary = useCallback(async () => {
-    if (isLoading) return;
-    if (!selectedIdea) {
-      toast.error('채택할 아이디어를 선택하세요.');
-      return;
-    }
-
-    try {
-      setIsLoading(true);
-      await updateIssueStatus(issueId, ISSUE_STATUS.CLOSE, selectedIdea.id, memo || undefined);
-      close.mutate();
-      closeModal();
-      router.push(`/issue/${issueId}/summary`);
-    } catch (error) {
-      console.error('이슈 종료 실패:', error);
-      toast.error('이슈 종료에 실패했습니다. 다시 시도해주세요.');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [issueId, selectedIdea?.id, memo, isLoading, closeModal, router]);
+export default function CloseIssueModal({ issueId, isOwner = false }: CloseIssueModalProps) {
+  const { memo, setMemo, selectedIdea, isLoading, closeAndGoSummary } = useCloseIssueModal({
+    issueId,
+    isOwner,
+  });
 
   return (
     <S.Container>
@@ -70,6 +36,7 @@ export default function CloseIssueModal({ issueId }: CloseIssueModalProps) {
             value={memo}
             onChange={(event) => setMemo(event.target.value)}
             placeholder="메모를 입력해주세요."
+            disabled={!isOwner}
           />
         </S.MemoInputWrapper>
       </div>
@@ -78,7 +45,7 @@ export default function CloseIssueModal({ issueId }: CloseIssueModalProps) {
         <S.SubmitButton
           type="button"
           onClick={closeAndGoSummary}
-          disabled={isLoading}
+          disabled={isLoading || !isOwner}
         >
           {isLoading ? '종료 중...' : '종료'}
         </S.SubmitButton>
