@@ -1,4 +1,4 @@
-﻿import { useEffect } from 'react';
+﻿import { useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
 import { useSelectedIdeaMutation } from '@/app/(with-sidebar)/issue/hooks/queries/use-selected-idea-mutation';
 import { useIdeaCardStackStore } from '@/app/(with-sidebar)/issue/store/use-idea-card-stack-store';
@@ -13,6 +13,7 @@ import { useIssueData } from './use-issue-data';
 export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) {
   const { ideas, hasEditingIdea, addIdea, updateIdeaPosition, deleteIdea, setIdeas } =
     useIdeaStore(issueId);
+  const tempIdeasRef = useRef<IdeaWithPosition[]>([]);
 
   const { addCard, removeCard, setInitialCardData } = useIdeaCardStackStore(issueId);
   const { createIdea, updateIdea, removeIdea } = useIdeaMutations(issueId);
@@ -27,9 +28,19 @@ export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) 
   const { mutate: selectIdea } = useSelectedIdeaMutation(issueId);
 
   useEffect(() => {
+    const tempIdeas = ideas.filter((idea) => idea.id.startsWith('temp-'));
+    tempIdeasRef.current = tempIdeas;
+  }, [ideas]);
+
+  useEffect(() => {
     if (!ideasFromServer) return;
 
-    setIdeas(ideasFromServer);
+    // 서버에서 받은 아이디어 + 현재 temp 아이디어
+    const currentTempIdeas = tempIdeasRef.current;
+    const serverIdeaIds = new Set(ideasFromServer.map((idea) => idea.id));
+    const remainingTempIdeas = currentTempIdeas.filter((idea) => !serverIdeaIds.has(idea.id));
+
+    setIdeas([...ideasFromServer, ...remainingTempIdeas]);
   }, [ideasFromServer, setIdeas]);
 
   useEffect(() => {
