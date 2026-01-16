@@ -70,8 +70,6 @@ export function useHeader({ issueId }: UseHeaderParams) {
     openModal({
       title: '이슈 종료',
       content: React.createElement(CloseIssueModal, { issueId, isOwner }),
-      closeOnOverlayClick: false,
-      hasCloseButton: false,
       modalType: 'close-issue',
     });
   }, [issueId, userId, isOwner, openModal]);
