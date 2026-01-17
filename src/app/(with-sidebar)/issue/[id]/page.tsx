@@ -78,7 +78,6 @@ const IssuePage = () => {
     handleDeleteIdea,
     handleSelectIdea,
     handleIdeaPositionChange,
-    handleVoteChange,
     handleMoveIdeaToCategory,
   } = useIdeaOperations(issueId, isCreateIdeaActive);
 
@@ -147,9 +146,6 @@ const IssuePage = () => {
                     status={getIdeaStatus(idea.id)}
                     isVoteButtonVisible={isVoteButtonVisible}
                     isVoteDisabled={isVoteDisabled}
-                    onVoteChange={(agreeCount, disagreeCount) =>
-                      handleVoteChange(idea.id, agreeCount, disagreeCount)
-                    }
                     onSave={(content) => handleSaveIdea(idea.id, content)}
                     onDelete={() => handleDeleteIdea(idea.id)}
                     onClick={() => handleSelectIdea(idea.id)}
@@ -174,9 +170,6 @@ const IssuePage = () => {
                 isVoteButtonVisible={isVoteButtonVisible}
                 isVoteDisabled={isVoteDisabled}
                 onPositionChange={handleIdeaPositionChange}
-                onVoteChange={(agreeCount, disagreeCount) =>
-                  handleVoteChange(idea.id, agreeCount, disagreeCount)
-                }
                 onSave={(content) => handleSaveIdea(idea.id, content)}
                 onDelete={() => handleDeleteIdea(idea.id)}
               />
