@@ -125,35 +125,24 @@ export async function getIssue(issueId: string) {
 }
 
 /**
- * AI를 사용하여 아이디어들을 카테고리별로 분류합니다.
+ * AI를 사용하여 아이디어들을 카테고리별로 분류하고 DB에 저장합니다.
  */
 export async function categorizeIdeas(
   issueId: string,
   ideas: Array<{ id: string; content: string }>,
 ) {
-  const payload = {
-    issueId,
-    ideas,
-  };
-
   const response = await fetch(`/api/issues/${issueId}/categorize`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
+    body: JSON.stringify({ ideas }),
   });
 
   if (!response.ok) {
-    throw new Error('AI 분류 실패');
+    const errorData = await response.json();
+    throw new Error(errorData.error || 'AI 분류 실패');
   }
 
-  const data = await response.json();
-  const content = data.result?.message?.content;
-
-  if (!content) {
-    throw new Error('AI 응답 형식이 올바르지 않습니다.');
-  }
-
-  return JSON.parse(content);
+  return response.json();
 }
 
 /**
@@ -210,22 +199,3 @@ export async function selectIdea(issueId: string, selectedIdeaId: string) {
   }
 }
 
-/**
- * AI 카테고리 결과를 DB에 반영합니다.
- */
-export async function applyAIStructure(
-  issueId: string,
-  categories: Array<{ title: string; ideaIds: string[] }>,
-) {
-  const response = await fetch(`/api/issues/${issueId}/ai-structure`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ categories }),
-  });
-
-  if (!response.ok) {
-    throw new Error('AI 구조화 적용 실패');
-  }
-
-  return response.json();
-}
