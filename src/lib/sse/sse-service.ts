@@ -2,7 +2,7 @@ import { sseManager } from '@/lib/sse/sse-manager';
 import { BroadcastingEvent } from '@/types/sse';
 
 // 브로드 캐스팅
-export function broadcast({ issueId, event }: BroadcastingEvent): void {
+export function broadcast({ issueId, event }: BroadcastingEvent) {
   sseManager.broadcast({ issueId, event });
 }
 // 특정 이슈에 대한 연결된 클라이언트 수 조회

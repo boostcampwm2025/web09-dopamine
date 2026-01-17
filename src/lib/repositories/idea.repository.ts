@@ -39,6 +39,19 @@ export const ideaRepository = {
     });
   },
 
+  async findIdAndContentByIssueId(issueId: string) {
+    return prisma.idea.findMany({
+      where: {
+        issueId,
+        deletedAt: null,
+      },
+      select: {
+        id: true,
+        content: true,
+      },
+    });
+  },
+
   async resetCategoriesByIssueId(issueId: string, tx: Prisma.TransactionClient = prisma) {
     return tx.idea.updateMany({
       where: { issueId },

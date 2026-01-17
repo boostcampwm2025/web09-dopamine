@@ -6,7 +6,7 @@ import { issueMemberRepository } from '@/lib/repositories/issue-member.repositor
 import { findIssueById } from '@/lib/repositories/issue.repository';
 import { createAnonymousUser } from '@/lib/repositories/user.repository';
 import { issueMemberService } from '@/lib/services/issue-member.service';
-import { sseManager } from '@/lib/sse/sse-manager';
+import { broadcast } from '@/lib/sse/sse-service';
 
 export async function GET(
   req: NextRequest,
@@ -69,7 +69,7 @@ export async function POST(
       };
     });
 
-    sseManager.broadcast({
+    broadcast({
       issueId,
       event: {
         type: SSE_EVENT_TYPES.MEMBER_JOINED,
