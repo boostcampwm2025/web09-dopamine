@@ -1,17 +1,24 @@
-name: CI - Build Test
+name: CI
 
 on:
   pull_request:
-    branches: [ "main", "dev" ]
+    branches: ['main', 'dev']
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
 
 jobs:
-  build-test:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
 
-      - name: Build Docker image (test only)
+      # Docker Buildx 설정
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -19,3 +26,6 @@ jobs:
           push: false
           tags: web09-dopamine:test
           platforms: linux/amd64
+          # 깃허브 액션 캐싱 사용
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
