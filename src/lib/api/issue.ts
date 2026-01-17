@@ -127,14 +127,10 @@ export async function getIssue(issueId: string) {
 /**
  * AI를 사용하여 아이디어들을 카테고리별로 분류하고 DB에 저장합니다.
  */
-export async function categorizeIdeas(
-  issueId: string,
-  ideas: Array<{ id: string; content: string }>,
-) {
+export async function categorizeIdeas(issueId: string) {
   const response = await fetch(`/api/issues/${issueId}/categorize`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ ideas }),
   });
 
   if (!response.ok) {
