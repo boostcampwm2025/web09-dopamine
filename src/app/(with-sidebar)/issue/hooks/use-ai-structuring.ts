@@ -26,7 +26,7 @@ export function useAIStructuring({ issueId, ideas }: UseAIStructuringProps) {
       await categorizeIdeas(issueId);
     } catch (error) {
       console.error('AI 구조화 오류:', error);
-      toast.error('AI 구조화 중 오류가 발생했습니다.');
+      toast.error(error instanceof Error ? error.message : 'AI 구조화 중 오류가 발생했습니다.');
     } finally {
       finishAIStructure();
     }
