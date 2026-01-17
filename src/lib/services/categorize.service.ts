@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { categoryRepository } from '@/lib/repositories/category.repository';
 import { ideaRepository } from '@/lib/repositories/idea.repository';
-import { sseManager } from '@/lib/sse/sse-manager';
+import { broadcast } from '@/lib/sse/sse-service';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
 import type { Prisma } from '@prisma/client';
 
@@ -58,7 +58,7 @@ export const categorizeService = {
     });
 
     // 브로드캐스팅
-    sseManager.broadcast({
+    broadcast({
       issueId,
       event: {
         type: SSE_EVENT_TYPES.CATEGORY_CREATED,
@@ -66,7 +66,7 @@ export const categorizeService = {
       },
     });
 
-    sseManager.broadcast({
+    broadcast({
       issueId,
       event: {
         type: SSE_EVENT_TYPES.IDEA_MOVED,

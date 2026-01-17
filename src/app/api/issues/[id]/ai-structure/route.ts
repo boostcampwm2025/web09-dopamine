@@ -3,7 +3,7 @@ import { SSE_EVENT_TYPES } from '@/constants/sse-events';
 import { prisma } from '@/lib/prisma';
 import { categoryRepository } from '@/lib/repositories/category.repository';
 import { ideaRepository } from '@/lib/repositories/idea.repository';
-import { sseManager } from '@/lib/sse/sse-manager';
+import { broadcast } from '@/lib/sse/sse-service';
 
 interface CategoryPayload {
   title: string;
@@ -70,7 +70,7 @@ export async function POST(
     };
   });
 
-  sseManager.broadcast({
+  broadcast({
     issueId,
     event: {
       type: SSE_EVENT_TYPES.CATEGORY_CREATED,
@@ -78,7 +78,7 @@ export async function POST(
     },
   });
 
-  sseManager.broadcast({
+  broadcast({
     issueId,
     event: {
       type: SSE_EVENT_TYPES.IDEA_MOVED,
