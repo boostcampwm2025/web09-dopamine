@@ -3,7 +3,7 @@ import type { IdeaWithPosition } from '../types/idea';
 
 export type FilterType = 'most-liked' | 'need-discussion' | 'none';
 
-export const useFilterIdea = (issueId: string, initialIdeas: IdeaWithPosition[]) => {
+export const useFilterIdea = (issueId: string) => {
   const [activeFilter, setActiveFilter] = useState<FilterType>('none');
   const [filteredIds, setFilteredIds] = useState<Set<string>>(new Set());
 
@@ -52,7 +52,7 @@ export const useFilterIdea = (issueId: string, initialIdeas: IdeaWithPosition[])
     return () => {
       cancelled = true;
     };
-  }, [issueId, activeFilter, initialIdeas]);
+  }, [issueId, activeFilter]);
 
   return {
     activeFilter,

@@ -98,7 +98,7 @@ const IssuePage = () => {
   });
 
   // 하이라이트된 아이디어
-  const { activeFilter, setFilter, filteredIds } = useFilterIdea(issueId, ideas);
+  const { activeFilter, setFilter, filteredIds } = useFilterIdea(issueId);
   const getIdeaStatus = useIdeaStatus(filteredIds, activeFilter);
 
   return (
