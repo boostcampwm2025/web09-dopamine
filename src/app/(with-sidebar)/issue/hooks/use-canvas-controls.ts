@@ -3,7 +3,17 @@ import { useCanvasStore } from '../store/use-canvas-store';
 
 const DEFAULT_OFFSET = { x: 0, y: 0 };
 
-export function useCanvasInteractions() {
+interface UseCanvasControlsOptions {
+  canvasRef: React.RefObject<HTMLDivElement | null>;
+  onDoubleClick?: (position: { x: number; y: number }) => void;
+  isAddIdeaEnabled: boolean;
+}
+
+export function useCanvasControls({
+  canvasRef,
+  onDoubleClick,
+  isAddIdeaEnabled,
+}: UseCanvasControlsOptions) {
   const { scale, offset, setScale, setOffset, reset } = useCanvasStore();
   const [isPanning, setIsPanning] = useState(false);
   const [panStart, setPanStart] = useState(DEFAULT_OFFSET);
@@ -64,6 +74,39 @@ export function useCanvasInteractions() {
     reset();
   }, [reset]);
 
+  const handleCanvasDoubleClick = useCallback(
+    (e: React.MouseEvent) => {
+      if (!onDoubleClick || !isAddIdeaEnabled) return;
+
+      const rect = canvasRef.current?.getBoundingClientRect();
+      if (!rect) return;
+
+      const x = (e.clientX - rect.left - offset.x) / scale;
+      const y = (e.clientY - rect.top - offset.y) / scale;
+
+      onDoubleClick({ x, y });
+    },
+    [canvasRef, isAddIdeaEnabled, onDoubleClick, offset, scale],
+  );
+
+  const handleAddIdeaButtonClick = useCallback(() => {
+    if (!onDoubleClick) return;
+
+    const rect = canvasRef.current?.getBoundingClientRect();
+    if (!rect) return;
+
+    const CARD_WIDTH = 640;
+    const CARD_HEIGHT = 320;
+
+    const centerX = (rect.width / 2 - offset.x) / scale;
+    const centerY = (rect.height / 2 - offset.y) / scale;
+
+    const x = centerX - CARD_WIDTH / 2;
+    const y = centerY - CARD_HEIGHT / 2;
+
+    onDoubleClick({ x, y });
+  }, [canvasRef, onDoubleClick, offset, scale]);
+
   return {
     scale,
     offset,
@@ -75,5 +118,7 @@ export function useCanvasInteractions() {
     handleZoomIn,
     handleZoomOut,
     handleResetZoom,
+    handleCanvasDoubleClick,
+    handleAddIdeaButtonClick,
   };
 }

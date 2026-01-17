@@ -1,8 +1,7 @@
 'use client';
 
 import { useRef } from 'react';
-import { useCanvasAddIdea } from '@/app/(with-sidebar)/issue/hooks/use-canvas-add-idea';
-import { useCanvasInteractions } from '@/app/(with-sidebar)/issue/hooks/use-canvas-interactions';
+import { useCanvasControls } from '@/app/(with-sidebar)/issue/hooks/use-canvas-controls';
 import { ISSUE_STATUS, ISSUE_STATUS_DESCRIPTION } from '@/constants/issue';
 import { useIssueData } from '../../hooks/use-issue-data';
 import { useIssueId } from '../../hooks/use-issue-id';
@@ -35,14 +34,12 @@ export default function Canvas({ children, onDoubleClick }: CanvasProps) {
     handleZoomIn,
     handleZoomOut,
     handleResetZoom,
-  } = useCanvasInteractions();
-
-  const { handleCanvasDoubleClick, handleAddIdeaButtonClick } = useCanvasAddIdea({
+    handleCanvasDoubleClick,
+    handleAddIdeaButtonClick,
+  } = useCanvasControls({
     canvasRef,
     onDoubleClick,
-    isEnabled: isBrainStorming,
-    offset,
-    scale,
+    isAddIdeaEnabled: isBrainStorming,
   });
 
   return (
