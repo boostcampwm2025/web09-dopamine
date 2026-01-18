@@ -10,19 +10,14 @@ type CategoryPayload = {
 };
 
 
-export async function fetchCategories(issueId: string): Promise<Category[]> {
-  try {
-    return await getAPIResponseData<Category[]>({
+export function fetchCategories(issueId: string): Promise<Category[]> {
+    return getAPIResponseData<Category[]>({
       url: `/api/issues/${issueId}/category`,
       method: 'GET',
     });
-  } catch (error) {
-    console.error('카테고리 조회 실패:', error);
-    return [];
-  }
 }
 
-export async function createCategory(issueId: string, payload: CategoryPayload): Promise<Category> {
+export function createCategory(issueId: string, payload: CategoryPayload): Promise<Category> {
   return getAPIResponseData<Category>({
     url: `/api/issues/${issueId}/category`,
     method: 'POST',
@@ -31,7 +26,7 @@ export async function createCategory(issueId: string, payload: CategoryPayload):
   });
 }
 
-export async function updateCategory(
+export function updateCategory(
   issueId: string,
   categoryId: string,
   payload: Partial<CategoryPayload>,
@@ -44,11 +39,11 @@ export async function updateCategory(
   });
 }
 
-export async function deleteCategory(
+export function deleteCategory(
   issueId: string,
   categoryId: string,
 ): Promise<void> {
-  await getAPIResponseData<null>({
+  return getAPIResponseData<void>({
     url: `/api/issues/${issueId}/category/${categoryId}`,
     method: 'DELETE',
   });
