@@ -2,12 +2,12 @@ import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { useSelectedIdeaQuery } from '@/app/(with-sidebar)/issue/hooks/react-query/use-selected-idea-query';
-import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
 import { useModalStore } from '@/components/modal/use-modal-store';
 import { ISSUE_STATUS } from '@/constants/issue';
 import { updateIssueStatus } from '@/lib/api/issue';
 import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
 import { useIssueStatusMutations } from './react-query/use-issue-mutation';
+import { useIdeasWithTemp } from './use-ideas-with-temp';
 
 interface UseCloseIssueModalParams {
   issueId: string;
@@ -15,7 +15,7 @@ interface UseCloseIssueModalParams {
 }
 
 export function useCloseIssueModal({ issueId, isOwner }: UseCloseIssueModalParams) {
-  const { ideas } = useIdeaStore(issueId);
+  const { ideas } = useIdeasWithTemp(issueId);
   const { data: selectedIdeaId } = useSelectedIdeaQuery(issueId);
   const { close } = useIssueStatusMutations(issueId);
   const { closeModal } = useModalStore();
