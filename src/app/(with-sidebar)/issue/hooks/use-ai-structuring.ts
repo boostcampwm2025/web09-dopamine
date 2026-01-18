@@ -32,12 +32,14 @@ export function useAIStructuring({ issueId, ideas, setIdeas }: UseAIStructuringP
 
     try {
       const aiResponse = await categorizeIdeas(issueId, validIdeas);
+      const parsed = JSON.parse(aiResponse.result.message.content);
+    
 
-      if (!aiResponse.categories || !Array.isArray(aiResponse.categories)) {
+      if (!parsed.categories || !Array.isArray(parsed.categories)) {
         throw new Error('AI 응답 형식이 올바르지 않습니다.');
       }
 
-      const structureResult = await applyAIStructure(issueId, aiResponse.categories);
+      const structureResult = await applyAIStructure(issueId, parsed.categories);
       const ideaCategoryMap = structureResult.ideaCategoryMap ?? {};
 
       // TanStack Query 캐시 갱신 → 서버에서 최신 카테고리 데이터 fetch
