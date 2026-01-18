@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { IssueRole } from '@prisma/client';
-import { useFilterIdea } from '@/app/(with-sidebar)/issue/hooks/use-filter-idea';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
 import { prisma } from '@/lib/prisma';
 import { issueMemberRepository } from '@/lib/repositories/issue-member.repository';
