@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
 import { categoryRepository } from '@/lib/repositories/category.repository';
 import { sseManager } from '@/lib/sse/sse-manager';
+import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 
 export async function PATCH(
   req: NextRequest,
@@ -27,15 +28,16 @@ export async function PATCH(
       },
     });
 
-    return NextResponse.json(category);
+    return createSuccessResponse(category);
   } catch (error: any) {
     console.error('카테고리 수정 실패:', error);
 
+    // Prisma에서 레코드를 찾을 수 없는 경우
     if (error.code === 'P2025') {
-      return NextResponse.json({ message: '카테고리를 찾을 수 없습니다.' }, { status: 404 });
+      return createErrorResponse('CATEGORY_NOT_FOUND', 404);
     }
 
-    return NextResponse.json({ message: '카테고리 수정에 실패했습니다.' }, { status: 500 });
+    return createErrorResponse('CATEGORY_UPDATE_FAILED', 500);
   }
 }
 
@@ -56,14 +58,15 @@ export async function DELETE(
       },
     });
 
-    return NextResponse.json({ success: true });
+    return createSuccessResponse(null);
   } catch (error: any) {
     console.error('카테고리 삭제 실패:', error);
 
+    // Prisma에서 레코드를 찾을 수 없는 경우
     if (error.code === 'P2025') {
-      return NextResponse.json({ message: '카테고리를 찾을 수 없습니다.' }, { status: 404 });
+      return createErrorResponse('CATEGORY_NOT_FOUND', 404);
     }
 
-    return NextResponse.json({ message: '카테고리 삭제에 실패했습니다.' }, { status: 500 });
+    return createErrorResponse('CATEGORY_DELETE_FAILED', 500);
   }
 }

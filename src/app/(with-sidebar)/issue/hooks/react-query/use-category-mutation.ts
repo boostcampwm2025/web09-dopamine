@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { createCategory, deleteCategory, updateCategory } from '@/lib/api/category';
-import type { Category as DbCategory } from '@/types/category';
 
 type CategoryPayload = {
   title: string;
@@ -18,21 +17,8 @@ export const useCategoryMutations = (issueId: string) => {
   const create = useMutation({
     mutationFn: (payload: CategoryPayload) => createCategory(issueId, payload),
 
-    onMutate: async () => {
-      // 진행 중인 쿼리 취소 (race condition 방지)
-      // TODO: 낙관적 업데이트 논의 필요
-      await queryClient.cancelQueries({ queryKey });
-    },
-
-    onSuccess: (newCategory) => {
-      queryClient.setQueryData(queryKey, (oldData: DbCategory[] | undefined) => {
-        if (!oldData) return [newCategory];
-        return [...oldData, newCategory];
-      });
-    },
-
-    onError: () => {
-      toast.error('카테고리 생성에 실패했습니다.');
+    onError: (_err) => {
+      toast.error(_err.message);
     },
 
     onSettled: () => {
@@ -49,24 +35,8 @@ export const useCategoryMutations = (issueId: string) => {
       payload: Partial<CategoryPayload>;
     }) => updateCategory(issueId, categoryId, payload),
 
-    onMutate: async ({ categoryId, payload }) => {
-      await queryClient.cancelQueries({ queryKey });
-
-      const previousCategories = queryClient.getQueryData(queryKey);
-
-      queryClient.setQueryData(queryKey, (oldData: DbCategory[] | undefined) => {
-        if (!oldData) return oldData;
-        return oldData.map((cat) => (cat.id === categoryId ? { ...cat, ...payload } : cat));
-      });
-
-      return { previousCategories };
-    },
-
-    onError: (_err, _variables, context) => {
-      toast.error('카테고리 수정에 실패했습니다.');
-      if (context?.previousCategories) {
-        queryClient.setQueryData(queryKey, context.previousCategories);
-      }
+    onError: (err) => {
+      toast.error(err.message);
     },
 
     onSettled: () => {
@@ -77,24 +47,8 @@ export const useCategoryMutations = (issueId: string) => {
   const remove = useMutation({
     mutationFn: (categoryId: string) => deleteCategory(issueId, categoryId),
 
-    onMutate: async (categoryId) => {
-      await queryClient.cancelQueries({ queryKey });
-
-      const previousCategories = queryClient.getQueryData(queryKey);
-
-      queryClient.setQueryData(queryKey, (oldData: DbCategory[] | undefined) => {
-        if (!oldData) return oldData;
-        return oldData.filter((cat) => cat.id !== categoryId);
-      });
-
-      return { previousCategories };
-    },
-
-    onError: (_err, _variables, context) => {
-      toast.error('카테고리 삭제에 실패했습니다.');
-      if (context?.previousCategories) {
-        queryClient.setQueryData(queryKey, context.previousCategories);
-      }
+    onError: (err) => {
+      toast.error(err.message);
     },
 
     onSettled: () => {
