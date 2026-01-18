@@ -1,8 +1,8 @@
 'use client';
 
 import useCategory from '@/app/(with-sidebar)/issue/hooks/use-category-card';
-import type { Position } from '../../types/idea';
 import { useCategoryDnd } from '../../hooks/use-category-dnd';
+import type { Position } from '../../types/idea';
 import { useCanvasContext } from '../canvas/canvas-context';
 import CategoryCardHeader from './category-card-header';
 import { ChildrenWrapper, StyledCategoryCard } from './category-card.styles';

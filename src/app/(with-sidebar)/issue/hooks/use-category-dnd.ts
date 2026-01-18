@@ -1,6 +1,6 @@
 import { useDroppable } from '@dnd-kit/core';
-import { useDraggable } from './use-draggable';
 import type { Position } from '../types/idea';
+import { useDraggable } from './use-draggable';
 
 interface UseCategoryDndOptions {
   id: string;
