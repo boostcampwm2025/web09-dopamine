@@ -27,7 +27,7 @@ export async function GET(
         filter as FilterType,
       );
 
-      return createSuccessResponse(Array.from(filteredIds));
+      return createSuccessResponse({ filteredIds: Array.from(filteredIds) });
     }
 
     return createSuccessResponse(ideas);

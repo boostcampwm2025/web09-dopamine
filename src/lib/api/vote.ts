@@ -1,3 +1,5 @@
+import getAPIResponseData from '@/lib/utils/api-response';
+
 type VoteRequest = {
   ideaId: string;
   userId: string;
@@ -10,8 +12,9 @@ export type VoteResponse = {
   myVote: 'AGREE' | 'DISAGREE' | null; // 취소되면 null이 올 수 있음
 };
 
-export const postVote = async ({ ideaId, userId, voteType }: VoteRequest) => {
-  const response = await fetch(`/api/ideas/${ideaId}/vote`, {
+export const postVote = async ({ ideaId, userId, voteType }: VoteRequest): Promise<VoteResponse> => {
+  return getAPIResponseData<VoteResponse>({
+    url: `/api/ideas/${ideaId}/vote`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -19,8 +22,4 @@ export const postVote = async ({ ideaId, userId, voteType }: VoteRequest) => {
       voteType,
     }),
   });
-
-  if (!response.ok) throw new Error('투표 처리에 실패했습니다.');
-
-  return response.json();
 };

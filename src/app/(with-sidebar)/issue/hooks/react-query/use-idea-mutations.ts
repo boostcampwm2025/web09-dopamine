@@ -20,6 +20,11 @@ export const useIdeaMutations = (issueId: string) => {
     onError: (err) => {
       toast.error(err.message);
     },
+
+    // 성공하든, 실패하든 무조건 실행
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['issues', issueId, 'ideas'] });
+    },
   });
 
   // 아이디어 수정 (위치, 카테고리)
