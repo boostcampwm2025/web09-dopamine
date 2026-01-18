@@ -25,6 +25,7 @@ export function getIssue(issueId: string) {
     id: string;
     title: string;
     status: string;
+    topicId?: string | null;
     createdAt: string;
     updatedAt: string;
   }>({
@@ -43,6 +44,7 @@ export function updateIssueStatus(
     id: string;
     title: string;
     status: string;
+    topicId?: string | null;
     createdAt: string;
     updatedAt: string;
   }>({
