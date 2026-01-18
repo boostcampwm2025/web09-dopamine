@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -21,16 +22,16 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     });
 
     if (!idea) {
-      return NextResponse.json({ message: '해당 아이디어를 찾을 수 없습니다.' }, { status: 404 });
+      return createErrorResponse('IDEA_NOT_FOUND', 404);
     }
 
     const myVote = userId
       ? await prisma.vote.findFirst({ where: { ideaId: id, userId, deletedAt: null } })
       : null;
 
-    return NextResponse.json({ ...idea, myVote: myVote?.type ?? null, status: 200 });
+    return createSuccessResponse({ ...idea, myVote: myVote?.type ?? null });
   } catch (error) {
     console.error('아이디어 상세 조회 실패:', error);
-    return NextResponse.json({ message: '서버 내부 오류가 발생했습니다.' }, { status: 500 });
+    return createErrorResponse('IDEA_DETAIL_FETCH_FAILED', 500);
   }
 }

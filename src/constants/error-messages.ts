@@ -10,5 +10,9 @@ export const CLIENT_ERROR_MESSAGES: Record<string, string> = {
   CATEGORY_CREATE_FAILED: '카테고리 생성에 실패했습니다.',
   CATEGORY_UPDATE_FAILED: '카테고리 수정에 실패했습니다.',
   CATEGORY_DELETE_FAILED: '카테고리 삭제에 실패했습니다.',
+
+  // 아이디어
+  IDEA_DETAIL_FETCH_FAILED: '아이디어 상세 조회에 실패했습니다.',
+  IDEA_NOT_FOUND: '아이디어를 찾을 수 없습니다.',
 };
   

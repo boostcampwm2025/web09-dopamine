@@ -44,6 +44,7 @@ const IssuePage = () => {
   // 1. 이슈 데이터 초기화
   const { isLoading } = useIssueQuery(issueId);
   const {
+    isIssueError,
     status,
     isAIStructuring,
     isCreateIdeaActive,
@@ -51,6 +52,10 @@ const IssuePage = () => {
     isVoteDisabled,
   } = useIssueData(issueId);
 
+  // 이슈 쿼리 에러 처리
+  if (isIssueError) {
+    return <ErrorPage />;
+  }
 
   // userId 체크 및 모달 표시
   useEffect(() => {
@@ -80,6 +85,7 @@ const IssuePage = () => {
   // 2. 아이디어 관련 작업
   const {
     ideas,
+    isIdeasError,
     handleCreateIdea,
     handleSaveIdea,
     handleDeleteIdea,
@@ -88,6 +94,11 @@ const IssuePage = () => {
     handleVoteChange,
     handleMoveIdeaToCategory,
   } = useIdeaOperations(issueId, isCreateIdeaActive);
+
+  // 아이디어 쿼리 에러 처리
+  if (isIdeasError) {
+    return <ErrorPage />;
+  }
 
   // 3. 카테고리 관련 작업
   const {

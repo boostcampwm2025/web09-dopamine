@@ -24,7 +24,7 @@ export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) 
   const currentUser = members.find((m: IssueMember) => m.id === currentUserId);
   const currentUserDisplayName = currentUser?.displayName || '나';
 
-  const { data: ideasFromServer } = useIdeasQuery(issueId);
+  const { data: ideasFromServer, isError: isIdeasError } = useIdeasQuery(issueId);
   const { mutate: selectIdea } = useSelectedIdeaMutation(issueId);
 
   useEffect(() => {
@@ -102,6 +102,7 @@ export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) 
 
   // 아이디어 삭제
   const handleDeleteIdea = (id: string) => {
+
     if (id.startsWith('temp-')) {
       deleteIdea(id);
       removeCard(id);
@@ -157,6 +158,7 @@ export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) 
 
   return {
     ideas,
+    isIdeasError,
     handleCreateIdea,
     handleSaveIdea,
     handleDeleteIdea,
