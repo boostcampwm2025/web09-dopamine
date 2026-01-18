@@ -18,6 +18,7 @@ import { useIssueData } from '@/app/(with-sidebar)/issue/hooks/use-issue-data';
 import { useIssueEvents } from '@/app/(with-sidebar)/issue/hooks/use-issue-events';
 import { useCanvasStore } from '@/app/(with-sidebar)/issue/store/use-canvas-store';
 import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
+import { ErrorPage } from '@/components/error/error';
 import LoadingOverlay from '@/components/loading-overlay/loading-overlay';
 import { useModalStore } from '@/components/modal/use-modal-store';
 import { ISSUE_STATUS } from '@/constants/issue';
@@ -42,8 +43,14 @@ const IssuePage = () => {
 
   // 1. 이슈 데이터 초기화
   const { isLoading } = useIssueQuery(issueId);
-  const { status, isAIStructuring, isCreateIdeaActive, isVoteButtonVisible, isVoteDisabled } =
-    useIssueData(issueId);
+  const {
+    status,
+    isAIStructuring,
+    isCreateIdeaActive,
+    isVoteButtonVisible,
+    isVoteDisabled,
+  } = useIssueData(issueId);
+
 
   // userId 체크 및 모달 표시
   useEffect(() => {
@@ -83,8 +90,18 @@ const IssuePage = () => {
   } = useIdeaOperations(issueId, isCreateIdeaActive);
 
   // 3. 카테고리 관련 작업
-  const { categories, checkCategoryOverlap, handleCategoryPositionChange, handleDeleteCategory } =
-    useCategoryOperations(issueId, ideas, scale);
+  const {
+    categories,
+    isError: isCategoryError,
+    checkCategoryOverlap,
+    handleCategoryPositionChange,
+    handleDeleteCategory,
+  } = useCategoryOperations(issueId, ideas, scale);
+
+  // 카테고리 쿼리 에러 처리
+  if (isCategoryError) {
+    return <ErrorPage />;
+  }
 
   // 4. DnD 관련 작업
   const { sensors, activeId, overlayEditValue, handleDragStart, handleDragEnd } = useDragAndDrop({
