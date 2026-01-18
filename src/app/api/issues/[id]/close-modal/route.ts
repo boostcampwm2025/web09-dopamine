@@ -3,6 +3,7 @@ import { MEMBER_ROLE } from '@/constants/issue';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
 import { issueMemberRepository } from '@/lib/repositories/issue-member.repository';
 import { sseManager } from '@/lib/sse/sse-manager';
+import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 
 export async function POST(
   req: NextRequest,
@@ -14,14 +15,14 @@ export async function POST(
   const userId = req.headers.get('x-user-id');
 
   if (!userId) {
-    return NextResponse.json({ message: 'User ID is required.' }, { status: 401 });
+    return createErrorResponse('USER_ID_REQUIRED', 401);
   }
 
   // 방장 권한 확인
   const member = await issueMemberRepository.findMemberByUserId(issueId, userId);
 
   if (!member || member.role !== MEMBER_ROLE.OWNER) {
-    return NextResponse.json({ message: 'Only owner can open close modal.' }, { status: 403 });
+    return createErrorResponse('OWNER_PERMISSION_REQUIRED', 403);
   }
 
   // SSE 브로드캐스팅
@@ -33,7 +34,7 @@ export async function POST(
     },
   });
 
-  return NextResponse.json({ success: true });
+  return createSuccessResponse({ success: true });
 }
 
 export async function DELETE(
@@ -46,14 +47,14 @@ export async function DELETE(
   const userId = req.headers.get('x-user-id');
 
   if (!userId) {
-    return NextResponse.json({ message: 'User ID is required.' }, { status: 401 });
+    return createErrorResponse('USER_ID_REQUIRED', 401);
   }
 
   // 방장 권한 확인
   const member = await issueMemberRepository.findMemberByUserId(issueId, userId);
 
   if (!member || member.role !== MEMBER_ROLE.OWNER) {
-    return NextResponse.json({ message: 'Only owner can close modal.' }, { status: 403 });
+    return createErrorResponse('OWNER_PERMISSION_REQUIRED', 403);
   }
 
   // SSE 브로드캐스팅
@@ -65,7 +66,7 @@ export async function DELETE(
     },
   });
 
-  return NextResponse.json({ success: true });
+  return createSuccessResponse({ success: true });
 }
 
 export async function PATCH(
@@ -79,14 +80,14 @@ export async function PATCH(
   const userId = req.headers.get('x-user-id');
 
   if (!userId) {
-    return NextResponse.json({ message: 'User ID is required.' }, { status: 401 });
+    return createErrorResponse('USER_ID_REQUIRED', 401);
   }
 
   // 방장 권한 확인
   const member = await issueMemberRepository.findMemberByUserId(issueId, userId);
 
   if (!member || member.role !== MEMBER_ROLE.OWNER) {
-    return NextResponse.json({ message: 'Only owner can update memo.' }, { status: 403 });
+    return createErrorResponse('OWNER_PERMISSION_REQUIRED', 403);
   }
 
   // SSE 브로드캐스팅
@@ -98,5 +99,5 @@ export async function PATCH(
     },
   });
 
-  return NextResponse.json({ success: true });
+  return createSuccessResponse({ success: true });
 }

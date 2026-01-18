@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { findIssueById } from '@/lib/repositories/issue.repository';
+import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 
 export async function GET(
   req: NextRequest,
@@ -11,12 +12,12 @@ export async function GET(
     const issue = await findIssueById(id);
 
     if (!issue) {
-      return NextResponse.json({ message: '존재하지 않는 이슈입니다.' }, { status: 404 });
+      return createErrorResponse('ISSUE_NOT_FOUND', 404);
     }
 
-    return NextResponse.json(issue);
+    return createSuccessResponse(issue);
   } catch (error) {
     console.error('이슈 조회 실패:', error);
-    return NextResponse.json({ message: '이슈 조회에 실패했습니다.' }, { status: 500 });
+    return createErrorResponse('ISSUE_FETCH_FAILED', 500);
   }
 }

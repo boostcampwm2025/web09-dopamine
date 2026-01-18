@@ -4,6 +4,7 @@ import { SSE_EVENT_TYPES } from '@/constants/sse-events';
 import { ideaRepository } from '@/lib/repositories/idea.repository';
 import { ideaFilterService } from '@/lib/services/idea-filter.service';
 import { broadcast } from '@/lib/sse/sse-service';
+import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 
 export async function GET(
   req: NextRequest,
@@ -26,13 +27,13 @@ export async function GET(
         filter as FilterType,
       );
 
-      return NextResponse.json({ filteredIds: Array.from(filteredIds) });
+      return createSuccessResponse(Array.from(filteredIds));
     }
 
-    return NextResponse.json({ ideas });
+    return createSuccessResponse(ideas);
   } catch (error) {
     console.error('아이디어 조회 실패:', error);
-    return NextResponse.json({ message: '아이디어 조회에 실패했습니다.' }, { status: 500 });
+    return createErrorResponse('IDEA_FETCH_FAILED', 500);
   }
 }
 
@@ -62,10 +63,10 @@ export async function POST(
       },
     });
 
-    return NextResponse.json(newIdea, { status: 201 });
+    return createSuccessResponse(newIdea, 201);
   } catch (error) {
     console.error('아이디어 생성 실패:', error);
-    return NextResponse.json({ message: '아이디어 생성에 실패했습니다.' }, { status: 500 });
+    return createErrorResponse('IDEA_CREATE_FAILED', 500);
   }
 }
 
@@ -78,7 +79,7 @@ export async function DELETE(
   const ideaId = searchParams.get('ideaId');
 
   if (!ideaId) {
-    return NextResponse.json({ message: 'ideaId가 필요합니다.' }, { status: 400 });
+    return createErrorResponse('IDEA_ID_REQUIRED', 400);
   }
 
   try {
@@ -96,15 +97,15 @@ export async function DELETE(
       },
     });
 
-    return NextResponse.json({ success: true });
+    return createSuccessResponse(null);
   } catch (error: any) {
     console.error('아이디어 삭제 실패:', error);
 
     if (error.code === 'P2025') {
-      return NextResponse.json({ message: '존재하지 않는 아이디어입니다.' }, { status: 404 });
+      return createErrorResponse('IDEA_NOT_FOUND', 404);
     }
 
-    return NextResponse.json({ message: '아이디어 삭제에 실패했습니다.' }, { status: 500 });
+    return createErrorResponse('IDEA_DELETE_FAILED', 500);
   }
 }
 
@@ -116,7 +117,7 @@ export async function PATCH(
   const { ideaId, positionX, positionY, categoryId } = await req.json();
 
   if (!ideaId) {
-    return NextResponse.json({ message: 'ideaId가 필요합니다.' }, { status: 400 });
+    return createErrorResponse('IDEA_ID_REQUIRED', 400);
   }
 
   try {
@@ -135,14 +136,14 @@ export async function PATCH(
       },
     });
 
-    return NextResponse.json(updatedIdea);
+    return createSuccessResponse(updatedIdea);
   } catch (error: any) {
     console.error('아이디어 수정 실패:', error);
 
     if (error.code === 'P2025') {
-      return NextResponse.json({ message: '아이디어를 찾을 수 없습니다.' }, { status: 404 });
+      return createErrorResponse('IDEA_NOT_FOUND', 404);
     }
 
-    return NextResponse.json({ message: '아이디어 수정에 실패했습니다.' }, { status: 500 });
+    return createErrorResponse('IDEA_UPDATE_FAILED', 500);
   }
 }

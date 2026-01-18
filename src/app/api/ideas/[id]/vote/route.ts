@@ -3,6 +3,7 @@ import { SSE_EVENT_TYPES } from '@/constants/sse-events';
 import { prisma } from '@/lib/prisma';
 import { voteService } from '@/lib/services/vote.service';
 import { broadcast } from '@/lib/sse/sse-service';
+import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -10,7 +11,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     const { userId, voteType } = await req.json();
 
     if (!userId || !voteType) {
-      return NextResponse.json({ message: '잘못된 요청입니다.' }, { status: 400 });
+      return createErrorResponse('INVALID_VOTE_REQUEST', 400);
     }
 
     const result = await voteService.castVote(ideaId, userId, voteType);
@@ -36,9 +37,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       });
     }
 
-    return NextResponse.json(result);
+    return createSuccessResponse(result);
   } catch (error) {
     console.error('투표 실패:', error);
-    return NextResponse.json({ message: '투표 처리 중 오류가 발생했습니다.' }, { status: 500 });
+    return createErrorResponse('VOTE_FAILED', 500);
   }
 }

@@ -52,11 +52,6 @@ const IssuePage = () => {
     isVoteDisabled,
   } = useIssueData(issueId);
 
-  // 이슈 쿼리 에러 처리
-  if (isIssueError) {
-    return <ErrorPage />;
-  }
-
   // userId 체크 및 모달 표시
   useEffect(() => {
     if (!issueId || hasOpenedModal.current || isOpen) return;
@@ -95,11 +90,6 @@ const IssuePage = () => {
     handleMoveIdeaToCategory,
   } = useIdeaOperations(issueId, isCreateIdeaActive);
 
-  // 아이디어 쿼리 에러 처리
-  if (isIdeasError) {
-    return <ErrorPage />;
-  }
-
   // 3. 카테고리 관련 작업
   const {
     categories,
@@ -108,11 +98,6 @@ const IssuePage = () => {
     handleCategoryPositionChange,
     handleDeleteCategory,
   } = useCategoryOperations(issueId, ideas, scale);
-
-  // 카테고리 쿼리 에러 처리
-  if (isCategoryError) {
-    return <ErrorPage />;
-  }
 
   // 4. DnD 관련 작업
   const { sensors, activeId, overlayEditValue, handleDragStart, handleDragEnd } = useDragAndDrop({
@@ -132,6 +117,11 @@ const IssuePage = () => {
   // 하이라이트된 아이디어
   const { activeFilter, setFilter, filteredIds } = useFilterIdea(issueId, ideas);
   const getIdeaStatus = useIdeaStatus(filteredIds, activeFilter);
+
+  // 에러 처리 (모든 hooks 호출 후)
+  if (isIssueError || isIdeasError || isCategoryError) {
+    return <ErrorPage />;
+  }
 
   return (
     <>

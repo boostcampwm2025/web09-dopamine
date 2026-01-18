@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { categoryRepository } from '@/lib/repositories/category.repository';
 import { ideaRepository } from '@/lib/repositories/idea.repository';
 import { sseManager } from '@/lib/sse/sse-manager';
+import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 
 interface CategoryPayload {
   title: string;
@@ -18,7 +19,7 @@ export async function POST(
   const { categories } = await req.json();
 
   if (!Array.isArray(categories) || categories.length === 0) {
-    return NextResponse.json({ message: 'categories are required.' }, { status: 400 });
+    return createErrorResponse('CATEGORIES_REQUIRED', 400);
   }
 
   const categoryPayloads: CategoryPayload[] = categories
@@ -30,7 +31,7 @@ export async function POST(
     .filter((category) => category.title.length > 0);
 
   if (categoryPayloads.length === 0) {
-    return NextResponse.json({ message: 'AI categories are invalid.' }, { status: 422 });
+    return createErrorResponse('INVALID_AI_CATEGORIES', 422);
   }
 
   const result = await prisma.$transaction(async (tx) => {
@@ -86,5 +87,5 @@ export async function POST(
     },
   });
 
-  return NextResponse.json(result);
+  return createSuccessResponse(result);
 }

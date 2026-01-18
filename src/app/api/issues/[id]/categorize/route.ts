@@ -1,9 +1,12 @@
 import { NextResponse } from 'next/server';
 
-export async function POST(req: Request) {
-  const body = await req.json();
+import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 
-  const res = await fetch('https://clovastudio.stream.ntruss.com/v3/chat-completions/HCX-005', {
+export async function POST(req: Request) {
+  try {
+    const body = await req.json();
+
+    const res = await fetch('https://clovastudio.stream.ntruss.com/v3/chat-completions/HCX-005', {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${process.env.CLOVA_API_KEY}`,
@@ -55,6 +58,10 @@ export async function POST(req: Request) {
     }),
   });
 
-  const data = await res.json();
-  return NextResponse.json(data);
+    const data = await res.json();
+    return createSuccessResponse(data);
+  } catch (error) {
+    console.error('AI 카테고리화 실패:', error);
+    return createErrorResponse('AI_CATEGORIZATION_FAILED', 500);
+  }
 }
