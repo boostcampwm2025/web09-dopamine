@@ -17,7 +17,6 @@ const getAPIResponseData = async <T>(options: FetchOptions): Promise<T> => {
       const errorCode = apiResponse.error.code;
       const errorMessage = CLIENT_ERROR_MESSAGES[errorCode] || apiResponse.error.message;
 
-      toast.error(errorMessage);
       throw new Error(errorMessage);
     }
 
