@@ -26,11 +26,11 @@ export const useFilterIdea = (issueId: string, initialIdeas: IdeaWithPosition[])
       try {
         // 2. 서버에 선택된 필터 기준에 따른 아이디어 ID 목록을 요청
         const response = await fetch(`/api/issues/${issueId}/idea?filter=${activeFilter}`);
-        
+
         if (!response.ok) {
           throw new Error('Failed to fetch filtered ids');
         }
-        
+
         const data = await response.json();
 
         // 3. [검증] 최신 요청에 대한 응답인 경우에만 상태 업데이트

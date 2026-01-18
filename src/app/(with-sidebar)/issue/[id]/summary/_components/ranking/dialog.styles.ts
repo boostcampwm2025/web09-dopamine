@@ -1,7 +1,6 @@
 import styled from '@emotion/styled';
 import { theme } from '@/styles/theme';
 
-
 export const DialogOverlay = styled.div`
   position: fixed;
   inset: 0;

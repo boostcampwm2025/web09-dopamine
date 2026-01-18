@@ -1,5 +1,5 @@
-import { prisma } from '@/lib/prisma';
 import { VoteType } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import { voteRepository } from '../repositories/vote.repository';
 import { countField } from '../utils/vote';
 
@@ -10,7 +10,7 @@ export const voteService = {
       const existing = await voteRepository.findActiveVote(ideaId, userId, tx);
 
       // 2. 상황별 로직 처리
-      
+
       // CASE A: 투표 취소 (같은 버튼을 다시 누름)
       if (existing && existing.type === voteType) {
         await voteRepository.softDeleteVote(existing.id, tx);
@@ -49,5 +49,5 @@ export const voteService = {
       );
       return { ...idea, myVote: voteType };
     });
-  }
+  },
 };

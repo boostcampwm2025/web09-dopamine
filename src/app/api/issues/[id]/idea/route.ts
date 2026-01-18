@@ -3,7 +3,7 @@ import type { FilterType } from '@/app/(with-sidebar)/issue/hooks/use-filter-ide
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
 import { ideaRepository } from '@/lib/repositories/idea.repository';
 import { ideaFilterService } from '@/lib/services/idea-filter.service';
-import { broadcast } from '@/lib/services/sse-service';
+import { broadcast } from '@/lib/sse/sse-service';
 
 export async function GET(
   req: NextRequest,
@@ -114,7 +114,6 @@ export async function PATCH(
 ): Promise<NextResponse> {
   const { id: issueId } = await params;
   const { ideaId, positionX, positionY, categoryId } = await req.json();
-  const cacheKey = `issue:${issueId}:ideas`;
 
   if (!ideaId) {
     return NextResponse.json({ message: 'ideaId가 필요합니다.' }, { status: 400 });

@@ -3,8 +3,8 @@ import 'pretendard/dist/web/static/pretendard.css';
 import { Toaster } from 'react-hot-toast';
 import Modal from '@/components/modal/modal';
 import Tooltip from '@/components/tooltip/tooltip';
-import ThemeProvider from '@/providers/ThemeProvider';
 import { Providers } from '@/providers/query-provider';
+import ThemeProvider from '@/providers/theme-provider';
 import EmotionRegistry from '@/styles/EmotionRegistry';
 import GlobalStyle from '@/styles/globalStyles';
 

@@ -1,5 +1,5 @@
-import { getReportSummaryByIssueId } from '@/lib/services/report.service';
 import { findReportWithDetailsById } from '@/lib/repositories/report.repository';
+import { getReportSummaryByIssueId } from '@/lib/services/report.service';
 import { ReportWithDetails } from '@/types/report';
 
 jest.mock('@/lib/repositories/report.repository');
@@ -9,7 +9,9 @@ const mockedFindReportWithDetailsById = findReportWithDetailsById as jest.Mocked
 >;
 
 // 테스트 데이터 생성 헬퍼 함수
-const createMockReportBase = (issueId: string): Omit<ReportWithDetails, 'issue' | 'selectedIdea'> => ({
+const createMockReportBase = (
+  issueId: string,
+): Omit<ReportWithDetails, 'issue' | 'selectedIdea'> => ({
   id: 'report-123',
   issueId,
   selectedIdeaId: null,

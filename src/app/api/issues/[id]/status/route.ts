@@ -8,7 +8,7 @@ import {
   createWordClouds,
   findIssueTextSourcesForWordCloud,
 } from '@/lib/repositories/word-cloud.repository';
-import { broadcast } from '@/lib/services/sse-service';
+import { broadcast } from '@/lib/sse/sse-service';
 import { generateWordCloudData } from '@/lib/utils/word-cloud-processor';
 
 export async function PATCH(

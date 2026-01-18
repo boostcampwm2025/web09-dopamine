@@ -1,10 +1,9 @@
-require("dotenv/config");
-const { PrismaClient } = require("@prisma/client");
-const { PrismaMariaDb } = require("@prisma/adapter-mariadb");
+require('dotenv/config');
+const { PrismaClient } = require('@prisma/client');
+const { PrismaMariaDb } = require('@prisma/adapter-mariadb');
 
 const buildPrismaClient = () => {
-  const { DB_HOST, DB_USERNAME, DB_PASSWORD, DB_NAME, DB_PORT, DATABASE_URL } =
-    process.env;
+  const { DB_HOST, DB_USERNAME, DB_PASSWORD, DB_NAME, DB_PORT, DATABASE_URL } = process.env;
 
   if (DB_HOST && DB_USERNAME && DB_PASSWORD && DB_NAME) {
     const adapterOptions = {
@@ -27,7 +26,7 @@ const buildPrismaClient = () => {
 
   if (!DATABASE_URL) {
     throw new Error(
-      "Missing DB connection settings. Set DB_HOST/DB_USERNAME/DB_PASSWORD/DB_NAME or DATABASE_URL.",
+      'Missing DB connection settings. Set DB_HOST/DB_USERNAME/DB_PASSWORD/DB_NAME or DATABASE_URL.',
     );
   }
 
@@ -37,28 +36,28 @@ const buildPrismaClient = () => {
 const prisma = buildPrismaClient();
 
 const ids = {
-  userAlice: "00000000-0000-0000-0000-000000000001",
-  userBob: "00000000-0000-0000-0000-000000000002",
-  userCharlie: "00000000-0000-0000-0000-000000000003",
-  projectAlpha: "00000000-0000-0000-0000-000000000101",
-  topicProduct: "00000000-0000-0000-0000-000000000201",
-  topicGrowth: "00000000-0000-0000-0000-000000000202",
-  issueRetention: "00000000-0000-0000-0000-000000000301",
-  issueActivation: "00000000-0000-0000-0000-000000000302",
-  issueLink: "00000000-0000-0000-0000-000000000401",
-  categoryIdeas: "00000000-0000-0000-0000-000000000501",
-  categoryRisks: "00000000-0000-0000-0000-000000000502",
-  ideaA: "00000000-0000-0000-0000-000000000601",
-  ideaB: "00000000-0000-0000-0000-000000000602",
-  ideaC: "00000000-0000-0000-0000-000000000603",
-  commentA: "00000000-0000-0000-0000-000000000701",
-  commentB: "00000000-0000-0000-0000-000000000702",
-  voteA: "00000000-0000-0000-0000-000000000801",
-  voteB: "00000000-0000-0000-0000-000000000802",
-  projectMemberBob: "00000000-0000-0000-0000-000000000901",
-  projectMemberCharlie: "00000000-0000-0000-0000-000000000902",
-  issueOwnerAlice: "00000000-0000-0000-0000-000000000903",
-  issueMemberBob: "00000000-0000-0000-0000-000000000904",
+  userAlice: '00000000-0000-0000-0000-000000000001',
+  userBob: '00000000-0000-0000-0000-000000000002',
+  userCharlie: '00000000-0000-0000-0000-000000000003',
+  projectAlpha: '00000000-0000-0000-0000-000000000101',
+  topicProduct: '00000000-0000-0000-0000-000000000201',
+  topicGrowth: '00000000-0000-0000-0000-000000000202',
+  issueRetention: '00000000-0000-0000-0000-000000000301',
+  issueActivation: '00000000-0000-0000-0000-000000000302',
+  issueLink: '00000000-0000-0000-0000-000000000401',
+  categoryIdeas: '00000000-0000-0000-0000-000000000501',
+  categoryRisks: '00000000-0000-0000-0000-000000000502',
+  ideaA: '00000000-0000-0000-0000-000000000601',
+  ideaB: '00000000-0000-0000-0000-000000000602',
+  ideaC: '00000000-0000-0000-0000-000000000603',
+  commentA: '00000000-0000-0000-0000-000000000701',
+  commentB: '00000000-0000-0000-0000-000000000702',
+  voteA: '00000000-0000-0000-0000-000000000801',
+  voteB: '00000000-0000-0000-0000-000000000802',
+  projectMemberBob: '00000000-0000-0000-0000-000000000901',
+  projectMemberCharlie: '00000000-0000-0000-0000-000000000902',
+  issueOwnerAlice: '00000000-0000-0000-0000-000000000903',
+  issueMemberBob: '00000000-0000-0000-0000-000000000904',
 };
 
 const upsertById = async (delegate, record) => {
@@ -74,27 +73,27 @@ async function main() {
   const users = [
     {
       id: ids.userAlice,
-      email: "alice@example.com",
-      name: "Alice",
-      displayName: "alice",
-      provider: "github",
-      avatarUrl: "https://example.com/avatar/alice.png",
+      email: 'alice@example.com',
+      name: 'Alice',
+      displayName: 'alice',
+      provider: 'github',
+      avatarUrl: 'https://example.com/avatar/alice.png',
     },
     {
       id: ids.userBob,
-      email: "bob@example.com",
-      name: "Bob",
-      displayName: "bob",
-      provider: "google",
-      avatarUrl: "https://example.com/avatar/bob.png",
+      email: 'bob@example.com',
+      name: 'Bob',
+      displayName: 'bob',
+      provider: 'google',
+      avatarUrl: 'https://example.com/avatar/bob.png',
     },
     {
       id: ids.userCharlie,
-      email: "charlie@example.com",
-      name: "Charlie",
-      displayName: "charlie",
-      provider: "kakao",
-      avatarUrl: "https://example.com/avatar/charlie.png",
+      email: 'charlie@example.com',
+      name: 'Charlie',
+      displayName: 'charlie',
+      provider: 'kakao',
+      avatarUrl: 'https://example.com/avatar/charlie.png',
     },
   ];
 
@@ -105,8 +104,8 @@ async function main() {
   await upsertById(prisma.project, {
     id: ids.projectAlpha,
     ownerId: ids.userAlice,
-    title: "Dopamine Alpha",
-    description: "Seed project for local development",
+    title: 'Dopamine Alpha',
+    description: 'Seed project for local development',
   });
 
   const projectMembers = [
@@ -130,12 +129,12 @@ async function main() {
     {
       id: ids.topicProduct,
       projectId: ids.projectAlpha,
-      title: "Product",
+      title: 'Product',
     },
     {
       id: ids.topicGrowth,
       projectId: ids.projectAlpha,
-      title: "Growth",
+      title: 'Growth',
     },
   ];
 
@@ -147,14 +146,14 @@ async function main() {
     {
       id: ids.issueRetention,
       topicId: ids.topicProduct,
-      title: "Improve retention",
-      status: "BRAINSTORMING",
+      title: 'Improve retention',
+      status: 'BRAINSTORMING',
     },
     {
       id: ids.issueActivation,
       topicId: ids.topicGrowth,
-      title: "Boost activation rate",
-      status: "VOTE",
+      title: 'Boost activation rate',
+      status: 'VOTE',
     },
   ];
 
@@ -173,13 +172,13 @@ async function main() {
       id: ids.issueOwnerAlice,
       issueId: ids.issueRetention,
       userId: ids.userAlice,
-      role: "OWNER",
+      role: 'OWNER',
     },
     {
       id: ids.issueMemberBob,
       issueId: ids.issueActivation,
       userId: ids.userBob,
-      role: "MEMBER",
+      role: 'MEMBER',
     },
   ];
 
@@ -191,7 +190,7 @@ async function main() {
     {
       id: ids.categoryIdeas,
       issueId: ids.issueRetention,
-      title: "Ideas",
+      title: 'Ideas',
       positionX: 120,
       positionY: 80,
       width: 320,
@@ -200,7 +199,7 @@ async function main() {
     {
       id: ids.categoryRisks,
       issueId: ids.issueActivation,
-      title: "Risks",
+      title: 'Risks',
       positionX: 520,
       positionY: 80,
       width: 280,
@@ -218,7 +217,7 @@ async function main() {
       issueId: ids.issueRetention,
       userId: ids.userBob,
       categoryId: ids.categoryIdeas,
-      content: "Add a weekly recap email with wins and next steps.",
+      content: 'Add a weekly recap email with wins and next steps.',
       positionX: 160,
       positionY: 140,
     },
@@ -227,7 +226,7 @@ async function main() {
       issueId: ids.issueRetention,
       userId: ids.userCharlie,
       categoryId: null,
-      content: "Introduce a lightweight onboarding checklist.",
+      content: 'Introduce a lightweight onboarding checklist.',
       positionX: 260,
       positionY: 200,
     },
@@ -236,7 +235,7 @@ async function main() {
       issueId: ids.issueActivation,
       userId: ids.userAlice,
       categoryId: ids.categoryRisks,
-      content: "Run a 3-step activation tour on first login.",
+      content: 'Run a 3-step activation tour on first login.',
       positionX: 560,
       positionY: 140,
     },
@@ -251,13 +250,13 @@ async function main() {
       id: ids.commentA,
       ideaId: ids.ideaA,
       userId: ids.userAlice,
-      content: "We should A/B test the subject line.",
+      content: 'We should A/B test the subject line.',
     },
     {
       id: ids.commentB,
       ideaId: ids.ideaC,
       userId: ids.userBob,
-      content: "Keep the tour under 60 seconds.",
+      content: 'Keep the tour under 60 seconds.',
     },
   ];
 
@@ -270,13 +269,13 @@ async function main() {
       id: ids.voteA,
       ideaId: ids.ideaA,
       userId: ids.userAlice,
-      type: "AGREE",
+      type: 'AGREE',
     },
     {
       id: ids.voteB,
       ideaId: ids.ideaC,
       userId: ids.userBob,
-      type: "DISAGREE",
+      type: 'DISAGREE',
     },
   ];
 
@@ -284,12 +283,12 @@ async function main() {
     await upsertById(prisma.vote, vote);
   }
 
-  console.log("Seed complete");
+  console.log('Seed complete');
 }
 
 main()
   .catch((error) => {
-    console.error("Seed failed", error);
+    console.error('Seed failed', error);
     process.exit(1);
   })
   .finally(async () => {
