@@ -1,3 +1,6 @@
+'use client';
+
+import { useRouter } from 'next/navigation';
 import * as S from './error.styles';
 
 interface ErrorPageProps {
@@ -25,11 +28,13 @@ const AlertCircleIcon =
 
 
 export function ErrorPage({ onRetry, onGoHome }: ErrorPageProps) {
+  const router = useRouter();
+  
   const handleRetry = () => {
     if (onRetry) {
       onRetry();
     } else {
-      window.location.reload();
+      router.refresh();
     }
   };
 
@@ -37,7 +42,7 @@ export function ErrorPage({ onRetry, onGoHome }: ErrorPageProps) {
     if (onGoHome) {
       onGoHome();
     } else {
-      window.location.href = '/';
+      router.push('/');
     }
   };
 
