@@ -16,12 +16,14 @@ export const useIdeaMutations = (issueId: string) => {
     mutationFn: async (data: CreateIdeaRequest) => {
       return createIdeaAPI(issueId, data);
     },
-    onSuccess: () => {
-      // 성공하면 아이디어 목록 갱신
-      queryClient.invalidateQueries({ queryKey: ['issues', issueId, 'ideas'] });
+
+    onError: (err) => {
+      toast.error(err.message);
     },
-    onError: (error) => {
-      toast.error('아이디어 생성에 실패했습니다.');
+
+    // 성공하든, 실패하든 무조건 실행
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['issues', issueId, 'ideas'] });
     },
   });
 
@@ -85,6 +87,7 @@ export const useIdeaMutations = (issueId: string) => {
     },
     onError: (error, variables, context) => {
       console.error('아이디어 수정 실패:', error);
+      toast.error(error.message);
       // 에러 시 롤백
       if (context?.previousIdeas) {
         queryClient.setQueryData(['issues', issueId, 'ideas'], context.previousIdeas);
@@ -125,7 +128,7 @@ export const useIdeaMutations = (issueId: string) => {
     },
     onError: (error, variables, context) => {
       console.error('아이디어 삭제 실패:', error);
-      toast.error('아이디어 삭제에 실패했습니다.');
+      toast.error(error.message);
       // 에러 시 롤백
       if (context?.previousIdeas) {
         queryClient.setQueryData(['issues', issueId, 'ideas'], context.previousIdeas);

@@ -23,7 +23,7 @@ export const useQuickStartMutation = () => {
 
     onError: (error) => {
       console.error(error);
-      toast.error('이슈 생성에 실패했습니다. 잠시 후 다시 시도해주세요.');
+      toast.error(error.message);
     },
   });
 };
@@ -52,10 +52,10 @@ export const useIssueStatusMutations = (issueId: string) => {
       return { previousIssue };
     },
 
-    onError: (_err, _variables, context) => {
+    onError: (err, _variables, context) => {
       if (context?.previousIssue) {
         queryClient.setQueryData(queryKey, context.previousIssue);
-        toast.error('이슈 업데이트를 실패했습니다.');
+        toast.error(err.message);
       }
     },
 
@@ -76,7 +76,7 @@ export const useIssueStatusMutations = (issueId: string) => {
 
     onError: (error) => {
       console.error('이슈 종료 실패:', error);
-      toast.error('이슈 종료에 실패했습니다.');
+      toast.error(error.message);
     },
   });
 

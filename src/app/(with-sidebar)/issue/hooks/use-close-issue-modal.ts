@@ -35,7 +35,7 @@ export function useCloseIssueModal({ issueId, isOwner }: UseCloseIssueModalParam
       if (!isOwner) return;
 
       try {
-        await fetch(`/api/issues/${issueId}/close-modal`, {
+        const response = await fetch(`/api/issues/${issueId}/close-modal`, {
           method: 'PATCH',
           headers: {
             'x-user-id': userId,
@@ -43,6 +43,11 @@ export function useCloseIssueModal({ issueId, isOwner }: UseCloseIssueModalParam
           },
           body: JSON.stringify({ memo: memoValue }),
         });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error?.message || 'Failed to broadcast memo update');
+        }
       } catch (error) {
         console.error('Failed to broadcast memo update:', error);
       }
@@ -55,12 +60,17 @@ export function useCloseIssueModal({ issueId, isOwner }: UseCloseIssueModalParam
     if (!isOwner) return;
 
     try {
-      await fetch(`/api/issues/${issueId}/close-modal`, {
+      const response = await fetch(`/api/issues/${issueId}/close-modal`, {
         method: 'DELETE',
         headers: {
           'x-user-id': userId,
         },
       });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error?.message || 'Failed to broadcast close modal');
+      }
     } catch (error) {
       console.error('Failed to broadcast close modal:', error);
     }

@@ -30,7 +30,7 @@ export function useHeader({ issueId }: UseHeaderParams) {
     enabled: !!userId,
   });
 
-  const isOwner = currentUser?.role === MEMBER_ROLE.OWNER;
+  const isOwner = currentUser && currentUser.role === MEMBER_ROLE.OWNER;
   const { startAIStructure } = useIssueStore((state) => state.actions);
   const { ideas, hasEditingIdea } = useIdeasWithTemp(issueId);
   const { openModal } = useModalStore();
@@ -38,7 +38,7 @@ export function useHeader({ issueId }: UseHeaderParams) {
   const { categories, handleAddCategory } = useCategoryOperations(issueId, ideas, scale);
 
   const hiddenStatus = [ISSUE_STATUS.SELECT, ISSUE_STATUS.CLOSE] as IssueStatus[];
-  const isVisible = !hiddenStatus.includes(issue?.status);
+  const isVisible = issue && !hiddenStatus.includes(issue.status as IssueStatus);
 
   // 이슈 종료 모달 열기
   const handleCloseIssue = useCallback(async () => {
@@ -57,7 +57,8 @@ export function useHeader({ issueId }: UseHeaderParams) {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to broadcast close modal');
+        const errorData = await response.json();
+        throw new Error(errorData.error?.message || 'Failed to broadcast close modal');
       }
     } catch (error) {
       console.error('Failed to open close modal:', error);

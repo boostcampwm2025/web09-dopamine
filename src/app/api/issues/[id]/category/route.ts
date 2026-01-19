@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
 import { categoryRepository } from '@/lib/repositories/category.repository';
 import { broadcast } from '@/lib/sse/sse-service';
+import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 
 export async function GET(
   _req: NextRequest,
@@ -12,10 +13,10 @@ export async function GET(
   try {
     const categories = await categoryRepository.findByIssueId(issueId);
 
-    return NextResponse.json({ categories });
+    return createSuccessResponse(categories);
   } catch (error) {
     console.error('카테고리 조회 실패:', error);
-    return NextResponse.json({ message: '카테고리 조회에 실패했습니다.' }, { status: 500 });
+    return createErrorResponse('INTERNAL_ERROR', 500);
   }
 }
 
@@ -44,9 +45,9 @@ export async function POST(
       },
     });
 
-    return NextResponse.json(category, { status: 201 });
+    return createSuccessResponse(category, 201);
   } catch (error) {
     console.error('카테고리 생성 실패:', error);
-    return NextResponse.json({ message: '카테고리 생성에 실패했습니다.' }, { status: 500 });
+    return createErrorResponse('CATEGORY_CREATE_FAILED', 500);
   }
 }

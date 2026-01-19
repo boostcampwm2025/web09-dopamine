@@ -187,7 +187,7 @@ export default function IdeaCard(props: IdeaCardProps) {
       <IdeaCardFooter
         isVoteButtonVisible={props.isVoteButtonVisible}
         status={status}
-        myVote={idea?.myVote}
+        myVote={idea?.myVote ?? undefined}
         agreeCount={idea?.agreeCount}
         disagreeCount={idea?.disagreeCount}
         isVoteDisabled={props.isVoteDisabled}

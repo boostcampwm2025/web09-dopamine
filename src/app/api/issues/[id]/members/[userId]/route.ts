@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { issueMemberRepository } from '@/lib/repositories/issue-member.repository';
+import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 
 export async function GET(
   req: NextRequest,
@@ -11,16 +12,16 @@ export async function GET(
     const member = await issueMemberRepository.findMemberByUserId(issueId, userId);
 
     if (!member) {
-      return NextResponse.json({ message: '참여자를 찾을 수 없습니다.' }, { status: 404 });
+      return createErrorResponse('MEMBER_NOT_FOUND', 404);
     }
 
-    return NextResponse.json({
+    return createSuccessResponse({
       id: member.user.id,
       displayName: member.user.displayName,
       role: member.role,
     });
   } catch (error) {
     console.error('사용자 정보 조회 실패:', error);
-    return NextResponse.json({ message: '사용자 정보 조회에 실패했습니다.' }, { status: 500 });
+    return createErrorResponse('MEMBER_FETCH_FAILED', 500);
   }
 }

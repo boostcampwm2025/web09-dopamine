@@ -7,6 +7,7 @@ import { findIssueById } from '@/lib/repositories/issue.repository';
 import { createAnonymousUser } from '@/lib/repositories/user.repository';
 import { issueMemberService } from '@/lib/services/issue-member.service';
 import { broadcast } from '@/lib/sse/sse-service';
+import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 
 export async function GET(
   req: NextRequest,
@@ -18,14 +19,14 @@ export async function GET(
 
   if (nickname) {
     const isDuplicate = await issueMemberService.checkNicknameDuplicate(id, nickname);
-    return NextResponse.json({ isDuplicate });
+    return createSuccessResponse({ isDuplicate });
   }
 
   try {
     const members = await issueMemberRepository.findMembersByIssueId(id);
 
     if (!members) {
-      return NextResponse.json({ message: '참여자가 존재하지 않습니다.' }, { status: 404 });
+      return createErrorResponse('MEMBERS_NOT_FOUND', 404);
     }
 
     const response = members.map((member) => ({
@@ -35,10 +36,10 @@ export async function GET(
       isConnected: true, // 지금은 기본값, 나중에 SSE 붙이면 여기서 합치면 됨
     }));
 
-    return NextResponse.json(response);
+    return createSuccessResponse(response);
   } catch (error) {
     console.error('이슈 조회 실패:', error);
-    return NextResponse.json({ message: '이슈 조회에 실패했습니다.' }, { status: 500 });
+    return createErrorResponse('MEMBERS_FETCH_FAILED', 500);
   }
 }
 
@@ -50,14 +51,14 @@ export async function POST(
   const { nickname } = await req.json();
 
   if (!nickname) {
-    return NextResponse.json({ message: 'nickname은 필수입니다.' }, { status: 400 });
+    return createErrorResponse('NICKNAME_REQUIRED', 400);
   }
 
   try {
     const issue = await findIssueById(issueId);
 
     if (!issue) {
-      return NextResponse.json({ message: '존재하지 않는 이슈입니다.' }, { status: 404 });
+      return createErrorResponse('ISSUE_NOT_FOUND', 404);
     }
 
     const result = await prisma.$transaction(async (tx) => {
@@ -77,9 +78,9 @@ export async function POST(
       },
     });
 
-    return NextResponse.json(result, { status: 201 });
+    return createSuccessResponse(result, 201);
   } catch (error) {
     console.error('이슈 참여 실패:', error);
-    return NextResponse.json({ message: '이슈 참여에 실패했습니다.' }, { status: 500 });
+    return createErrorResponse('MEMBER_JOIN_FAILED', 500);
   }
 }

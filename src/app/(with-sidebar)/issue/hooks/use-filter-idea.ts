@@ -31,12 +31,17 @@ export const useFilterIdea = (issueId: string) => {
           throw new Error('Failed to fetch filtered ids');
         }
 
-        const data = await response.json();
+        const result = await response.json();
+
+        // 표준 응답 형식 처리: { success, data, error }
+        if (!result.success) {
+          throw new Error(result.error?.message || 'Failed to fetch filtered ids');
+        }
 
         // 3. [검증] 최신 요청에 대한 응답인 경우에만 상태 업데이트
         // (네트워크 지연으로 인해 이전 필터 결과가 나중에 도착하는 현상 방지)
         if (!cancelled) {
-          setFilteredIds(new Set(data.filteredIds ?? []));
+          setFilteredIds(new Set(result.data.filteredIds ?? []));
         }
       } catch (error) {
         // 4. 요청 실패 시 에러 로그를 남기고 필터링된 목록을 비움

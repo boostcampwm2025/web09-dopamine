@@ -28,8 +28,9 @@ export function useIssueEvents({
   const [error, setError] = useState<Event | null>(null);
   const eventSourceRef = useRef<EventSource | null>(null);
   const selectedIdeaKey = useMemo(() => selectedIdeaQueryKey(issueId), [issueId]);
-  const { openModal } = useModalStore();
-  const userId = getUserIdForIssue(issueId) ?? '';
+  
+  // userId를 useMemo로 캐싱하여 불필요한 재계산 방지
+  const userId = useMemo(() => getUserIdForIssue(issueId) ?? '', [issueId]);
 
   // 현재 사용자의 정보 조회
   const { data: currentUser } = useQuery({
@@ -38,7 +39,7 @@ export function useIssueEvents({
     enabled: !!userId && enabled,
   });
 
-  const isOwner = currentUser?.role === MEMBER_ROLE.OWNER;
+  const isOwner = currentUser && currentUser.role === MEMBER_ROLE.OWNER;
   const isOwnerRef = useRef(isOwner);
 
   // isOwner 값이 변경될 때마다 ref 업데이트
@@ -150,7 +151,7 @@ export function useIssueEvents({
     eventSource.addEventListener(SSE_EVENT_TYPES.CLOSE_MODAL_OPENED, () => {
       // 모든 사용자에게 모달 열기 (방장 여부는 모달 내부에서 확인)
       // ref를 사용하여 최신 isOwner 값을 참조
-      openModal({
+      useModalStore.getState().openModal({
         title: '이슈 종료',
         content: React.createElement(CloseIssueModal, {
           issueId,
@@ -188,7 +189,7 @@ export function useIssueEvents({
       eventSource.close();
       eventSourceRef.current = null;
     };
-  }, [issueId, enabled, queryClient, selectedIdeaKey, openModal, userId]);
+  }, [issueId, enabled, selectedIdeaKey, userId]);
 
   return { isConnected, error };
 }

@@ -48,8 +48,8 @@ export const useVoteMutation = (ideaId: string) => {
       });
     },
 
-    onError: (_err, _variables, context) => {
-      toast.error('투표 처리에 실패했습니다.');
+    onError: (err, _variables, context) => {
+      toast.error(err.message);
       if (context?.previousIdea) {
         queryClient.setQueryData(queryKey, context.previousIdea);
       }

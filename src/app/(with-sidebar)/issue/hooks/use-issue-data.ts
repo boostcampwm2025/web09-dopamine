@@ -5,8 +5,8 @@ import { useIssueMemberQuery } from './react-query/use-issue-member-query';
 import { useIssueQuery } from './react-query/use-issue-query';
 
 export function useIssueData(issueId: string) {
-  const { data: issue } = useIssueQuery(issueId);
-  const { data: members = [] } = useIssueMemberQuery(issueId);
+  const { data: issue, isError: isIssueError } = useIssueQuery(issueId);
+  const { data: members = [], isError: isMembersError } = useIssueMemberQuery(issueId);
 
   const status = issue?.status as IssueStatus;
   const isQuickIssue = !issue?.topicId;
@@ -18,6 +18,7 @@ export function useIssueData(issueId: string) {
   const isVoteDisabled = status === ISSUE_STATUS.SELECT;
 
   return {
+    isIssueError: isIssueError || isMembersError,
     status,
     members,
     isQuickIssue,

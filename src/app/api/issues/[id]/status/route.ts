@@ -9,6 +9,7 @@ import {
   findIssueTextSourcesForWordCloud,
 } from '@/lib/repositories/word-cloud.repository';
 import { broadcast } from '@/lib/sse/sse-service';
+import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 import { generateWordCloudData } from '@/lib/utils/word-cloud-processor';
 
 export async function PATCH(
@@ -20,13 +21,13 @@ export async function PATCH(
     const { id } = await params;
 
     if (!Object.values(IssueStatus).includes(status)) {
-      return NextResponse.json({ message: '유효하지 않은 이슈 상태입니다.' }, { status: 400 });
+      return createErrorResponse('INVALID_ISSUE_STATUS', 400);
     }
 
     const issue = await findIssueById(id);
 
     if (!issue) {
-      return NextResponse.json({ message: '존재하지 않는 이슈입니다.' }, { status: 404 });
+      return createErrorResponse('ISSUE_NOT_FOUND', 404);
     }
 
     // 이슈 종료시, 리포트 생성을 위해 트랜잭션을 사용합니다.
@@ -77,9 +78,9 @@ export async function PATCH(
       },
     });
 
-    return NextResponse.json(updatedIssue);
+    return createSuccessResponse(updatedIssue);
   } catch (error) {
     console.error('이슈 상태 변경 실패:', error);
-    return NextResponse.json({ message: '이슈 상태 변경에 실패했습니다.' }, { status: 500 });
+    return createErrorResponse('ISSUE_STATUS_UPDATE_FAILED', 500);
   }
 }

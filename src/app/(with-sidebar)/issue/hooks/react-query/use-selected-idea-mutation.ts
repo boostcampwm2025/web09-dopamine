@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import toast from 'react-hot-toast';
 import { selectIdea as selectIdeaAPI } from '@/lib/api/issue';
 import { selectedIdeaQueryKey } from './use-selected-idea-query';
 
@@ -14,7 +15,8 @@ export function useSelectedIdeaMutation(issueId: string) {
       queryClient.setQueryData(queryKey, selectedIdeaId);
       return { previousSelectedIdeaId };
     },
-    onError: (_error, _selectedIdeaId, context) => {
+    onError: (error, _selectedIdeaId, context) => {
+      toast.error(error.message);
       if (context?.previousSelectedIdeaId !== undefined) {
         queryClient.setQueryData(queryKey, context.previousSelectedIdeaId);
       }
