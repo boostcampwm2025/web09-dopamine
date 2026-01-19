@@ -41,6 +41,7 @@ export const Input = styled.input`
 export const Footer = styled.div`
   display: flex;
   justify-content: flex-end;
+  gap: 12px;
 `;
 
 export const SubmitButton = styled.button`
