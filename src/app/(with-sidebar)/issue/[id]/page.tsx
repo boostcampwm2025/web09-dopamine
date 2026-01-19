@@ -7,7 +7,7 @@ import Canvas from '@/app/(with-sidebar)/issue/_components/canvas/canvas';
 import CategoryCard from '@/app/(with-sidebar)/issue/_components/category/category-card';
 import FilterPanel from '@/app/(with-sidebar)/issue/_components/filter-panel/filter-panel';
 import IdeaCard from '@/app/(with-sidebar)/issue/_components/idea-card/idea-card';
-import { useSelectedIdeaQuery } from '@/app/(with-sidebar)/issue/hooks/queries/use-selected-idea-query';
+import { useSelectedIdeaQuery } from '@/app/(with-sidebar)/issue/hooks/react-query/use-selected-idea-query';
 import { useAIStructuring } from '@/app/(with-sidebar)/issue/hooks/use-ai-structuring';
 import { useCategoryOperations } from '@/app/(with-sidebar)/issue/hooks/use-category-operations';
 import { useDragAndDrop } from '@/app/(with-sidebar)/issue/hooks/use-drag-and-drop';
@@ -23,7 +23,7 @@ import { useModalStore } from '@/components/modal/use-modal-store';
 import { ISSUE_STATUS } from '@/constants/issue';
 import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
 import IssueJoinModal from '../_components/issue-join-modal/issue-join-modal';
-import { useIssueQuery } from '../hooks/queries/use-issue-query';
+import { useIssueQuery } from '../hooks/react-query/use-issue-query';
 
 const IssuePage = () => {
   const params = useParams<{ id: string }>();

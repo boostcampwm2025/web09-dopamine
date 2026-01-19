@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
-import { categoryRepository } from '@/lib/repositories/category-repository';
+import { categoryRepository } from '@/lib/repositories/category.repository';
 import { sseManager } from '@/lib/sse/sse-manager';
 
 export async function PATCH(

@@ -10,31 +10,28 @@ type Theme = {
     accentMuted: string;
     text: string;
     textMuted: string;
-  },
+  };
 };
 
 type ThemeColors = NonNullable<Theme['colors']>;
 
-const color = <K extends keyof ThemeColors>(
-  theme: Theme,
-  key: K,
-  fallback: string,
-) => theme?.colors?.[key] ?? fallback;
+const color = <K extends keyof ThemeColors>(theme: Theme, key: K, fallback: string) =>
+  theme?.colors?.[key] ?? fallback;
 
-export const StyledCategoryCard = styled.section<{ isMuted?: boolean; isOver?: boolean; theme?: Theme }>`
+export const StyledCategoryCard = styled.section<{
+  isMuted?: boolean;
+  isOver?: boolean;
+  theme?: Theme;
+}>`
   display: flex;
   flex-direction: column;
   min-height: 200px;
   gap: 11px;
   background: ${({ isMuted, theme }) =>
-    isMuted
-      ? color(theme, 'surfaceMuted', '#fafafa')
-      : color(theme, 'surface', '#f0fdf4')};
+    isMuted ? color(theme, 'surfaceMuted', '#fafafa') : color(theme, 'surface', '#f0fdf4')};
   border: 2px dashed
     ${({ isMuted, theme }) =>
-      isMuted
-        ? color(theme, 'borderMuted', '#e5e7eb')
-        : color(theme, 'border', '#bbf7d0')};
+      isMuted ? color(theme, 'borderMuted', '#e5e7eb') : color(theme, 'border', '#bbf7d0')};
   border-radius: 24px;
   padding: 16px;
   /* width와 height는 inline style로 동적 설정 */
@@ -60,9 +57,7 @@ export const Header = styled.header<{ isMuted?: boolean; theme?: Theme }>`
   align-items: center;
   gap: 12px;
   color: ${({ isMuted, theme }) =>
-    isMuted
-      ? color(theme, 'textMuted', '#9a9a9a')
-      : color(theme, 'text', '#222222')};
+    isMuted ? color(theme, 'textMuted', '#9a9a9a') : color(theme, 'text', '#222222')};
   font-weight: 600;
   font-size: 14px;
 `;
@@ -83,16 +78,12 @@ export const Dot = styled.span<{ isMuted?: boolean; theme?: Theme }>`
   height: 8px;
   border-radius: 50%;
   background: ${({ isMuted, theme }) =>
-    isMuted
-      ? color(theme, 'accentMuted', '#c9c9c9')
-      : color(theme, 'accent', '#00a94f')};
+    isMuted ? color(theme, 'accentMuted', '#c9c9c9') : color(theme, 'accent', '#00a94f')};
 `;
 
 export const Title = styled.span<{ isMuted?: boolean; theme?: Theme }>`
   color: ${({ isMuted, theme }) =>
-    isMuted
-      ? color(theme, 'textMuted', '#9ca3af')
-      : color(theme, 'text', '#00a94f')};
+    isMuted ? color(theme, 'textMuted', '#9ca3af') : color(theme, 'text', '#00a94f')};
 `;
 
 export const Input = styled.input`
@@ -118,9 +109,9 @@ export const Btn = styled.button<{ isMuted?: boolean }>`
 `;
 
 export const DangerBtn = styled(Btn)`
-  border-color: #FBD6D0;
-  background: #FFFFFF;
-  color: #EF5944;
+  border-color: #fbd6d0;
+  background: #ffffff;
+  color: #ef5944;
 `;
 
 export const ChildrenWrapper = styled.div`

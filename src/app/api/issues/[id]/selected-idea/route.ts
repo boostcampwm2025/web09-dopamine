@@ -1,12 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
 import { prisma } from '@/lib/prisma';
-import { broadcast } from '@/lib/services/sse-service';
+import { broadcast } from '@/lib/sse/sse-service';
 
-export async function POST(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id: issueId } = await params;
     const { selectedIdeaId } = await req.json();

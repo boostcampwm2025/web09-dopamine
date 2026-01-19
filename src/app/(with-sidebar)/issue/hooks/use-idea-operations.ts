@@ -1,13 +1,13 @@
 ﻿import { useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
-import { useSelectedIdeaMutation } from '@/app/(with-sidebar)/issue/hooks/queries/use-selected-idea-mutation';
+import { useIdeaMutations } from '@/app/(with-sidebar)/issue/hooks/react-query/use-idea-mutations';
+import { useIdeasQuery } from '@/app/(with-sidebar)/issue/hooks/react-query/use-ideas-query';
+import { useSelectedIdeaMutation } from '@/app/(with-sidebar)/issue/hooks/react-query/use-selected-idea-mutation';
 import { useIdeaCardStackStore } from '@/app/(with-sidebar)/issue/store/use-idea-card-stack-store';
 import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
 import type { IdeaWithPosition, Position } from '@/app/(with-sidebar)/issue/types/idea';
 import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
 import { IssueMember } from '@/types/issue';
-import { useIdeasQuery } from './queries/use-ideas-query';
-import { useIdeaMutations } from './use-idea-mutations';
 import { useIssueData } from './use-issue-data';
 
 export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) {

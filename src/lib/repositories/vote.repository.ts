@@ -24,15 +24,11 @@ export const voteRepository = {
   },
 
   // 아이디어 테이블의 카운트 업데이트 (atomic increment/decrement)
-  updateIdeaCounts(
-    ideaId: string, 
-    data: Prisma.IdeaUpdateInput, 
-    tx: Prisma.TransactionClient
-  ) {
+  updateIdeaCounts(ideaId: string, data: Prisma.IdeaUpdateInput, tx: Prisma.TransactionClient) {
     return tx.idea.update({
       where: { id: ideaId },
       data,
       select: { agreeCount: true, disagreeCount: true },
     });
-  }
+  },
 };

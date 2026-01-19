@@ -2,8 +2,8 @@
 import { useTooltipStore } from '@/components/tooltip/use-tooltip-store';
 import { VOTE_TYPE } from '@/constants/issue';
 import { CardStatus } from '../types/idea';
+import { useVoteMutation } from './react-query/use-vote-mutation';
 import type { FilterType } from './use-filter-idea';
-import { useVoteMutation } from './use-vote-mutation';
 
 interface UseIdeaCardProps {
   id?: string;

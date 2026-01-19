@@ -1,4 +1,4 @@
-import { IssueStatus, Issue } from '@prisma/client';
+import { Issue, IssueStatus } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { createIssue, findIssueById, updateIssueStatus } from '@/lib/repositories/issue.repository';
 import { PrismaTransaction } from '@/types/prisma';
@@ -21,7 +21,6 @@ describe('Issue Repository', () => {
   });
 
   describe('createIssue', () => {
-
     it('트랜잭션을 사용하여 이슈를 생성한다', async () => {
       const mockTx = {
         issue: {
@@ -174,7 +173,6 @@ describe('Issue Repository', () => {
       expect(closedAt.getTime()).toBeGreaterThanOrEqual(now.getTime() - 1000);
       expect(closedAt.getTime()).toBeLessThanOrEqual(now.getTime() + 1000);
     });
-
 
     it('CLOSE가 아닌 상태로 변경 시 closedAt은 null이다', async () => {
       // 준비

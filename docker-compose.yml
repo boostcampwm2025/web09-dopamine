@@ -4,14 +4,14 @@ services:
     container_name: murphy-mysql
     restart: always
     ports:
-      - "${DB_PORT}:3306"
+      - '${DB_PORT}:3306'
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
       MYSQL_DATABASE: ${DB_NAME}
       MYSQL_USER: ${DB_USERNAME}
       MYSQL_PASSWORD: ${DB_PASSWORD}
       TZ: Asia/Seoul
-    command: 
+    command:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
     volumes:
@@ -22,7 +22,7 @@ services:
     container_name: local-redis
     restart: always
     ports:
-      - "${REDIS_PORT}:6379"
+      - '${REDIS_PORT}:6379'
     environment:
       TZ: Asia/Seoul
     # Redis는 환경변수가 아니라 실행 커맨드로 비번을 설정합니다.

@@ -1,7 +1,7 @@
 'use client';
 
-import * as S from './vote-result.styles';
 import * as PS from '../../page.styles';
+import * as S from './vote-result.styles';
 
 type VoteResultProps = {
   participants: number;
@@ -9,11 +9,7 @@ type VoteResultProps = {
   maxCommentCount: number;
 };
 
-export default function VoteResult({
-  participants,
-  totalVotes,
-  maxCommentCount,
-}: VoteResultProps) {
+export default function VoteResult({ participants, totalVotes, maxCommentCount }: VoteResultProps) {
   return (
     <S.Container>
       <PS.HeaderTitle>투표 결과</PS.HeaderTitle>

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
 import { prisma } from '@/lib/prisma';
-import { categoryRepository } from '@/lib/repositories/category-repository';
+import { categoryRepository } from '@/lib/repositories/category.repository';
 import { ideaRepository } from '@/lib/repositories/idea.repository';
 import { sseManager } from '@/lib/sse/sse-manager';
 

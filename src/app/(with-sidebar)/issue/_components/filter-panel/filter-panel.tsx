@@ -15,7 +15,10 @@ export default function FilterPanel({ value, onChange }: FilterPanelProps) {
 
   const handleClick = (e: MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
-    const nextFilter = e.currentTarget.dataset.filter as 'most-liked' | 'need-discussion' | undefined;
+    const nextFilter = e.currentTarget.dataset.filter as
+      | 'most-liked'
+      | 'need-discussion'
+      | undefined;
     if (!nextFilter) return;
     toggleFilter(nextFilter);
   };

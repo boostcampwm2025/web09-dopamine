@@ -22,10 +22,7 @@ export async function fetchCategories(issueId: string): Promise<Category[]> {
   }
 }
 
-export async function createCategory(
-  issueId: string,
-  payload: CategoryPayload,
-): Promise<Category> {
+export async function createCategory(issueId: string, payload: CategoryPayload): Promise<Category> {
   const response = await fetch(`/api/issues/${issueId}/category`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

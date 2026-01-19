@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
-import { useQuickStartMutation } from '@/app/(with-sidebar)/issue/hooks/queries/use-issue-mutation';
+import { useQuickStartMutation } from '@/app/(with-sidebar)/issue/hooks/react-query/use-issue-mutation';
 import LoadingOverlay from '@/components/loading-overlay/loading-overlay';
 import { generateRandomNickname } from '@/lib/utils/nickname';
 import { useModalStore } from '../use-modal-store';
