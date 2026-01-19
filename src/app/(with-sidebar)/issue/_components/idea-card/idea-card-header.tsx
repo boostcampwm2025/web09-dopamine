@@ -1,7 +1,9 @@
-'use client';
+﻿'use client';
 
+import { useState } from 'react';
 import type { KeyboardEventHandler, MouseEventHandler, RefObject } from 'react';
 import Image from 'next/image';
+import DraggableWindow from '@/components/draggable-window/draggable-window';
 import { ISSUE_STATUS } from '@/constants/issue';
 import type { IssueStatus } from '@/types/issue';
 import * as S from './idea-card.styles';
@@ -35,51 +37,72 @@ export default function IdeaCardHeader({
   submitEdit,
   onDelete,
 }: IdeaCardHeaderProps) {
+  const [isCommentOpen, setIsCommentOpen] = useState(false);
+  const [commentPosition, setCommentPosition] = useState<{ x: number; y: number } | null>(null);
+
+  const handleOpenComment: MouseEventHandler<HTMLButtonElement> = (event) => {
+    event.stopPropagation();
+    const rect = event.currentTarget.getBoundingClientRect();
+    setCommentPosition({ x: rect.left, y: rect.bottom + 8 });
+    setIsCommentOpen(true);
+  };
+
   return (
-    <S.Header>
-      {isEditing ? (
-        <S.EditableInput
-          ref={textareaRef}
-          rows={1}
-          value={editValue}
-          onChange={(e) => setEditValue(e.target.value)}
-          onPointerDown={(e) => e.stopPropagation()}
-          onKeyDown={handleKeyDownEdit}
-          onMouseDown={(e) => e.stopPropagation()}
-          autoFocus
-          placeholder="아이디어를 입력해주세요."
-        />
-      ) : (
-        <S.Content>{displayContent}</S.Content>
-      )}
-      <S.Meta>
-        <S.AuthorPill isCurrentUser={isCurrentUser}>{author}</S.AuthorPill>
-        {isVoteButtonVisible ? (
-          <S.IconButton aria-label="comment">
+    <>
+      <S.Header>
+        {isEditing ? (
+          <S.EditableInput
+            ref={textareaRef}
+            rows={1}
+            value={editValue}
+            onChange={(e) => setEditValue(e.target.value)}
+            onPointerDown={(e) => e.stopPropagation()}
+            onKeyDown={handleKeyDownEdit}
+            onMouseDown={(e) => e.stopPropagation()}
+            autoFocus
+            placeholder="아이디어를 입력해주세요."
+          />
+        ) : (
+          <S.Content>{displayContent}</S.Content>
+        )}
+        <S.Meta>
+          <S.AuthorPill isCurrentUser={isCurrentUser}>{author}</S.AuthorPill>
+          {isVoteButtonVisible ? (
+            <S.IconButton aria-label="comment" onClick={handleOpenComment}>
+              <Image
+                src="/comment.svg"
+                alt="댓글"
+                width={14}
+                height={14}
+              />
+            </S.IconButton>
+          ) : (
+            <>{isEditing ? <S.SubmitButton onClick={submitEdit}>제출</S.SubmitButton> : null}</>
+          )}
+        </S.Meta>
+        {issueStatus === ISSUE_STATUS.BRAINSTORMING && isCurrentUser && (
+          <S.DeleteButton
+            aria-label="delete"
+            onClick={onDelete}
+          >
             <Image
-              src="/comment.svg"
-              alt="댓글"
+              src="/close.svg"
+              alt="삭제"
               width={14}
               height={14}
             />
-          </S.IconButton>
-        ) : (
-          <>{isEditing ? <S.SubmitButton onClick={submitEdit}>제출</S.SubmitButton> : null}</>
+          </S.DeleteButton>
         )}
-      </S.Meta>
-      {issueStatus === ISSUE_STATUS.BRAINSTORMING && isCurrentUser && (
-        <S.DeleteButton
-          aria-label="delete"
-          onClick={onDelete}
+      </S.Header>
+      {isCommentOpen ? (
+        <DraggableWindow
+          title="댓글"
+          initialPosition={commentPosition ?? undefined}
+          onClose={() => setIsCommentOpen(false)}
         >
-          <Image
-            src="/close.svg"
-            alt="삭제"
-            width={14}
-            height={14}
-          />
-        </S.DeleteButton>
-      )}
-    </S.Header>
+          댓글은 준비 중입니다.
+        </DraggableWindow>
+      ) : null}
+    </>
   );
 }
