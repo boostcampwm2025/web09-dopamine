@@ -1,5 +1,7 @@
 'use client';
 
+import { useModalStore } from '@/components/modal/use-modal-store';
+import ProjectCreateModal from '../project-create-modal/project-create-modal';
 import * as S from './project-card.styles';
 
 interface ProjectCardProps {
@@ -16,9 +18,19 @@ export function ProjectCard({
   memberCount,
   isCreateCard = false,
 }: ProjectCardProps) {
+  const { openModal } = useModalStore();
+
+  const handleCreateClick = () => {
+    openModal({
+      title: '새 프로젝트 만들기',
+      content: <ProjectCreateModal />,
+      hasCloseButton: true,
+    });
+  };
+
   if (isCreateCard) {
     return (
-      <S.CreateCard>
+      <S.CreateCard onClick={handleCreateClick}>
         <S.CreateIcon>+</S.CreateIcon>
         <S.CreateText>새 프로젝트 만들기</S.CreateText>
       </S.CreateCard>
