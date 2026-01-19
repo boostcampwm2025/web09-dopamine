@@ -3,13 +3,24 @@
 import styled from '@emotion/styled';
 import { theme } from '@/styles/theme';
 
-export const Container = styled.div`
-  min-height: 100vh;
+export const Container = styled.div<{ fullScreen?: boolean }>`
+  min-height: ${(props) => (props.fullScreen ? '100vh' : '100%')};
+  height: ${(props) => (props.fullScreen ? 'auto' : '100%')};
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 1rem;
   background-color: ${theme.colors.green[50]};
+  ${(props) =>
+    !props.fullScreen &&
+    `
+    background:
+      linear-gradient(90deg, ${theme.colors.gray[50]} 1px, transparent 1px),
+      linear-gradient(${theme.colors.gray[50]} 1px, transparent 1px);
+    background-size: 40px 40px;
+    background-position: 0 0;
+  `}
 `;
 
 export const PostItWrapper = styled.div`

@@ -3,6 +3,9 @@
 import { useRouter } from 'next/navigation';
 import * as S from './error.styles';
 
+interface ErrorPageProps {
+  fullScreen?: boolean;
+}
 
 const AlertCircleIcon =
   <svg
@@ -22,7 +25,7 @@ const AlertCircleIcon =
 
 
 
-export function ErrorPage() {
+export function ErrorPage({ fullScreen = true }: ErrorPageProps) {
   const router = useRouter();
   
   const handleRetry = () => {
@@ -34,7 +37,7 @@ export function ErrorPage() {
   };
 
   return (
-    <S.Container>  
+    <S.Container fullScreen={fullScreen}>  
       <S.PostItWrapper>
         <S.PostItMain>
           <S.Tape />
