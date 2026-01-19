@@ -11,12 +11,10 @@ export function useAIStructuringMutation(issueId: string) {
     mutationFn: () => categorizeIdeas(issueId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['issues', issueId, 'categories'] });
-      toast.success('AI 구조화가 완료되었습니다.');
     },
 
     onError: (err) => {
       console.error('AI 구조화 오류:', err);
-      toast.error('AI 구조화 중 오류가 발생했습니다.');
     },
   });
 

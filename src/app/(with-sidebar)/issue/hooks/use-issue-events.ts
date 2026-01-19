@@ -122,10 +122,20 @@ export function useIssueEvents({
     // AI 구조화 핸들러
     eventSource.addEventListener(SSE_EVENT_TYPES.AI_STRUCTURING_STARTED, () => {
       setIsAIStructuring(true);
+      toast.success('AI 구조화가 완료되었습니다.');
     });
 
     eventSource.addEventListener(SSE_EVENT_TYPES.AI_STRUCTURING_COMPLETED, () => {
       setIsAIStructuring(false);
+    });
+
+    eventSource.addEventListener(SSE_EVENT_TYPES.AI_STRUCTURING_FAILED, (event) => {
+      const data = JSON.parse((event as MessageEvent).data);
+      const errorMessage = data.message || 'AI 구조화 중 오류가 발생했습니다.';
+
+      setIsAIStructuring(false);
+
+      toast.error(errorMessage);
     });
 
     // 투표 이벤트 핸들러

@@ -7,12 +7,22 @@ import { broadcast } from '@/lib/sse/sse-service';
 import { validateAIResponse } from '@/lib/utils/ai-response-validator';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 
-const broadcastAIStructuringCompletion = (issueId: string) => {
+const broadcastCompletion = (issueId: string) => {
   broadcast({
     issueId,
     event: {
       type: SSE_EVENT_TYPES.AI_STRUCTURING_COMPLETED,
       data: {},
+    },
+  });
+};
+
+const broadcastError = (issueId: string, message: string) => {
+  broadcast({
+    issueId,
+    event: {
+      type: SSE_EVENT_TYPES.AI_STRUCTURING_FAILED,
+      data: { message },
     },
   });
 };
@@ -33,7 +43,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     const ideas = await ideaRepository.findIdAndContentByIssueId(issueId);
 
     if (ideas.length === 0) {
-      broadcastAIStructuringCompletion(issueId);
+      broadcastError(issueId, '분류할 아이디어가 없습니다.');
       return createErrorResponse('NO_IDEAS_TO_CATEGORIZE', 400);
     }
 
@@ -68,7 +78,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     const validation = validateAIResponse(data, inputIdeaIds);
 
     if (!validation.isValid) {
-      broadcastAIStructuringCompletion(issueId);
+      broadcastError(issueId, 'AI 응답 검증에 실패했습니다.');
       return createErrorResponse('AI_RESPONSE_VALIDATION_FAILED', 500);
     }
 
@@ -80,13 +90,13 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
     const result = await categorizeService.categorizeAndBroadcast(issueId, categoryPayloads);
 
-    broadcastAIStructuringCompletion(issueId);
+    broadcastCompletion(issueId);
 
     return createSuccessResponse(result);
   } catch (error) {
     console.error('AI 카테고리화 실패:', error);
 
-    broadcastAIStructuringCompletion(issueId);
+    broadcastError(issueId, '서버 내부 오류로 AI 분류에 실패했습니다.');
 
     return createErrorResponse('AI_CATEGORIZATION_FAILED', 500);
   }

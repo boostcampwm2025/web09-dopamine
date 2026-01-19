@@ -17,6 +17,7 @@ export const SSE_EVENT_TYPES = {
   // ai 구조화
   AI_STRUCTURING_STARTED: 'ai_structuring:started',
   AI_STRUCTURING_COMPLETED: 'ai_structuring:completed',
+  AI_STRUCTURING_FAILED: 'ai_structuring:failed',
 
   // 투표
   VOTE_CHANGED: 'vote:changed',
