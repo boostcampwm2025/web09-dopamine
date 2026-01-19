@@ -1,10 +1,11 @@
 'use client';
 
-import { ReactNode, useState } from 'react';
+import { ReactNode } from 'react';
 import { usePathname } from 'next/navigation';
 import styled from '@emotion/styled';
 import IssueHeader from '@/app/(with-sidebar)/issue/_components/header/header';
 import IssueSidebar from '@/app/(with-sidebar)/issue/_components/layout/issue-sidebar';
+import TopicSidebar from '@/app/(with-sidebar)/topic/_components/topic-sidebar';
 
 const LayoutContainer = styled.div`
   display: flex;
@@ -35,11 +36,23 @@ export default function WithSidebarLayout({ children }: { children: ReactNode })
     return null;
   };
 
+  const renderSidebar = () => {
+    if (pathname?.startsWith('/topic')) {
+      return <TopicSidebar />;
+    }
+
+    if (pathname?.startsWith('/issue')) {
+      return <IssueSidebar />;
+    }
+
+    return null;
+  };
+
   return (
     <LayoutContainer>
       {renderHeader()}
       <BodyContainer>
-        <IssueSidebar />
+        {renderSidebar()}
         <ContentArea>{children}</ContentArea>
       </BodyContainer>
     </LayoutContainer>
