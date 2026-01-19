@@ -1,6 +1,8 @@
 ﻿import React, { useCallback, useEffect, useRef, useState } from 'react';
+import type { PointerEventHandler } from 'react';
 import { useTooltipStore } from '@/components/tooltip/use-tooltip-store';
-import { VOTE_TYPE } from '@/constants/issue';
+import { ISSUE_STATUS, VOTE_TYPE } from '@/constants/issue';
+import type { IssueStatus } from '@/types/issue';
 import { CardStatus } from '../types/idea';
 import { useVoteMutation } from './react-query/use-vote-mutation';
 import type { FilterType } from './use-filter-idea';
@@ -13,7 +15,14 @@ interface UseIdeaCardProps {
   status?: CardStatus;
   editable?: boolean;
   onSave?: (content: string) => void;
+  categoryId?: string | null;
+  inCategory: boolean;
+  issueStatus?: IssueStatus;
+  bringToFront: (id: string) => void;
+  getListeners?: () => { onPointerDown?: PointerEventHandler } | undefined;
+  onDelete?: () => void;
   onClick?: () => void;
+  selectIdea: (id: string) => void;
 }
 
 export default function useIdeaCard(props: UseIdeaCardProps) {
@@ -25,6 +34,14 @@ export default function useIdeaCard(props: UseIdeaCardProps) {
     status: statusOverride = 'default',
     editable = false,
     onSave,
+    categoryId,
+    inCategory,
+    issueStatus,
+    bringToFront,
+    getListeners,
+    onDelete,
+    onClick,
+    selectIdea,
   } = props;
 
   const openTooltip = useTooltipStore((state) => state.openTooltip);
@@ -96,6 +113,37 @@ export default function useIdeaCard(props: UseIdeaCardProps) {
     [submitEdit],
   );
 
+  const handlePointerDown: PointerEventHandler = (e) => {
+    if (id && !inCategory) {
+      bringToFront(id);
+    }
+
+    if (isEditing) {
+      textareaRef.current?.focus();
+    }
+
+    const listeners = getListeners?.();
+    if (listeners?.onPointerDown) {
+      listeners.onPointerDown(e);
+    }
+  };
+
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onDelete?.();
+  };
+
+  const handleCardClick = () => {
+    if (!id || !categoryId || isEditing || issueStatus !== ISSUE_STATUS.SELECT) {
+      return;
+    }
+    if (onClick) {
+      onClick();
+      return;
+    }
+    selectIdea(id);
+  };
+
   return {
     textareaRef,
     status,
@@ -107,6 +155,9 @@ export default function useIdeaCard(props: UseIdeaCardProps) {
     handleDisagree,
     submitEdit,
     handleKeyDownEdit,
+    handlePointerDown,
+    handleDeleteClick,
+    handleCardClick,
   };
 }
 

@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
+import type { PointerEventHandler } from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import useIdeaCard from '@/app/(with-sidebar)/issue/hooks/use-idea-card';
-import useIdeaCardHandlers from '@/app/(with-sidebar)/issue/hooks/use-idea-card-handlers';
 import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
 import { useIdeaQuery } from '../../hooks/react-query/use-idea-query';
 import { useSelectedIdeaMutation } from '../../hooks/react-query/use-selected-idea-mutation';
@@ -62,6 +62,9 @@ export default function IdeaCard(props: IdeaCardProps) {
   // 현재 로그인한 사용자가 이 아이디어의 작성자인지 확인
   const currentUserId = getUserIdForIssue(props.issueId);
   const isCurrentUser = currentUserId === props.userId;
+  const inCategory = !!props.categoryId;
+  const listenersRef = useRef<{ onPointerDown?: PointerEventHandler } | null>(null);
+  const getListeners = () => listenersRef.current ?? undefined;
 
   // 비즈니스 로직 (투표, 편집 등)
   const {
@@ -75,6 +78,9 @@ export default function IdeaCard(props: IdeaCardProps) {
     handleDisagree,
     submitEdit,
     handleKeyDownEdit,
+    handlePointerDown,
+    handleDeleteClick,
+    handleCardClick,
   } = useIdeaCard({
     id: props.id,
     userId: currentUserId,
@@ -83,12 +89,19 @@ export default function IdeaCard(props: IdeaCardProps) {
     status: props.status,
     editable: !!props.editable,
     onSave: props.onSave,
+    categoryId: props.categoryId,
+    inCategory,
+    issueStatus,
+    bringToFront,
+    getListeners,
+    onDelete: props.onDelete,
+    onClick: props.onClick,
+    selectIdea,
   });
 
   const { data: idea } = useIdeaQuery(props.id, currentUserId);
 
   // 드래그 로직
-  const inCategory = !!props.categoryId;
 
   // dnd-kit useDraggable
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
@@ -98,6 +111,10 @@ export default function IdeaCard(props: IdeaCardProps) {
       editValue: editValue,
     },
   });
+
+  useEffect(() => {
+    listenersRef.current = listeners || null;
+  }, [listeners]);
 
   useEffect(() => {
     if (textareaRef.current) {
@@ -134,20 +151,6 @@ export default function IdeaCard(props: IdeaCardProps) {
           opacity: isDragging ? 0 : undefined,
         }
       : {};
-
-  const { handlePointerDown, handleDeleteClick, handleCardClick } = useIdeaCardHandlers({
-    id: props.id,
-    categoryId: props.categoryId,
-    inCategory,
-    isEditing,
-    issueStatus,
-    textareaRef,
-    bringToFront,
-    listeners,
-    onDelete: props.onDelete,
-    onClick: props.onClick,
-    selectIdea,
-  });
 
   return (
     <S.Card
