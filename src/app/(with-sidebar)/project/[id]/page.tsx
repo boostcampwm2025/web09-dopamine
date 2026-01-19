@@ -1,8 +1,7 @@
 import Image from 'next/image';
 import HeaderButton from '../../issue/_components/header/header-button';
-import InfoCard from '../_components/info-card/info-card';
+import Card from '../_components/card/card';
 import MemberList from '../_components/member-list/member-list';
-import TopicCard from '../_components/topic-card/topic-card';
 import * as S from './page.styles';
 
 const ProjectPage = () => {
@@ -57,18 +56,23 @@ const ProjectPage = () => {
       {/* 프로젝트 설명 및 참가자 */}
       <S.ProjectInfoContainer>
         <S.ProjectDescBox>
-          <InfoCard
+          <Card
+            variant="header"
+            leftIcon="/green-comment.svg"
             title="프로젝트 설명"
             rightIcon="/edit.svg"
-            leftIcon="/green-comment.svg"
           />
+          <S.Divider />
           <S.ProjectDescText>{desc}</S.ProjectDescText>
         </S.ProjectDescBox>
         <S.MemberBox>
-          <InfoCard
-            title="팀원"
+          <Card
+            variant="header"
             leftIcon="/green-people.svg"
+            title="팀원"
+            subtitle={`총 ${members.length}명`}
           />
+          <S.Divider />
           <MemberList members={members} />
         </S.MemberBox>
       </S.ProjectInfoContainer>
@@ -89,12 +93,13 @@ const ProjectPage = () => {
         </S.TopicListContainer>
         <S.TopicCardsContainer>
           {topics.map((topic) => (
-            <TopicCard
+            <Card
               key={topic.id}
-              id={topic.id}
+              variant="item"
+              leftIcon="/folder.svg"
               title={topic.title}
-              issueCount={topic.issueCount}
-              status={topic.status}
+              subtitle={`이슈 ${topic.issueCount}개 • ${topic.status}`}
+              showArrow
             />
           ))}
         </S.TopicCardsContainer>

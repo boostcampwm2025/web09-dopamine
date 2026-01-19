@@ -48,7 +48,7 @@ export const ProjectDescBox = styled.div`
   ${boxStyle}
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 10px;
   padding: 20px;
   width: 60%;
   height: 100%;
@@ -67,6 +67,7 @@ export const MemberBox = styled.div`
   padding: 20px;
   height: 100%;
   display: flex;
+  gap: 10px;
   flex-direction: column;
 `;
 
@@ -112,4 +113,11 @@ export const TopicCardsContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 16px;
+`;
+
+export const Divider = styled.div`
+  width: 100%;
+  height: 1px;
+  margin-bottom: 10px;
+  background-color: ${theme.colors.gray[200]};
 `;
