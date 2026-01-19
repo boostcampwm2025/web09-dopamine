@@ -78,7 +78,6 @@ const IssuePage = () => {
   // 2. 아이디어 관련 작업
   const {
     ideas,
-    isIdeasError,
     handleCreateIdea,
     handleSaveIdea,
     handleDeleteIdea,
@@ -115,7 +114,7 @@ const IssuePage = () => {
   const getIdeaStatus = useIdeaStatus(filteredIds, activeFilter);
 
   // 에러 처리 (모든 hooks 호출 후)
-  if (isIssueError || isIdeasError || isCategoryError) {
+  if (isIssueError || isCategoryError) {
     return <ErrorPage />;
   }
 
