@@ -127,6 +127,15 @@ export function useHeader({ issueId }: UseHeaderParams) {
     }
   }, [isOwner, validateStep, nextStep]);
 
+  const handleAIStructureStart = () => {
+    if (!isOwner) {
+      toast.error('방장만 AI 구조화를 진행할 수 있습니다.');
+      return;
+    }
+
+    startAIStructure();
+  };
+
   return {
     issue,
     isOwner,
@@ -134,6 +143,6 @@ export function useHeader({ issueId }: UseHeaderParams) {
     handleCloseIssue,
     handleNextStep,
     handleAddCategory,
-    startAIStructure,
+    handleAIStructureStart,
   };
 }
