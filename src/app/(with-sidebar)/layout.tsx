@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import styled from '@emotion/styled';
 import IssueHeader from '@/app/(with-sidebar)/issue/_components/header/header';
 import IssueSidebar from '@/app/(with-sidebar)/issue/_components/layout/issue-sidebar';
+import ProjectHeader from './project/_components/header/header';
 
 const LayoutContainer = styled.div`
   display: flex;
@@ -30,6 +31,10 @@ export default function WithSidebarLayout({ children }: { children: ReactNode })
   const renderHeader = () => {
     if (pathname?.startsWith('/issue')) {
       return <IssueHeader />;
+    }
+
+    if (pathname?.startsWith('/project')) {
+      return <ProjectHeader />;
     }
 
     return null;
