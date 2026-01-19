@@ -3,9 +3,9 @@
 import { useState } from 'react';
 import type { KeyboardEventHandler, MouseEventHandler, RefObject } from 'react';
 import Image from 'next/image';
-import CommentListWindow from '@/components/window/comment-list-window/comment-list-window';
 import { ISSUE_STATUS } from '@/constants/issue';
 import type { IssueStatus } from '@/types/issue';
+import CommentWindow from '../comment-window/comment-window';
 import * as S from './idea-card.styles';
 
 interface IdeaCardHeaderProps {
@@ -42,12 +42,15 @@ export default function IdeaCardHeader({
 
   const handleOpenComment: MouseEventHandler<HTMLButtonElement> = (event) => {
     event.stopPropagation();
-    setIsCommentOpen((prev) => {
-      if (prev) return false;
-      const rect = event.currentTarget.getBoundingClientRect();
+    const target = event.currentTarget;
+    if (!target) return;
+    const rect = target.getBoundingClientRect();
+    const nextOpen = !isCommentOpen;
+
+    if (nextOpen) {
       setCommentPosition({ x: rect.left, y: rect.bottom + 8 });
-      return true;
-    });
+    }
+    setIsCommentOpen(nextOpen);
   };
 
   return (
@@ -71,7 +74,10 @@ export default function IdeaCardHeader({
         <S.Meta>
           <S.AuthorPill isCurrentUser={isCurrentUser}>{author}</S.AuthorPill>
           {isVoteButtonVisible ? (
-            <S.IconButton aria-label="comment" onClick={handleOpenComment}>
+            <S.IconButton
+              aria-label="comment"
+              onClick={handleOpenComment}
+            >
               <Image
                 src="/comment.svg"
                 alt="댓글"
@@ -98,7 +104,7 @@ export default function IdeaCardHeader({
         )}
       </S.Header>
       {isCommentOpen ? (
-        <CommentListWindow
+        <CommentWindow
           initialPosition={commentPosition ?? undefined}
           onClose={() => setIsCommentOpen(false)}
         />
