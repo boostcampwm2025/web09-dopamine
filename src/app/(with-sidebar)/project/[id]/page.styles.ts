@@ -51,12 +51,12 @@ export const ProjectDescBox = styled.div`
   gap: 20px;
   padding: 20px;
   width: 60%;
-  height: 230px;
+  height: 100%;
 `;
 
 export const ProjectDescText = styled.div`
   font-size: ${theme.font.size.medium};
-  font-weight: ${theme.font.weight.medium};
+  font-weight: ${theme.font.weight.regular};
   color: ${theme.colors.gray[800]};
   line-height: 2;
 `;
@@ -65,11 +65,15 @@ export const MemberBox = styled.div`
   width: 40%;
   ${boxStyle}
   padding: 20px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 `;
 
 export const ProjectInfoContainer = styled.div`
   display: flex;
   gap: 20px;
+  height: 280px;
 `;
 
 export const TopicSection = styled.div`

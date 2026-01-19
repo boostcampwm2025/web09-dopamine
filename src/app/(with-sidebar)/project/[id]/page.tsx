@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import HeaderButton from '../../issue/_components/header/header-button';
 import InfoCard from '../_components/info-card/info-card';
+import MemberList from '../_components/member-list/member-list';
 import TopicCard from '../_components/topic-card/topic-card';
 import * as S from './page.styles';
 
@@ -29,6 +30,14 @@ const ProjectPage = () => {
       issueCount: 3,
       status: '완료',
     },
+  ];
+
+  // TODO: 실제 데이터로 교체 필요
+  const members = [
+    { id: 1, name: '김철수', profileImage: '/profile.svg', isOwner: true },
+    { id: 2, name: '이영희', profileImage: '/profile.svg' },
+    { id: 3, name: '박지민', profileImage: '/profile.svg' },
+    { id: 4, name: '정다현', profileImage: '/profile.svg' },
   ];
 
   return (
@@ -60,6 +69,7 @@ const ProjectPage = () => {
             title="팀원"
             leftIcon="/green-people.svg"
           />
+          <MemberList members={members} />
         </S.MemberBox>
       </S.ProjectInfoContainer>
       {/* 토픽 리스트 */}
