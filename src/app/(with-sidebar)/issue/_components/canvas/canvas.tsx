@@ -11,9 +11,22 @@ import { useCanvasControls } from './use-canvas-controls';
 interface CanvasProps {
   children?: React.ReactNode;
   onDoubleClick?: (position: { x: number; y: number }) => void;
+  showGrid?: boolean;
+  showControls?: boolean;
+  showMessage?: boolean;
+  showAddButton?: boolean;
+  boundContent?: boolean;
 }
 
-export default function Canvas({ children, onDoubleClick }: CanvasProps) {
+export default function Canvas({
+  children,
+  onDoubleClick,
+  showGrid = true,
+  showControls = true,
+  showMessage = true,
+  showAddButton = true,
+  boundContent = false,
+}: CanvasProps) {
   const canvasRef = useRef<HTMLDivElement>(null);
   const issueId = useIssueId();
 
@@ -51,11 +64,13 @@ export default function Canvas({ children, onDoubleClick }: CanvasProps) {
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
         onDoubleClick={handleCanvasDoubleClick}
+        showGrid={showGrid}
         style={{
           cursor: isPanning ? 'grabbing' : 'default',
         }}
       >
         <CanvasViewport
+          boundContent={boundContent}
           style={{
             transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
           }}
@@ -64,16 +79,18 @@ export default function Canvas({ children, onDoubleClick }: CanvasProps) {
         </CanvasViewport>
       </CanvasContainer>
 
-      <CanvasZoomControls
-        scale={scale}
-        onZoomIn={handleZoomIn}
-        onZoomOut={handleZoomOut}
-        onReset={handleResetZoom}
-      />
-      {isBrainStorming && (
+      {showControls && (
+        <CanvasZoomControls
+          scale={scale}
+          onZoomIn={handleZoomIn}
+          onZoomOut={handleZoomOut}
+          onReset={handleResetZoom}
+        />
+      )}
+      {showAddButton && isBrainStorming && (
         <AddIdeaButton onClick={handleAddIdeaButtonClick}>아이디어 추가</AddIdeaButton>
       )}
-      <BottomMessage>{description}</BottomMessage>
+      {showMessage && <BottomMessage>{description}</BottomMessage>}
     </>
   );
 }
