@@ -4,7 +4,7 @@ import type { Position } from '../../types/idea';
 import { useCanvasContext } from '../canvas/canvas-context';
 import CategoryCardHeader from './category-card-header';
 import { ChildrenWrapper, StyledCategoryCard } from './category-card.styles';
-import useCategoryCard from './use-category-card';
+import { useCategoryCard } from './use-category-card';
 import { useCategoryDnd } from './use-category-dnd';
 
 interface CategoryCardProps {

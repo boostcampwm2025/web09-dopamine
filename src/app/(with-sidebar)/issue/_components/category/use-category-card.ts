@@ -7,7 +7,7 @@ interface UseCategoryProps {
   title: string;
 }
 
-export default function useCategoryCard(props: UseCategoryProps) {
+export function useCategoryCard(props: UseCategoryProps) {
   const { id, issueId, title } = props;
   const [curTitle, setCurTitle] = useState<string>(title);
   const [draftTitle, setDraftTitle] = useState<string>(title);

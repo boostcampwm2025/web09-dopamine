@@ -25,7 +25,7 @@ interface UseIdeaCardProps {
   selectIdea: (id: string) => void;
 }
 
-export default function useIdeaCard(props: UseIdeaCardProps) {
+export function useIdeaCard(props: UseIdeaCardProps) {
   const {
     id = '',
     userId = '',
