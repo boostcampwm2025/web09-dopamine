@@ -51,13 +51,14 @@ export const ProjectDescBox = styled.div`
   gap: 20px;
   padding: 20px;
   width: 60%;
+  height: 230px;
 `;
 
 export const ProjectDescText = styled.div`
   font-size: ${theme.font.size.medium};
   font-weight: ${theme.font.weight.medium};
   color: ${theme.colors.gray[800]};
-  line-height: 1.5;
+  line-height: 2;
 `;
 
 export const MemberBox = styled.div`
@@ -69,4 +70,42 @@ export const MemberBox = styled.div`
 export const ProjectInfoContainer = styled.div`
   display: flex;
   gap: 20px;
+`;
+
+export const TopicSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-block: 32px;
+`;
+
+export const TopicListContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+export const TopicListHeader = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+`;
+
+export const TopicListTitle = styled.h1`
+  font-size: 24px;
+  font-weight: ${theme.font.weight.bold};
+  color: ${theme.colors.gray[900]};
+  margin: 0;
+`;
+
+export const TopicListDescription = styled.span`
+  font-size: ${theme.font.size.medium};
+  font-weight: ${theme.font.weight.medium};
+  color: ${theme.colors.gray[600]};
+`;
+
+export const TopicCardsContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 `;
