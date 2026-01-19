@@ -31,7 +31,7 @@ export async function PATCH(
 
     return NextResponse.json(
       { message: '댓글을 수정하는 중에 서버 오류가 발생했습니다.' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -60,7 +60,7 @@ export async function DELETE(
 
     return NextResponse.json(
       { message: '댓글을 삭제하는 중에 서버 오류가 발생했습니다.' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

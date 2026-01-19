@@ -19,7 +19,7 @@ export async function GET(
     console.error('댓글 조회 중 오류 발생:', error);
     return NextResponse.json(
       { message: '댓글을 불러오는 중에 서버 오류가 발생했습니다.' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -39,7 +39,7 @@ export async function POST(
   if (!userId || !content) {
     return NextResponse.json(
       { message: '사용자 ID와 댓글 내용은 필수 입력 사항입니다.' },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -56,7 +56,7 @@ export async function POST(
     console.error('댓글 생성 중 오류 발생:', error);
     return NextResponse.json(
       { message: '댓글을 작성하는 중에 서버 오류가 발생했습니다.' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -3,11 +3,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { KeyboardEvent } from 'react';
 import {
+  type Comment,
   createComment,
   deleteComment,
   fetchComments,
   updateComment,
-  type Comment,
 } from '@/lib/api/comment';
 
 interface UseWindowOptions {
@@ -19,7 +19,7 @@ interface UseWindowOptions {
 export function useWindow({ initialPosition, ideaId, userId }: UseWindowOptions) {
   const defaultPositionRef = useRef({ x: 120, y: 120 });
   const resolvedInitialPosition = initialPosition ?? defaultPositionRef.current;
-  
+
   const [position, setPosition] = useState(resolvedInitialPosition);
   const [comments, setComments] = useState<Comment[]>([]);
   const [isLoading, setIsLoading] = useState(false);

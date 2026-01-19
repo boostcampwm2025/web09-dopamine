@@ -3,10 +3,10 @@
 import { useState } from 'react';
 import type { KeyboardEventHandler, MouseEventHandler, RefObject } from 'react';
 import Image from 'next/image';
-import CommentWindow from '../comment-window/comment-window';
-import { useCanvasContext } from '../canvas/canvas-context';
 import { ISSUE_STATUS } from '@/constants/issue';
 import type { IssueStatus } from '@/types/issue';
+import { useCanvasContext } from '../canvas/canvas-context';
+import CommentWindow from '../comment-window/comment-window';
 import * as S from './idea-card.styles';
 
 interface IdeaCardHeaderProps {
@@ -93,7 +93,10 @@ export default function IdeaCardHeader({
         <S.Meta>
           <S.AuthorPill isCurrentUser={isCurrentUser}>{author}</S.AuthorPill>
           {isVoteButtonVisible ? (
-            <S.IconButton aria-label="comment" onClick={handleOpenComment}>
+            <S.IconButton
+              aria-label="comment"
+              onClick={handleOpenComment}
+            >
               <Image
                 src="/comment.svg"
                 alt="댓글"
