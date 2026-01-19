@@ -27,7 +27,23 @@ export const Title = styled.h1`
 
 export const RightSection = styled.div`
   display: flex;
-  gap: 8px;
+  gap: 12px;
   align-items: center;
+`;
+
+export const Name = styled.p`
+  font-size: ${theme.font.size.medium};
+  font-weight: ${theme.font.weight.bold};
+  color: black;
+`;
+
+export const Avatar = styled.div`
+  position: relative;
+  display: block;
+  background-color: ${theme.colors.gray[100]};
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  overflow: hidden;
 `;
 

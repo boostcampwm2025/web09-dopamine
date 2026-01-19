@@ -13,7 +13,8 @@ const ProjectHeader = () => {
         <S.Title>내 프로젝트</S.Title>
       </S.LeftSection>
       <S.RightSection>
-        
+        <S.Name>이름</S.Name>
+        <S.Avatar />
       </S.RightSection>
     </S.HeaderContainer>
   );
