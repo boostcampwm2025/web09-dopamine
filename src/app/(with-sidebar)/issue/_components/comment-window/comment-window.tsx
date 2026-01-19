@@ -82,7 +82,7 @@ export default function CommentWindow({
         <S.Section>
           <S.InputRow>
             <S.Input
-              placeholder="?µë?"
+              placeholder="댓글 입력"
               value={inputValue}
               onChange={(event) => setInputValue(event.target.value)}
               onKeyDown={handleInputKeyDown}
