@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import styled from '@emotion/styled';
 import IssueHeader from '@/app/(with-sidebar)/issue/_components/header/header';
 import IssueSidebar from '@/app/(with-sidebar)/issue/_components/layout/issue-sidebar';
-import TopicHeader from '@/app/(with-sidebar)/topic/_components/topic-header';
+import TopicHeader from '@/app/(with-sidebar)/topic/_components/header/topic-header';
 import TopicSidebar from '@/app/(with-sidebar)/topic/_components/topic-sidebar';
 
 const LayoutContainer = styled.div`
