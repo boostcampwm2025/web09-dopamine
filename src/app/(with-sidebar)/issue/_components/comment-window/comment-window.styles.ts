@@ -6,7 +6,7 @@ export const Window = styled.section`
   z-index: 1100;
   min-width: 260px;
   max-width: calc(100vw - 32px);
-  max-height: calc(100vh - 32px);
+  max-height: min(800px, calc(100vh - 32px));
   background: ${theme.colors.white};
   border-radius: ${theme.radius.medium};
   border: 1px solid ${theme.colors.gray[200]};
@@ -23,6 +23,7 @@ export const Header = styled.header`
   padding: 12px 14px;
   background: ${theme.colors.gray[50]};
   border-bottom: 1px solid ${theme.colors.gray[200]};
+  cursor: default;
 `;
 
 export const Title = styled.span`
@@ -55,10 +56,13 @@ export const Body = styled.div`
   padding: 16px;
   font-size: ${theme.font.size.medium};
   color: ${theme.colors.gray[700]};
-  overflow: auto;
   display: flex;
   flex-direction: column;
   gap: 16px;
+  cursor: default;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
 `;
 
 export const Section = styled.section`
@@ -67,17 +71,21 @@ export const Section = styled.section`
   gap: 12px;
 `;
 
+export const CommentSection = styled(Section)`
+  flex: 1;
+  min-height: 0;
+`;
+
 export const CommentList = styled.div`
   display: flex;
   flex-direction: column;
   gap: 12px;
+  overflow: auto;
 `;
 
 export const CommentItem = styled.div`
   padding: 12px 14px;
-  border: 1px solid ${theme.colors.gray[200]};
-  border-radius: ${theme.radius.small};
-  background: ${theme.colors.gray[50]};
+  position: relative;
 `;
 
 export const CommentHeader = styled.div`
@@ -99,10 +107,52 @@ export const CommentActions = styled.div`
   gap: 6px;
 `;
 
-export const CommentBody = styled.div`
+export const CommentBody = styled.div<{ $isClamped: boolean }>`
   font-size: ${theme.font.size.medium};
   color: ${theme.colors.gray[800]};
   line-height: 1.5;
+  max-width: 100%;
+  white-space: pre-wrap;
+  word-break: break-word;
+
+  ${({ $isClamped }) =>
+    $isClamped
+      ? `
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  `
+      : ''}
+`;
+
+export const CommentMeasure = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  visibility: hidden;
+  pointer-events: none;
+  font-size: ${theme.font.size.medium};
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+  height: auto;
+  overflow: visible;
+`;
+
+export const ReadMoreButton = styled.button`
+  margin-top: 8px;
+  border: none;
+  background: transparent;
+  color: ${theme.colors.blue[600]};
+  font-size: ${theme.font.size.small};
+  cursor: pointer;
+  padding: 0;
+
+  &:hover {
+    text-decoration: underline;
+  }
 `;
 
 export const EditInput = styled.textarea`
@@ -185,23 +235,19 @@ export const ConfirmDangerButton = styled(ConfirmButton)`
   }
 `;
 
-export const Divider = styled.hr`
-  border: none;
-  border-top: 1px solid ${theme.colors.gray[200]};
-  margin: 0;
-`;
-
 export const InputRow = styled.div`
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 10px;
   align-items: center;
+  border: 1px solid ${theme.colors.gray[200]};
+  border-radius: ${theme.radius.small};
+  padding: 10px 12px;
 `;
 
 export const Input = styled.input`
   padding: 10px 12px;
-  border-radius: ${theme.radius.small};
-  border: 1px solid ${theme.colors.gray[200]};
+  border: none;
   font-size: ${theme.font.size.medium};
 
   &:focus {

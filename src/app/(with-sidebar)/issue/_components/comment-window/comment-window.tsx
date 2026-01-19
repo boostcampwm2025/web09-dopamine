@@ -1,5 +1,6 @@
 'use client';
 
+import { useCallback, useEffect, useRef, useState } from 'react';
 import * as S from './comment-window.styles';
 import { useWindow } from './hooks/use-window';
 import { getCommentMeta } from '@/lib/utils/comment';
@@ -44,6 +45,60 @@ export default function CommentWindow({
     handleEditKeyDown,
   } = useWindow({ initialPosition, ideaId, userId });
   const { openModal, closeModal } = useModalStore();
+  const [expandedCommentIds, setExpandedCommentIds] = useState<string[]>([]);
+  const [overflowCommentIds, setOverflowCommentIds] = useState<string[]>([]);
+  const commentBodyRefs = useRef(new Map<string, HTMLDivElement | null>());
+  const commentMeasureRefs = useRef(new Map<string, HTMLDivElement | null>());
+
+  const handleExpand = useCallback((commentId: string) => {
+    setExpandedCommentIds((prev) =>
+      prev.includes(commentId) ? prev : [...prev, commentId],
+    );
+  }, []);
+
+  const registerCommentBody = useCallback(
+    (commentId: string) => (node: HTMLDivElement | null) => {
+      commentBodyRefs.current.set(commentId, node);
+    },
+    [],
+  );
+
+  const registerCommentMeasure = useCallback(
+    (commentId: string) => (node: HTMLDivElement | null) => {
+      commentMeasureRefs.current.set(commentId, node);
+    },
+    [],
+  );
+
+  const measureOverflow = useCallback(() => {
+    const next = new Set<string>();
+    commentMeasureRefs.current.forEach((measureNode, commentId) => {
+      const bodyNode = commentBodyRefs.current.get(commentId);
+      if (!measureNode || !bodyNode) return;
+      const fullHeight = measureNode.offsetHeight;
+      const clampedHeight = bodyNode.clientHeight;
+      if (fullHeight > clampedHeight + 1) next.add(commentId);
+    });
+
+    setOverflowCommentIds((prev) => {
+      if (prev.length === next.size && prev.every((id) => next.has(id))) {
+        return prev;
+      }
+      return Array.from(next);
+    });
+  }, []);
+
+  useEffect(() => {
+    measureOverflow();
+  }, [comments, expandedCommentIds, measureOverflow]);
+
+  useEffect(() => {
+    const handleResize = () => measureOverflow();
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [measureOverflow]);
 
   const handleDeleteClick = (commentId: string) => {
     if (isMutating) return;
@@ -89,7 +144,7 @@ export default function CommentWindow({
         </S.Controls>
       </S.Header>
       <S.Body>
-        <S.Section>
+        <S.CommentSection>
           <S.CommentList>
             {isLoading ? (
               <S.CommentItem>
@@ -107,70 +162,92 @@ export default function CommentWindow({
               </S.CommentItem>
             ) : null}
             {!isLoading && !errorMessage
-              ? comments.map((comment) => (
-                  <S.CommentItem key={comment.id}>
-                    <S.CommentHeader>
-                      <S.CommentMeta>{getCommentMeta(comment)}</S.CommentMeta>
-                      {comment.user?.id === userId ? (
-                        <S.CommentActions>
-                          {editingCommentId === comment.id ? (
-                            <>
-                              <S.ActionButton
-                                type="button"
-                                onClick={handleEditSave}
-                                disabled={
-                                  isMutating ||
-                                  mutatingCommentId === comment.id ||
-                                  editingValue.trim().length === 0
-                                }
-                              >
-                                {mutatingCommentId === comment.id ? 'Saving...' : 'Save'}
-                              </S.ActionButton>
-                              <S.ActionButton
-                                type="button"
-                                onClick={handleEditCancel}
-                                disabled={isMutating}
-                              >
-                                Cancel
-                              </S.ActionButton>
-                            </>
-                          ) : (
-                            <>
-                              <S.ActionButton
-                                type="button"
-                                onClick={() => handleEditStart(comment)}
-                                disabled={isMutating}
-                              >
-                                Edit
-                              </S.ActionButton>
-                              <S.DangerButton
-                                type="button"
-                                onClick={() => handleDeleteClick(comment.id)}
-                                disabled={isMutating}
-                              >
-                                {mutatingCommentId === comment.id ? 'Deleting...' : 'Delete'}
-                              </S.DangerButton>
-                            </>
-                          )}
-                        </S.CommentActions>
-                      ) : null}
-                    </S.CommentHeader>
-                    {editingCommentId === comment.id ? (
-                      <S.EditInput
-                        value={editingValue}
-                        onChange={(event) => setEditingValue(event.target.value)}
-                        onKeyDown={handleEditKeyDown}
-                        disabled={isMutating || mutatingCommentId === comment.id}
-                      />
-                    ) : (
-                      <S.CommentBody>{comment.content}</S.CommentBody>
-                    )}
-                  </S.CommentItem>
-                ))
+              ? comments.map((comment) => {
+                  const isExpanded = expandedCommentIds.includes(comment.id);
+                  const canExpand = overflowCommentIds.includes(comment.id);
+
+                  return (
+                    <S.CommentItem key={comment.id}>
+                      <S.CommentMeasure ref={registerCommentMeasure(comment.id)}>
+                        {comment.content}
+                      </S.CommentMeasure>
+                      <S.CommentHeader>
+                        <S.CommentMeta>{getCommentMeta(comment)}</S.CommentMeta>
+                        {comment.user?.id === userId ? (
+                          <S.CommentActions>
+                            {editingCommentId === comment.id ? (
+                              <>
+                                <S.ActionButton
+                                  type="button"
+                                  onClick={handleEditSave}
+                                  disabled={
+                                    isMutating ||
+                                    mutatingCommentId === comment.id ||
+                                    editingValue.trim().length === 0
+                                  }
+                                >
+                                  {mutatingCommentId === comment.id ? 'Saving...' : 'Save'}
+                                </S.ActionButton>
+                                <S.ActionButton
+                                  type="button"
+                                  onClick={handleEditCancel}
+                                  disabled={isMutating}
+                                >
+                                  Cancel
+                                </S.ActionButton>
+                              </>
+                            ) : (
+                              <>
+                                <S.ActionButton
+                                  type="button"
+                                  onClick={() => handleEditStart(comment)}
+                                  disabled={isMutating}
+                                >
+                                  Edit
+                                </S.ActionButton>
+                                <S.DangerButton
+                                  type="button"
+                                  onClick={() => handleDeleteClick(comment.id)}
+                                  disabled={isMutating}
+                                >
+                                  {mutatingCommentId === comment.id ? 'Deleting...' : 'Delete'}
+                                </S.DangerButton>
+                              </>
+                            )}
+                          </S.CommentActions>
+                        ) : null}
+                      </S.CommentHeader>
+                      {editingCommentId === comment.id ? (
+                        <S.EditInput
+                          value={editingValue}
+                          onChange={(event) => setEditingValue(event.target.value)}
+                          onKeyDown={handleEditKeyDown}
+                          disabled={isMutating || mutatingCommentId === comment.id}
+                        />
+                      ) : (
+                        <>
+                          <S.CommentBody
+                            ref={registerCommentBody(comment.id)}
+                            $isClamped={!isExpanded}
+                          >
+                            {comment.content}
+                          </S.CommentBody>
+                          {!isExpanded && canExpand ? (
+                            <S.ReadMoreButton
+                              type="button"
+                              onClick={() => handleExpand(comment.id)}
+                            >
+                              더보기
+                            </S.ReadMoreButton>
+                          ) : null}
+                        </>
+                      )}
+                    </S.CommentItem>
+                  );
+                })
               : null}
           </S.CommentList>
-        </S.Section>
-        <S.Divider />
+        </S.CommentSection>
         <S.Section>
           <S.InputRow>
             <S.Input
