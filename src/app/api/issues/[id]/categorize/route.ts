@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import aiRequest from '@/constants/ai-request';
 import { ideaRepository } from '@/lib/repositories/idea.repository';
 import { categorizeService } from '@/lib/services/categorize.service';
-import { validateAIResponse } from '@/utils/ai-response-validator';
+import { validateAIResponse } from '@/lib/utils/ai-response-validator';
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id: issueId } = await params;
