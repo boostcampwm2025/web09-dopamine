@@ -3,6 +3,7 @@
 import * as S from './comment-window.styles';
 import { useWindow } from './hooks/use-window';
 import { getCommentMeta } from '@/lib/utils/comment';
+import { useModalStore } from '@/components/modal/use-modal-store';
 
 export interface CommentWindowProps {
   ideaId: string;
@@ -26,12 +27,51 @@ export default function CommentWindow({
     comments,
     isLoading,
     isSubmitting,
+    isMutating,
+    mutatingCommentId,
     errorMessage,
     inputValue,
     setInputValue,
     handleSubmit,
     handleInputKeyDown,
+    editingCommentId,
+    editingValue,
+    setEditingValue,
+    handleEditStart,
+    handleEditCancel,
+    handleEditSave,
+    handleDelete,
+    handleEditKeyDown,
   } = useWindow({ initialPosition, ideaId, userId });
+  const { openModal, closeModal } = useModalStore();
+
+  const handleDeleteClick = (commentId: string) => {
+    if (isMutating) return;
+
+    openModal({
+      title: '댓글 삭제',
+      content: (
+        <S.ConfirmBox>
+          <S.ConfirmMessage>정말 삭제할까요?</S.ConfirmMessage>
+          <S.ConfirmActions>
+            <S.ConfirmButton type="button" onClick={closeModal} disabled={isMutating}>
+              취소
+            </S.ConfirmButton>
+            <S.ConfirmDangerButton
+              type="button"
+              onClick={() => {
+                closeModal();
+                handleDelete(commentId);
+              }}
+              disabled={isMutating}
+            >
+              삭제
+            </S.ConfirmDangerButton>
+          </S.ConfirmActions>
+        </S.ConfirmBox>
+      ),
+    });
+  };
 
   return (
     <S.Window
@@ -69,8 +109,62 @@ export default function CommentWindow({
             {!isLoading && !errorMessage
               ? comments.map((comment) => (
                   <S.CommentItem key={comment.id}>
-                    <S.CommentMeta>{getCommentMeta(comment)}</S.CommentMeta>
-                    <S.CommentBody>{comment.content}</S.CommentBody>
+                    <S.CommentHeader>
+                      <S.CommentMeta>{getCommentMeta(comment)}</S.CommentMeta>
+                      {comment.user?.id === userId ? (
+                        <S.CommentActions>
+                          {editingCommentId === comment.id ? (
+                            <>
+                              <S.ActionButton
+                                type="button"
+                                onClick={handleEditSave}
+                                disabled={
+                                  isMutating ||
+                                  mutatingCommentId === comment.id ||
+                                  editingValue.trim().length === 0
+                                }
+                              >
+                                {mutatingCommentId === comment.id ? 'Saving...' : 'Save'}
+                              </S.ActionButton>
+                              <S.ActionButton
+                                type="button"
+                                onClick={handleEditCancel}
+                                disabled={isMutating}
+                              >
+                                Cancel
+                              </S.ActionButton>
+                            </>
+                          ) : (
+                            <>
+                              <S.ActionButton
+                                type="button"
+                                onClick={() => handleEditStart(comment)}
+                                disabled={isMutating}
+                              >
+                                Edit
+                              </S.ActionButton>
+                              <S.DangerButton
+                                type="button"
+                                onClick={() => handleDeleteClick(comment.id)}
+                                disabled={isMutating}
+                              >
+                                {mutatingCommentId === comment.id ? 'Deleting...' : 'Delete'}
+                              </S.DangerButton>
+                            </>
+                          )}
+                        </S.CommentActions>
+                      ) : null}
+                    </S.CommentHeader>
+                    {editingCommentId === comment.id ? (
+                      <S.EditInput
+                        value={editingValue}
+                        onChange={(event) => setEditingValue(event.target.value)}
+                        onKeyDown={handleEditKeyDown}
+                        disabled={isMutating || mutatingCommentId === comment.id}
+                      />
+                    ) : (
+                      <S.CommentBody>{comment.content}</S.CommentBody>
+                    )}
                   </S.CommentItem>
                 ))
               : null}

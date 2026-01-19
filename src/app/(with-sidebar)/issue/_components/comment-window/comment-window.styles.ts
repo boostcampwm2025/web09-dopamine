@@ -80,16 +80,109 @@ export const CommentItem = styled.div`
   background: ${theme.colors.gray[50]};
 `;
 
+export const CommentHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+`;
+
 export const CommentMeta = styled.div`
   font-size: ${theme.font.size.small};
   color: ${theme.colors.gray[500]};
-  margin-bottom: 6px;
+`;
+
+export const CommentActions = styled.div`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 `;
 
 export const CommentBody = styled.div`
   font-size: ${theme.font.size.medium};
   color: ${theme.colors.gray[800]};
   line-height: 1.5;
+`;
+
+export const EditInput = styled.textarea`
+  width: 100%;
+  min-height: 84px;
+  padding: 10px 12px;
+  border-radius: ${theme.radius.small};
+  border: 1px solid ${theme.colors.gray[200]};
+  font-size: ${theme.font.size.medium};
+  resize: vertical;
+
+  &:focus {
+    outline: 2px solid ${theme.colors.blue[200]};
+    border-color: ${theme.colors.blue[400]};
+  }
+`;
+
+export const ActionButton = styled.button`
+  padding: 6px 10px;
+  border-radius: ${theme.radius.small};
+  border: 1px solid ${theme.colors.gray[200]};
+  background: ${theme.colors.white};
+  color: ${theme.colors.gray[700]};
+  font-size: ${theme.font.size.small};
+  cursor: pointer;
+
+  &:hover {
+    background: ${theme.colors.gray[100]};
+  }
+`;
+
+export const DangerButton = styled(ActionButton)`
+  border-color: ${theme.colors.red[400]};
+  color: ${theme.colors.red[600]};
+
+  &:hover {
+    background: ${theme.colors.red[50]};
+  }
+`;
+
+export const ConfirmBox = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+`;
+
+export const ConfirmMessage = styled.p`
+  margin: 0;
+  font-size: ${theme.font.size.medium};
+  color: ${theme.colors.gray[700]};
+`;
+
+export const ConfirmActions = styled.div`
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+`;
+
+export const ConfirmButton = styled.button`
+  padding: 8px 14px;
+  border-radius: ${theme.radius.small};
+  border: 1px solid ${theme.colors.gray[200]};
+  background: ${theme.colors.white};
+  color: ${theme.colors.gray[700]};
+  font-size: ${theme.font.size.small};
+  cursor: pointer;
+
+  &:hover {
+    background: ${theme.colors.gray[100]};
+  }
+`;
+
+export const ConfirmDangerButton = styled(ConfirmButton)`
+  border-color: ${theme.colors.red[400]};
+  color: ${theme.colors.red[600]};
+
+  &:hover {
+    background: ${theme.colors.red[50]};
+  }
 `;
 
 export const Divider = styled.hr`

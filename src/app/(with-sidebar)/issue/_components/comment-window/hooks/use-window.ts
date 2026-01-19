@@ -2,7 +2,13 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { KeyboardEvent } from 'react';
-import { createComment, fetchComments, type Comment } from '@/lib/api/comment';
+import {
+  createComment,
+  deleteComment,
+  fetchComments,
+  updateComment,
+  type Comment,
+} from '@/lib/api/comment';
 
 interface UseWindowOptions {
   initialPosition?: { x: number; y: number };
@@ -18,8 +24,12 @@ export function useWindow({ initialPosition, ideaId, userId }: UseWindowOptions)
   const [comments, setComments] = useState<Comment[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isMutating, setIsMutating] = useState(false);
+  const [mutatingCommentId, setMutatingCommentId] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [inputValue, setInputValue] = useState('');
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+  const [editingValue, setEditingValue] = useState('');
 
   // 외부에서 전달된 초기 위치 값이 변경될 때 상태 동기화
   useEffect(() => {
@@ -82,6 +92,66 @@ export function useWindow({ initialPosition, ideaId, userId }: UseWindowOptions)
     }
   }, [ideaId, inputValue, isSubmitting, userId]);
 
+  const handleEditStart = useCallback((comment: Comment) => {
+    setEditingCommentId(comment.id);
+    setEditingValue(comment.content);
+  }, []);
+
+  const handleEditCancel = useCallback(() => {
+    setEditingCommentId(null);
+    setEditingValue('');
+  }, []);
+
+  const handleEditSave = useCallback(async () => {
+    const trimmed = editingValue.trim();
+    if (!ideaId || !editingCommentId || !trimmed || isMutating) return;
+
+    setIsMutating(true);
+    setMutatingCommentId(editingCommentId);
+    setErrorMessage(null);
+    try {
+      const updated = await updateComment(ideaId, editingCommentId, { content: trimmed });
+      setComments((prev) =>
+        prev.map((comment) =>
+          comment.id === editingCommentId
+            ? { ...comment, ...(updated ?? {}), content: updated?.content ?? trimmed }
+            : comment,
+        ),
+      );
+      setEditingCommentId(null);
+      setEditingValue('');
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : '?“ê????˜ì •?˜ì? ëª»í–ˆ?µë‹ˆ??');
+    } finally {
+      setIsMutating(false);
+      setMutatingCommentId(null);
+    }
+  }, [editingCommentId, editingValue, ideaId, isMutating]);
+
+  const handleDelete = useCallback(
+    async (commentId: string) => {
+      if (!ideaId || isMutating) return;
+
+      setIsMutating(true);
+      setMutatingCommentId(commentId);
+      setErrorMessage(null);
+      try {
+        await deleteComment(ideaId, commentId);
+        setComments((prev) => prev.filter((comment) => comment.id !== commentId));
+        if (editingCommentId === commentId) {
+          setEditingCommentId(null);
+          setEditingValue('');
+        }
+      } catch (error) {
+        setErrorMessage(error instanceof Error ? error.message : '?“ê????? œ?˜ì? ëª»í–ˆ?µë‹ˆ??');
+      } finally {
+        setIsMutating(false);
+        setMutatingCommentId(null);
+      }
+    },
+    [editingCommentId, ideaId, isMutating],
+  );
+
   /**
    * [입력 핸들링] 인풋창에서 Enter 키를 눌렀을 때 제출 함수를 실행합니다.
    */
@@ -95,15 +165,35 @@ export function useWindow({ initialPosition, ideaId, userId }: UseWindowOptions)
     [handleSubmit],
   );
 
+  const handleEditKeyDown = useCallback(
+    (event: KeyboardEvent<HTMLTextAreaElement>) => {
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        handleEditSave();
+      }
+    },
+    [handleEditSave],
+  );
+
   return {
     position,
     comments,
     isLoading,
     isSubmitting,
+    isMutating,
+    mutatingCommentId,
     errorMessage,
     inputValue,
     setInputValue,
     handleSubmit,
     handleInputKeyDown,
+    editingCommentId,
+    editingValue,
+    setEditingValue,
+    handleEditStart,
+    handleEditCancel,
+    handleEditSave,
+    handleDelete,
+    handleEditKeyDown,
   };
 }
