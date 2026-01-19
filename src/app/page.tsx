@@ -108,13 +108,12 @@ export default function HomePage() {
   const { data: session } = useSession();
   const { openModal } = useModalStore();
 
-  useEffect(() => {
+  const handleStart = () => {
     if (session) {
       router.push('/project');
+      return;
     }
-  }, [session, router]);
 
-  const modalOpen = () => {
     openModal({
       title: '이슈 생성',
       content: <CreateIssueModal />,
@@ -169,7 +168,7 @@ export default function HomePage() {
           <Text>길을 안내합니다.</Text>
         </SubTitleContainer>
         <BtnContainer>
-          <StartButton onClick={modalOpen}>빠르게 시작하기</StartButton>
+          <StartButton onClick={handleStart}>빠르게 시작하기</StartButton>
         </BtnContainer>
         <HorizontalLine />
         <SocialLoginContainer>
