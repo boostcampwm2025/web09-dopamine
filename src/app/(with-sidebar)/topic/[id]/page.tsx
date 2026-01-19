@@ -1,7 +1,5 @@
+import Canvas from '../../issue/_components/canvas/canvas';
+
 export default function TopicPage() {
-  return (
-    <>
-      <h1>Topic Page</h1>
-    </>
-  );
+  return <Canvas></Canvas>;
 }

@@ -1,8 +1,6 @@
 'use client';
 
 import { useRef } from 'react';
-import { ISSUE_STATUS, ISSUE_STATUS_DESCRIPTION } from '@/constants/issue';
-import { useIssueData, useIssueId } from '../../hooks';
 import { CanvasContext } from './canvas-context';
 import CanvasZoomControls from './canvas-zoom-controls';
 import { AddIdeaButton, BottomMessage, CanvasContainer, CanvasViewport } from './canvas.styles';
@@ -16,6 +14,8 @@ interface CanvasProps {
   showMessage?: boolean;
   showAddButton?: boolean;
   boundContent?: boolean;
+  bottomMessage?: string;
+  enableAddIdea?: boolean;
 }
 
 export default function Canvas({
@@ -26,14 +26,10 @@ export default function Canvas({
   showMessage = true,
   showAddButton = true,
   boundContent = false,
+  bottomMessage = '',
+  enableAddIdea = false,
 }: CanvasProps) {
   const canvasRef = useRef<HTMLDivElement>(null);
-  const issueId = useIssueId();
-
-  const { status } = useIssueData(issueId);
-  const isBrainStorming = status == ISSUE_STATUS.BRAINSTORMING;
-
-  const description = ISSUE_STATUS_DESCRIPTION[status];
 
   const {
     scale,
@@ -51,7 +47,7 @@ export default function Canvas({
   } = useCanvasControls({
     canvasRef,
     onDoubleClick,
-    isAddIdeaEnabled: isBrainStorming,
+    isAddIdeaEnabled: enableAddIdea,
   });
 
   return (
@@ -87,10 +83,10 @@ export default function Canvas({
           onReset={handleResetZoom}
         />
       )}
-      {showAddButton && isBrainStorming && (
+      {showAddButton && enableAddIdea && (
         <AddIdeaButton onClick={handleAddIdeaButtonClick}>아이디어 추가</AddIdeaButton>
       )}
-      {showMessage && <BottomMessage>{description}</BottomMessage>}
+      {showMessage && <BottomMessage>{bottomMessage}</BottomMessage>}
     </>
   );
 }
