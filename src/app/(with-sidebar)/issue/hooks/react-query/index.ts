@@ -2,7 +2,6 @@ export * from './use-category-mutation';
 export * from './use-category-query';
 export * from './use-idea-mutations';
 export * from './use-idea-query';
-export * from './use-ideas-query';
 export * from './use-issue-member-mutation';
 export * from './use-issue-member-query';
 export * from './use-issue-mutation';
