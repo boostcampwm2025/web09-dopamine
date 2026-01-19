@@ -122,11 +122,11 @@ export function useIssueEvents({
     // AI 구조화 핸들러
     eventSource.addEventListener(SSE_EVENT_TYPES.AI_STRUCTURING_STARTED, () => {
       setIsAIStructuring(true);
-      toast.success('AI 구조화가 완료되었습니다.');
     });
 
     eventSource.addEventListener(SSE_EVENT_TYPES.AI_STRUCTURING_COMPLETED, () => {
       setIsAIStructuring(false);
+      toast.success('AI 구조화가 완료되었습니다.');
     });
 
     eventSource.addEventListener(SSE_EVENT_TYPES.AI_STRUCTURING_FAILED, (event) => {
