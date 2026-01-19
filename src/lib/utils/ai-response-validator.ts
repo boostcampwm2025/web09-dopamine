@@ -13,10 +13,7 @@ interface ValidationResult {
   data?: CategorizeResult;
 }
 
-export function validateAIResponse(
-  aiResponse: any,
-  inputIdeaIds: string[]
-): ValidationResult {
+export function validateAIResponse(aiResponse: any, inputIdeaIds: string[]): ValidationResult {
   // AI 응답 존재 여부 확인
   const result = aiResponse.result?.message?.content;
 
@@ -72,9 +69,7 @@ export function validateAIResponse(
 
   // 모든 입력 idea id가 카테고리에 포함되었는지 검증
   const inputIdeaIdsSet = new Set(inputIdeaIds);
-  const categorizedIdeaIds = new Set(
-    parsedResult.categories.flatMap((c) => c.ideaIds)
-  );
+  const categorizedIdeaIds = new Set(parsedResult.categories.flatMap((c) => c.ideaIds));
 
   for (const ideaId of inputIdeaIdsSet) {
     if (!categorizedIdeaIds.has(ideaId)) {

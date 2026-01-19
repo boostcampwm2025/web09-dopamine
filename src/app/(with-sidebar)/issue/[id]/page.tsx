@@ -117,7 +117,6 @@ const IssuePage = () => {
   // 에러 여부 확인
   const hasError = isIssueError || isIdeasError || isCategoryError;
 
-
   return (
     <>
       <DndContext
@@ -137,60 +136,60 @@ const IssuePage = () => {
           <ErrorPage fullScreen={false} />
         ) : (
           <Canvas onDoubleClick={handleCreateIdea}>
-          {/* 카테고리들 - 내부에 아이디어 카드들을 children으로 전달 */}
-          {categories.map((category) => {
-            const categoryIdeas = ideas.filter((idea) => idea.categoryId === category.id);
+            {/* 카테고리들 - 내부에 아이디어 카드들을 children으로 전달 */}
+            {categories.map((category) => {
+              const categoryIdeas = ideas.filter((idea) => idea.categoryId === category.id);
 
-            return (
-              <CategoryCard
-                key={category.id}
-                {...category}
-                issueId={issueId}
-                onPositionChange={handleCategoryPositionChange}
-                checkCollision={checkCategoryOverlap}
-                onRemove={() => handleDeleteCategory(category.id)}
-                onDropIdea={(ideaId) => handleMoveIdeaToCategory(ideaId, category.id)}
-              >
-                {categoryIdeas.map((idea) => (
-                  <IdeaCard
-                    key={idea.id}
-                    {...idea}
-                    author={idea.author}
-                    userId={idea.userId}
-                    issueId={issueId}
-                    position={null}
-                    isSelected={idea.id === selectedIdeaId}
-                    status={getIdeaStatus(idea.id)}
-                    isVoteButtonVisible={isVoteButtonVisible}
-                    isVoteDisabled={isVoteDisabled}
-                    onSave={(content) => handleSaveIdea(idea.id, content)}
-                    onDelete={() => handleDeleteIdea(idea.id)}
-                    onClick={() => handleSelectIdea(idea.id)}
-                  />
-                ))}
-              </CategoryCard>
-            );
-          })}
+              return (
+                <CategoryCard
+                  key={category.id}
+                  {...category}
+                  issueId={issueId}
+                  onPositionChange={handleCategoryPositionChange}
+                  checkCollision={checkCategoryOverlap}
+                  onRemove={() => handleDeleteCategory(category.id)}
+                  onDropIdea={(ideaId) => handleMoveIdeaToCategory(ideaId, category.id)}
+                >
+                  {categoryIdeas.map((idea) => (
+                    <IdeaCard
+                      key={idea.id}
+                      {...idea}
+                      author={idea.author}
+                      userId={idea.userId}
+                      issueId={issueId}
+                      position={null}
+                      isSelected={idea.id === selectedIdeaId}
+                      status={getIdeaStatus(idea.id)}
+                      isVoteButtonVisible={isVoteButtonVisible}
+                      isVoteDisabled={isVoteDisabled}
+                      onSave={(content) => handleSaveIdea(idea.id, content)}
+                      onDelete={() => handleDeleteIdea(idea.id)}
+                      onClick={() => handleSelectIdea(idea.id)}
+                    />
+                  ))}
+                </CategoryCard>
+              );
+            })}
 
-          {/* 자유 배치 아이디어들 (categoryId === null) */}
-          {ideas
-            .filter((idea) => idea.categoryId === null)
-            .map((idea) => (
-              <IdeaCard
-                key={idea.id}
-                {...idea}
-                issueId={issueId}
-                author={idea.author}
-                userId={idea.userId}
-                isSelected={idea.id === selectedIdeaId}
-                status={getIdeaStatus(idea.id)}
-                isVoteButtonVisible={isVoteButtonVisible}
-                isVoteDisabled={isVoteDisabled}
-                onPositionChange={handleIdeaPositionChange}
-                onSave={(content) => handleSaveIdea(idea.id, content)}
-                onDelete={() => handleDeleteIdea(idea.id)}
-              />
-            ))}
+            {/* 자유 배치 아이디어들 (categoryId === null) */}
+            {ideas
+              .filter((idea) => idea.categoryId === null)
+              .map((idea) => (
+                <IdeaCard
+                  key={idea.id}
+                  {...idea}
+                  issueId={issueId}
+                  author={idea.author}
+                  userId={idea.userId}
+                  isSelected={idea.id === selectedIdeaId}
+                  status={getIdeaStatus(idea.id)}
+                  isVoteButtonVisible={isVoteButtonVisible}
+                  isVoteDisabled={isVoteDisabled}
+                  onPositionChange={handleIdeaPositionChange}
+                  onSave={(content) => handleSaveIdea(idea.id, content)}
+                  onDelete={() => handleDeleteIdea(idea.id)}
+                />
+              ))}
           </Canvas>
         )}
 
@@ -231,7 +230,9 @@ const IssuePage = () => {
 
       {!hasError && isLoading && <LoadingOverlay />}
       {/* AI 구조화 로딩 오버레이 */}
-      {!hasError && isAIStructuring && <LoadingOverlay message="AI가 아이디어를 분류하고 있습니다..." />}
+      {!hasError && isAIStructuring && (
+        <LoadingOverlay message="AI가 아이디어를 분류하고 있습니다..." />
+      )}
     </>
   );
 };
