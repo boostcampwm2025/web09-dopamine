@@ -48,7 +48,7 @@ export const SubmitButton = styled.button`
   height: 40px;
   padding: 0 18px;
   border: none;
-  border-radius: ${theme.radius.small};
+  border-radius: ${theme.radius.medium};
   background: ${theme.colors.green[600]};
   color: ${theme.colors.white};
   font-weight: 600;
