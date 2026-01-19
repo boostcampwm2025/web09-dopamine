@@ -64,6 +64,10 @@ export default function TopicCanvas({ issues }: TopicCanvasProps) {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
+        fitViewOptions={{
+          minZoom: 0.5, // 최소 줌
+          maxZoom: 1, // 최대 줌
+        }}
         fitView
       />
     </div>
