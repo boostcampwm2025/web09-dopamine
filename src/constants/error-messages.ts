@@ -56,4 +56,3 @@ export const CLIENT_ERROR_MESSAGES: Record<string, string> = {
   WORD_CLOUD_FETCH_FAILED: '워드클라우드 조회에 실패했습니다.',
   WORD_CLOUD_CREATE_FAILED: '워드클라우드 생성에 실패했습니다.',
 };
-  

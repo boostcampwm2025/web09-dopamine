@@ -1,7 +1,6 @@
 /**
  * 이슈 관련 API 함수들 (공통 응답 포맷 사용)
  */
-
 import getAPIResponseData from '@/lib/utils/api-response';
 
 /* =========================
@@ -60,12 +59,14 @@ export function updateIssueStatus(
  * ========================= */
 
 export function getIssueMembers(issueId: string) {
-  return getAPIResponseData<Array<{
-    id: string;
-    displayName: string;
-    role: string;
-    isConnected: boolean;
-  }>>({
+  return getAPIResponseData<
+    Array<{
+      id: string;
+      displayName: string;
+      role: string;
+      isConnected: boolean;
+    }>
+  >({
     url: `/api/issues/${issueId}/members`,
     method: 'GET',
   });

@@ -16,10 +16,7 @@ export function fetchIdeas(issueId: string): Promise<Idea[]> {
 }
 
 // 아이디어 생성
-export function createIdea(
-  issueId: string,
-  ideaData: CreateIdeaRequest,
-): Promise<Idea> {
+export function createIdea(issueId: string, ideaData: CreateIdeaRequest): Promise<Idea> {
   return getAPIResponseData<Idea>({
     url: `/api/issues/${issueId}/idea`,
     method: 'POST',
@@ -29,10 +26,7 @@ export function createIdea(
 }
 
 // 아이디어 삭제
-export function deleteIdea(
-  issueId: string,
-  ideaId: string,
-): Promise<void> {
+export function deleteIdea(issueId: string, ideaId: string): Promise<void> {
   return getAPIResponseData<void>({
     url: `/api/issues/${issueId}/idea?ideaId=${ideaId}`,
     method: 'DELETE',
@@ -40,10 +34,7 @@ export function deleteIdea(
 }
 
 // 단일 아이디어 조회 (myVote 포함)
-export function getIdea(
-  ideaId: string,
-  userId?: string,
-): Promise<Idea> {
+export function getIdea(ideaId: string, userId?: string): Promise<Idea> {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
   };

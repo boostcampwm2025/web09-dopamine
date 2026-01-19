@@ -1,7 +1,6 @@
 /**
  * 리포트 관련 API 함수
  */
-
 import getAPIResponseData from '@/lib/utils/api-response';
 
 export interface WordCloudItem {

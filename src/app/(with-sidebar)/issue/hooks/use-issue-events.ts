@@ -28,7 +28,7 @@ export function useIssueEvents({
   const [error, setError] = useState<Event | null>(null);
   const eventSourceRef = useRef<EventSource | null>(null);
   const selectedIdeaKey = useMemo(() => selectedIdeaQueryKey(issueId), [issueId]);
-  
+
   // userId를 useMemo로 캐싱하여 불필요한 재계산 방지
   const userId = useMemo(() => getUserIdForIssue(issueId) ?? '', [issueId]);
 
