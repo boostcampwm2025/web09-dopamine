@@ -55,17 +55,17 @@ export default function CommentList({
       if (isMutating) return;
 
       openModal({
-        title: '?“ê? ?? œ',
+        title: '댓글 삭제',
         content: (
           <S.ConfirmBox>
-            <S.ConfirmMessage>?•ë§ ?? œ? ê¹Œ??</S.ConfirmMessage>
+            <S.ConfirmMessage>정말 삭제할까요?</S.ConfirmMessage>
             <S.ConfirmActions>
               <S.ConfirmButton
                 type="button"
                 onClick={closeModal}
                 disabled={isMutating}
               >
-                ì·¨ì†Œ
+                취소
               </S.ConfirmButton>
               <S.ConfirmDangerButton
                 type="button"
@@ -75,7 +75,7 @@ export default function CommentList({
                 }}
                 disabled={isMutating}
               >
-                ?? œ
+                삭제
               </S.ConfirmDangerButton>
             </S.ConfirmActions>
           </S.ConfirmBox>
@@ -90,7 +90,7 @@ export default function CommentList({
       <S.CommentList>
         {isLoading ? (
           <S.CommentItem>
-            <S.CommentMeta>?“ê???ë¶ˆëŸ¬?¤ëŠ” ì¤?..</S.CommentMeta>
+            <S.CommentMeta>댓글을 불러오는 중...</S.CommentMeta>
           </S.CommentItem>
         ) : null}
         {!isLoading && errorMessage ? (
@@ -100,7 +100,7 @@ export default function CommentList({
         ) : null}
         {!isLoading && !errorMessage && comments.length === 0 ? (
           <S.CommentItem>
-            <S.CommentMeta>?±ë¡???“ê????†ìŠµ?ˆë‹¤.</S.CommentMeta>
+            <S.CommentMeta>등록된 댓글이 없습니다.</S.CommentMeta>
           </S.CommentItem>
         ) : null}
         {!isLoading && !errorMessage
@@ -179,7 +179,7 @@ export default function CommentList({
                           type="button"
                           onClick={() => handleExpand(comment.id)}
                         >
-                          ?”ë³´ê¸?
+                          더보기
                         </S.ReadMoreButton>
                       ) : null}
                     </>

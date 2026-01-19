@@ -46,12 +46,12 @@ export default function CommentWindow({
   return (
     <S.Window
       role="dialog"
-      aria-label="?“ê?"
+      aria-label="댓글"
       style={{ left: position.x, top: position.y, width, height }}
       onPointerDown={(event) => event.stopPropagation()}
     >
       <S.Header>
-        <S.Title>?“ê?</S.Title>
+        <S.Title>댓글</S.Title>
         <S.Controls>
           <S.CloseButton
             type="button"
@@ -93,7 +93,7 @@ export default function CommentWindow({
               onClick={handleSubmit}
               disabled={isSubmitting}
             >
-              {isSubmitting ? '?±ë¡ ì¤?..' : '?œì¶œ'}
+              {isSubmitting ? '등록 중...' : '제출'}
             </S.SubmitButton>
           </S.InputRow>
         </S.Section>
