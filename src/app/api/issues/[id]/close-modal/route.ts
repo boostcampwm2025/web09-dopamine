@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { MEMBER_ROLE } from '@/constants/issue';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
 import { issueMemberRepository } from '@/lib/repositories/issue-member.repository';
-import { sseManager } from '@/lib/sse/sse-manager';
+import { broadcast } from '@/lib/sse/sse-service';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 
 export async function POST(
@@ -26,7 +26,7 @@ export async function POST(
   }
 
   // SSE 브로드캐스팅
-  sseManager.broadcast({
+  broadcast({
     issueId,
     event: {
       type: SSE_EVENT_TYPES.CLOSE_MODAL_OPENED,
@@ -58,7 +58,7 @@ export async function DELETE(
   }
 
   // SSE 브로드캐스팅
-  sseManager.broadcast({
+  broadcast({
     issueId,
     event: {
       type: SSE_EVENT_TYPES.CLOSE_MODAL_CLOSED,
@@ -91,7 +91,7 @@ export async function PATCH(
   }
 
   // SSE 브로드캐스팅
-  sseManager.broadcast({
+  broadcast({
     issueId,
     event: {
       type: SSE_EVENT_TYPES.CLOSE_MODAL_MEMO_UPDATED,

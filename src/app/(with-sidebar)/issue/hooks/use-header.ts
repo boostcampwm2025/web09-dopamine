@@ -4,7 +4,6 @@ import toast from 'react-hot-toast';
 import CloseIssueModal from '@/app/(with-sidebar)/issue/_components/close-issue-modal/close-issue-modal';
 import { useCategoryOperations } from '@/app/(with-sidebar)/issue/hooks/use-category-operations';
 import { useCanvasStore } from '@/app/(with-sidebar)/issue/store/use-canvas-store';
-import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
 import { useIssueStore } from '@/app/(with-sidebar)/issue/store/use-issue-store';
 import { useModalStore } from '@/components/modal/use-modal-store';
 import { ISSUE_STATUS, MEMBER_ROLE } from '@/constants/issue';
@@ -13,6 +12,7 @@ import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
 import { IssueStatus } from '@/types/issue';
 import { useIssueStatusMutations } from './react-query/use-issue-mutation';
 import { useIssueQuery } from './react-query/use-issue-query';
+import { useIdeasWithTemp } from './use-ideas-with-temp';
 
 interface UseHeaderParams {
   issueId: string;
@@ -32,9 +32,8 @@ export function useHeader({ issueId }: UseHeaderParams) {
 
   const isOwner = currentUser && currentUser.role === MEMBER_ROLE.OWNER;
   const { startAIStructure } = useIssueStore((state) => state.actions);
-  const { hasEditingIdea } = useIdeaStore(issueId);
+  const { ideas, hasEditingIdea } = useIdeasWithTemp(issueId);
   const { openModal } = useModalStore();
-  const { ideas } = useIdeaStore(issueId);
   const scale = useCanvasStore((state) => state.scale);
   const { categories, handleAddCategory } = useCategoryOperations(issueId, ideas, scale);
 

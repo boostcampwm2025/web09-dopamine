@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
 import { categoryRepository } from '@/lib/repositories/category.repository';
-import { sseManager } from '@/lib/sse/sse-manager';
+import { broadcast } from '@/lib/sse/sse-service';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 
 export async function GET(
@@ -37,7 +37,7 @@ export async function POST(
       height,
     });
 
-    sseManager.broadcast({
+    broadcast({
       issueId,
       event: {
         type: SSE_EVENT_TYPES.CATEGORY_CREATED,

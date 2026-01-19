@@ -3,11 +3,6 @@
 import { useRouter } from 'next/navigation';
 import * as S from './error.styles';
 
-interface ErrorPageProps {
-  onRetry?: () => void;
-  onGoHome?: () => void;
-}
-
 
 const AlertCircleIcon =
   <svg
@@ -27,23 +22,15 @@ const AlertCircleIcon =
 
 
 
-export function ErrorPage({ onRetry, onGoHome }: ErrorPageProps) {
+export function ErrorPage() {
   const router = useRouter();
   
   const handleRetry = () => {
-    if (onRetry) {
-      onRetry();
-    } else {
-      router.refresh();
-    }
+    router.refresh();
   };
 
   const handleGoHome = () => {
-    if (onGoHome) {
-      onGoHome();
-    } else {
-      router.push('/');
-    }
+    router.push('/');
   };
 
   return (

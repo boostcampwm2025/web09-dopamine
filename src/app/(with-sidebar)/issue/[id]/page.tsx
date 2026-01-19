@@ -17,7 +17,6 @@ import { useIdeaOperations } from '@/app/(with-sidebar)/issue/hooks/use-idea-ope
 import { useIssueData } from '@/app/(with-sidebar)/issue/hooks/use-issue-data';
 import { useIssueEvents } from '@/app/(with-sidebar)/issue/hooks/use-issue-events';
 import { useCanvasStore } from '@/app/(with-sidebar)/issue/store/use-canvas-store';
-import { useIdeaStore } from '@/app/(with-sidebar)/issue/store/use-idea-store';
 import { ErrorPage } from '@/components/error/error';
 import LoadingOverlay from '@/components/loading-overlay/loading-overlay';
 import { useModalStore } from '@/components/modal/use-modal-store';
@@ -36,7 +35,6 @@ const IssuePage = () => {
   const hasOpenedModal = useRef(false);
 
   const scale = useCanvasStore((state) => state.scale);
-  const { setIdeas } = useIdeaStore(issueId);
   const userId = getUserIdForIssue(issueId) ?? '';
 
   const { data: selectedIdeaId } = useSelectedIdeaQuery(issueId);
@@ -86,7 +84,6 @@ const IssuePage = () => {
     handleDeleteIdea,
     handleSelectIdea,
     handleIdeaPositionChange,
-    handleVoteChange,
     handleMoveIdeaToCategory,
   } = useIdeaOperations(issueId, isCreateIdeaActive);
 
@@ -111,11 +108,10 @@ const IssuePage = () => {
   useAIStructuring({
     issueId,
     ideas,
-    setIdeas,
   });
 
   // 하이라이트된 아이디어
-  const { activeFilter, setFilter, filteredIds } = useFilterIdea(issueId, ideas);
+  const { activeFilter, setFilter, filteredIds } = useFilterIdea(issueId);
   const getIdeaStatus = useIdeaStatus(filteredIds, activeFilter);
 
   // 에러 처리 (모든 hooks 호출 후)
@@ -165,9 +161,6 @@ const IssuePage = () => {
                     status={getIdeaStatus(idea.id)}
                     isVoteButtonVisible={isVoteButtonVisible}
                     isVoteDisabled={isVoteDisabled}
-                    onVoteChange={(agreeCount, disagreeCount) =>
-                      handleVoteChange(idea.id, agreeCount, disagreeCount)
-                    }
                     onSave={(content) => handleSaveIdea(idea.id, content)}
                     onDelete={() => handleDeleteIdea(idea.id)}
                     onClick={() => handleSelectIdea(idea.id)}
@@ -192,9 +185,6 @@ const IssuePage = () => {
                 isVoteButtonVisible={isVoteButtonVisible}
                 isVoteDisabled={isVoteDisabled}
                 onPositionChange={handleIdeaPositionChange}
-                onVoteChange={(agreeCount, disagreeCount) =>
-                  handleVoteChange(idea.id, agreeCount, disagreeCount)
-                }
                 onSave={(content) => handleSaveIdea(idea.id, content)}
                 onDelete={() => handleDeleteIdea(idea.id)}
               />

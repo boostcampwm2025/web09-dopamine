@@ -116,15 +116,11 @@ export function generateNickname(issueId: string) {
  * AI / Structuring
  * ========================= */
 
-export function categorizeIdeas(
-  issueId: string,
-  ideas: Array<{ id: string; content: string }>,
-) {
+export function categorizeIdeas(issueId: string) {
   return getAPIResponseData<any>({
     url: `/api/issues/${issueId}/categorize`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ ideas }),
   });
 }
 

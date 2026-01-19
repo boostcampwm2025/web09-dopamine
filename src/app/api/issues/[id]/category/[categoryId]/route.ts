@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
 import { categoryRepository } from '@/lib/repositories/category.repository';
-import { sseManager } from '@/lib/sse/sse-manager';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
+import { broadcast } from '@/lib/sse/sse-service';
 
 export async function PATCH(
   req: NextRequest,
@@ -20,7 +20,7 @@ export async function PATCH(
       height,
     });
 
-    sseManager.broadcast({
+    broadcast({
       issueId,
       event: {
         type: SSE_EVENT_TYPES.CATEGORY_UPDATED,
@@ -50,7 +50,7 @@ export async function DELETE(
   try {
     await categoryRepository.softDelete(categoryId);
 
-    sseManager.broadcast({
+    broadcast({
       issueId,
       event: {
         type: SSE_EVENT_TYPES.CATEGORY_DELETED,
