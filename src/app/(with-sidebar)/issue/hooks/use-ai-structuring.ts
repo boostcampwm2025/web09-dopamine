@@ -11,14 +11,13 @@ interface UseAIStructuringProps {
 
 export function useAIStructuring({ issueId, ideas }: UseAIStructuringProps) {
   const { isAIStructuring } = useIssueStore();
-  const { finishAIStructure } = useIssueStore((state) => state.actions);
 
   const handleAIStructure = useCallback(async () => {
     const validIdeas = ideas.filter((idea) => idea.content.trim().length > 0);
 
     if (validIdeas.length === 0) {
       toast.error('분류할 아이디어가 없습니다.');
-      finishAIStructure();
+
       return;
     }
 
@@ -28,9 +27,8 @@ export function useAIStructuring({ issueId, ideas }: UseAIStructuringProps) {
       console.error('AI 구조화 오류:', error);
       toast.error('AI 구조화 중 오류가 발생했습니다.');
     } finally {
-      finishAIStructure();
     }
-  }, [ideas, issueId, finishAIStructure]);
+  }, [ideas, issueId]);
 
   // isAIStructuring이 true가 되면 자동 실행
   useEffect(() => {

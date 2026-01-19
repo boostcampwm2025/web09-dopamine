@@ -3,7 +3,6 @@
 import { useEffect, useRef } from 'react';
 import { useParams, usePathname, useRouter } from 'next/navigation';
 import { DndContext, DragOverlay } from '@dnd-kit/core';
-import { useIsMutating } from '@tanstack/react-query';
 import Canvas from '@/app/(with-sidebar)/issue/_components/canvas/canvas';
 import CategoryCard from '@/app/(with-sidebar)/issue/_components/category/category-card';
 import FilterPanel from '@/app/(with-sidebar)/issue/_components/filter-panel/filter-panel';
@@ -38,14 +37,13 @@ const IssuePage = () => {
   const userId = getUserIdForIssue(issueId) ?? '';
 
   const { data: selectedIdeaId } = useSelectedIdeaQuery(issueId);
-  const isAIStructuring = useIsMutating({ mutationKey: ['ai-structuring'] }) > 0;
 
   // 1. 이슈 데이터 초기화
   const { isLoading } = useIssueQuery(issueId);
   const {
     isIssueError,
     status,
-    // isAIStructuring,
+    isAIStructuring,
     isCreateIdeaActive,
     isVoteButtonVisible,
     isVoteDisabled,

@@ -1,18 +1,39 @@
 import { NextRequest, NextResponse } from 'next/server';
 import aiRequest from '@/constants/ai-request';
+import { SSE_EVENT_TYPES } from '@/constants/sse-events';
 import { ideaRepository } from '@/lib/repositories/idea.repository';
 import { categorizeService } from '@/lib/services/categorize.service';
+import { broadcast } from '@/lib/sse/sse-service';
 import { validateAIResponse } from '@/lib/utils/ai-response-validator';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
+
+const broadcastAIStructuringCompletion = (issueId: string) => {
+  broadcast({
+    issueId,
+    event: {
+      type: SSE_EVENT_TYPES.AI_STRUCTURING_COMPLETED,
+      data: {},
+    },
+  });
+};
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id: issueId } = await params;
 
   try {
+    broadcast({
+      issueId,
+      event: {
+        type: SSE_EVENT_TYPES.AI_STRUCTURING_STARTED,
+        data: {},
+      },
+    });
+
     // DB에서 아이디어 조회
     const ideas = await ideaRepository.findIdAndContentByIssueId(issueId);
 
     if (ideas.length === 0) {
+      broadcastAIStructuringCompletion(issueId);
       return createErrorResponse('NO_IDEAS_TO_CATEGORIZE', 400);
     }
 
@@ -47,6 +68,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     const validation = validateAIResponse(data, inputIdeaIds);
 
     if (!validation.isValid) {
+      broadcastAIStructuringCompletion(issueId);
       return createErrorResponse('AI_RESPONSE_VALIDATION_FAILED', 500);
     }
 
@@ -58,9 +80,14 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
     const result = await categorizeService.categorizeAndBroadcast(issueId, categoryPayloads);
 
+    broadcastAIStructuringCompletion(issueId);
+
     return createSuccessResponse(result);
   } catch (error) {
     console.error('AI 카테고리화 실패:', error);
+
+    broadcastAIStructuringCompletion(issueId);
+
     return createErrorResponse('AI_CATEGORIZATION_FAILED', 500);
   }
 }
