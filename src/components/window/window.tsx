@@ -2,30 +2,28 @@
 
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import * as S from './draggable-window.styles';
-import { useDraggableWindow } from './hooks/use-draggable-window';
+import * as S from './window-styles';
+import { useWindow } from './hooks/use-window';
 
-export interface DraggableWindowProps {
+export interface WindowProps {
   title: string;
   children: React.ReactNode;
   initialPosition?: { x: number; y: number };
   onClose?: () => void;
   width?: number | string;
   height?: number | string;
-  draggable?: boolean;
 }
 
-export default function DraggableWindow({
+export default function Window({
   title,
   children,
   initialPosition,
   onClose,
   width = 420,
   height,
-  draggable = true,
-}: DraggableWindowProps) {
+}: WindowProps) {
   const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null);
-  const { position, handleMouseDown } = useDraggableWindow({ initialPosition, draggable });
+  const { position } = useWindow({ initialPosition });
 
   useEffect(() => {
     setPortalTarget(document.body);
@@ -40,7 +38,7 @@ export default function DraggableWindow({
       style={{ left: position.x, top: position.y, width, height }}
       onPointerDown={(event) => event.stopPropagation()}
     >
-      <S.Header onMouseDown={handleMouseDown}>
+      <S.Header>
         <S.Title>{title}</S.Title>
         <S.Controls>
           <S.CloseButton type="button" aria-label="Close" onClick={onClose}>

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import type { KeyboardEventHandler, MouseEventHandler, RefObject } from 'react';
 import Image from 'next/image';
-import DraggableWindow from '@/components/draggable-window/draggable-window';
+import CommentListWindow from '@/components/window/comment-list-window/comment-list-window';
 import { ISSUE_STATUS } from '@/constants/issue';
 import type { IssueStatus } from '@/types/issue';
 import * as S from './idea-card.styles';
@@ -42,9 +42,12 @@ export default function IdeaCardHeader({
 
   const handleOpenComment: MouseEventHandler<HTMLButtonElement> = (event) => {
     event.stopPropagation();
-    const rect = event.currentTarget.getBoundingClientRect();
-    setCommentPosition({ x: rect.left, y: rect.bottom + 8 });
-    setIsCommentOpen(true);
+    setIsCommentOpen((prev) => {
+      if (prev) return false;
+      const rect = event.currentTarget.getBoundingClientRect();
+      setCommentPosition({ x: rect.left, y: rect.bottom + 8 });
+      return true;
+    });
   };
 
   return (
@@ -95,13 +98,10 @@ export default function IdeaCardHeader({
         )}
       </S.Header>
       {isCommentOpen ? (
-        <DraggableWindow
-          title="댓글"
+        <CommentListWindow
           initialPosition={commentPosition ?? undefined}
           onClose={() => setIsCommentOpen(false)}
-        >
-          댓글은 준비 중입니다.
-        </DraggableWindow>
+        />
       ) : null}
     </>
   );
