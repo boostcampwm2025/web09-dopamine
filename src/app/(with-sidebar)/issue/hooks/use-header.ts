@@ -4,12 +4,12 @@ import toast from 'react-hot-toast';
 import CloseIssueModal from '@/app/(with-sidebar)/issue/_components/close-issue-modal/close-issue-modal';
 import { useCategoryOperations } from '@/app/(with-sidebar)/issue/hooks/use-category-operations';
 import { useCanvasStore } from '@/app/(with-sidebar)/issue/store/use-canvas-store';
-import { useIssueStore } from '@/app/(with-sidebar)/issue/store/use-issue-store';
 import { useModalStore } from '@/components/modal/use-modal-store';
 import { ISSUE_STATUS, MEMBER_ROLE } from '@/constants/issue';
 import { getIssueMember } from '@/lib/api/issue';
 import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
 import { IssueStatus } from '@/types/issue';
+import { useAIStructuringMutation } from './react-query/use-ai-structure-mutation';
 import { useIssueStatusMutations } from './react-query/use-issue-mutation';
 import { useIssueQuery } from './react-query/use-issue-query';
 import { useIdeasWithTemp } from './use-ideas-with-temp';
@@ -21,6 +21,7 @@ interface UseHeaderParams {
 export function useHeader({ issueId }: UseHeaderParams) {
   const { data: issue } = useIssueQuery(issueId);
   const { nextStep } = useIssueStatusMutations(issueId);
+
   const userId = getUserIdForIssue(issueId) ?? '';
 
   // 현재 사용자의 정보 조회
@@ -30,8 +31,9 @@ export function useHeader({ issueId }: UseHeaderParams) {
     enabled: !!userId,
   });
 
+  const { handleAIStructure } = useAIStructuringMutation(issueId);
+
   const isOwner = currentUser && currentUser.role === MEMBER_ROLE.OWNER;
-  const { startAIStructure } = useIssueStore((state) => state.actions);
   const { ideas, hasEditingIdea } = useIdeasWithTemp(issueId);
   const { openModal } = useModalStore();
   const scale = useCanvasStore((state) => state.scale);
@@ -127,13 +129,14 @@ export function useHeader({ issueId }: UseHeaderParams) {
     }
   }, [isOwner, validateStep, nextStep]);
 
+  // AI 구조화
   const handleAIStructureStart = () => {
     if (!isOwner) {
       toast.error('방장만 AI 구조화를 진행할 수 있습니다.');
       return;
     }
 
-    startAIStructure();
+    handleAIStructure();
   };
 
   return {

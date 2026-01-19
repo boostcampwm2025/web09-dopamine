@@ -20,7 +20,9 @@ const Header = () => {
     handleNextStep,
     handleAddCategory,
     handleAIStructureStart,
-  } = useHeader({ issueId });
+  } = useHeader({
+    issueId,
+  });
 
   const openTooltip = useTooltipStore((state) => state.openTooltip);
   const closeTooltip = useTooltipStore((state) => state.closeTooltip);
