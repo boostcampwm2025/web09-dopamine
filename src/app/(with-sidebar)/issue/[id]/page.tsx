@@ -78,6 +78,7 @@ const IssuePage = () => {
   // 2. 아이디어 관련 작업
   const {
     ideas,
+    isIdeasError,
     handleCreateIdea,
     handleSaveIdea,
     handleDeleteIdea,
@@ -113,10 +114,9 @@ const IssuePage = () => {
   const { activeFilter, setFilter, filteredIds } = useFilterIdea(issueId);
   const getIdeaStatus = useIdeaStatus(filteredIds, activeFilter);
 
-  // 에러 처리 (모든 hooks 호출 후)
-  if (isIssueError || isCategoryError) {
-    return <ErrorPage />;
-  }
+  // 에러 여부 확인
+  const hasError = isIssueError || isIdeasError || isCategoryError;
+
 
   return (
     <>
@@ -126,14 +126,17 @@ const IssuePage = () => {
         onDragEnd={handleDragEnd}
       >
         {/* 채택 단계 시작 시 필터 UI 적용 */}
-        {status === 'SELECT' && (
+        {status === 'SELECT' && !hasError && (
           <FilterPanel
             value={activeFilter}
             onChange={setFilter}
           />
         )}
 
-        <Canvas onDoubleClick={handleCreateIdea}>
+        {hasError ? (
+          <ErrorPage fullScreen={false} />
+        ) : (
+          <Canvas onDoubleClick={handleCreateIdea}>
           {/* 카테고리들 - 내부에 아이디어 카드들을 children으로 전달 */}
           {categories.map((category) => {
             const categoryIdeas = ideas.filter((idea) => idea.categoryId === category.id);
@@ -188,44 +191,47 @@ const IssuePage = () => {
                 onDelete={() => handleDeleteIdea(idea.id)}
               />
             ))}
-        </Canvas>
+          </Canvas>
+        )}
 
         {/* 드래그 오버레이 (고스트 이미지) */}
-        <DragOverlay dropAnimation={null}>
-          {activeId
-            ? (() => {
-                const activeIdea = ideas.find((idea) => idea.id === activeId);
-                if (!activeIdea) return null;
+        {!hasError && (
+          <DragOverlay dropAnimation={null}>
+            {activeId
+              ? (() => {
+                  const activeIdea = ideas.find((idea) => idea.id === activeId);
+                  if (!activeIdea) return null;
 
-                return (
-                  <div
-                    style={{
-                      transform: `scale(${scale})`,
-                      transformOrigin: '0 0', // 왼쪽 위 기준으로 scale
-                    }}
-                  >
-                    <IdeaCard
-                      {...activeIdea}
-                      issueId={issueId}
-                      content={overlayEditValue ?? activeIdea.content}
-                      position={null}
-                      isSelected={activeIdea.id === selectedIdeaId}
-                      author={activeIdea.author}
-                      userId={activeIdea.userId}
-                      status={getIdeaStatus(activeIdea.id)}
-                      isVoteButtonVisible={isVoteButtonVisible}
-                      isVoteDisabled={isVoteDisabled}
-                    />
-                  </div>
-                );
-              })()
-            : null}
-        </DragOverlay>
+                  return (
+                    <div
+                      style={{
+                        transform: `scale(${scale})`,
+                        transformOrigin: '0 0', // 왼쪽 위 기준으로 scale
+                      }}
+                    >
+                      <IdeaCard
+                        {...activeIdea}
+                        issueId={issueId}
+                        content={overlayEditValue ?? activeIdea.content}
+                        position={null}
+                        isSelected={activeIdea.id === selectedIdeaId}
+                        author={activeIdea.author}
+                        userId={activeIdea.userId}
+                        status={getIdeaStatus(activeIdea.id)}
+                        isVoteButtonVisible={isVoteButtonVisible}
+                        isVoteDisabled={isVoteDisabled}
+                      />
+                    </div>
+                  );
+                })()
+              : null}
+          </DragOverlay>
+        )}
       </DndContext>
 
-      {isLoading && <LoadingOverlay />}
+      {!hasError && isLoading && <LoadingOverlay />}
       {/* AI 구조화 로딩 오버레이 */}
-      {isAIStructuring && <LoadingOverlay message="AI가 아이디어를 분류하고 있습니다..." />}
+      {!hasError && isAIStructuring && <LoadingOverlay message="AI가 아이디어를 분류하고 있습니다..." />}
     </>
   );
 };
