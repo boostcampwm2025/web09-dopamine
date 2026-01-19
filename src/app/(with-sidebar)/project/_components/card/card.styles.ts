@@ -17,6 +17,7 @@ export const CardContainer = styled.div<{ variant: 'header' | 'item' }>`
     props.variant === 'item' &&
     `
     &:hover {
+      background-color: ${theme.colors.yellow[50]};
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
       transform: translateY(-2px);
     }
