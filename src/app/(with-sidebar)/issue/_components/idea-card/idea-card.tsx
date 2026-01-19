@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useRef } from 'react';
 import type { PointerEventHandler } from 'react';
@@ -172,6 +172,8 @@ export default function IdeaCard(props: IdeaCardProps) {
     >
       <IdeaCardBadge status={status} />
       <IdeaCardHeader
+        ideaId={props.id}
+        userId={currentUserId}
         isEditing={isEditing}
         editValue={editValue}
         displayContent={displayContent}

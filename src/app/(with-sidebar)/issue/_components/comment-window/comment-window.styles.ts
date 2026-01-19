@@ -67,13 +67,6 @@ export const Section = styled.section`
   gap: 12px;
 `;
 
-export const SectionTitle = styled.h4`
-  margin: 0;
-  font-size: ${theme.font.size.medium};
-  font-weight: ${theme.font.weight.semibold};
-  color: ${theme.colors.gray[800]};
-`;
-
 export const CommentList = styled.div`
   display: flex;
   flex-direction: column;
