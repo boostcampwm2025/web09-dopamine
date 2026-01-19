@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import styled from '@emotion/styled';
 import IssueHeader from '@/app/(with-sidebar)/issue/_components/header/header';
 import IssueSidebar from '@/app/(with-sidebar)/issue/_components/layout/issue-sidebar';
+import TopicHeader from '@/app/(with-sidebar)/topic/_components/topic-header';
 import TopicSidebar from '@/app/(with-sidebar)/topic/_components/topic-sidebar';
 
 const LayoutContainer = styled.div`
@@ -29,6 +30,10 @@ export default function WithSidebarLayout({ children }: { children: ReactNode })
   const pathname = usePathname();
 
   const renderHeader = () => {
+    if (pathname?.startsWith('/topic')) {
+      return <TopicHeader />;
+    }
+
     if (pathname?.startsWith('/issue')) {
       return <IssueHeader />;
     }
