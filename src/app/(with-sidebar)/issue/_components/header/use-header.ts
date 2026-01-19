@@ -2,7 +2,6 @@ import React, { useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import CloseIssueModal from '@/app/(with-sidebar)/issue/_components/close-issue-modal/close-issue-modal';
-import { useCategoryOperations } from '@/app/(with-sidebar)/issue/hooks/use-category-operations';
 import { useCanvasStore } from '@/app/(with-sidebar)/issue/store/use-canvas-store';
 import { useIssueStore } from '@/app/(with-sidebar)/issue/store/use-issue-store';
 import { useModalStore } from '@/components/modal/use-modal-store';
@@ -10,9 +9,12 @@ import { ISSUE_STATUS, MEMBER_ROLE } from '@/constants/issue';
 import { getIssueMember } from '@/lib/api/issue';
 import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
 import { IssueStatus } from '@/types/issue';
-import { useIssueStatusMutations } from '../../hooks/react-query/use-issue-mutation';
-import { useIssueQuery } from '../../hooks/react-query/use-issue-query';
-import { useIdeasWithTemp } from '../../hooks/use-ideas-with-temp';
+import {
+  useCategoryOperations,
+  useIdeasWithTemp,
+  useIssueQuery,
+  useIssueStatusMutations,
+} from '../../hooks';
 
 interface UseHeaderParams {
   issueId: string;

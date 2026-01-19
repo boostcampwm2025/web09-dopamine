@@ -2,8 +2,7 @@
 
 import { useRef } from 'react';
 import { ISSUE_STATUS, ISSUE_STATUS_DESCRIPTION } from '@/constants/issue';
-import { useIssueData } from '../../hooks/use-issue-data';
-import { useIssueId } from '../../hooks/use-issue-id';
+import { useIssueData, useIssueId } from '../../hooks';
 import { CanvasContext } from './canvas-context';
 import CanvasZoomControls from './canvas-zoom-controls';
 import { AddIdeaButton, BottomMessage, CanvasContainer, CanvasViewport } from './canvas.styles';

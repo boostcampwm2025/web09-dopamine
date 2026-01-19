@@ -3,8 +3,7 @@ import type { PointerEventHandler } from 'react';
 import { useTooltipStore } from '@/components/tooltip/use-tooltip-store';
 import { ISSUE_STATUS, VOTE_TYPE } from '@/constants/issue';
 import type { IssueStatus } from '@/types/issue';
-import { useVoteMutation } from '../../hooks/react-query/use-vote-mutation';
-import type { FilterType } from '../../hooks/use-filter-idea';
+import { FilterType, useVoteMutation } from '../../hooks';
 import { CardStatus } from '../../types/idea';
 
 interface UseIdeaCardProps {

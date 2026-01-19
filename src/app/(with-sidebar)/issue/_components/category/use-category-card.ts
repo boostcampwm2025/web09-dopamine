@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useCategoryMutations } from '../../hooks/react-query/use-category-mutation';
+import { useCategoryMutations } from '../../hooks';
 
 interface UseCategoryProps {
   id: string;

@@ -8,14 +8,6 @@ import CategoryCard from '@/app/(with-sidebar)/issue/_components/category/catego
 import FilterPanel from '@/app/(with-sidebar)/issue/_components/filter-panel/filter-panel';
 import IdeaCard from '@/app/(with-sidebar)/issue/_components/idea-card/idea-card';
 import { useIdeaStatus } from '@/app/(with-sidebar)/issue/_components/idea-card/use-idea-card';
-import { useSelectedIdeaQuery } from '@/app/(with-sidebar)/issue/hooks/react-query/use-selected-idea-query';
-import { useAIStructuring } from '@/app/(with-sidebar)/issue/hooks/use-ai-structuring';
-import { useCategoryOperations } from '@/app/(with-sidebar)/issue/hooks/use-category-operations';
-import { useDragAndDrop } from '@/app/(with-sidebar)/issue/hooks/use-drag-and-drop';
-import { useFilterIdea } from '@/app/(with-sidebar)/issue/hooks/use-filter-idea';
-import { useIdeaOperations } from '@/app/(with-sidebar)/issue/hooks/use-idea-operations';
-import { useIssueData } from '@/app/(with-sidebar)/issue/hooks/use-issue-data';
-import { useIssueEvents } from '@/app/(with-sidebar)/issue/hooks/use-issue-events';
 import { useCanvasStore } from '@/app/(with-sidebar)/issue/store/use-canvas-store';
 import { ErrorPage } from '@/components/error/error';
 import LoadingOverlay from '@/components/loading-overlay/loading-overlay';
@@ -23,7 +15,17 @@ import { useModalStore } from '@/components/modal/use-modal-store';
 import { ISSUE_STATUS } from '@/constants/issue';
 import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
 import IssueJoinModal from '../_components/issue-join-modal/issue-join-modal';
-import { useIssueQuery } from '../hooks/react-query/use-issue-query';
+import {
+  useAIStructuring,
+  useCategoryOperations,
+  useDragAndDrop,
+  useFilterIdea,
+  useIdeaOperations,
+  useIssueData,
+  useIssueEvents,
+  useIssueQuery,
+  useSelectedIdeaQuery,
+} from '../hooks';
 
 const IssuePage = () => {
   const params = useParams<{ id: string }>();
