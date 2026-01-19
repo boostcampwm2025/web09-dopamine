@@ -3,9 +3,10 @@
 import { useState } from 'react';
 import type { KeyboardEventHandler, MouseEventHandler, RefObject } from 'react';
 import Image from 'next/image';
+import CommentWindow from '../comment-window/comment-window';
+import { useCanvasContext } from '../canvas/canvas-context';
 import { ISSUE_STATUS } from '@/constants/issue';
 import type { IssueStatus } from '@/types/issue';
-import CommentWindow from '../comment-window/comment-window';
 import * as S from './idea-card.styles';
 
 interface IdeaCardHeaderProps {
@@ -39,17 +40,31 @@ export default function IdeaCardHeader({
 }: IdeaCardHeaderProps) {
   const [isCommentOpen, setIsCommentOpen] = useState(false);
   const [commentPosition, setCommentPosition] = useState<{ x: number; y: number } | null>(null);
+  const { scale } = useCanvasContext();
+  const normalizedScale = scale || 1;
 
   const handleOpenComment: MouseEventHandler<HTMLButtonElement> = (event) => {
     event.stopPropagation();
     const target = event.currentTarget;
-    if (!target) return;
-    const rect = target.getBoundingClientRect();
     const nextOpen = !isCommentOpen;
 
     if (nextOpen) {
-      setCommentPosition({ x: rect.left, y: rect.bottom + 8 });
+      const card = target.closest('[data-idea-card]') as HTMLElement | null;
+      const targetRect = target.getBoundingClientRect();
+      if (card) {
+        const cardRect = card.getBoundingClientRect();
+        setCommentPosition({
+          x: (targetRect.left - cardRect.left) / normalizedScale,
+          y: (targetRect.bottom - cardRect.top + 8) / normalizedScale,
+        });
+      } else {
+        setCommentPosition({
+          x: 0,
+          y: (targetRect.height + 8) / normalizedScale,
+        });
+      }
     }
+
     setIsCommentOpen(nextOpen);
   };
 
@@ -74,10 +89,7 @@ export default function IdeaCardHeader({
         <S.Meta>
           <S.AuthorPill isCurrentUser={isCurrentUser}>{author}</S.AuthorPill>
           {isVoteButtonVisible ? (
-            <S.IconButton
-              aria-label="comment"
-              onClick={handleOpenComment}
-            >
+            <S.IconButton aria-label="comment" onClick={handleOpenComment}>
               <Image
                 src="/comment.svg"
                 alt="댓글"

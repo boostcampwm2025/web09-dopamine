@@ -2,7 +2,7 @@
 import { theme } from '@/styles/theme';
 
 export const Window = styled.section`
-  position: fixed;
+  position: absolute;
   z-index: 1100;
   min-width: 260px;
   max-width: calc(100vw - 32px);

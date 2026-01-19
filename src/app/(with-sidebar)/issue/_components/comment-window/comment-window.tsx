@@ -1,7 +1,5 @@
 ﻿'use client';
 
-import { useEffect, useState } from 'react';
-import { createPortal } from 'react-dom';
 import * as S from './comment-window.styles';
 import { useWindow } from './hooks/use-window';
 
@@ -18,16 +16,9 @@ export default function CommentWindow({
   width = 420,
   height,
 }: CommentWindowProps) {
-  const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null);
   const { position } = useWindow({ initialPosition });
 
-  useEffect(() => {
-    setPortalTarget(document.body);
-  }, []);
-
-  if (!portalTarget) return null;
-
-  return createPortal(
+  return (
     <S.Window
       role="dialog"
       aria-label="댓글"
@@ -37,11 +28,7 @@ export default function CommentWindow({
       <S.Header>
         <S.Title>댓글</S.Title>
         <S.Controls>
-          <S.CloseButton
-            type="button"
-            aria-label="Close"
-            onClick={onClose}
-          >
+          <S.CloseButton type="button" aria-label="Close" onClick={onClose}>
             &times;
           </S.CloseButton>
         </S.Controls>
@@ -65,7 +52,6 @@ export default function CommentWindow({
           </S.InputRow>
         </S.Section>
       </S.Body>
-    </S.Window>,
-    portalTarget,
+    </S.Window>
   );
 }

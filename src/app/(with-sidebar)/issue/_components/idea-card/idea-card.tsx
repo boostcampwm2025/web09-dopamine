@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useRef } from 'react';
 import type { PointerEventHandler } from 'react';
@@ -155,6 +155,7 @@ export default function IdeaCard(props: IdeaCardProps) {
   return (
     <S.Card
       ref={setNodeRef}
+      data-idea-card={props.id}
       issueStatus={issueStatus}
       status={status}
       isDragging={isDragging}
