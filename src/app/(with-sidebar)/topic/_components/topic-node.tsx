@@ -1,4 +1,4 @@
-import { NodeProps } from '@xyflow/react';
+import { Handle, NodeProps, Position } from '@xyflow/react';
 import { ISSUE_STATUS } from '@/constants/issue';
 import { IssueStatus } from '@/types/issue';
 import * as S from './topic-node.styles';
@@ -37,6 +37,18 @@ export default function TopicNode({ data }: NodeProps) {
       <S.TitleWrapper>
         <S.Title status={status}>{title}</S.Title>
       </S.TitleWrapper>
+      <Handle
+        id="a"
+        type="target"
+        position={Position.Top}
+        style={{ borderRadius: 0 }}
+      />
+      <Handle
+        id="b"
+        type="source"
+        position={Position.Bottom}
+        style={{ borderRadius: 0 }}
+      />
     </S.NodeContainer>
   );
 }
