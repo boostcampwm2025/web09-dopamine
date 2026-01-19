@@ -1,8 +1,8 @@
-import { QueryClient } from '@tanstack/react-query';
 import 'pretendard/dist/web/static/pretendard.css';
 import { Toaster } from 'react-hot-toast';
 import Modal from '@/components/modal/modal';
 import Tooltip from '@/components/tooltip/tooltip';
+import { AuthProvider } from '@/providers/auth-provider';
 import { Providers } from '@/providers/query-provider';
 import ThemeProvider from '@/providers/theme-provider';
 import EmotionRegistry from '@/styles/EmotionRegistry';
@@ -17,15 +17,17 @@ export default function RootLayout({
     <html lang="ko">
       <body>
         <EmotionRegistry>
-          <Providers>
-            <ThemeProvider>
-              <GlobalStyle />
-              <Tooltip />
-              <Toaster />
-              <Modal />
-              {children}
-            </ThemeProvider>
-          </Providers>
+          <AuthProvider>
+            <Providers>
+              <ThemeProvider>
+                <GlobalStyle />
+                <Tooltip />
+                <Toaster />
+                <Modal />
+                {children}
+              </ThemeProvider>
+            </Providers>
+          </AuthProvider>
         </EmotionRegistry>
       </body>
     </html>

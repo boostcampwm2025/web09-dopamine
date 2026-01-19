@@ -1,6 +1,9 @@
 'use client';
 
+import { useEffect } from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { signIn, useSession } from 'next-auth/react';
 import styled from '@emotion/styled';
 import Background from '@/components/background/background';
 import CreateIssueModal from '@/components/modal/issue-create-modal/issue-create-modal';
@@ -94,14 +97,22 @@ const HorizontalLine = styled.div`
 `;
 
 const SOCIAL_ICONS = [
-  { src: '/github.svg', alt: 'github' },
-  { src: '/google.svg', alt: 'google' },
-  { src: '/kakao.svg', alt: 'kakao' },
-  { src: '/naver.svg', alt: 'naver' },
+  { src: '/github.svg', alt: 'github', provider: 'github' },
+  { src: '/google.svg', alt: 'google', provider: 'google' },
+  { src: '/kakao.svg', alt: 'kakao', provider: 'kakao' },
+  { src: '/naver.svg', alt: 'naver', provider: 'naver' },
 ];
 
 export default function HomePage() {
+  const router = useRouter();
+  const { data: session } = useSession();
   const { openModal } = useModalStore();
+
+  useEffect(() => {
+    if (session) {
+      router.push('/project');
+    }
+  }, [session, router]);
 
   const modalOpen = () => {
     openModal({
@@ -110,6 +121,15 @@ export default function HomePage() {
       closeOnOverlayClick: true,
       hasCloseButton: true,
     });
+  };
+
+  const handleSocialLogin = (provider: string) => {
+    if (provider === 'google') {
+      signIn('google', { callbackUrl: '/project' });
+    } else {
+      // TODO: 다른 로그인 제공자 구현
+      alert('준비 중인 기능입니다.');
+    }
   };
 
   return (
@@ -161,6 +181,7 @@ export default function HomePage() {
               width={50}
               height={50}
               style={{ cursor: 'pointer' }}
+              onClick={() => handleSocialLogin(icon.provider)}
             />
           ))}
         </SocialLoginContainer>
