@@ -5,7 +5,7 @@ import ProjectCreateModal from '../project-create-modal/project-create-modal';
 import * as S from './project-card.styles';
 
 interface ProjectCardProps {
-  id?: number;
+  id?: string;
   title?: string;
   icon?: string;
   memberCount?: number;
@@ -13,6 +13,7 @@ interface ProjectCardProps {
 }
 
 export function ProjectCard({
+  id, // TODO: 프로젝트 상세 페이지 이동 시 사용 예정
   title,
   icon,
   memberCount,
