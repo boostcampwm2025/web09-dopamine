@@ -7,7 +7,6 @@ import Canvas from '@/app/(with-sidebar)/issue/_components/canvas/canvas';
 import CategoryCard from '@/app/(with-sidebar)/issue/_components/category/category-card';
 import FilterPanel from '@/app/(with-sidebar)/issue/_components/filter-panel/filter-panel';
 import IdeaCard from '@/app/(with-sidebar)/issue/_components/idea-card/idea-card';
-import { useIdeaStatus } from '@/app/(with-sidebar)/issue/_components/idea-card/use-idea-card';
 import { useCanvasStore } from '@/app/(with-sidebar)/issue/store/use-canvas-store';
 import { ErrorPage } from '@/components/error/error';
 import LoadingOverlay from '@/components/loading-overlay/loading-overlay';
@@ -21,6 +20,7 @@ import {
   useDragAndDrop,
   useFilterIdea,
   useIdeaOperations,
+  useIdeaStatus,
   useIssueData,
   useIssueEvents,
   useIssueQuery,
