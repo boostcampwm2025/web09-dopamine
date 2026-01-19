@@ -3,9 +3,9 @@ import type { PointerEventHandler } from 'react';
 import { useTooltipStore } from '@/components/tooltip/use-tooltip-store';
 import { ISSUE_STATUS, VOTE_TYPE } from '@/constants/issue';
 import type { IssueStatus } from '@/types/issue';
-import { CardStatus } from '../types/idea';
-import { useVoteMutation } from './react-query/use-vote-mutation';
-import type { FilterType } from './use-filter-idea';
+import { useVoteMutation } from '../../hooks/react-query/use-vote-mutation';
+import type { FilterType } from '../../hooks/use-filter-idea';
+import { CardStatus } from '../../types/idea';
 
 interface UseIdeaCardProps {
   id?: string;

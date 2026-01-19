@@ -10,9 +10,9 @@ import { ISSUE_STATUS, MEMBER_ROLE } from '@/constants/issue';
 import { getIssueMember } from '@/lib/api/issue';
 import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
 import { IssueStatus } from '@/types/issue';
-import { useIssueStatusMutations } from './react-query/use-issue-mutation';
-import { useIssueQuery } from './react-query/use-issue-query';
-import { useIdeasWithTemp } from './use-ideas-with-temp';
+import { useIssueStatusMutations } from '../../hooks/react-query/use-issue-mutation';
+import { useIssueQuery } from '../../hooks/react-query/use-issue-query';
+import { useIdeasWithTemp } from '../../hooks/use-ideas-with-temp';
 
 interface UseHeaderParams {
   issueId: string;

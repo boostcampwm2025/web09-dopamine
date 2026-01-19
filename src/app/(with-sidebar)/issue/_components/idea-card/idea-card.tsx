@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 import type { PointerEventHandler } from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
-import useIdeaCard from '@/app/(with-sidebar)/issue/hooks/use-idea-card';
+import useIdeaCard from './use-idea-card';
 import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
 import { useIdeaQuery } from '../../hooks/react-query/use-idea-query';
 import { useSelectedIdeaMutation } from '../../hooks/react-query/use-selected-idea-mutation';

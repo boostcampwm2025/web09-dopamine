@@ -6,8 +6,8 @@ import { useModalStore } from '@/components/modal/use-modal-store';
 import { ISSUE_STATUS } from '@/constants/issue';
 import { updateIssueStatus } from '@/lib/api/issue';
 import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
-import { useIssueStatusMutations } from './react-query/use-issue-mutation';
-import { useIdeasWithTemp } from './use-ideas-with-temp';
+import { useIssueStatusMutations } from '../../hooks/react-query/use-issue-mutation';
+import { useIdeasWithTemp } from '../../hooks/use-ideas-with-temp';
 
 interface UseCloseIssueModalParams {
   issueId: string;

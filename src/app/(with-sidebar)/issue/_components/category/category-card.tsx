@@ -1,11 +1,11 @@
 'use client';
 
-import useCategory from '@/app/(with-sidebar)/issue/hooks/use-category-card';
-import { useCategoryDnd } from '../../hooks/use-category-dnd';
 import type { Position } from '../../types/idea';
 import { useCanvasContext } from '../canvas/canvas-context';
 import CategoryCardHeader from './category-card-header';
 import { ChildrenWrapper, StyledCategoryCard } from './category-card.styles';
+import useCategoryCard from './use-category-card';
+import { useCategoryDnd } from './use-category-dnd';
 
 interface CategoryCardProps {
   id: string;
@@ -58,7 +58,7 @@ export default function CategoryCard({
     setDraftTitle,
     submitEditedTitle,
     cancelEditingTitle,
-  } = useCategory({
+  } = useCategoryCard({
     id,
     issueId,
     title,

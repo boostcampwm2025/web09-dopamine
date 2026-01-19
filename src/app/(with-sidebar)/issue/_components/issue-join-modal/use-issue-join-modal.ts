@@ -4,7 +4,7 @@ import { useModalStore } from '@/components/modal/use-modal-store';
 import {
   useIssueMemberMutations,
   useNicknameMutations,
-} from './react-query/use-issue-member-mutation';
+} from '../../hooks/react-query/use-issue-member-mutation';
 
 export interface IssueJoinModalProps {
   issueId: string;

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useCategoryMutations } from './react-query/use-category-mutation';
+import { useCategoryMutations } from '../../hooks/react-query/use-category-mutation';
 
 interface UseCategoryProps {
   id: string;
@@ -7,7 +7,7 @@ interface UseCategoryProps {
   title: string;
 }
 
-export default function useCategory(props: UseCategoryProps) {
+export default function useCategoryCard(props: UseCategoryProps) {
   const { id, issueId, title } = props;
   const [curTitle, setCurTitle] = useState<string>(title);
   const [draftTitle, setDraftTitle] = useState<string>(title);

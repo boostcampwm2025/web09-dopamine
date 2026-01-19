@@ -1,13 +1,13 @@
 'use client';
 
 import { useRef } from 'react';
-import { useCanvasControls } from '@/app/(with-sidebar)/issue/hooks/use-canvas-controls';
 import { ISSUE_STATUS, ISSUE_STATUS_DESCRIPTION } from '@/constants/issue';
 import { useIssueData } from '../../hooks/use-issue-data';
 import { useIssueId } from '../../hooks/use-issue-id';
 import { CanvasContext } from './canvas-context';
 import CanvasZoomControls from './canvas-zoom-controls';
 import { AddIdeaButton, BottomMessage, CanvasContainer, CanvasViewport } from './canvas.styles';
+import { useCanvasControls } from './use-canvas-controls';
 
 interface CanvasProps {
   children?: React.ReactNode;

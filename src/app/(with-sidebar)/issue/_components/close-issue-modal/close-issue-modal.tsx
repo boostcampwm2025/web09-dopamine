@@ -1,7 +1,7 @@
 'use client';
 
-import { useCloseIssueModal } from '../../hooks/use-close-issue-modal';
 import * as S from './close-issue-modal.styles';
+import { useCloseIssueModal } from './use-close-issue-modal';
 
 interface CloseIssueModalProps {
   issueId: string;
