@@ -1,4 +1,4 @@
-import { Handle, NodeProps, Position } from '@xyflow/react';
+import { Handle, Node, NodeProps, Position } from '@xyflow/react';
 import { ISSUE_STATUS } from '@/constants/issue';
 import { IssueStatus } from '@/types/issue';
 import * as S from './topic-node.styles';
@@ -24,9 +24,9 @@ function badgeFormatter(status: IssueStatus) {
   }
 }
 
-export default function TopicNode({ data }: NodeProps) {
-  const title = (data as TopicNodeData)?.title ?? '홍보 플랫폼 선정';
-  const status = (data as TopicNodeData)?.status ?? ISSUE_STATUS.CLOSE;
+export default function TopicNode({ data }: NodeProps<Node<TopicNodeData>>) {
+  const title = data.title ?? '홍보 플랫폼 선정';
+  const status = data.status ?? ISSUE_STATUS.CLOSE;
 
   return (
     <S.NodeContainer status={status}>
