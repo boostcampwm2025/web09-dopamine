@@ -1,4 +1,5 @@
-import { useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
+import type { ChangeEvent, KeyboardEvent } from 'react';
 import MemberSidebarItem from '@/components/sidebar/member-sidebar-item';
 import Sidebar from '@/components/sidebar/sidebar';
 import SidebarItem from '@/components/sidebar/sidebar-item';
@@ -19,6 +20,8 @@ const ISSUE_LIST = [
 export default function IssueSidebar() {
   const issueId = useIssueId();
   const { isQuickIssue, members } = useIssueData(issueId);
+  const [searchValue, setSearchValue] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
 
   const sortedMembers = useMemo(() => {
     return [...members].sort((a, b) => {
@@ -29,8 +32,36 @@ export default function IssueSidebar() {
     });
   }, [members]);
 
+  const filteredMembers = useMemo(() => {
+    const trimmed = searchTerm.trim();
+    if (!trimmed) return sortedMembers;
+    const normalized = trimmed.toLowerCase();
+    return sortedMembers.filter((member) =>
+      member.displayName.toLowerCase().includes(normalized),
+    );
+  }, [searchTerm, sortedMembers]);
+
+  const handleSearchChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+    setSearchValue(event.target.value);
+  }, []);
+
+  const handleSearchKeyDown = useCallback(
+    (event: KeyboardEvent<HTMLInputElement>) => {
+      if (event.key !== 'Enter') return;
+      event.preventDefault();
+      setSearchTerm(searchValue);
+    },
+    [searchValue],
+  );
+
   return (
-    <Sidebar>
+    <Sidebar
+      inputProps={{
+        value: searchValue,
+        onChange: handleSearchChange,
+        onKeyDown: handleSearchKeyDown,
+      }}
+    >
       {!isQuickIssue && (
         <>
           <IssueGraphLink />
@@ -56,7 +87,7 @@ export default function IssueSidebar() {
       <div>
         <S.SidebarTitle>MEMBER LIST</S.SidebarTitle>
         <S.SidebarList>
-          {sortedMembers.map((user) => (
+          {filteredMembers.map((user) => (
             <MemberSidebarItem
               key={user.displayName}
               id={user.id}
