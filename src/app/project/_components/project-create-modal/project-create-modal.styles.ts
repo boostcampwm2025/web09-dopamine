@@ -16,3 +16,20 @@ export const CancelButton = styled.button`
     background: ${theme.colors.gray[100]};
   }
 `;
+
+export const Textarea = styled.textarea`
+  width: 100%;
+  padding: 12px 8px;
+  border: 1px solid ${theme.colors.gray[300]};
+  border-radius: ${theme.radius.small};
+  font-size: ${theme.font.size.medium};
+  color: ${theme.colors.gray[900]};
+  resize: vertical;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s;
+
+  &:focus {
+    outline: none;
+  }
+`;
