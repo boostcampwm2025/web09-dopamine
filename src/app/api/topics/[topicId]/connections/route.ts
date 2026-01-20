@@ -2,6 +2,41 @@ import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 
+export async function GET(
+  _req: NextRequest,
+  { params }: { params: Promise<{ topicId: string }> },
+) {
+  const { topicId } = await params;
+
+  try {
+    const connections = await prisma.issueConnection.findMany({
+      where: {
+        deletedAt: null,
+        issueA: {
+          topicId,
+          deletedAt: null,
+        },
+        issueB: {
+          topicId,
+          deletedAt: null,
+        },
+      },
+      select: {
+        id: true,
+        issueAId: true,
+        issueBId: true,
+        sourceHandle: true,
+        targetHandle: true,
+      },
+    });
+
+    return createSuccessResponse(connections, 200);
+  } catch (error) {
+    console.error('연결 조회 실패:', error);
+    return createErrorResponse('CONNECTIONS_FETCH_FAILED', 500);
+  }
+}
+
 export async function POST(req: NextRequest, { params }: { params: Promise<{ topicId: string }> }) {
   const { issueAId, issueBId, sourceHandle, targetHandle } = await req.json();
 

@@ -1,4 +1,4 @@
-import type { IssueConnection, IssueNode } from '@/types/issue';
+import type { IssueConnection, IssueMapData, IssueNode } from '@/types/issue';
 import getAPIResponseData from '../utils/api-response';
 
 type CreateConnectionPayload = {
@@ -12,6 +12,30 @@ type UpdateNodePositionPayload = {
   positionX: number;
   positionY: number;
 };
+
+// 이슈 조회
+export function getTopicIssues(topicId: string): Promise<IssueMapData[]> {
+  return getAPIResponseData<IssueMapData[]>({
+    url: `/api/topics/${topicId}/issues`,
+    method: 'GET',
+  });
+}
+
+// 노드 조회
+export function getTopicNodes(topicId: string): Promise<IssueNode[]> {
+  return getAPIResponseData<IssueNode[]>({
+    url: `/api/topics/${topicId}/nodes`,
+    method: 'GET',
+  });
+}
+
+// 연결 조회
+export function getTopicConnections(topicId: string): Promise<IssueConnection[]> {
+  return getAPIResponseData<IssueConnection[]>({
+    url: `/api/topics/${topicId}/connections`,
+    method: 'GET',
+  });
+}
 
 // 연결 생성
 export function createConnection(
