@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import CommentList from './comment-list';
 import * as S from './comment-window.styles';
 import { useWindow } from './hooks/use-window';
@@ -10,8 +11,6 @@ export interface CommentWindowProps {
   userId: string;
   initialPosition?: { x: number; y: number };
   onClose?: () => void;
-  width?: number | string;
-  height?: number | string;
 }
 
 export default function CommentWindow({
@@ -20,9 +19,10 @@ export default function CommentWindow({
   userId,
   initialPosition,
   onClose,
-  width = 420,
-  height,
 }: CommentWindowProps) {
+  const fixedWidth = 420;
+  const fixedHeight = 500;
+
   const {
     position,
     comments,
@@ -49,8 +49,10 @@ export default function CommentWindow({
     <S.Window
       role="dialog"
       aria-label="댓글"
-      style={{ left: position.x, top: position.y, width, height }}
+      style={{ left: position.x, top: position.y, width: fixedWidth, height: fixedHeight }}
       onPointerDown={(event) => event.stopPropagation()}
+      onWheel={(event) => event.stopPropagation()}
+      onWheelCapture={(event) => event.stopPropagation()}
     >
       <S.Header>
         <S.Title>댓글</S.Title>

@@ -81,6 +81,13 @@ export const CommentList = styled.div`
   flex-direction: column;
   gap: 12px;
   overflow: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
 `;
 
 export const CommentItem = styled.div`
