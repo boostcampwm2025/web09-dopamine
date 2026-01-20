@@ -53,12 +53,11 @@ export function useTopicCanvas({
   const { createConnection, deleteConnection, updateNodePosition } = useTopicMutations(topicId);
 
   // TanStack Query로 상태 관리
-  const { issues, nodes: issueNodes, connections } = useTopicQuery(
-    topicId,
-    initialIssues,
-    initialNodesData,
-    initialConnections,
-  );
+  const {
+    issues,
+    nodes: issueNodes,
+    connections,
+  } = useTopicQuery(topicId, initialIssues, initialNodesData, initialConnections);
 
   // ReactFlow 노드로 변환
   const reactFlowNodes = useMemo(
@@ -67,10 +66,7 @@ export function useTopicCanvas({
   );
 
   // ReactFlow 엣지로 변환
-  const reactFlowEdges = useMemo(
-    () => connectionsToReactFlowEdges(connections),
-    [connections],
-  );
+  const reactFlowEdges = useMemo(() => connectionsToReactFlowEdges(connections), [connections]);
 
   const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
@@ -210,6 +206,14 @@ export function useTopicCanvas({
     setIsConnecting(false);
   }, []);
 
+  // useCallback으로 감싸서 과도한 렌더링 방지
+  const handleDeleteEdge = useCallback(
+    (edgeId: string) => {
+      deleteConnection(edgeId);
+    },
+    [deleteConnection],
+  );
+
   return {
     nodes: nodesWithDimmed,
     edges: reactFlowEdges,
@@ -220,5 +224,6 @@ export function useTopicCanvas({
     onNodeMouseLeave,
     onConnectStart,
     onConnectEnd,
+    deleteEdge: handleDeleteEdge,
   };
 }

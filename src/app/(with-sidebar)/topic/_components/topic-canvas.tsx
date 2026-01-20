@@ -1,6 +1,6 @@
 'use client';
 
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 import { ReactFlow } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { EDGE_STYLE } from '@/constants/topic';
@@ -17,13 +17,9 @@ interface TopicCanvasProps {
   connections: IssueConnection[];
 }
 
-// 리렌더링 방지를 위해 nodeTypes와 edgeTypes를 컴포넌트 외부에 선언
+// 리렌더링 방지를 위해 nodeTypes를 컴포넌트 외부에 선언
 const nodeTypes = {
   topicNode: TopicNode,
-};
-
-const edgeTypes = {
-  topicEdge: TopicEdge,
 };
 
 const defaultEdgeOptions = {
@@ -42,12 +38,21 @@ function TopicCanvas({ topicId, issues, nodes: issueNodes, connections }: TopicC
     onNodeMouseLeave,
     onConnectStart,
     onConnectEnd,
+    deleteEdge,
   } = useTopicCanvas({
     topicId,
     initialIssues: issues,
     initialNodes: issueNodes,
     initialConnections: connections,
   });
+
+  // edgeTypes를 동적으로 생성하여 onDelete prop 전달
+  const edgeTypes = useMemo(
+    () => ({
+      topicEdge: (props: any) => <TopicEdge {...props} onDelete={deleteEdge} />,
+    }),
+    [deleteEdge],
+  );
 
   return (
     <div style={{ width: '100vw', height: '100vh' }}>
