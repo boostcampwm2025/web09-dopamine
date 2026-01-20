@@ -40,6 +40,14 @@ export function ProjectCard({
 
   return (
     <S.Card>
+      <S.DeleteButton onClick={handleDeleteClick} title="프로젝트 삭제">
+        <Image
+          src="/close.svg"
+          alt="삭제"
+          width={14}
+          height={14}
+        />
+      </S.DeleteButton>
       <S.CardHeader hasIcon={!!icon}>
         {icon && <S.Icon>{icon}</S.Icon>}
         <S.Title>{title}</S.Title>
