@@ -37,12 +37,13 @@ export const getProjectsByOwnerId = async (ownerId: string) => {
   }));
 };
 
-export const createProject = async (title: string, ownerId: string) => {
+export const createProject = async (title: string, ownerId: string, description?: string) => {
   return await prisma.$transaction(async (tx) => {
     // 1. 프로젝트 생성
     const project = await tx.project.create({
       data: {
         title,
+        description,
         ownerId,
       },
     });
