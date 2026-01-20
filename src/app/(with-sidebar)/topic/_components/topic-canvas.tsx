@@ -11,6 +11,7 @@ import TopicEdge from './topic-edge';
 import TopicNode from './topic-node';
 
 interface TopicCanvasProps {
+  topicId: string;
   issues: IssueMapData[];
   nodes: IssueNode[];
   connections: IssueConnection[];
@@ -30,7 +31,7 @@ const defaultEdgeOptions = {
   type: 'topicEdge',
 };
 
-function TopicCanvas({ issues, nodes: issueNodes, connections }: TopicCanvasProps) {
+function TopicCanvas({ topicId, issues, nodes: issueNodes, connections }: TopicCanvasProps) {
   const {
     nodes,
     edges,
@@ -41,7 +42,12 @@ function TopicCanvas({ issues, nodes: issueNodes, connections }: TopicCanvasProp
     onNodeMouseLeave,
     onConnectStart,
     onConnectEnd,
-  } = useTopicCanvas({ issues, nodes: issueNodes, connections });
+  } = useTopicCanvas({
+    topicId,
+    initialIssues: issues,
+    initialNodes: issueNodes,
+    initialConnections: connections,
+  });
 
   return (
     <div style={{ width: '100vw', height: '100vh' }}>

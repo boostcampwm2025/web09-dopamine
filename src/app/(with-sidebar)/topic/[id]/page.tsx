@@ -7,5 +7,7 @@ export default async function TopicPage({ params }: { params: Promise<{ id: stri
   // 토픽 ID로 이슈 맵 데이터 불러오기
   const { issues, nodes, connections } = await topicService.getIssuesMapData(topicId);
 
-  return <TopicCanvas issues={issues} nodes={nodes} connections={connections} />;
+  return (
+    <TopicCanvas topicId={topicId} issues={issues} nodes={nodes} connections={connections} />
+  );
 }

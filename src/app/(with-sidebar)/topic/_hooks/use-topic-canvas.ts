@@ -1,8 +1,10 @@
 import { useCallback, useMemo, useState } from 'react';
-import { Node, addEdge, applyEdgeChanges, applyNodeChanges } from '@xyflow/react';
+import { Node } from '@xyflow/react';
 import { ISSUE_STATUS } from '@/constants/issue';
 import { IssueConnection, IssueMapData, IssueNode } from '@/types/issue';
 import { TopicNodeData } from '../_components/topic-node';
+import { useTopicMutations } from './use-topic-mutations';
+import { useTopicQuery } from './use-topic-query';
 
 function nodesToReactFlowNodes(issues: IssueMapData[], nodes: IssueNode[]) {
   return nodes.map((node) => {
@@ -36,55 +38,101 @@ function connectionsToReactFlowEdges(connections: IssueConnection[]) {
 }
 
 interface UseTopicCanvasProps {
-  issues: IssueMapData[];
-  nodes: IssueNode[];
-  connections: IssueConnection[];
+  topicId: string;
+  initialIssues: IssueMapData[];
+  initialNodes: IssueNode[];
+  initialConnections: IssueConnection[];
 }
 
-export function useTopicCanvas({ issues, nodes: issueNodes, connections }: UseTopicCanvasProps) {
-  // 초기 노드 생성
-  const initialNodes = useMemo(
+export function useTopicCanvas({
+  topicId,
+  initialIssues,
+  initialNodes: initialNodesData,
+  initialConnections,
+}: UseTopicCanvasProps) {
+  const { createConnection, deleteConnection, updateNodePosition } = useTopicMutations(topicId);
+
+  // TanStack Query로 상태 관리
+  const { issues, nodes: issueNodes, connections } = useTopicQuery(
+    topicId,
+    initialIssues,
+    initialNodesData,
+    initialConnections,
+  );
+
+  // ReactFlow 노드로 변환
+  const reactFlowNodes = useMemo(
     () => nodesToReactFlowNodes(issues, issueNodes),
     [issues, issueNodes],
   );
 
-  // 초기 엣지(연결선) 생성
-  const initialEdges = useMemo(() => connectionsToReactFlowEdges(connections), [connections]);
+  // ReactFlow 엣지로 변환
+  const reactFlowEdges = useMemo(
+    () => connectionsToReactFlowEdges(connections),
+    [connections],
+  );
 
-  const [nodes, setNodes] = useState(initialNodes); // React Flow 노드 상태
-  const [edges, setEdges] = useState(initialEdges); // React Flow 엣지 상태
   const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
-  const [isConnecting, setIsConnecting] = useState(false); // 연결중인지 파악
+  const [isConnecting, setIsConnecting] = useState(false);
 
+  // 노드 위치 변경 처리
   const onNodesChange = useCallback(
-    (changes: any) => setNodes((nodesSnapshot: any) => applyNodeChanges(changes, nodesSnapshot)),
-    [],
-  );
-
-  const onEdgesChange = useCallback(
-    (changes: any) => setEdges((edgesSnapshot: any) => applyEdgeChanges(changes, edgesSnapshot)),
-    [],
-  );
-
-  // 중복 연결 방지된 onConnect 함수
-  const onConnect = useCallback(
-    (params: any) =>
-      setEdges((edgesSnapshot: any) => {
-        // 이미 같은 연결이 존재하는지 확인 (양방향 모두 체크)
-        const isDuplicate = edgesSnapshot.some(
-          (edge: any) =>
-            (edge.source === params.source && edge.target === params.target) ||
-            (edge.source === params.target && edge.target === params.source),
-        );
-
-        // 중복이면 추가하지 않음
-        if (isDuplicate) {
-          return edgesSnapshot;
+    (changes: any) => {
+      changes.forEach((change: any) => {
+        // 노드 드래그 완료 (position 변경)
+        if (change.type === 'position' && change.dragging === false && change.position) {
+          const nodeId = issueNodes.find((n) => n.issueId === change.id)?.id;
+          if (nodeId) {
+            updateNodePosition({
+              nodeId,
+              positionX: change.position.x,
+              positionY: change.position.y,
+            });
+          }
         }
+      });
+    },
+    [issueNodes, updateNodePosition],
+  );
 
-        return addEdge(params, edgesSnapshot);
-      }),
-    [],
+  // 엣지 삭제 처리
+  const onEdgesChange = useCallback(
+    (changes: any) => {
+      changes.forEach((change: any) => {
+        if (change.type === 'remove') {
+          deleteConnection(change.id);
+        }
+      });
+    },
+    [deleteConnection],
+  );
+
+  // 연결 생성 처리
+  const onConnect = useCallback(
+    (params: any) => {
+      // 중복 체크
+      const isDuplicate = connections.some(
+        (conn) =>
+          (conn.issueAId === params.source && conn.issueBId === params.target) ||
+          (conn.issueAId === params.target && conn.issueBId === params.source),
+      );
+
+      if (isDuplicate) {
+        return;
+      }
+
+      // sourceHandle/targetHandle에서 "-source", "-target" 제거
+      const sourceHandle = params.sourceHandle?.replace('-source', '') || null;
+      const targetHandle = params.targetHandle?.replace('-target', '') || null;
+
+      createConnection({
+        issueAId: params.source,
+        issueBId: params.target,
+        sourceHandle,
+        targetHandle,
+      });
+    },
+    [connections, createConnection],
   );
 
   // 호버된 노드와 연결된 모든 노드 ID 계산 (BFS)
@@ -93,7 +141,7 @@ export function useTopicCanvas({ issues, nodes: issueNodes, connections }: UseTo
 
     // 인접 리스트 구축
     const adjacencyList = new Map<string, Set<string>>();
-    edges.forEach((edge) => {
+    reactFlowEdges.forEach((edge) => {
       if (!adjacencyList.has(edge.source)) {
         adjacencyList.set(edge.source, new Set());
       }
@@ -123,20 +171,20 @@ export function useTopicCanvas({ issues, nodes: issueNodes, connections }: UseTo
     }
 
     return visited;
-  }, [hoveredNodeId, edges]);
+  }, [hoveredNodeId, reactFlowEdges]);
 
   // 노드에 dimmed 상태 추가
   const nodesWithDimmed = useMemo(() => {
-    if (!hoveredNodeId) return nodes;
+    if (!hoveredNodeId) return reactFlowNodes;
 
-    return nodes.map((node) => ({
+    return reactFlowNodes.map((node) => ({
       ...node,
       data: {
         ...node.data,
         dimmed: !connectedNodeIds.has(node.id), // 이어져있지 않은 노드는 dimmed 처리
       },
     }));
-  }, [nodes, hoveredNodeId, connectedNodeIds]);
+  }, [reactFlowNodes, hoveredNodeId, connectedNodeIds]);
 
   const onNodeMouseEnter = useCallback(
     (_event: any, node: Node) => {
@@ -164,7 +212,7 @@ export function useTopicCanvas({ issues, nodes: issueNodes, connections }: UseTo
 
   return {
     nodes: nodesWithDimmed,
-    edges,
+    edges: reactFlowEdges,
     onNodesChange,
     onEdgesChange,
     onConnect,
