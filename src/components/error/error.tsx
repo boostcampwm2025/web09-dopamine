@@ -7,7 +7,7 @@ interface ErrorPageProps {
   fullScreen?: boolean;
 }
 
-const AlertCircleIcon =
+const AlertCircleIcon = (
   <svg
     width="32"
     height="32"
@@ -18,16 +18,29 @@ const AlertCircleIcon =
     strokeLinecap="round"
     strokeLinejoin="round"
   >
-    <circle cx="12" cy="12" r="10" />
-    <line x1="12" y1="8" x2="12" y2="12" />
-    <line x1="12" y1="16" x2="12.01" y2="16" />
+    <circle
+      cx="12"
+      cy="12"
+      r="10"
+    />
+    <line
+      x1="12"
+      y1="8"
+      x2="12"
+      y2="12"
+    />
+    <line
+      x1="12"
+      y1="16"
+      x2="12.01"
+      y2="16"
+    />
   </svg>
-
-
+);
 
 export function ErrorPage({ fullScreen = true }: ErrorPageProps) {
   const router = useRouter();
-  
+
   const handleRetry = () => {
     router.refresh();
   };
@@ -37,15 +50,13 @@ export function ErrorPage({ fullScreen = true }: ErrorPageProps) {
   };
 
   return (
-    <S.Container fullScreen={fullScreen}>  
+    <S.Container fullScreen={fullScreen}>
       <S.PostItWrapper>
         <S.PostItMain>
           <S.Tape />
 
           <S.IconWrapper>
-            <S.IconCircle>
-              {AlertCircleIcon}
-            </S.IconCircle>
+            <S.IconCircle>{AlertCircleIcon}</S.IconCircle>
           </S.IconWrapper>
 
           <S.MessageSection>
@@ -59,7 +70,10 @@ export function ErrorPage({ fullScreen = true }: ErrorPageProps) {
 
           <S.ButtonGroup>
             <S.Button onClick={handleRetry}>다시 시도</S.Button>
-            <S.Button variant="secondary" onClick={handleGoHome}>
+            <S.Button
+              variant="secondary"
+              onClick={handleGoHome}
+            >
               홈으로 가기
             </S.Button>
           </S.ButtonGroup>

@@ -1,5 +1,5 @@
-import { CLIENT_ERROR_MESSAGES } from '@/constants/error-messages';
 import toast from 'react-hot-toast';
+import { CLIENT_ERROR_MESSAGES } from '@/constants/error-messages';
 import type { ApiResponse } from '@/types/api';
 
 interface FetchOptions extends RequestInit {
@@ -34,7 +34,9 @@ const getAPIResponseData = async <T>(options: FetchOptions): Promise<T> => {
     if (!apiResponse.success) {
       const errorCode = apiResponse.error?.code || 'UNKNOWN_ERROR';
       const errorMessage =
-        CLIENT_ERROR_MESSAGES[errorCode] || apiResponse.error?.message || '알 수 없는 오류가 발생했습니다.';
+        CLIENT_ERROR_MESSAGES[errorCode] ||
+        apiResponse.error?.message ||
+        '알 수 없는 오류가 발생했습니다.';
 
       throw new ApiError(errorMessage, errorCode);
     }

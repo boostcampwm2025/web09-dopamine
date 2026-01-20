@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useIdeasQuery } from '@/app/(with-sidebar)/issue/hooks/react-query/use-ideas-query';
 import type { IdeaWithPosition } from '@/app/(with-sidebar)/issue/types/idea';
+import { useIssueIdeaQuery } from './react-query/use-idea-query';
 
 const TEMP_IDEA_STORAGE_KEY = (issueId: string) => `temp-idea-${issueId}`;
 
 export function useIdeasWithTemp(issueId: string) {
   // 서버에서 아이디어 조회 (TanStack Query)
-  const { data: serverIdeas = [], isLoading, isError } = useIdeasQuery(issueId);
+  const { data: serverIdeas = [], isLoading, isError } = useIssueIdeaQuery(issueId);
 
   // 임시 아이디어 1개 관리 (React state + localStorage)
   const [tempIdea, setTempIdea] = useState<IdeaWithPosition | null>(() => {

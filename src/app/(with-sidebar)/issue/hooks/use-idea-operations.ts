@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import toast from 'react-hot-toast';
-import { useIdeaMutations } from '@/app/(with-sidebar)/issue/hooks/react-query/use-idea-mutations';
-import { useSelectedIdeaMutation } from '@/app/(with-sidebar)/issue/hooks/react-query/use-selected-idea-mutation';
+import { useIdeaMutations } from './react-query/use-idea-mutations';
+import { useSelectedIdeaMutation } from './react-query/use-selected-idea-mutation';
 import { useIdeaCardStackStore } from '@/app/(with-sidebar)/issue/store/use-idea-card-stack-store';
 import type { IdeaWithPosition, Position } from '@/app/(with-sidebar)/issue/types/idea';
 import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
@@ -11,7 +11,13 @@ import { useIssueData } from './use-issue-data';
 
 export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) {
   // 통합된 아이디어 목록 (서버 + temp)
-  const { ideas, hasEditingIdea, addTempIdea, deleteTempIdea, isError: isIdeasError } = useIdeasWithTemp(issueId);
+  const {
+    ideas,
+    hasEditingIdea,
+    addTempIdea,
+    deleteTempIdea,
+    isError: isIdeasError,
+  } = useIdeasWithTemp(issueId);
 
   // z-index 관리
   const { addCard, removeCard, setInitialCardData } = useIdeaCardStackStore(issueId);
@@ -87,7 +93,6 @@ export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) 
 
   // 아이디어 삭제
   const handleDeleteIdea = (id: string) => {
-
     if (id.startsWith('temp-')) {
       deleteTempIdea();
       removeCard(id);

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
 import { categoryRepository } from '@/lib/repositories/category.repository';
-import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 import { broadcast } from '@/lib/sse/sse-service';
+import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 
 export async function PATCH(
   req: NextRequest,

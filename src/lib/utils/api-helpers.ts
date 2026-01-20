@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import type { ApiSuccess, ApiError } from '@/types/api';
+import type { ApiError, ApiSuccess } from '@/types/api';
 
 // 성공 응답 생성
 export function createSuccessResponse<T>(data: T, status = 200): NextResponse<ApiSuccess<T>> {
@@ -9,7 +9,7 @@ export function createSuccessResponse<T>(data: T, status = 200): NextResponse<Ap
       data,
       error: null,
     },
-    { status }
+    { status },
   );
 }
 
@@ -19,7 +19,7 @@ export function createSuccessResponse<T>(data: T, status = 200): NextResponse<Ap
 export function createErrorResponse(
   code: string,
   status = 500,
-  message?: string
+  message?: string,
 ): NextResponse<ApiError> {
   return NextResponse.json(
     {
@@ -30,6 +30,6 @@ export function createErrorResponse(
         message: message || code,
       },
     },
-    { status }
+    { status },
   );
 }
