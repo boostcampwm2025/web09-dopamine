@@ -40,3 +40,25 @@ export async function POST(req: NextRequest) {
     return createErrorResponse('PROJECT_CREATE_FAILED', 500);
   }
 }
+
+export async function DELETE(req: NextRequest){
+  const { userId: ownerId, error } = await getAuthenticatedUserId();
+
+  if (error) {
+    return error;
+  }
+
+  const { id } = await req.json();
+
+  if (!id) {
+    return createErrorResponse('ID_REQUIRED', 400);
+  }
+
+  try {
+    const result = await projectRepository.deleteProject(id, ownerId!);
+    return createSuccessResponse(result, 200);
+  } catch (error) {
+    console.error('프로젝트 삭제 실패:', error);
+    return createErrorResponse('PROJECT_DELETE_FAILED', 500);
+  }
+}
