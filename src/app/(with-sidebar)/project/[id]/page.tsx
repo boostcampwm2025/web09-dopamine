@@ -1,6 +1,6 @@
 import Image from 'next/image';
-import HeaderButton from '../../issue/_components/header/header-button';
 import Card from '../_components/card/card';
+import CreateTopicButton from '../_components/create-topic-button/create-topic-button';
 import * as S from './page.styles';
 
 const ProjectPage = () => {
@@ -61,13 +61,7 @@ const ProjectPage = () => {
             <S.TopicListTitle>토픽 목록</S.TopicListTitle>
             <S.TopicListDescription>팀이 논의해야 할 큰 주제들입니다.</S.TopicListDescription>
           </S.TopicListHeader>
-          <HeaderButton
-            imageSrc="/white-add.svg"
-            alt="새 토픽"
-            text="새 토픽"
-            variant="solid"
-            color="green"
-          />
+          <CreateTopicButton />
         </S.TopicListContainer>
         <S.TopicCardsContainer>
           {topics.map((topic) => (
