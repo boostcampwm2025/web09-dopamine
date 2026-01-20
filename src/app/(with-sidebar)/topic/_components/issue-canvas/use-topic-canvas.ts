@@ -1,5 +1,6 @@
-import { useCallback, useMemo, useState } from 'react';
-import { Node } from '@xyflow/react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { applyNodeChanges } from '@xyflow/react';
+import type { Node, NodeChange } from '@xyflow/react';
 import { ISSUE_STATUS } from '@/constants/issue';
 import { IssueConnection, IssueMapData, IssueNode } from '@/types/issue';
 import { useTopicMutations } from '../../hooks/react-query/use-topic-mutations';
@@ -65,6 +66,15 @@ export function useTopicCanvas({
     [issues, issueNodes],
   );
 
+  // reactFlow의 애니메이션을 위해 로컬 상태 별도로 관리
+  const [localNodes, setLocalNodes] = useState<Node<TopicNodeData>[]>(() =>
+    nodesToReactFlowNodes(initialIssues, initialNodesData),
+  );
+
+  useEffect(() => {
+    setLocalNodes(reactFlowNodes);
+  }, [reactFlowNodes]);
+
   // ReactFlow 엣지로 변환
   const reactFlowEdges = useMemo(() => connectionsToReactFlowEdges(connections), [connections]);
 
@@ -73,7 +83,8 @@ export function useTopicCanvas({
 
   // 노드 위치 변경 처리
   const onNodesChange = useCallback(
-    (changes: any) => {
+    (changes: NodeChange[]) => {
+      setLocalNodes((prevNodes) => applyNodeChanges(changes, prevNodes));
       changes.forEach((change: any) => {
         // 노드 드래그 완료 (position 변경)
         if (change.type === 'position' && change.dragging === false && change.position) {
@@ -202,7 +213,7 @@ export function useTopicCanvas({
   );
 
   return {
-    nodes: reactFlowNodes,
+    nodes: localNodes,
     edges: reactFlowEdges,
     onNodesChange,
     onEdgesChange,
