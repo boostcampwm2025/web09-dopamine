@@ -26,13 +26,13 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     const issue = await findIssueById(issueId);
 
     if (ideas.length === 0) {
-      broadcastError(issueId, '이슈가 존재하지 않습니다.');
-      return createErrorResponse('ISSUE_NOT_FOUND', 400);
+      broadcastError(issueId, '분류할 아이디어가 없습니다.');
+      return createErrorResponse('NO_IDEAS_TO_CATEGORIZE', 400);
     }
 
     if (!issue) {
-      broadcastError(issueId, '분류할 아이디어가 없습니다.');
-      return createErrorResponse('NO_IDEAS_TO_CATEGORIZE', 400);
+      broadcastError(issueId, '이슈가 존재하지 않습니다.');
+      return createErrorResponse('ISSUE_NOT_FOUND', 400);
     }
 
     const userContent = `
