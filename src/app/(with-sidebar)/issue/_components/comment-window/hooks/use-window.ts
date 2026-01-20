@@ -34,6 +34,30 @@ export function useWindow({ initialPosition, issueId, ideaId, userId }: UseWindo
   const [editingValue, setEditingValue] = useState('');
   const openTooltip = useTooltipStore((state) => state.openTooltip);
   const closeTooltip = useTooltipStore((state) => state.closeTooltip);
+  const shouldShowLoading = isLoading;
+  const shouldShowError = !isLoading && Boolean(errorMessage);
+  const shouldShowEmpty = !isLoading && !errorMessage && comments.length === 0;
+  const shouldShowComments = !isLoading && !errorMessage;
+  const isCommentOwner = useCallback(
+    (commentUserId?: string) => commentUserId === userId,
+    [userId],
+  );
+  const isEditingComment = useCallback(
+    (commentId: string) => editingCommentId === commentId,
+    [editingCommentId],
+  );
+  const getSaveButtonContent = useCallback(
+    (commentId: string) => (mutatingCommentId === commentId ? '저장중...' : '저장'),
+    [mutatingCommentId],
+  );
+  const getDeleteButtonContent = useCallback(
+    (commentId: string) => (mutatingCommentId === commentId ? '삭제중...' : '삭제'),
+    [mutatingCommentId],
+  );
+  const shouldShowReadMore = useCallback(
+    (isExpanded: boolean, canExpand: boolean) => !isExpanded && canExpand,
+    [],
+  );
 
   // 외부에서 전달된 초기 위치 값이 변경될 때 상태 동기화
   useEffect(() => {
@@ -201,9 +225,18 @@ export function useWindow({ initialPosition, issueId, ideaId, userId }: UseWindo
     setInputValue,
     handleSubmit,
     handleInputKeyDown,
+    shouldShowLoading,
+    shouldShowError,
+    shouldShowEmpty,
+    shouldShowComments,
     editingCommentId,
     editingValue,
     setEditingValue,
+    isCommentOwner,
+    isEditingComment,
+    getSaveButtonContent,
+    getDeleteButtonContent,
+    shouldShowReadMore,
     handleEditStart,
     handleEditCancel,
     handleEditSave,

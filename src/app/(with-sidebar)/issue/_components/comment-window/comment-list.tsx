@@ -9,14 +9,20 @@ import { useCommentOverflow } from './hooks/use-comment-overflow';
 
 interface CommentListProps {
   comments: Comment[];
-  isLoading: boolean;
   errorMessage: string | null;
-  userId: string;
   isMutating: boolean;
   mutatingCommentId: string | null;
-  editingCommentId: string | null;
+  shouldShowLoading: boolean;
+  shouldShowError: boolean;
+  shouldShowEmpty: boolean;
+  shouldShowComments: boolean;
   editingValue: string;
   setEditingValue: (value: string) => void;
+  isCommentOwner: (commentUserId?: string) => boolean;
+  isEditingComment: (commentId: string) => boolean;
+  getSaveButtonContent: (commentId: string) => string;
+  getDeleteButtonContent: (commentId: string) => string;
+  shouldShowReadMore: (isExpanded: boolean, canExpand: boolean) => boolean;
   handleEditStart: (comment: Comment) => void;
   handleEditCancel: () => void;
   handleEditSave: () => void;
@@ -26,14 +32,20 @@ interface CommentListProps {
 
 export default function CommentList({
   comments,
-  isLoading,
   errorMessage,
-  userId,
   isMutating,
   mutatingCommentId,
-  editingCommentId,
+  shouldShowLoading,
+  shouldShowError,
+  shouldShowEmpty,
+  shouldShowComments,
   editingValue,
   setEditingValue,
+  isCommentOwner,
+  isEditingComment,
+  getSaveButtonContent,
+  getDeleteButtonContent,
+  shouldShowReadMore,
   handleEditStart,
   handleEditCancel,
   handleEditSave,
@@ -55,29 +67,46 @@ export default function CommentList({
     },
     [handleDelete, isMutating],
   );
+  const getEditStartHandler = useCallback(
+    (comment: Comment) => () => handleEditStart(comment),
+    [handleEditStart],
+  );
+  const getDeleteHandler = useCallback(
+    (commentId: string) => () => handleDeleteClick(commentId),
+    [handleDeleteClick],
+  );
+  const getExpandHandler = useCallback(
+    (commentId: string) => () => handleExpand(commentId),
+    [handleExpand],
+  );
 
   return (
     <S.CommentSection>
       <S.CommentList>
-        {isLoading ? (
+        {shouldShowLoading && (
           <S.CommentItem>
             <S.CommentMeta>댓글을 불러오는 중...</S.CommentMeta>
           </S.CommentItem>
-        ) : null}
-        {!isLoading && errorMessage ? (
+        )}
+        {shouldShowError && (
           <S.CommentItem>
             <S.CommentMeta>{errorMessage}</S.CommentMeta>
           </S.CommentItem>
-        ) : null}
-        {!isLoading && !errorMessage && comments.length === 0 ? (
+        )}
+        {shouldShowEmpty && (
           <S.CommentItem>
             <S.CommentMeta>등록된 댓글이 없습니다.</S.CommentMeta>
           </S.CommentItem>
-        ) : null}
-        {!isLoading && !errorMessage
-          ? comments.map((comment) => {
-              const isExpanded = expandedCommentIds.includes(comment.id);
-              const canExpand = overflowCommentIds.includes(comment.id);
+        )}
+        {shouldShowComments &&
+          comments.map((comment) => {
+            const isExpanded = expandedCommentIds.includes(comment.id);
+            const canExpand = overflowCommentIds.includes(comment.id);
+            const isEditing = isEditingComment(comment.id);
+            const canShowActions = isCommentOwner(comment.user?.id);
+            const handleEditStartClick = getEditStartHandler(comment);
+            const handleDeleteClickById = getDeleteHandler(comment.id);
+            const handleExpandClick = getExpandHandler(comment.id);
 
               return (
                 <S.CommentItem key={comment.id}>
@@ -86,9 +115,9 @@ export default function CommentList({
                   </S.CommentMeasure>
                   <S.CommentHeader>
                     <S.CommentMeta>{getCommentMeta(comment)}</S.CommentMeta>
-                    {comment.user?.id === userId ? (
+                    {canShowActions && (
                       <S.CommentActions>
-                        {editingCommentId === comment.id ? (
+                        {isEditing && (
                           <>
                             <S.Btn
                               type="button"
@@ -99,7 +128,7 @@ export default function CommentList({
                                 editingValue.trim().length === 0
                               }
                             >
-                              {mutatingCommentId === comment.id ? '저장중...' : '저장'}
+                              {getSaveButtonContent(comment.id)}
                             </S.Btn>
                             <S.Btn
                               type="button"
@@ -109,36 +138,38 @@ export default function CommentList({
                               취소
                             </S.Btn>
                           </>
-                        ) : (
+                        )}
+                        {!isEditing && (
                           <>
                             <S.Btn
                               type="button"
-                              onClick={() => handleEditStart(comment)}
+                              onClick={handleEditStartClick}
                               disabled={isMutating}
                             >
                               수정
                             </S.Btn>
                             <S.Btn
                               type="button"
-                              onClick={() => handleDeleteClick(comment.id)}
+                              onClick={handleDeleteClickById}
                               disabled={isMutating}
                               $variant="danger"
                             >
-                              {mutatingCommentId === comment.id ? '삭제중...' : '삭제'}
+                              {getDeleteButtonContent(comment.id)}
                             </S.Btn>
                           </>
                         )}
                       </S.CommentActions>
-                    ) : null}
+                    )}
                   </S.CommentHeader>
-                  {editingCommentId === comment.id ? (
+                  {isEditing && (
                     <S.EditInput
                       value={editingValue}
                       onChange={(event) => setEditingValue(event.target.value)}
                       onKeyDown={handleEditKeyDown}
                       disabled={isMutating || mutatingCommentId === comment.id}
                     />
-                  ) : (
+                  )}
+                  {!isEditing && (
                     <>
                       <S.CommentBody
                         ref={registerCommentBody(comment.id)}
@@ -146,20 +177,19 @@ export default function CommentList({
                       >
                         {comment.content}
                       </S.CommentBody>
-                      {!isExpanded && canExpand ? (
+                      {shouldShowReadMore(isExpanded, canExpand) && (
                         <S.ReadMoreButton
                           type="button"
-                          onClick={() => handleExpand(comment.id)}
+                          onClick={handleExpandClick}
                         >
                           더보기
                         </S.ReadMoreButton>
-                      ) : null}
+                      )}
                     </>
                   )}
                 </S.CommentItem>
               );
-            })
-          : null}
+            })}
       </S.CommentList>
     </S.CommentSection>
   );

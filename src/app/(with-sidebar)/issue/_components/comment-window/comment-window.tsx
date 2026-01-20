@@ -36,7 +36,6 @@ export default function CommentWindow({
   const {
     position,
     comments,
-    isLoading,
     isSubmitting,
     isMutating,
     mutatingCommentId,
@@ -45,9 +44,17 @@ export default function CommentWindow({
     setInputValue,
     handleSubmit,
     handleInputKeyDown,
-    editingCommentId,
+    shouldShowLoading,
+    shouldShowError,
+    shouldShowEmpty,
+    shouldShowComments,
     editingValue,
     setEditingValue,
+    isCommentOwner,
+    isEditingComment,
+    getSaveButtonContent,
+    getDeleteButtonContent,
+    shouldShowReadMore,
     handleEditStart,
     handleEditCancel,
     handleEditSave,
@@ -111,14 +118,20 @@ export default function CommentWindow({
       <S.Body>
         <CommentList
           comments={comments}
-          isLoading={isLoading}
           errorMessage={errorMessage}
-          userId={userId}
           isMutating={isMutating}
           mutatingCommentId={mutatingCommentId}
-          editingCommentId={editingCommentId}
+          shouldShowLoading={shouldShowLoading}
+          shouldShowError={shouldShowError}
+          shouldShowEmpty={shouldShowEmpty}
+          shouldShowComments={shouldShowComments}
           editingValue={editingValue}
           setEditingValue={setEditingValue}
+          isCommentOwner={isCommentOwner}
+          isEditingComment={isEditingComment}
+          getSaveButtonContent={getSaveButtonContent}
+          getDeleteButtonContent={getDeleteButtonContent}
+          shouldShowReadMore={shouldShowReadMore}
           handleEditStart={handleEditStart}
           handleEditCancel={handleEditCancel}
           handleEditSave={handleEditSave}
