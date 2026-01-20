@@ -6,7 +6,8 @@ import '@xyflow/react/dist/style.css';
 import { ISSUE_STATUS } from '@/constants/issue';
 import { EDGE_STYLE } from '@/constants/topic';
 import { IssueConnection, IssueMapData, IssueNode } from '@/types/issue';
-import topicEdge from './topic-edge';
+import TopicConnectionLine from './topic-connection-line';
+import TopicEdge from './topic-edge';
 import TopicNode, { TopicNodeData } from './topic-node';
 
 interface TopicCanvasProps {
@@ -15,13 +16,18 @@ interface TopicCanvasProps {
   connections: IssueConnection[];
 }
 
-// 리렌더링 방지를 위해 nodeTypes를 컴포넌트 외부에 선언
+// 리렌더링 방지를 위해 nodeTypes와 edgeTypes를 컴포넌트 외부에 선언
 const nodeTypes = {
   topicNode: TopicNode,
 };
 
+const edgeTypes = {
+  topicEdge: TopicEdge,
+};
+
 const defaultEdgeOptions = {
   style: EDGE_STYLE,
+  type: 'topicEdge',
 };
 
 function nodesToReactFlowNodes(issues: IssueMapData[], nodes: IssueNode[]) {
@@ -99,9 +105,10 @@ function TopicCanvas({ issues, nodes: issueNodes, connections }: TopicCanvasProp
         nodes={nodes}
         edges={edges}
         nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
-        connectionLineComponent={topicEdge}
+        connectionLineComponent={TopicConnectionLine}
         onConnect={onConnect}
         defaultEdgeOptions={defaultEdgeOptions}
         fitViewOptions={{

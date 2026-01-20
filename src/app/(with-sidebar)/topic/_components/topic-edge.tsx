@@ -1,37 +1,84 @@
-import React from 'react';
-import { useConnection } from '@xyflow/react';
+import Image from 'next/image';
+import { BaseEdge, EdgeProps, EdgeToolbar, getBezierPath, useViewport } from '@xyflow/react';
 import { EDGE_STYLE } from '@/constants/topic';
+import { theme } from '@/styles/theme';
 
-interface TopicEdgeProps {
-  fromX: number;
-  fromY: number;
-  toX: number;
-  toY: number;
-}
+const DELETE_BUTTON_STYLE = {
+  width: 20,
+  height: 20,
+  borderRadius: '50%',
+  border: `1px solid ${theme.colors.gray[300]}`,
+  background: theme.colors.white,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  cursor: 'pointer',
+} as const;
 
-export default function topicEdge({ fromX, fromY, toX, toY }: TopicEdgeProps) {
-  const { fromHandle } = useConnection();
+const BUTTON_VISIABLE_ZOOM_LEVEL = 0.65;
+const STROKE_WIDTH = 1.5;
 
-  if (!fromHandle) return null;
-  const centerY = (fromY + toY) / 2;
+export default function TopicEdge({
+  id,
+  sourceX,
+  sourceY,
+  targetX,
+  targetY,
+  sourcePosition,
+  targetPosition,
+  markerEnd,
+}: EdgeProps) {
+  const { zoom } = useViewport();
+  const [edgePath, centerX, centerY] = getBezierPath({
+    sourceX,
+    sourceY,
+    sourcePosition,
+    targetX,
+    targetY,
+    targetPosition,
+  });
 
   return (
-    <g>
-      <path
-        fill="none"
-        stroke={EDGE_STYLE.stroke}
-        strokeWidth={EDGE_STYLE.strokeWidth}
-        className="animated"
-        d={`M${fromX},${fromY} C ${fromX},${centerY} ${toX},${centerY} ${toX},${toY}`}
+    <>
+      <BaseEdge
+        id={id}
+        path={edgePath}
+        markerEnd={markerEnd}
+        style={{
+          ...EDGE_STYLE,
+        }}
       />
       <circle
-        cx={toX}
-        cy={toY}
-        fill="#fff"
+        cx={sourceX}
+        cy={sourceY}
+        fill={theme.colors.white}
         r={3}
         stroke={EDGE_STYLE.stroke}
-        strokeWidth={1.5}
+        strokeWidth={STROKE_WIDTH}
       />
-    </g>
+      <EdgeToolbar
+        edgeId={id}
+        x={centerX}
+        y={centerY}
+        isVisible={zoom >= BUTTON_VISIABLE_ZOOM_LEVEL}
+      >
+        <button style={DELETE_BUTTON_STYLE}>
+          <Image
+            src="/close.svg"
+            alt="Add"
+            width={10}
+            height={10}
+          />
+        </button>
+      </EdgeToolbar>
+      <circle
+        cx={targetX}
+        cy={targetY}
+        fill={theme.colors.white}
+        r={3}
+        stroke={EDGE_STYLE.stroke}
+        strokeWidth={STROKE_WIDTH}
+      />
+    </>
   );
 }
