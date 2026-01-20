@@ -90,7 +90,7 @@ export default function CommentList({
                       <S.CommentActions>
                         {editingCommentId === comment.id ? (
                           <>
-                            <S.ActionButton
+                            <S.Btn
                               type="button"
                               onClick={handleEditSave}
                               disabled={
@@ -99,32 +99,33 @@ export default function CommentList({
                                 editingValue.trim().length === 0
                               }
                             >
-                              {mutatingCommentId === comment.id ? 'Saving...' : 'Save'}
-                            </S.ActionButton>
-                            <S.ActionButton
+                              {mutatingCommentId === comment.id ? '저장중...' : '저장'}
+                            </S.Btn>
+                            <S.Btn
                               type="button"
                               onClick={handleEditCancel}
                               disabled={isMutating}
                             >
-                              Cancel
-                            </S.ActionButton>
+                              취소
+                            </S.Btn>
                           </>
                         ) : (
                           <>
-                            <S.ActionButton
+                            <S.Btn
                               type="button"
                               onClick={() => handleEditStart(comment)}
                               disabled={isMutating}
                             >
-                              Edit
-                            </S.ActionButton>
-                            <S.DangerButton
+                              수정
+                            </S.Btn>
+                            <S.Btn
                               type="button"
                               onClick={() => handleDeleteClick(comment.id)}
                               disabled={isMutating}
+                              $variant="danger"
                             >
-                              {mutatingCommentId === comment.id ? 'Deleting...' : 'Delete'}
-                            </S.DangerButton>
+                              {mutatingCommentId === comment.id ? '삭제중...' : '삭제'}
+                            </S.Btn>
                           </>
                         )}
                       </S.CommentActions>
