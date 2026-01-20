@@ -91,6 +91,7 @@ export default function CommentWindow({
               onChange={(event) => setInputValue(event.target.value)}
               onKeyDown={handleInputKeyDown}
               disabled={isSubmitting}
+              rows={3}
             />
             <S.SubmitButton
               type="button"

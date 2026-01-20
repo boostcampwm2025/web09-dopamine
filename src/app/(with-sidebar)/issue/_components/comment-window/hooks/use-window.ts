@@ -157,8 +157,8 @@ export function useWindow({ initialPosition, issueId, ideaId, userId }: UseWindo
    * [입력 핸들링] 인풋창에서 Enter 키를 눌렀을 때 제출 함수를 실행합니다.
    */
   const handleInputKeyDown = useCallback(
-    (event: KeyboardEvent<HTMLInputElement>) => {
-      if (event.key === 'Enter') {
+    (event: KeyboardEvent<HTMLTextAreaElement>) => {
+      if (event.key === 'Enter' && !event.shiftKey) {
         event.preventDefault();
         handleSubmit();
       }

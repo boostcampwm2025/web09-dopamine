@@ -240,10 +240,12 @@ export const InputRow = styled.div`
   padding: 10px 12px;
 `;
 
-export const Input = styled.input`
+export const Input = styled.textarea`
   padding: 10px 12px;
   border: none;
   font-size: ${theme.font.size.medium};
+  min-height: 72px;
+  resize: none;
 
   &:focus {
     outline: 2px solid ${theme.colors.blue[200]};
