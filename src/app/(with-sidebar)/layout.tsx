@@ -39,6 +39,13 @@ export default function WithSidebarLayout({ children }: { children: ReactNode })
       };
     }
 
+    if (pathname?.startsWith('/topic')) {
+      return {
+        header: <TopicHeader />,
+        sidebar: <TopicSidebar />,
+      };
+    }
+
     if (pathname?.startsWith('/project')) {
       return {
         header: <ProjectHeader />,
@@ -53,18 +60,6 @@ export default function WithSidebarLayout({ children }: { children: ReactNode })
   };
 
   const { header, sidebar } = getLayout();
-
-  const renderSidebar = () => {
-    if (pathname?.startsWith('/topic')) {
-      return <TopicSidebar />;
-    }
-
-    if (pathname?.startsWith('/issue')) {
-      return <IssueSidebar />;
-    }
-
-    return null;
-  };
 
   return (
     <LayoutContainer>
