@@ -4,6 +4,8 @@ import { useCallback, useMemo, useState } from 'react';
 import { Node, ReactFlow, addEdge, applyEdgeChanges, applyNodeChanges } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { ISSUE_STATUS } from '@/constants/issue';
+import { EDGE_STYLE } from '@/constants/topic';
+import topicEdge from './topic-edge';
 import TopicNode, { TopicNodeData } from './topic-node';
 
 interface TopicCanvasProps {
@@ -55,6 +57,10 @@ export default function TopicCanvas({ issues }: TopicCanvasProps) {
     [],
   );
 
+  const defaultEdgeOptions = {
+    style: EDGE_STYLE,
+  };
+
   return (
     <div style={{ width: '100vw', height: '100vh' }}>
       <ReactFlow
@@ -63,7 +69,9 @@ export default function TopicCanvas({ issues }: TopicCanvasProps) {
         nodeTypes={nodeTypes}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
+        connectionLineComponent={topicEdge}
         onConnect={onConnect}
+        defaultEdgeOptions={defaultEdgeOptions}
         fitViewOptions={{
           minZoom: 0.5, // 최소 줌
           maxZoom: 1, // 최대 줌
