@@ -37,6 +37,60 @@ export const getProjectsByOwnerId = async (ownerId: string) => {
   }));
 };
 
+export const getProjectWithTopics = async (projectId: string) => {
+  const project = await prisma.project.findUnique({
+    where: {
+      id: projectId,
+      deletedAt: null,
+    },
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      ownerId: true,
+      createdAt: true,
+      topics: {
+        where: {
+          deletedAt: null,
+        },
+        select: {
+          id: true,
+          title: true,
+          _count: {
+            select: {
+              issues: {
+                where: {
+                  deletedAt: null,
+                },
+              },
+            },
+          },
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      },
+    },
+  });
+
+  if (!project) {
+    return null;
+  }
+
+  return {
+    id: project.id,
+    owner_id: project.ownerId,
+    title: project.title,
+    description: project.description,
+    created_at: project.createdAt,
+    topics: project.topics.map((topic) => ({
+      id: topic.id,
+      title: topic.title,
+      issueCount: topic._count.issues,
+    })),
+  };
+};
+
 export const createProject = async (title: string, ownerId: string) => {
   return await prisma.$transaction(async (tx) => {
     // 1. 프로젝트 생성
