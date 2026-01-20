@@ -1,22 +1,34 @@
 import styled from '@emotion/styled';
 import { theme } from '@/styles/theme';
 
-export const CanvasContainer = styled.div`
+interface CanvasContainerProps {
+  showGrid?: boolean;
+}
+
+interface CanvasViewportProps {
+  boundContent?: boolean;
+}
+
+export const CanvasContainer = styled.div<CanvasContainerProps>`
   position: relative;
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background:
-    linear-gradient(90deg, ${theme.colors.gray[50]} 1px, transparent 1px),
-    linear-gradient(${theme.colors.gray[50]} 1px, transparent 1px);
-  background-size: 40px 40px;
-  background-position: 0 0;
+  ${({ showGrid }) =>
+    showGrid &&
+    `
+    background:
+      linear-gradient(90deg, ${theme.colors.gray[50]} 1px, transparent 1px),
+      linear-gradient(${theme.colors.gray[50]} 1px, transparent 1px);
+    background-size: 40px 40px;
+    background-position: 0 0;
+  `}
 `;
 
-export const CanvasViewport = styled.div`
+export const CanvasViewport = styled.div<CanvasViewportProps>`
   position: relative;
-  width: 4000px;
-  height: 4000px;
+  width: ${({ boundContent }) => (boundContent ? 'auto' : '4000px')};
+  height: ${({ boundContent }) => (boundContent ? 'auto' : '4000px')};
   transform-origin: 0 0;
   transition: transform 0.05s ease-out;
 `;

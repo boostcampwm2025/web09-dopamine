@@ -7,22 +7,24 @@ import Canvas from '@/app/(with-sidebar)/issue/_components/canvas/canvas';
 import CategoryCard from '@/app/(with-sidebar)/issue/_components/category/category-card';
 import FilterPanel from '@/app/(with-sidebar)/issue/_components/filter-panel/filter-panel';
 import IdeaCard from '@/app/(with-sidebar)/issue/_components/idea-card/idea-card';
-import { useSelectedIdeaQuery } from '@/app/(with-sidebar)/issue/hooks/react-query/use-selected-idea-query';
-import { useCategoryOperations } from '@/app/(with-sidebar)/issue/hooks/use-category-operations';
-import { useDragAndDrop } from '@/app/(with-sidebar)/issue/hooks/use-drag-and-drop';
-import { useFilterIdea } from '@/app/(with-sidebar)/issue/hooks/use-filter-idea';
-import { useIdeaStatus } from '@/app/(with-sidebar)/issue/hooks/use-idea-card';
-import { useIdeaOperations } from '@/app/(with-sidebar)/issue/hooks/use-idea-operations';
-import { useIssueData } from '@/app/(with-sidebar)/issue/hooks/use-issue-data';
-import { useIssueEvents } from '@/app/(with-sidebar)/issue/hooks/use-issue-events';
 import { useCanvasStore } from '@/app/(with-sidebar)/issue/store/use-canvas-store';
 import { ErrorPage } from '@/components/error/error';
 import LoadingOverlay from '@/components/loading-overlay/loading-overlay';
 import { useModalStore } from '@/components/modal/use-modal-store';
-import { ISSUE_STATUS } from '@/constants/issue';
+import { ISSUE_STATUS, ISSUE_STATUS_DESCRIPTION } from '@/constants/issue';
 import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
 import IssueJoinModal from '../_components/issue-join-modal/issue-join-modal';
-import { useIssueQuery } from '../hooks/react-query/use-issue-query';
+import {
+  useCategoryOperations,
+  useDragAndDrop,
+  useFilterIdea,
+  useIdeaOperations,
+  useIdeaStatus,
+  useIssueData,
+  useIssueEvents,
+  useIssueQuery,
+  useSelectedIdeaQuery,
+} from '../hooks';
 
 const IssuePage = () => {
   const params = useParams<{ id: string }>();
@@ -128,7 +130,11 @@ const IssuePage = () => {
         {hasError ? (
           <ErrorPage fullScreen={false} />
         ) : (
-          <Canvas onDoubleClick={handleCreateIdea}>
+          <Canvas
+            onDoubleClick={handleCreateIdea}
+            bottomMessage={ISSUE_STATUS_DESCRIPTION[status]}
+            enableAddIdea={status === ISSUE_STATUS.BRAINSTORMING}
+          >
             {/* 카테고리들 - 내부에 아이디어 카드들을 children으로 전달 */}
             {categories.map((category) => {
               const categoryIdeas = ideas.filter((idea) => idea.categoryId === category.id);

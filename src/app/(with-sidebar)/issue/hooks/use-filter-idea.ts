@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import type { IdeaWithPosition } from '../types/idea';
 
 export type FilterType = 'most-liked' | 'need-discussion' | 'none';
 
@@ -25,7 +24,7 @@ export const useFilterIdea = (issueId: string) => {
 
       try {
         // 2. 서버에 선택된 필터 기준에 따른 아이디어 ID 목록을 요청
-        const response = await fetch(`/api/issues/${issueId}/idea?filter=${activeFilter}`);
+        const response = await fetch(`/api/issues/${issueId}/ideas?filter=${activeFilter}`);
 
         if (!response.ok) {
           throw new Error('Failed to fetch filtered ids');

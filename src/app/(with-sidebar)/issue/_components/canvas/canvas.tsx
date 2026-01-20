@@ -1,27 +1,35 @@
 'use client';
 
 import { useRef } from 'react';
-import { useCanvasControls } from '@/app/(with-sidebar)/issue/hooks/use-canvas-controls';
-import { ISSUE_STATUS, ISSUE_STATUS_DESCRIPTION } from '@/constants/issue';
-import { useIssueData } from '../../hooks/use-issue-data';
-import { useIssueId } from '../../hooks/use-issue-id';
 import { CanvasContext } from './canvas-context';
 import CanvasZoomControls from './canvas-zoom-controls';
 import { AddIdeaButton, BottomMessage, CanvasContainer, CanvasViewport } from './canvas.styles';
+import { useCanvasControls } from './use-canvas-controls';
 
 interface CanvasProps {
   children?: React.ReactNode;
   onDoubleClick?: (position: { x: number; y: number }) => void;
+  showGrid?: boolean;
+  showControls?: boolean;
+  showMessage?: boolean;
+  showAddButton?: boolean;
+  boundContent?: boolean;
+  bottomMessage?: string;
+  enableAddIdea?: boolean;
 }
 
-export default function Canvas({ children, onDoubleClick }: CanvasProps) {
+export default function Canvas({
+  children,
+  onDoubleClick,
+  showGrid = true,
+  showControls = true,
+  showMessage = true,
+  showAddButton = true,
+  boundContent = false,
+  bottomMessage = '',
+  enableAddIdea = false,
+}: CanvasProps) {
   const canvasRef = useRef<HTMLDivElement>(null);
-  const issueId = useIssueId();
-
-  const { status } = useIssueData(issueId);
-  const isBrainStorming = status == ISSUE_STATUS.BRAINSTORMING;
-
-  const description = ISSUE_STATUS_DESCRIPTION[status];
 
   const {
     scale,
@@ -39,7 +47,7 @@ export default function Canvas({ children, onDoubleClick }: CanvasProps) {
   } = useCanvasControls({
     canvasRef,
     onDoubleClick,
-    isAddIdeaEnabled: isBrainStorming,
+    isAddIdeaEnabled: enableAddIdea,
   });
 
   return (
@@ -52,11 +60,13 @@ export default function Canvas({ children, onDoubleClick }: CanvasProps) {
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
         onDoubleClick={handleCanvasDoubleClick}
+        showGrid={showGrid}
         style={{
           cursor: isPanning ? 'grabbing' : 'default',
         }}
       >
         <CanvasViewport
+          boundContent={boundContent}
           style={{
             transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
           }}
@@ -65,16 +75,18 @@ export default function Canvas({ children, onDoubleClick }: CanvasProps) {
         </CanvasViewport>
       </CanvasContainer>
 
-      <CanvasZoomControls
-        scale={scale}
-        onZoomIn={handleZoomIn}
-        onZoomOut={handleZoomOut}
-        onReset={handleResetZoom}
-      />
-      {isBrainStorming && (
+      {showControls && (
+        <CanvasZoomControls
+          scale={scale}
+          onZoomIn={handleZoomIn}
+          onZoomOut={handleZoomOut}
+          onReset={handleResetZoom}
+        />
+      )}
+      {showAddButton && enableAddIdea && (
         <AddIdeaButton onClick={handleAddIdeaButtonClick}>아이디어 추가</AddIdeaButton>
       )}
-      <BottomMessage>{description}</BottomMessage>
+      {showMessage && <BottomMessage>{bottomMessage}</BottomMessage>}
     </>
   );
 }

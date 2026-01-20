@@ -2,13 +2,13 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import CloseIssueModal from '@/app/(with-sidebar)/issue/_components/close-issue-modal/close-issue-modal';
-import { selectedIdeaQueryKey } from '@/app/(with-sidebar)/issue/hooks/react-query/use-selected-idea-query';
 import { useModalStore } from '@/components/modal/use-modal-store';
 import { MEMBER_ROLE } from '@/constants/issue';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
 import { getIssueMember } from '@/lib/api/issue';
 import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
 import { useIssueStore } from '../store/use-issue-store';
+import { selectedIdeaQueryKey } from './react-query/use-selected-idea-query';
 
 interface UseIssueEventsParams {
   issueId: string;
@@ -143,7 +143,7 @@ export function useIssueEvents({
       const data = JSON.parse((event as MessageEvent).data);
       // 특정 아이디어의 투표만 갱신
       if (data.ideaId) {
-        queryClient.invalidateQueries({ queryKey: ['ideas', data.ideaId] });
+        queryClient.invalidateQueries({ queryKey: ['issues', issueId, 'ideas', data.ideaId] });
       }
     });
 

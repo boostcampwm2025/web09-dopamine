@@ -4,17 +4,15 @@ import { useEffect, useRef } from 'react';
 import type { PointerEventHandler } from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
-import useIdeaCard from '@/app/(with-sidebar)/issue/hooks/use-idea-card';
 import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
-import { useIdeaQuery } from '../../hooks/react-query/use-idea-query';
-import { useSelectedIdeaMutation } from '../../hooks/react-query/use-selected-idea-mutation';
-import { useIssueData } from '../../hooks/use-issue-data';
+import { useIdeaQuery, useIssueData, useSelectedIdeaMutation } from '../../hooks';
 import { useIdeaCardStackStore } from '../../store/use-idea-card-stack-store';
 import type { CardStatus, Position } from '../../types/idea';
 import IdeaCardBadge from './idea-card-badge';
 import IdeaCardFooter from './idea-card-footer';
 import IdeaCardHeader from './idea-card-header';
 import * as S from './idea-card.styles';
+import { useIdeaCard } from './use-idea-card';
 
 interface IdeaCardProps {
   id: string;
@@ -83,6 +81,7 @@ export default function IdeaCard(props: IdeaCardProps) {
     handleCardClick,
   } = useIdeaCard({
     id: props.id,
+    issueId: props.issueId,
     userId: currentUserId,
     content: props.content,
     isSelected: props.isSelected,
@@ -99,7 +98,7 @@ export default function IdeaCard(props: IdeaCardProps) {
     selectIdea,
   });
 
-  const { data: idea } = useIdeaQuery(props.id, currentUserId);
+  const { data: idea } = useIdeaQuery(props.issueId, props.id, currentUserId);
 
   // 드래그 로직
 
@@ -155,6 +154,7 @@ export default function IdeaCard(props: IdeaCardProps) {
   return (
     <S.Card
       ref={setNodeRef}
+      data-idea-card={props.id}
       issueStatus={issueStatus}
       status={status}
       isDragging={isDragging}
@@ -171,6 +171,8 @@ export default function IdeaCard(props: IdeaCardProps) {
     >
       <IdeaCardBadge status={status} />
       <IdeaCardHeader
+        ideaId={props.id}
+        userId={currentUserId}
         isEditing={isEditing}
         editValue={editValue}
         displayContent={displayContent}

@@ -1,6 +1,7 @@
 import getAPIResponseData from '@/lib/utils/api-response';
 
 type VoteRequest = {
+  issueId: string;
   ideaId: string;
   userId: string;
   voteType: 'AGREE' | 'DISAGREE';
@@ -13,12 +14,13 @@ export type VoteResponse = {
 };
 
 export const postVote = async ({
+  issueId,
   ideaId,
   userId,
   voteType,
 }: VoteRequest): Promise<VoteResponse> => {
   return getAPIResponseData<VoteResponse>({
-    url: `/api/ideas/${ideaId}/vote`,
+    url: `/api/issues/${issueId}/idea/${ideaId}/vote`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({

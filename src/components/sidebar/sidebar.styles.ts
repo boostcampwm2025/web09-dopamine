@@ -71,6 +71,7 @@ export const SidebarList = styled.ul`
   display: flex;
   flex-flow: column nowrap;
   overflow-y: auto;
+  gap: 4px;
 `;
 export const SidebarListItem = styled.li`
   display: flex;
@@ -82,7 +83,6 @@ export const ListItemLink = styled(Link)`
   display: flex;
   flex-flow: row nowrap;
   align-items: center;
-  justify-content: space-between;
   width: 100%;
   padding: 10px 16px 10px 24px;
   background-color: ${theme.colors.white};
@@ -90,6 +90,7 @@ export const ListItemLink = styled(Link)`
   color: ${theme.colors.gray[700]};
   border: none;
   text-decoration: none;
+  gap: 8px;
 
   &:hover,
   &:focus {
@@ -109,4 +110,12 @@ export const StatusLabel = styled.span<{
   background-color: ${theme.colors.white};
   border: 1px solid ${({ status }) => theme.status[status].color};
   border-radius: ${theme.radius.large};
+  margin-left: auto;
+`;
+
+export const Bullet = styled.div`
+  width: 8px;
+  height: 8px;
+  background-color: ${theme.colors.gray[300]};
+  border-radius: ${theme.radius.full};
 `;

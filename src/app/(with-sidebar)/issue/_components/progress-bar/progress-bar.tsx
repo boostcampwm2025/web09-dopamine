@@ -1,6 +1,5 @@
 import { STATUS_LABEL, STEP_FLOW } from '@/constants/issue';
-import { useIssueData } from '../../hooks/use-issue-data';
-import { useIssueId } from '../../hooks/use-issue-id';
+import { useIssueData, useIssueId } from '../../hooks';
 import * as S from './progress-bar.styles';
 
 const PROGRESS_BAR_DURATION = 0.3;

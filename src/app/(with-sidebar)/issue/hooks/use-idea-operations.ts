@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import toast from 'react-hot-toast';
-import { useIdeaMutations } from '@/app/(with-sidebar)/issue/hooks/react-query/use-idea-mutations';
-import { useSelectedIdeaMutation } from '@/app/(with-sidebar)/issue/hooks/react-query/use-selected-idea-mutation';
+import { useIdeaMutations } from './react-query/use-idea-mutations';
+import { useSelectedIdeaMutation } from './react-query/use-selected-idea-mutation';
 import { useIdeaCardStackStore } from '@/app/(with-sidebar)/issue/store/use-idea-card-stack-store';
 import type { IdeaWithPosition, Position } from '@/app/(with-sidebar)/issue/types/idea';
 import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
