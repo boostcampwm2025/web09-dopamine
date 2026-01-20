@@ -171,6 +171,7 @@ export default function IdeaCard(props: IdeaCardProps) {
     >
       <IdeaCardBadge status={status} />
       <IdeaCardHeader
+        issueId={props.issueId}
         ideaId={props.id}
         userId={currentUserId}
         isEditing={isEditing}

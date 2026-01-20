@@ -12,11 +12,12 @@ import {
 
 interface UseWindowOptions {
   initialPosition?: { x: number; y: number };
+  issueId: string;
   ideaId: string;
   userId: string;
 }
 
-export function useWindow({ initialPosition, ideaId, userId }: UseWindowOptions) {
+export function useWindow({ initialPosition, issueId, ideaId, userId }: UseWindowOptions) {
   const defaultPositionRef = useRef({ x: 120, y: 120 });
   const resolvedInitialPosition = initialPosition ?? defaultPositionRef.current;
 
@@ -41,7 +42,7 @@ export function useWindow({ initialPosition, ideaId, userId }: UseWindowOptions)
    * [조회 로직] 아이디어 ID가 바뀔 때마다 해당 아이디어의 댓글 목록을 서버에서 가져옵니다.
    */
   useEffect(() => {
-    if (!ideaId) {
+    if (!issueId || !ideaId) {
       setComments([]);
       setErrorMessage('아이디어 정보가 없어 댓글을 불러올 수 없습니다.');
       return;
@@ -51,7 +52,7 @@ export function useWindow({ initialPosition, ideaId, userId }: UseWindowOptions)
     setIsLoading(true);
     setErrorMessage(null);
 
-    fetchComments(ideaId)
+    fetchComments(issueId, ideaId)
       .then((data) => {
         if (!isActive) return;
         setComments(data);
@@ -68,7 +69,7 @@ export function useWindow({ initialPosition, ideaId, userId }: UseWindowOptions)
     return () => {
       isActive = false;
     };
-  }, [ideaId]);
+  }, [ideaId, issueId]);
 
   /**
    * [생성 로직] 새로운 댓글을 등록합니다. 중복 제출을 방지하고 성공 시 목록을 갱신합니다.
@@ -76,12 +77,12 @@ export function useWindow({ initialPosition, ideaId, userId }: UseWindowOptions)
   const handleSubmit = useCallback(async () => {
     const trimmed = inputValue.trim();
     // 유효성 검사: 내용이 없거나 이미 제출 중인 경우 중단
-    if (!trimmed || !ideaId || !userId || isSubmitting) return;
+    if (!trimmed || !issueId || !ideaId || !userId || isSubmitting) return;
 
     setIsSubmitting(true);
     setErrorMessage(null);
     try {
-      const created = await createComment(ideaId, { userId, content: trimmed });
+      const created = await createComment(issueId, ideaId, { userId, content: trimmed });
       // 낙관적 업데이트 대신 실제 생성된 데이터를 리스트에 추가
       setComments((prev) => [...prev, created]);
       setInputValue('');
@@ -90,7 +91,7 @@ export function useWindow({ initialPosition, ideaId, userId }: UseWindowOptions)
     } finally {
       setIsSubmitting(false);
     }
-  }, [ideaId, inputValue, isSubmitting, userId]);
+  }, [ideaId, inputValue, isSubmitting, issueId, userId]);
 
   const handleEditStart = useCallback((comment: Comment) => {
     setEditingCommentId(comment.id);
@@ -104,13 +105,13 @@ export function useWindow({ initialPosition, ideaId, userId }: UseWindowOptions)
 
   const handleEditSave = useCallback(async () => {
     const trimmed = editingValue.trim();
-    if (!ideaId || !editingCommentId || !trimmed || isMutating) return;
+    if (!issueId || !ideaId || !editingCommentId || !trimmed || isMutating) return;
 
     setIsMutating(true);
     setMutatingCommentId(editingCommentId);
     setErrorMessage(null);
     try {
-      const updated = await updateComment(ideaId, editingCommentId, { content: trimmed });
+      const updated = await updateComment(issueId, ideaId, editingCommentId, { content: trimmed });
       setComments((prev) =>
         prev.map((comment) =>
           comment.id === editingCommentId
@@ -126,17 +127,17 @@ export function useWindow({ initialPosition, ideaId, userId }: UseWindowOptions)
       setIsMutating(false);
       setMutatingCommentId(null);
     }
-  }, [editingCommentId, editingValue, ideaId, isMutating]);
+  }, [editingCommentId, editingValue, ideaId, isMutating, issueId]);
 
   const handleDelete = useCallback(
     async (commentId: string) => {
-      if (!ideaId || isMutating) return;
+      if (!issueId || !ideaId || isMutating) return;
 
       setIsMutating(true);
       setMutatingCommentId(commentId);
       setErrorMessage(null);
       try {
-        await deleteComment(ideaId, commentId);
+        await deleteComment(issueId, ideaId, commentId);
         setComments((prev) => prev.filter((comment) => comment.id !== commentId));
         if (editingCommentId === commentId) {
           setEditingCommentId(null);
@@ -149,7 +150,7 @@ export function useWindow({ initialPosition, ideaId, userId }: UseWindowOptions)
         setMutatingCommentId(null);
       }
     },
-    [editingCommentId, ideaId, isMutating],
+    [editingCommentId, ideaId, isMutating, issueId],
   );
 
   /**

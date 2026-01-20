@@ -5,6 +5,7 @@ import * as S from './comment-window.styles';
 import { useWindow } from './hooks/use-window';
 
 export interface CommentWindowProps {
+  issueId: string;
   ideaId: string;
   userId: string;
   initialPosition?: { x: number; y: number };
@@ -14,6 +15,7 @@ export interface CommentWindowProps {
 }
 
 export default function CommentWindow({
+  issueId,
   ideaId,
   userId,
   initialPosition,
@@ -41,7 +43,7 @@ export default function CommentWindow({
     handleEditSave,
     handleDelete,
     handleEditKeyDown,
-  } = useWindow({ initialPosition, ideaId, userId });
+  } = useWindow({ initialPosition, issueId, ideaId, userId });
 
   return (
     <S.Window
