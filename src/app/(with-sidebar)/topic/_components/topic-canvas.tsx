@@ -59,7 +59,22 @@ export default function TopicCanvas({ issues }: TopicCanvasProps) {
     [],
   );
   const onConnect = useCallback(
-    (params: any) => setEdges((edgesSnapshot) => addEdge(params, edgesSnapshot)),
+    (params: any) =>
+      setEdges((edgesSnapshot) => {
+        // 이미 같은 연결이 존재하는지 확인 (양방향 모두 체크)
+        const isDuplicate = edgesSnapshot.some(
+          (edge) =>
+            (edge.source === params.source && edge.target === params.target) ||
+            (edge.source === params.target && edge.target === params.source),
+        );
+
+        // 중복이면 추가하지 않음
+        if (isDuplicate) {
+          return edgesSnapshot;
+        }
+
+        return addEdge(params, edgesSnapshot);
+      }),
     [],
   );
 
