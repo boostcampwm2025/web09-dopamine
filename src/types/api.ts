@@ -5,7 +5,6 @@ export interface ApiSuccess<T> {
   error: null;
 }
 
-
 // API 응답의 실패 케이스
 export interface ApiError {
   success: false;

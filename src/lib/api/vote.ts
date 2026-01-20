@@ -12,7 +12,11 @@ export type VoteResponse = {
   myVote: 'AGREE' | 'DISAGREE' | null; // 취소되면 null이 올 수 있음
 };
 
-export const postVote = async ({ ideaId, userId, voteType }: VoteRequest): Promise<VoteResponse> => {
+export const postVote = async ({
+  ideaId,
+  userId,
+  voteType,
+}: VoteRequest): Promise<VoteResponse> => {
   return getAPIResponseData<VoteResponse>({
     url: `/api/ideas/${ideaId}/vote`,
     method: 'POST',

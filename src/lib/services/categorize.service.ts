@@ -1,9 +1,9 @@
+import type { Prisma } from '@prisma/client';
+import { SSE_EVENT_TYPES } from '@/constants/sse-events';
 import { prisma } from '@/lib/prisma';
 import { categoryRepository } from '@/lib/repositories/category.repository';
 import { ideaRepository } from '@/lib/repositories/idea.repository';
 import { broadcast } from '@/lib/sse/sse-service';
-import { SSE_EVENT_TYPES } from '@/constants/sse-events';
-import type { Prisma } from '@prisma/client';
 
 interface CategoryPayload {
   title: string;
@@ -18,7 +18,7 @@ interface CategorizeResult {
 export const categorizeService = {
   async categorizeAndBroadcast(
     issueId: string,
-    categoryPayloads: CategoryPayload[]
+    categoryPayloads: CategoryPayload[],
   ): Promise<CategorizeResult> {
     const result = await prisma.$transaction(async (tx) => {
       const now = new Date();
@@ -30,7 +30,7 @@ export const categorizeService = {
       const createdCategories = await categoryRepository.createManyForIssue(
         issueId,
         categoryPayloads,
-        tx as Prisma.TransactionClient
+        tx as Prisma.TransactionClient,
       );
 
       const ideaCategoryMap = new Map<string, string>();
@@ -47,8 +47,8 @@ export const categorizeService = {
           tx.idea.updateMany({
             where: { id: ideaId, issueId },
             data: { categoryId, positionX: null, positionY: null },
-          })
-        )
+          }),
+        ),
       );
 
       return {

@@ -4,10 +4,10 @@ import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import { useTooltipStore } from '@/components/tooltip/use-tooltip-store';
 import { ISSUE_STATUS } from '@/constants/issue';
-import { useHeader } from '../../hooks/use-header';
 import ProgressBar from '../progress-bar/progress-bar';
 import HeaderButton from './header-button';
 import * as S from './header.styles';
+import { useHeader } from './use-header';
 
 const Header = () => {
   const params = useParams<{ id: string }>();
