@@ -21,9 +21,7 @@ describe('GET /api/issues/[id]/members/search/[searchTerm]', () => {
   };
 
   it('returns members matching the search term', async () => {
-    const mockMembers = [
-      { id: 'member-1', user: { id: 'user-1', displayName: 'Kim' } },
-    ];
+    const mockMembers = [{ id: 'member-1', user: { id: 'user-1', displayName: 'Kim' } }];
     mockedRepository.findMembersByNickname.mockResolvedValue(mockMembers as any);
 
     const response = await GET({} as NextRequest, createMockParams(issueId, searchTerm));

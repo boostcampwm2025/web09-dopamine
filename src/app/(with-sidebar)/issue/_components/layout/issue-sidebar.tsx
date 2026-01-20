@@ -36,9 +36,7 @@ export default function IssueSidebar() {
     const trimmed = searchTerm.trim();
     if (!trimmed) return sortedMembers;
     const normalized = trimmed.toLowerCase();
-    return sortedMembers.filter((member) =>
-      member.displayName.toLowerCase().includes(normalized),
-    );
+    return sortedMembers.filter((member) => member.displayName.toLowerCase().includes(normalized));
   }, [searchTerm, sortedMembers]);
 
   const handleSearchChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
