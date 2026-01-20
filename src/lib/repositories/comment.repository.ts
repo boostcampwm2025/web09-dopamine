@@ -20,6 +20,13 @@ export const commentRepository = {
         id: true,
         content: true,
         createdAt: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+            displayName: true,
+          },
+        },
       },
     });
   },
@@ -40,6 +47,13 @@ export const commentRepository = {
         id: true,
         content: true,
         createdAt: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+            displayName: true,
+          },
+        },
       },
     });
   },
