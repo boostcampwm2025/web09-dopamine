@@ -15,7 +15,6 @@ import { ISSUE_STATUS, ISSUE_STATUS_DESCRIPTION } from '@/constants/issue';
 import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
 import IssueJoinModal from '../_components/issue-join-modal/issue-join-modal';
 import {
-  useAIStructuring,
   useCategoryOperations,
   useDragAndDrop,
   useFilterIdea,
@@ -104,12 +103,6 @@ const IssuePage = () => {
     scale,
     onIdeaPositionChange: handleIdeaPositionChange,
     onMoveIdeaToCategory: handleMoveIdeaToCategory,
-  });
-
-  // 5. AI 구조화 작업
-  useAIStructuring({
-    issueId,
-    ideas,
   });
 
   // 하이라이트된 아이디어

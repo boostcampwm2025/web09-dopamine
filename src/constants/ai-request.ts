@@ -1,5 +1,3 @@
-import { m } from 'framer-motion';
-
 const aiRequest = {
   prompt: `
     너는 협업 아이디어 정리 도구의 AI 어시스턴트다.
