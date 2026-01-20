@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { useIssueId } from '@/app/(with-sidebar)/issue/hooks/use-issue-id';
+import { useIssueId } from '@/app/(with-sidebar)/issue/hooks';
 import { MEMBER_ROLE } from '@/constants/issue';
 import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
 import * as MemberS from './member-sidebar-item.styles';

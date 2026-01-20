@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { useCanvasStore } from '../store/use-canvas-store';
+import { useCanvasStore } from '../../store/use-canvas-store';
 
 const DEFAULT_OFFSET = { x: 0, y: 0 };
 

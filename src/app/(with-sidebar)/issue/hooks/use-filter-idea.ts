@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import type { IdeaWithPosition } from '../types/idea';
 
 export type FilterType = 'most-liked' | 'need-discussion' | 'none';
 

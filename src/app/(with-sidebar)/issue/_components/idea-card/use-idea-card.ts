@@ -3,9 +3,8 @@ import type { PointerEventHandler } from 'react';
 import { useTooltipStore } from '@/components/tooltip/use-tooltip-store';
 import { ISSUE_STATUS, VOTE_TYPE } from '@/constants/issue';
 import type { IssueStatus } from '@/types/issue';
-import { CardStatus } from '../types/idea';
-import { useVoteMutation } from './react-query/use-vote-mutation';
-import type { FilterType } from './use-filter-idea';
+import { FilterType, useVoteMutation } from '../../hooks';
+import { CardStatus } from '../../types/idea';
 
 interface UseIdeaCardProps {
   id?: string;
@@ -25,7 +24,7 @@ interface UseIdeaCardProps {
   selectIdea: (id: string) => void;
 }
 
-export default function useIdeaCard(props: UseIdeaCardProps) {
+export function useIdeaCard(props: UseIdeaCardProps) {
   const {
     id = '',
     userId = '',
