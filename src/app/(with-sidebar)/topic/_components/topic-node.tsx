@@ -9,21 +9,6 @@ export interface TopicNodeData extends Record<string, unknown> {
   status?: IssueStatus;
 }
 
-function badgeFormatter(status: IssueStatus) {
-  switch (status) {
-    case ISSUE_STATUS.BRAINSTORMING:
-    case ISSUE_STATUS.CATEGORIZE:
-      return 'BLUE';
-    case ISSUE_STATUS.VOTE:
-    case ISSUE_STATUS.SELECT:
-      return 'GREEN';
-    case ISSUE_STATUS.CLOSE:
-      return 'GRAY';
-    default:
-      return 'UNKNOWN';
-  }
-}
-
 export default function TopicNode({ data }: NodeProps<Node<TopicNodeData>>) {
   const title = data.title ?? '홍보 플랫폼 선정';
   const status = data.status ?? ISSUE_STATUS.CLOSE;
