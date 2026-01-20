@@ -4,7 +4,7 @@ import styled from '@emotion/styled';
 import { theme } from '@/styles/theme';
 
 export type Variant = 'solid' | 'outline';
-export type SolidColor = 'white' | 'black';
+export type SolidColor = 'white' | 'black' | 'green';
 
 export const ButtonContainer = styled.button<{
   variant: Variant;
@@ -35,6 +35,14 @@ export const ButtonContainer = styled.button<{
           background-color: white;
           color: black;
           border: 1px solid ${theme.colors.gray[200]};
+        `;
+      }
+
+      if (color === 'green') {
+        return `
+          background-color: ${theme.colors.green[600]};
+          color: white;
+          border: 1px solid ${theme.colors.green[600]};
         `;
       }
     }
