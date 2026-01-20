@@ -1,5 +1,5 @@
 import { topicService } from '@/lib/services/topic.service';
-import TopicCanvas from '../_components/topic-canvas';
+import TopicCanvas from '../_components/issue-canvas/topic-canvas';
 
 export default async function TopicPage({ params }: { params: Promise<{ id: string }> }) {
   const { id: topicId } = await params;
@@ -8,6 +8,11 @@ export default async function TopicPage({ params }: { params: Promise<{ id: stri
   const { issues, nodes, connections } = await topicService.getIssuesMapData(topicId);
 
   return (
-    <TopicCanvas topicId={topicId} issues={issues} nodes={nodes} connections={connections} />
+    <TopicCanvas
+      topicId={topicId}
+      issues={issues}
+      nodes={nodes}
+      connections={connections}
+    />
   );
 }

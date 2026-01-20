@@ -2,9 +2,9 @@ import { useCallback, useMemo, useState } from 'react';
 import { Node } from '@xyflow/react';
 import { ISSUE_STATUS } from '@/constants/issue';
 import { IssueConnection, IssueMapData, IssueNode } from '@/types/issue';
-import { TopicNodeData } from '../_components/topic-node';
-import { useTopicMutations } from './use-topic-mutations';
-import { useTopicQuery } from './use-topic-query';
+import { useTopicMutations } from '../../hooks/react-query/use-topic-mutations';
+import { useTopicQuery } from '../../hooks/react-query/use-topic-query';
+import { TopicNodeData } from '../issue-node/topic-node';
 
 function nodesToReactFlowNodes(issues: IssueMapData[], nodes: IssueNode[]) {
   return nodes.map((node) => {
@@ -169,19 +169,6 @@ export function useTopicCanvas({
     return visited;
   }, [hoveredNodeId, reactFlowEdges]);
 
-  // 노드에 dimmed 상태 추가
-  const nodesWithDimmed = useMemo(() => {
-    if (!hoveredNodeId) return reactFlowNodes;
-
-    return reactFlowNodes.map((node) => ({
-      ...node,
-      data: {
-        ...node.data,
-        dimmed: !connectedNodeIds.has(node.id), // 이어져있지 않은 노드는 dimmed 처리
-      },
-    }));
-  }, [reactFlowNodes, hoveredNodeId, connectedNodeIds]);
-
   const onNodeMouseEnter = useCallback(
     (_event: any, node: Node) => {
       if (!isConnecting) {
@@ -215,7 +202,7 @@ export function useTopicCanvas({
   );
 
   return {
-    nodes: nodesWithDimmed,
+    nodes: reactFlowNodes,
     edges: reactFlowEdges,
     onNodesChange,
     onEdgesChange,
@@ -225,5 +212,7 @@ export function useTopicCanvas({
     onConnectStart,
     onConnectEnd,
     deleteEdge: handleDeleteEdge,
+    hoveredNodeId,
+    connectedNodeIds,
   };
 }

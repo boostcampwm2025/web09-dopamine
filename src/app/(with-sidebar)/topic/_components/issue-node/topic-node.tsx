@@ -2,19 +2,20 @@ import { memo } from 'react';
 import { Node, NodeProps, Position } from '@xyflow/react';
 import { ISSUE_STATUS } from '@/constants/issue';
 import { IssueStatus } from '@/types/issue';
+import { useTopicHoverContext } from '../topic-hover-context';
 import TopicHandle from './topic-handle';
 import * as S from './topic-node.styles';
 
 export interface TopicNodeData extends Record<string, unknown> {
   title?: string;
   status?: IssueStatus;
-  dimmed?: boolean;
 }
 
-function TopicNode({ data }: NodeProps<Node<TopicNodeData>>) {
+function TopicNode({ id, data }: NodeProps<Node<TopicNodeData>>) {
   const title = data.title ?? '홍보 플랫폼 선정';
   const status = data.status ?? ISSUE_STATUS.CLOSE;
-  const dimmed = data.dimmed ?? false;
+  const { hoveredNodeId, connectedNodeIds } = useTopicHoverContext();
+  const dimmed = hoveredNodeId ? !connectedNodeIds.has(id) : false;
 
   return (
     <S.NodeContainer
