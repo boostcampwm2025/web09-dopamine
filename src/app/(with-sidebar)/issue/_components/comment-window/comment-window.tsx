@@ -83,6 +83,10 @@ export default function CommentWindow({
     [resizeTextarea, setInputValue],
   );
 
+  const handleSubmitClick = useCallback(() => {
+    handleSubmit(textareaRef.current ?? undefined);
+  }, [handleSubmit]);
+
   return (
     <S.Window
       role="dialog"
@@ -134,10 +138,10 @@ export default function CommentWindow({
             />
             <S.SubmitButton
               type="button"
-              onClick={handleSubmit}
+              onClick={handleSubmitClick}
               disabled={isSubmitting}
             >
-              {isSubmitting ? '등록 중...' : '제출'}
+              {isSubmitting ? '제출중...' : '제출'}
             </S.SubmitButton>
           </S.InputRow>
         </S.Section>

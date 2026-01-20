@@ -9,6 +9,7 @@ import {
   fetchComments,
   updateComment,
 } from '@/lib/api/comment';
+import { useTooltipStore } from '@/components/tooltip/use-tooltip-store';
 
 interface UseWindowOptions {
   initialPosition?: { x: number; y: number };
@@ -31,6 +32,8 @@ export function useWindow({ initialPosition, issueId, ideaId, userId }: UseWindo
   const [inputValue, setInputValue] = useState('');
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
   const [editingValue, setEditingValue] = useState('');
+  const openTooltip = useTooltipStore((state) => state.openTooltip);
+  const closeTooltip = useTooltipStore((state) => state.closeTooltip);
 
   // 외부에서 전달된 초기 위치 값이 변경될 때 상태 동기화
   useEffect(() => {
@@ -74,10 +77,20 @@ export function useWindow({ initialPosition, issueId, ideaId, userId }: UseWindo
   /**
    * [생성 로직] 새로운 댓글을 등록합니다. 중복 제출을 방지하고 성공 시 목록을 갱신합니다.
    */
-  const handleSubmit = useCallback(async () => {
+  const handleSubmit = useCallback(async (target?: HTMLElement) => {
     const trimmed = inputValue.trim();
     // 유효성 검사: 내용이 없거나 이미 제출 중인 경우 중단
-    if (!trimmed || !issueId || !ideaId || !userId || isSubmitting) return;
+    if (!trimmed || !issueId || !ideaId || !userId || isSubmitting) {
+      if (!trimmed && target) {
+        openTooltip(target, '댓글 내용을 입력해주세요.');
+        const timer = setTimeout(() => {
+          closeTooltip();
+        }, 1000);
+
+        return () => clearTimeout(timer);
+      }
+      return;
+    }
 
     setIsSubmitting(true);
     setErrorMessage(null);
@@ -91,7 +104,7 @@ export function useWindow({ initialPosition, issueId, ideaId, userId }: UseWindo
     } finally {
       setIsSubmitting(false);
     }
-  }, [ideaId, inputValue, isSubmitting, issueId, userId]);
+  }, [ideaId, inputValue, isSubmitting, issueId, openTooltip, userId]);
 
   const handleEditStart = useCallback((comment: Comment) => {
     setEditingCommentId(comment.id);
@@ -160,7 +173,7 @@ export function useWindow({ initialPosition, issueId, ideaId, userId }: UseWindo
     (event: KeyboardEvent<HTMLTextAreaElement>) => {
       if (event.key === 'Enter' && !event.shiftKey) {
         event.preventDefault();
-        handleSubmit();
+        handleSubmit(event.currentTarget);
       }
     },
     [handleSubmit],
@@ -196,5 +209,6 @@ export function useWindow({ initialPosition, issueId, ideaId, userId }: UseWindo
     handleEditSave,
     handleDelete,
     handleEditKeyDown,
+    closeTooltip,
   };
 }
