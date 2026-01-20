@@ -14,7 +14,7 @@ export const ideaRepository = {
             id: true,
             name: true,
             displayName: true,
-            avatarUrl: true,
+            image: true,
           },
         },
         category: {
@@ -82,7 +82,7 @@ export const ideaRepository = {
             id: true,
             name: true,
             displayName: true,
-            avatarUrl: true,
+            image: true,
           },
         },
         category: {
@@ -124,7 +124,7 @@ export const ideaRepository = {
             id: true,
             name: true,
             displayName: true,
-            avatarUrl: true,
+            image: true,
           },
         },
         category: {
