@@ -14,6 +14,6 @@ export function getConnectionsInfo(): Record<string, number> {
   return sseManager.getConnectionsInfo();
 }
 
-export function getConnectMemberIds(issueId: string): string[] {
-  return sseManager.getConnectMemberIds(issueId);
+export function getOnlineMemberIds(issueId: string): string[] {
+  return sseManager.getOnlineMemberIds(issueId);
 }

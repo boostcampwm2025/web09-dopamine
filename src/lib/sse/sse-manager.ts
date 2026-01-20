@@ -36,13 +36,13 @@ export class SSEManager {
         // 스트림 버퍼로 인큐
         controller.enqueue(encoder.encode(connectMessage));
 
-        const onlineUserIds = this.getConnectMemberIds(issueId);
+        const onlineUserIds = this.getOnlineMemberIds(issueId);
 
         this.broadcast({
           issueId,
           event: {
-            type: SSE_EVENT_TYPES.USER_PRESENCE,
-            data: { connectedUserIds: onlineUserIds },
+            type: SSE_EVENT_TYPES.MEMBER_PRESENCE,
+            data: { onlineUserIds },
           },
         });
 
@@ -80,13 +80,13 @@ export class SSEManager {
             }
           }
 
-          const onlineUserIds = this.getConnectMemberIds(issueId);
+          const onlineUserIds = this.getOnlineMemberIds(issueId);
 
           this.broadcast({
             issueId,
             event: {
-              type: SSE_EVENT_TYPES.USER_PRESENCE,
-              data: { connectedUserIds: onlineUserIds },
+              type: SSE_EVENT_TYPES.MEMBER_PRESENCE,
+              data: { onlineUserIds },
             },
           });
 
@@ -138,7 +138,7 @@ export class SSEManager {
     return info;
   }
 
-  getConnectMemberIds(issueId: string): string[] {
+  getOnlineMemberIds(issueId: string): string[] {
     const clients = this.connections.get(issueId);
 
     if (!clients) {

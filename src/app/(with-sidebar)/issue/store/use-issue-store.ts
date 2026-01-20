@@ -2,18 +2,18 @@ import { create } from 'zustand';
 
 interface IssueStore {
   isAIStructuring: boolean;
-  connectUserIds: string[];
+  onlineMemberIds: string[];
   actions: {
     setIsAIStructuring: (isLoading: boolean) => void;
-    setConnectUserIds: (ids: string[]) => void;
+    setOnlineMemberIds: (ids: string[]) => void;
   };
 }
 
 export const useIssueStore = create<IssueStore>((set) => ({
   isAIStructuring: false,
-  connectUserIds: [],
+  onlineMemberIds: [],
   actions: {
     setIsAIStructuring: (isLoading) => set({ isAIStructuring: isLoading }),
-    setConnectUserIds: (ids) => set({ connectUserIds: ids }),
+    setOnlineMemberIds: (ids) => set({ onlineMemberIds: ids }),
   },
 }));

@@ -20,9 +20,7 @@ const ISSUE_LIST = [
 export default function IssueSidebar() {
   const issueId = useIssueId();
   const { isQuickIssue, members } = useIssueData(issueId);
-  const { connectUserIds } = useIssueStore();
-
-  console.log(connectUserIds);
+  const { onlineMemberIds } = useIssueStore();
 
   const sortedMembers = useMemo(() => {
     return [...members].sort((a, b) => {
@@ -30,15 +28,15 @@ export default function IssueSidebar() {
         return a.role === MEMBER_ROLE.OWNER ? -1 : 1;
       }
 
-      const isAOnline = connectUserIds.includes(a.id);
-      const isBOnline = connectUserIds.includes(b.id);
+      const isAOnline = onlineMemberIds.includes(a.id);
+      const isBOnline = onlineMemberIds.includes(b.id);
 
       if (isAOnline !== isBOnline) {
         return Number(isBOnline) - Number(isAOnline);
       }
       return a.displayName.localeCompare(b.displayName);
     });
-  }, [members, connectUserIds]);
+  }, [members, onlineMemberIds]);
 
   return (
     <Sidebar>
@@ -68,7 +66,7 @@ export default function IssueSidebar() {
         <S.SidebarTitle>MEMBER LIST</S.SidebarTitle>
         <S.SidebarList>
           {sortedMembers.map((user) => {
-            const isOnline = connectUserIds.includes(user.id);
+            const isOnline = onlineMemberIds.includes(user.id);
             return (
               <MemberSidebarItem
                 key={user.displayName}
