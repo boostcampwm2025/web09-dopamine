@@ -113,7 +113,12 @@ export const getProjectWithTopics = async (projectId: string) => {
     }
   });
 
-  const members = Array.from(memberMap.values());
+  // 멤버 정렬: OWNER가 먼저, 그 다음 MEMBER
+  const members = Array.from(memberMap.values()).sort((a, b) => {
+    if (a.role === 'OWNER' && b.role === 'MEMBER') return -1;
+    if (a.role === 'MEMBER' && b.role === 'OWNER') return 1;
+    return 0;
+  });
 
   return {
     id: project.id,
