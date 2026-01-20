@@ -20,12 +20,12 @@ export const MemberItemButton = styled.button<{ hasOnClick?: boolean }>`
   }
 `;
 
-export const NameContainer = styled.div<{ isConnected: boolean }>`
+export const NameContainer = styled.div<{ isConnected?: boolean }>`
   display: flex;
-  gap: 4px;
+  gap: 8px;
   align-items: center;
   justify-content: center;
-  color: ${({ isConnected }) => !isConnected && theme.colors.gray[400]};
+  color: ${({ isConnected }) => isConnected == false && theme.colors.gray[400]};
 `;
 
 export const CurrentUserLabel = styled.span`
@@ -42,10 +42,25 @@ export const CurrentUserLabel = styled.span`
   border-radius: ${theme.radius.large};
 `;
 
-export const StatusLabel = styled.div<{ isConnected: boolean }>`
+export const StatusLabel = styled.div<{ isConnected?: boolean }>`
   background-color: ${({ isConnected }) =>
     isConnected ? theme.colors.green[600] : theme.colors.gray[400]};
   border-radius: ${theme.radius.full};
   width: 8px;
   height: 8px;
+`;
+
+export const OwnerBadge = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  background-color: ${theme.colors.yellow[100]};
+  border-radius: ${theme.radius.small};
+`;
+
+export const OwnerText = styled.span`
+  font-size: ${theme.font.size.xs};
+  font-weight: ${theme.font.weight.bold};
+  color: ${theme.colors.yellow[700]};
 `;
