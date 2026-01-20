@@ -63,3 +63,35 @@ export const createProject = async (title: string, ownerId: string) => {
     };
   });
 };
+
+export const deleteProject = async (id: string, ownerId: string) => {
+  return await prisma.$transaction(async (tx) => {
+    // 1. 프로젝트 삭제
+    const project = await tx.project.update({
+      where: {
+        id,
+        ownerId,
+      },
+      data: {
+        deletedAt: new Date(),
+      },
+    });
+
+    // 2. 프로젝트 멤버 삭제
+    await tx.projectMember.updateMany({
+      where: {
+        projectId: id,
+      },
+      data: {
+        deletedAt: new Date(),
+      },
+    });
+
+    return {
+      id: project.id,
+      title: project.title,
+      ownerId: project.ownerId,
+      createdAt: project.createdAt,
+    };
+  });
+};
