@@ -58,6 +58,7 @@ export default function TopicCanvas({ issues }: TopicCanvasProps) {
     (changes: any) => setEdges((edgesSnapshot) => applyEdgeChanges(changes, edgesSnapshot)),
     [],
   );
+
   const onConnect = useCallback(
     (params: any) =>
       setEdges((edgesSnapshot) => {

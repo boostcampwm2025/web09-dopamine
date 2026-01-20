@@ -1,0 +1,4 @@
+/* 노드에 호버했을 때 핸들 표시 */
+.react-flow__node:hover .react-flow__handle {
+  opacity: 1 !important;
+}

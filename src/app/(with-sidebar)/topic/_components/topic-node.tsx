@@ -1,6 +1,7 @@
-import { Handle, Node, NodeProps, Position } from '@xyflow/react';
+import { Node, NodeProps, Position } from '@xyflow/react';
 import { ISSUE_STATUS } from '@/constants/issue';
 import { IssueStatus } from '@/types/issue';
+import TopicHandle from './topic-handle';
 import * as S from './topic-node.styles';
 
 export interface TopicNodeData extends Record<string, unknown> {
@@ -38,59 +39,59 @@ export default function TopicNode({ data }: NodeProps<Node<TopicNodeData>>) {
       </S.TitleWrapper>
       {/* 소스와 타깃 모두 지정해서 자유롭게 연결할 수 있음 */}
       {/* Top Handles */}
-      <Handle
-        id="top-target"
+      <TopicHandle
         type="target"
+        status={status}
         position={Position.Top}
-        style={{ borderRadius: 0 }}
+        id="top-target"
       />
-      <Handle
-        id="top-source"
+      <TopicHandle
         type="source"
+        status={status}
         position={Position.Top}
-        style={{ borderRadius: 0 }}
+        id="top-source"
       />
 
       {/* Bottom Handles */}
-      <Handle
-        id="bottom-target"
+      <TopicHandle
         type="target"
+        status={status}
         position={Position.Bottom}
-        style={{ borderRadius: 0 }}
+        id="bottom-target"
       />
-      <Handle
-        id="bottom-source"
+      <TopicHandle
         type="source"
+        status={status}
         position={Position.Bottom}
-        style={{ borderRadius: 0 }}
+        id="bottom-source"
       />
 
       {/* Left Handles */}
-      <Handle
-        id="left-target"
+      <TopicHandle
         type="target"
+        status={status}
         position={Position.Left}
-        style={{ borderRadius: 0 }}
+        id="left-target"
       />
-      <Handle
-        id="left-source"
+      <TopicHandle
         type="source"
+        status={status}
         position={Position.Left}
-        style={{ borderRadius: 0 }}
+        id="left-source"
       />
 
       {/* Right Handles */}
-      <Handle
-        id="right-target"
+      <TopicHandle
         type="target"
+        status={status}
         position={Position.Right}
-        style={{ borderRadius: 0 }}
+        id="right-target"
       />
-      <Handle
-        id="right-source"
+      <TopicHandle
         type="source"
+        status={status}
         position={Position.Right}
-        style={{ borderRadius: 0 }}
+        id="right-source"
       />
     </S.NodeContainer>
   );
