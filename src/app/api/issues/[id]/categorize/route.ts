@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import aiRequest from '@/constants/ai-request';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
 import { ideaRepository } from '@/lib/repositories/idea.repository';
+import { findIssueById } from '@/lib/repositories/issue.repository';
 import { categorizeService } from '@/lib/services/categorize.service';
 import { broadcast } from '@/lib/sse/sse-service';
 import { validateAIResponse } from '@/lib/utils/ai-response-validator';
@@ -22,11 +23,24 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
     // DB에서 아이디어 조회
     const ideas = await ideaRepository.findIdAndContentByIssueId(issueId);
+    const issue = await findIssueById(issueId);
 
     if (ideas.length === 0) {
+      broadcastError(issueId, '이슈가 존재하지 않습니다.');
+      return createErrorResponse('ISSUE_NOT_FOUND', 400);
+    }
+
+    if (!issue) {
       broadcastError(issueId, '분류할 아이디어가 없습니다.');
       return createErrorResponse('NO_IDEAS_TO_CATEGORIZE', 400);
     }
+
+    const userContent = `
+        [분류 기준 주제]
+        ${issue.title}
+
+        [아이디어 목록]
+        ${ideas.map((i) => `- (${i.id}) ${i.content}`).join('\n')}`;
 
     const res = await fetch('https://clovastudio.stream.ntruss.com/v3/chat-completions/HCX-005', {
       method: 'POST',
@@ -44,7 +58,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
           },
           {
             role: 'user',
-            content: ideas.map((i) => `(${i.id}) ${i.content}`).join('\n'),
+            content: userContent,
           },
         ],
         maxTokens: aiRequest.maxTokens,

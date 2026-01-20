@@ -24,10 +24,16 @@ export function validateAIResponse(aiResponse: any, inputIdeaIds: string[]): Val
     };
   }
 
+  // 정규식으로 마크다운 코드블록 제거
+  const cleanJsonString = result.replace(/^```json\s*|```\s*$/g, '').trim();
+
+  console.log(cleanJsonString);
+
   // JSON 파싱
   let parsedResult: CategorizeResult;
+
   try {
-    parsedResult = JSON.parse(result);
+    parsedResult = JSON.parse(cleanJsonString);
   } catch (error) {
     return {
       isValid: false,
