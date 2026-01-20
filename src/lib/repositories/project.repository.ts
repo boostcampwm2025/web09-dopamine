@@ -88,7 +88,7 @@ export const getProjectWithTopics = async (projectId: string) => {
           },
         },
         orderBy: {
-          createdAt: 'asc',
+          createdAt: 'desc',
         },
       },
     },
