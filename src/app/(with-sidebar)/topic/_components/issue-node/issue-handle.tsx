@@ -2,9 +2,9 @@ import { memo, useMemo } from 'react';
 import { Handle, Position } from '@xyflow/react';
 import { theme } from '@/styles/theme';
 import { IssueStatus } from '@/types/issue';
-import './topic-handle.css';
+import './issue-handle.css';
 
-interface TopicHandleProps {
+interface IssueHandleProps {
   type: 'source' | 'target';
   position: Position;
   status: IssueStatus;
@@ -37,7 +37,7 @@ function colorSelector(status: IssueStatus) {
   }
 }
 
-function TopicHandle({ type, position, id, status, isConnectable = true }: TopicHandleProps) {
+function IssueHandle({ type, position, id, status, isConnectable = true }: IssueHandleProps) {
   const color = colorSelector(status);
   const handleStyle = useMemo(() => {
     return { ...DEFAULT_HANDLE_STYLE, background: color };
@@ -53,4 +53,4 @@ function TopicHandle({ type, position, id, status, isConnectable = true }: Topic
   );
 }
 
-export default memo(TopicHandle);
+export default memo(IssueHandle);

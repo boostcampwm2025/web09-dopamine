@@ -5,10 +5,10 @@ import { ReactFlow } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { EDGE_STYLE } from '@/constants/topic';
 import { IssueConnection, IssueMapData, IssueNode } from '@/types/issue';
-import TopicConnectionLine from '../issue-connection/topic-connection-line';
-import TopicEdge from '../issue-connection/topic-edge';
-import TopicNode from '../issue-node/topic-node';
-import { TopicHoverProvider } from '../topic-hover-context';
+import TopicEdge from '../issue-connection/Issue-edge';
+import TopicConnectionLine from '../issue-connection/issue-connection-line';
+import { IssueHoverProvider } from '../issue-hover-context';
+import TopicNode from '../issue-node/issue-node';
 import { useTopicCanvas } from './use-topic-canvas';
 
 interface TopicCanvasProps {
@@ -72,7 +72,7 @@ function TopicCanvas({ topicId, issues, nodes: issueNodes, connections }: TopicC
 
   return (
     <div style={{ width: '100vw', height: '100vh' }}>
-      <TopicHoverProvider value={hoverContextValue}>
+      <IssueHoverProvider value={hoverContextValue}>
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -94,7 +94,7 @@ function TopicCanvas({ topicId, issues, nodes: issueNodes, connections }: TopicC
           fitView
           onlyRenderVisibleElements={true}
         />
-      </TopicHoverProvider>
+      </IssueHoverProvider>
     </div>
   );
 }

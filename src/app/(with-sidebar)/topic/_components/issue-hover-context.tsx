@@ -1,28 +1,28 @@
 import type { ReactNode } from 'react';
 import { createContext, useContext } from 'react';
 
-type TopicHoverContextValue = {
+type IssueHoverContextValue = {
   hoveredNodeId: string | null;
   connectedNodeIds: ReadonlySet<string>;
 };
 
 const EMPTY_CONNECTED_NODE_IDS = new Set<string>();
 
-const TopicHoverContext = createContext<TopicHoverContextValue>({
+const IssueHoverContext = createContext<IssueHoverContextValue>({
   hoveredNodeId: null,
   connectedNodeIds: EMPTY_CONNECTED_NODE_IDS,
 });
 
-export function TopicHoverProvider({
+export function IssueHoverProvider({
   value,
   children,
 }: {
-  value: TopicHoverContextValue;
+  value: IssueHoverContextValue;
   children: ReactNode;
 }) {
-  return <TopicHoverContext.Provider value={value}>{children}</TopicHoverContext.Provider>;
+  return <IssueHoverContext.Provider value={value}>{children}</IssueHoverContext.Provider>;
 }
 
 export function useTopicHoverContext() {
-  return useContext(TopicHoverContext);
+  return useContext(IssueHoverContext);
 }

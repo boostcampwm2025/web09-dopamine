@@ -18,11 +18,11 @@ const DELETE_BUTTON_STYLE = {
 const BUTTON_VISIABLE_ZOOM_LEVEL = 0.65;
 const STROKE_WIDTH = 1.5;
 
-interface TopicEdgeProps extends EdgeProps {
+interface IssueEdgeProps extends EdgeProps {
   onDelete?: (edgeId: string) => void;
 }
 
-export default function TopicEdge({
+export default function IssueEdge({
   id,
   sourceX,
   sourceY,
@@ -32,7 +32,7 @@ export default function TopicEdge({
   targetPosition,
   markerEnd,
   onDelete,
-}: TopicEdgeProps) {
+}: IssueEdgeProps) {
   const { zoom } = useViewport();
   const [edgePath, centerX, centerY] = getBezierPath({
     sourceX,
@@ -73,7 +73,10 @@ export default function TopicEdge({
         y={centerY}
         isVisible={zoom >= BUTTON_VISIABLE_ZOOM_LEVEL}
       >
-        <button style={DELETE_BUTTON_STYLE} onClick={handleDelete}>
+        <button
+          style={DELETE_BUTTON_STYLE}
+          onClick={handleDelete}
+        >
           <Image
             src="/close.svg"
             alt="Add"

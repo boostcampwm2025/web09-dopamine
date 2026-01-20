@@ -2,7 +2,7 @@ import { useConnection } from '@xyflow/react';
 import { EDGE_STYLE } from '@/constants/topic';
 import { theme } from '@/styles/theme';
 
-interface TopicConnectionLineProps {
+interface IssueConnectionLineProps {
   fromX: number;
   fromY: number;
   toX: number;
@@ -11,7 +11,7 @@ interface TopicConnectionLineProps {
 
 const STROKE_WIDTH = 1.5;
 
-export default function TopicConnectionLine({ fromX, fromY, toX, toY }: TopicConnectionLineProps) {
+export default function IssueConnectionLine({ fromX, fromY, toX, toY }: IssueConnectionLineProps) {
   const { fromHandle } = useConnection();
 
   if (!fromHandle) return null;

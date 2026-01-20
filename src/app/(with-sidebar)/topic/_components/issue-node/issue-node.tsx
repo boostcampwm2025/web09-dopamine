@@ -2,9 +2,9 @@ import { memo } from 'react';
 import { Node, NodeProps, Position } from '@xyflow/react';
 import { ISSUE_STATUS } from '@/constants/issue';
 import { IssueStatus } from '@/types/issue';
-import { useTopicHoverContext } from '../topic-hover-context';
-import TopicHandle from './topic-handle';
-import * as S from './topic-node.styles';
+import { useTopicHoverContext } from '../issue-hover-context';
+import IssueHandle from './issue-handle';
+import * as S from './issue-node.styles';
 
 export interface TopicNodeData extends Record<string, unknown> {
   title?: string;
@@ -34,13 +34,13 @@ function TopicNode({ id, data }: NodeProps<Node<TopicNodeData>>) {
       </S.TitleWrapper>
       {/* 소스와 타깃 모두 지정해서 자유롭게 연결할 수 있음 */}
       {/* Top Handles */}
-      <TopicHandle
+      <IssueHandle
         type="target"
         status={status}
         position={Position.Top}
         id="top-target"
       />
-      <TopicHandle
+      <IssueHandle
         type="source"
         status={status}
         position={Position.Top}
@@ -48,13 +48,13 @@ function TopicNode({ id, data }: NodeProps<Node<TopicNodeData>>) {
       />
 
       {/* Bottom Handles */}
-      <TopicHandle
+      <IssueHandle
         type="target"
         status={status}
         position={Position.Bottom}
         id="bottom-target"
       />
-      <TopicHandle
+      <IssueHandle
         type="source"
         status={status}
         position={Position.Bottom}
@@ -62,13 +62,13 @@ function TopicNode({ id, data }: NodeProps<Node<TopicNodeData>>) {
       />
 
       {/* Left Handles */}
-      <TopicHandle
+      <IssueHandle
         type="target"
         status={status}
         position={Position.Left}
         id="left-target"
       />
-      <TopicHandle
+      <IssueHandle
         type="source"
         status={status}
         position={Position.Left}
@@ -76,13 +76,13 @@ function TopicNode({ id, data }: NodeProps<Node<TopicNodeData>>) {
       />
 
       {/* Right Handles */}
-      <TopicHandle
+      <IssueHandle
         type="target"
         status={status}
         position={Position.Right}
         id="right-target"
       />
-      <TopicHandle
+      <IssueHandle
         type="source"
         status={status}
         position={Position.Right}
