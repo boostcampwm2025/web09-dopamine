@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import aiRequest from '@/constants/ai-request';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
 import { ideaRepository } from '@/lib/repositories/idea.repository';
@@ -6,26 +6,7 @@ import { categorizeService } from '@/lib/services/categorize.service';
 import { broadcast } from '@/lib/sse/sse-service';
 import { validateAIResponse } from '@/lib/utils/ai-response-validator';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
-
-const broadcastCompletion = (issueId: string) => {
-  broadcast({
-    issueId,
-    event: {
-      type: SSE_EVENT_TYPES.AI_STRUCTURING_COMPLETED,
-      data: {},
-    },
-  });
-};
-
-const broadcastError = (issueId: string, message: string) => {
-  broadcast({
-    issueId,
-    event: {
-      type: SSE_EVENT_TYPES.AI_STRUCTURING_FAILED,
-      data: { message },
-    },
-  });
-};
+import { broadcastError } from '@/lib/utils/broadcast-helpers';
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id: issueId } = await params;
@@ -90,7 +71,13 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
     const result = await categorizeService.categorizeAndBroadcast(issueId, categoryPayloads);
 
-    broadcastCompletion(issueId);
+    broadcast({
+      issueId,
+      event: {
+        type: SSE_EVENT_TYPES.AI_STRUCTURING_COMPLETED,
+        data: {},
+      },
+    });
 
     return createSuccessResponse(result);
   } catch (error) {
