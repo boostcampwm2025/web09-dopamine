@@ -19,7 +19,9 @@ export function createProject(title: string) {
 
 export function deleteProject(id: string) {
   return getAPIResponseData<{ id: string }>({
-    url: `/api/projects/${id}`,
+    url: '/api/projects',
     method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id }),
   });
 }
