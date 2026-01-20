@@ -28,7 +28,7 @@ export const Input = styled.input`
   width: 100%;
   border: 1px solid ${theme.colors.gray[300]};
   padding: 12px 8px;
-  border-radius: 6px;
+  border-radius: ${theme.radius.small};
   font-size: ${theme.font.size.medium};
   color: ${theme.colors.gray[900]};
   box-sizing: border-box;
