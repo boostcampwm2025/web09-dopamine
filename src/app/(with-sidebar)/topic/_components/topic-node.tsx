@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Node, NodeProps, Position } from '@xyflow/react';
 import { ISSUE_STATUS } from '@/constants/issue';
 import { IssueStatus } from '@/types/issue';
@@ -9,7 +10,7 @@ export interface TopicNodeData extends Record<string, unknown> {
   status?: IssueStatus;
 }
 
-export default function TopicNode({ data }: NodeProps<Node<TopicNodeData>>) {
+function TopicNode({ data }: NodeProps<Node<TopicNodeData>>) {
   const title = data.title ?? '홍보 플랫폼 선정';
   const status = data.status ?? ISSUE_STATUS.CLOSE;
 
@@ -81,3 +82,5 @@ export default function TopicNode({ data }: NodeProps<Node<TopicNodeData>>) {
     </S.NodeContainer>
   );
 }
+
+export default memo(TopicNode);

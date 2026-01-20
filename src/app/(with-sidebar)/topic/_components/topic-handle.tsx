@@ -1,3 +1,4 @@
+import { memo, useMemo } from 'react';
 import { Handle, Position } from '@xyflow/react';
 import { IssueStatus } from '@/types/issue';
 import './topic-handle.css';
@@ -35,14 +36,11 @@ function colorSelector(status: IssueStatus) {
   }
 }
 
-export default function TopicHandle({
-  type,
-  position,
-  id,
-  status,
-  isConnectable = true,
-}: TopicHandleProps) {
+function TopicHandle({ type, position, id, status, isConnectable = true }: TopicHandleProps) {
   const color = colorSelector(status);
+  const handleStyle = useMemo(() => {
+    return { ...DEFAULT_HANDLE_STYLE, background: color };
+  }, [color]);
   return (
     <Handle
       type={type}
@@ -53,3 +51,5 @@ export default function TopicHandle({
     />
   );
 }
+
+export default memo(TopicHandle);
