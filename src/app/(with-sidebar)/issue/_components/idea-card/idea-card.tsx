@@ -81,6 +81,7 @@ export default function IdeaCard(props: IdeaCardProps) {
     handleCardClick,
   } = useIdeaCard({
     id: props.id,
+    issueId: props.issueId,
     userId: currentUserId,
     content: props.content,
     isSelected: props.isSelected,
@@ -97,7 +98,7 @@ export default function IdeaCard(props: IdeaCardProps) {
     selectIdea,
   });
 
-  const { data: idea } = useIdeaQuery(props.id, currentUserId);
+  const { data: idea } = useIdeaQuery(props.issueId, props.id, currentUserId);
 
   // 드래그 로직
 

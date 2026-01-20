@@ -3,11 +3,12 @@ import type { PointerEventHandler } from 'react';
 import { useTooltipStore } from '@/components/tooltip/use-tooltip-store';
 import { ISSUE_STATUS, VOTE_TYPE } from '@/constants/issue';
 import type { IssueStatus } from '@/types/issue';
-import { FilterType, useVoteMutation } from '../../hooks';
+import { useVoteMutation } from '../../hooks';
 import { CardStatus } from '../../types/idea';
 
 interface UseIdeaCardProps {
   id?: string;
+  issueId: string;
   userId: string;
   content?: string;
   isSelected?: boolean;
@@ -27,6 +28,7 @@ interface UseIdeaCardProps {
 export function useIdeaCard(props: UseIdeaCardProps) {
   const {
     id = '',
+    issueId = '',
     userId = '',
     content = '',
     isSelected = false,
@@ -50,7 +52,7 @@ export function useIdeaCard(props: UseIdeaCardProps) {
 
   const [status, setStatus] = useState<CardStatus>('default');
 
-  const { mutate } = useVoteMutation(id);
+  const { mutate } = useVoteMutation(issueId, id);
 
   // 편집 관련 로컬 상태
   // isEditing: 현재 편집 모드인지
@@ -159,15 +161,3 @@ export function useIdeaCard(props: UseIdeaCardProps) {
     handleCardClick,
   };
 }
-
-export const useIdeaStatus = (filteredIds: Set<string>, activeFilter: FilterType) => {
-  return useCallback(
-    (ideaId: string): CardStatus => {
-      if (!filteredIds.has(ideaId)) return 'default';
-      if (activeFilter === 'most-liked') return 'mostLiked';
-      if (activeFilter === 'need-discussion') return 'needDiscussion';
-      return 'default';
-    },
-    [filteredIds, activeFilter],
-  );
-};

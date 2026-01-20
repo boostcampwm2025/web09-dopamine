@@ -10,7 +10,7 @@ type UpdateIdeaPayload = {
 // 아이디어 목록 조회
 export function fetchIdeas(issueId: string): Promise<Idea[]> {
   return getAPIResponseData<Idea[]>({
-    url: `/api/issues/${issueId}/idea`,
+    url: `/api/issues/${issueId}/ideas`,
     method: 'GET',
   });
 }
@@ -18,23 +18,15 @@ export function fetchIdeas(issueId: string): Promise<Idea[]> {
 // 아이디어 생성
 export function createIdea(issueId: string, ideaData: CreateIdeaRequest): Promise<Idea> {
   return getAPIResponseData<Idea>({
-    url: `/api/issues/${issueId}/idea`,
+    url: `/api/issues/${issueId}/ideas`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(ideaData),
   });
 }
 
-// 아이디어 삭제
-export function deleteIdea(issueId: string, ideaId: string): Promise<void> {
-  return getAPIResponseData<void>({
-    url: `/api/issues/${issueId}/idea?ideaId=${ideaId}`,
-    method: 'DELETE',
-  });
-}
-
 // 단일 아이디어 조회 (myVote 포함)
-export function getIdea(ideaId: string, userId?: string): Promise<Idea> {
+export function getIdea(issueId: string, ideaId: string, userId?: string): Promise<Idea> {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
   };
@@ -45,7 +37,7 @@ export function getIdea(ideaId: string, userId?: string): Promise<Idea> {
   }
 
   return getAPIResponseData<Idea>({
-    url: `/api/ideas/${ideaId}`,
+    url: `/api/issues/${issueId}/idea/${ideaId}`,
     method: 'GET',
     headers,
   });
@@ -58,9 +50,17 @@ export function updateIdea(
   payload: UpdateIdeaPayload,
 ): Promise<Idea> {
   return getAPIResponseData<Idea>({
-    url: `/api/issues/${issueId}/idea`,
+    url: `/api/issues/${issueId}/idea/${ideaId}`,
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ ideaId, ...payload }),
+  });
+}
+
+// 아이디어 삭제
+export function deleteIdea(issueId: string, ideaId: string): Promise<void> {
+  return getAPIResponseData<void>({
+    url: `/api/issues/${issueId}/idea/${ideaId}`,
+    method: 'DELETE',
   });
 }

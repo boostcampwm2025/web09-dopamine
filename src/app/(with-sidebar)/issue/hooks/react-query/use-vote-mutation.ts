@@ -8,13 +8,13 @@ interface VoteResponse {
   myVote: 'AGREE' | 'DISAGREE' | null;
 }
 
-export const useVoteMutation = (ideaId: string) => {
+export const useVoteMutation = (issueId: string, ideaId: string) => {
   const queryClient = useQueryClient();
-  const queryKey = ['ideas', ideaId];
+  const queryKey = ['issues', issueId, 'ideas', ideaId];
 
   return useMutation({
     mutationFn: (variables: { userId: string; voteType: 'AGREE' | 'DISAGREE' }) =>
-      postVote({ ideaId, ...variables }),
+      postVote({ issueId, ideaId, ...variables }),
 
     onMutate: async ({ voteType }) => {
       // 진행 중인 쿼리 취소

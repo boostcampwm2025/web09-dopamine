@@ -121,7 +121,7 @@ export function useIssueEvents({
       const data = JSON.parse((event as MessageEvent).data);
       // 특정 아이디어의 투표만 갱신
       if (data.ideaId) {
-        queryClient.invalidateQueries({ queryKey: ['ideas', data.ideaId] });
+        queryClient.invalidateQueries({ queryKey: ['issues', issueId, 'ideas', data.ideaId] });
       }
     });
 
