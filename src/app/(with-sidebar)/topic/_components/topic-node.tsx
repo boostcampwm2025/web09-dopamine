@@ -36,16 +36,60 @@ export default function TopicNode({ data }: NodeProps<Node<TopicNodeData>>) {
       <S.TitleWrapper>
         <S.Title status={status}>{title}</S.Title>
       </S.TitleWrapper>
+      {/* 소스와 타깃 모두 지정해서 자유롭게 연결할 수 있음 */}
+      {/* Top Handles */}
       <Handle
-        id="a"
+        id="top-target"
         type="target"
         position={Position.Top}
         style={{ borderRadius: 0 }}
       />
       <Handle
-        id="b"
+        id="top-source"
+        type="source"
+        position={Position.Top}
+        style={{ borderRadius: 0 }}
+      />
+
+      {/* Bottom Handles */}
+      <Handle
+        id="bottom-target"
+        type="target"
+        position={Position.Bottom}
+        style={{ borderRadius: 0 }}
+      />
+      <Handle
+        id="bottom-source"
         type="source"
         position={Position.Bottom}
+        style={{ borderRadius: 0 }}
+      />
+
+      {/* Left Handles */}
+      <Handle
+        id="left-target"
+        type="target"
+        position={Position.Left}
+        style={{ borderRadius: 0 }}
+      />
+      <Handle
+        id="left-source"
+        type="source"
+        position={Position.Left}
+        style={{ borderRadius: 0 }}
+      />
+
+      {/* Right Handles */}
+      <Handle
+        id="right-target"
+        type="target"
+        position={Position.Right}
+        style={{ borderRadius: 0 }}
+      />
+      <Handle
+        id="right-source"
+        type="source"
+        position={Position.Right}
         style={{ borderRadius: 0 }}
       />
     </S.NodeContainer>
