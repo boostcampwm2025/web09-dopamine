@@ -1,5 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { sseManager } from '@/lib/sse/sse-manager';
+import { createErrorResponse } from '@/lib/utils/api-helpers';
 import { getUserIdFromRequest } from '@/lib/utils/cookie';
 
 export const dynamic = 'force-dynamic';
@@ -22,7 +23,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const userId = getUserIdFromRequest(request, issueId);
 
   if (!userId) {
-    return new NextResponse('Unauthorized: User ID required', { status: 401 });
+    return createErrorResponse('USER_ID_REQUIRED', 401);
   }
 
   // SSE 스트림 생성
