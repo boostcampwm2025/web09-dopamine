@@ -19,8 +19,10 @@ const Header = () => {
     handleCloseIssue,
     handleNextStep,
     handleAddCategory,
-    startAIStructure,
-  } = useHeader({ issueId });
+    handleAIStructureStart,
+  } = useHeader({
+    issueId,
+  });
 
   const openTooltip = useTooltipStore((state) => state.openTooltip);
   const closeTooltip = useTooltipStore((state) => state.closeTooltip);
@@ -41,7 +43,7 @@ const Header = () => {
               imageSrc="/stick.svg"
               alt="AI 구조화"
               text="AI 구조화"
-              onClick={startAIStructure}
+              onClick={handleAIStructureStart}
               variant="outline"
             />
           </>
