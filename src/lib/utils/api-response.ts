@@ -6,6 +6,16 @@ interface FetchOptions extends RequestInit {
   url: string;
 }
 
+export class ApiError extends Error {
+  code: string;
+
+  constructor(message: string, code: string) {
+    super(message);
+    this.name = 'ApiError';
+    this.code = code;
+  }
+}
+
 const getAPIResponseData = async <T>(options: FetchOptions): Promise<T> => {
   try {
     const { url, ...fetchOptions } = options;
@@ -17,7 +27,7 @@ const getAPIResponseData = async <T>(options: FetchOptions): Promise<T> => {
       apiResponse = await response.json();
     } catch (jsonError) {
       console.error('JSON 파싱 실패:', { url, status: response.status, jsonError });
-      throw new Error('서버 응답을 처리할 수 없습니다.');
+      throw new ApiError('서버 응답을 처리할 수 없습니다.', 'JSON_PARSE_ERROR');
     }
 
     // API 응답이 실패인 경우
@@ -26,7 +36,7 @@ const getAPIResponseData = async <T>(options: FetchOptions): Promise<T> => {
       const errorMessage =
         CLIENT_ERROR_MESSAGES[errorCode] || apiResponse.error?.message || '알 수 없는 오류가 발생했습니다.';
 
-      throw new Error(errorMessage);
+      throw new ApiError(errorMessage, errorCode);
     }
 
     // 성공한 경우 데이터 반환
