@@ -8,14 +8,22 @@ import * as S from './topic-node.styles';
 export interface TopicNodeData extends Record<string, unknown> {
   title?: string;
   status?: IssueStatus;
+  dimmed?: boolean;
 }
 
 function TopicNode({ data }: NodeProps<Node<TopicNodeData>>) {
   const title = data.title ?? '홍보 플랫폼 선정';
   const status = data.status ?? ISSUE_STATUS.CLOSE;
+  const dimmed = data.dimmed ?? false;
 
   return (
-    <S.NodeContainer status={status}>
+    <S.NodeContainer
+      status={status}
+      style={{
+        opacity: dimmed ? 0.3 : 1,
+        transition: 'opacity 0.2s ease-in-out',
+      }}
+    >
       <S.BadgeWrapper>
         <S.Badge status={status}>{status}</S.Badge>
       </S.BadgeWrapper>
