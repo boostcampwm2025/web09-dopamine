@@ -1,7 +1,13 @@
+import { SSE_EVENT_TYPES } from '@/constants/sse-events';
 import { BroadcastingEvent, CreateStreamParams } from '@/types/sse';
 
+interface ConnectedClient {
+  userId: string;
+  controller: ReadableStreamDefaultController;
+}
+
 export class SSEManager {
-  private connections = new Map<string, Set<ReadableStreamDefaultController>>();
+  private connections = new Map<string, Set<ConnectedClient>>();
 
   // 연결 생성
   createStream({ issueId, userId, signal }: CreateStreamParams): ReadableStream {
@@ -15,7 +21,7 @@ export class SSEManager {
         }
 
         // 현재 컨트롤러를 연결 목록에 추가
-        this.connections.get(issueId)!.add(controller); // SET에 넣기
+        this.connections.get(issueId)!.add({ userId, controller }); // SET에 넣기
 
         // 임시 로깅
         console.log(`[SSE] 클라이언트 연결됨 - Issue: ${issueId}, User: ${userId}`);
@@ -29,6 +35,16 @@ export class SSEManager {
 
         // 스트림 버퍼로 인큐
         controller.enqueue(encoder.encode(connectMessage));
+
+        const onlineUserIds = this.getConnectMemberIds(issueId);
+
+        this.broadcast({
+          issueId,
+          event: {
+            type: SSE_EVENT_TYPES.USER_PRESENCE,
+            data: { connectedUserIds: onlineUserIds },
+          },
+        });
 
         // 하트비트 (30초마다 연결 유지)
         // 프록시가 연결을 끊지 않도록 방지
@@ -51,12 +67,28 @@ export class SSEManager {
           // 연결 목록에서 제거
           const issueConnections = this.connections.get(issueId);
           if (issueConnections) {
-            issueConnections.delete(controller);
+            for (const client of issueConnections) {
+              // 현재 끊어진 컨트롤러와 일치하는 객체를 찾음
+              if (client.controller === controller) {
+                issueConnections.delete(client); // 그 객체 자체를 삭제
+                break; // 찾았으면 루프 종료
+              }
+            }
             // 이 이슈에 연결된 클라이언트가 없으면 Map에서 제거
             if (issueConnections.size === 0) {
               this.connections.delete(issueId);
             }
           }
+
+          const onlineUserIds = this.getConnectMemberIds(issueId);
+
+          this.broadcast({
+            issueId,
+            event: {
+              type: SSE_EVENT_TYPES.USER_PRESENCE,
+              data: { connectedUserIds: onlineUserIds },
+            },
+          });
 
           try {
             controller.close();
@@ -84,12 +116,12 @@ export class SSEManager {
       `[SSE] ${issueConnections.size}개의 client에게 브로드캐스팅 - Issue: ${issueId}, Event: ${event.type}`,
     );
 
-    issueConnections.forEach((controller) => {
+    issueConnections.forEach((client) => {
       try {
-        controller.enqueue(encoded);
+        client.controller.enqueue(encoded);
       } catch (error) {
         console.error('[SSE] Failed to send message:', error);
-        issueConnections.delete(controller);
+        issueConnections.delete(client);
       }
     });
   }
@@ -104,6 +136,17 @@ export class SSEManager {
       info[issueId] = connections.size;
     });
     return info;
+  }
+
+  getConnectMemberIds(issueId: string): string[] {
+    const clients = this.connections.get(issueId);
+
+    if (!clients) {
+      return [];
+    }
+
+    const userIds = Array.from(clients).map((client) => client.userId);
+    return Array.from(new Set(userIds));
   }
 }
 

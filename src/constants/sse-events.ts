@@ -31,6 +31,7 @@ export const SSE_EVENT_TYPES = {
   // 멤버
   MEMBER_JOINED: 'member:joined',
   MEMBER_LEFT: 'member:left',
+  USER_PRESENCE: 'current_user:changed',
 } as const;
 
 export type SSEEventType = (typeof SSE_EVENT_TYPES)[keyof typeof SSE_EVENT_TYPES];

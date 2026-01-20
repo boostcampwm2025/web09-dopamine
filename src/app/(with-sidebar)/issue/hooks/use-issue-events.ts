@@ -31,6 +31,7 @@ export function useIssueEvents({
   const selectedIdeaKey = useMemo(() => selectedIdeaQueryKey(issueId), [issueId]);
 
   const { setIsAIStructuring } = useIssueStore((state) => state.actions);
+  const { setConnectUserIds } = useIssueStore((state) => state.actions);
 
   // userId를 useMemo로 캐싱하여 불필요한 재계산 방지
   const userId = useMemo(() => getUserIdForIssue(issueId) ?? '', [issueId]);
@@ -53,7 +54,7 @@ export function useIssueEvents({
   const SSE_REQ_URL = `/api/issues/${issueId}/events`;
 
   useEffect(() => {
-    if (!enabled || !issueId) return;
+    if (!enabled || !issueId || !userId) return;
 
     // EventSource 생성
     const eventSource = new EventSource(SSE_REQ_URL);
@@ -159,6 +160,12 @@ export function useIssueEvents({
 
     eventSource.addEventListener(SSE_EVENT_TYPES.MEMBER_LEFT, () => {
       queryClient.invalidateQueries({ queryKey: ['issues', issueId, 'members'] });
+    });
+
+    eventSource.addEventListener(SSE_EVENT_TYPES.USER_PRESENCE, (event) => {
+      const data = JSON.parse((event as MessageEvent).data);
+      // Zustand 스토어 업데이트
+      setConnectUserIds(data.connectedUserIds || []);
     });
 
     // 채택된 아이디어 이벤트 핸들러
