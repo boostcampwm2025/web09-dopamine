@@ -1,10 +1,13 @@
-'use client';
+﻿'use client';
 
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import CommentList from './comment-list';
 import * as S from './comment-window.styles';
-import { useWindow } from './hooks/use-window';
+import { useCommentList } from './hooks/use-comment-list';
+import { getCommentErrorMessage, useCommentWindow } from './hooks/use-comment-window';
 import { CommentWindowContext } from './comment-window-context';
+import { useCommentMutations } from './hooks/react-query/use-comment-mutations';
+import { useCommentQuery } from './hooks/react-query/use-comment-query';
 
 export interface CommentWindowProps {
   issueId: string;
@@ -21,8 +24,6 @@ export default function CommentWindow({
   initialPosition,
   onClose,
 }: CommentWindowProps) {
-  const fixedWidth = 420;
-  const fixedHeight = 500;
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -34,21 +35,31 @@ export default function CommentWindow({
     };
   }, []);
 
+  const { commentsQuery } = useCommentQuery(issueId, ideaId);
+  const { createMutation, updateMutation, deleteMutation } = useCommentMutations(issueId, ideaId);
+  const isLoading = commentsQuery.isLoading;
+  const isSubmitting = createMutation.isPending;
+  const comments = commentsQuery.data ?? [];
+  const errorMessage = getCommentErrorMessage({
+    issueId,
+    ideaId,
+    commentsQuery,
+    createMutation,
+    updateMutation,
+    deleteMutation,
+  });
+
+  const { inputValue, setInputValue, handleSubmit, handleInputKeyDown } = useCommentWindow({
+    initialPosition,
+    issueId,
+    ideaId,
+    userId,
+    createMutation,
+  });
+
   const {
-    position,
-    comments,
-    isSubmitting,
     isMutating,
     mutatingCommentId,
-    errorMessage,
-    inputValue,
-    setInputValue,
-    handleSubmit,
-    handleInputKeyDown,
-    shouldShowLoading,
-    shouldShowError,
-    shouldShowEmpty,
-    shouldShowComments,
     editingValue,
     setEditingValue,
     isCommentOwner,
@@ -56,23 +67,33 @@ export default function CommentWindow({
     getSaveButtonContent,
     getDeleteButtonContent,
     shouldShowReadMore,
+    expandedCommentIds,
+    overflowCommentIds,
+    registerCommentBody,
+    registerCommentMeasure,
+    handleExpand,
     handleEditStart,
     handleEditCancel,
     handleEditSave,
-    handleDelete,
     handleEditKeyDown,
-  } = useWindow({ initialPosition, issueId, ideaId, userId });
+    handleDelete,
+  } = useCommentList({
+    issueId,
+    ideaId,
+    userId,
+    comments,
+    isSubmitting,
+    updateMutation,
+    deleteMutation,
+  });
 
   const commentContextValue = useMemo(
     () => ({
       comments,
       errorMessage,
+      isLoading,
       isMutating,
       mutatingCommentId,
-      shouldShowLoading,
-      shouldShowError,
-      shouldShowEmpty,
-      shouldShowComments,
       editingValue,
       setEditingValue,
       isCommentOwner,
@@ -80,6 +101,11 @@ export default function CommentWindow({
       getSaveButtonContent,
       getDeleteButtonContent,
       shouldShowReadMore,
+      expandedCommentIds,
+      overflowCommentIds,
+      registerCommentBody,
+      registerCommentMeasure,
+      handleExpand,
       handleEditStart,
       handleEditCancel,
       handleEditSave,
@@ -99,14 +125,16 @@ export default function CommentWindow({
       handleEditStart,
       isCommentOwner,
       isEditingComment,
+      isLoading,
       isMutating,
       mutatingCommentId,
       setEditingValue,
-      shouldShowComments,
-      shouldShowEmpty,
-      shouldShowError,
-      shouldShowLoading,
       shouldShowReadMore,
+      expandedCommentIds,
+      overflowCommentIds,
+      registerCommentBody,
+      registerCommentMeasure,
+      handleExpand,
     ],
   );
 
@@ -146,7 +174,6 @@ export default function CommentWindow({
     <S.Window
       role="dialog"
       aria-label="댓글"
-      style={{ left: position.x, top: position.y, width: fixedWidth, height: fixedHeight }}
       onPointerDown={(event) => event.stopPropagation()}
       onWheel={(event) => event.stopPropagation()}
       onWheelCapture={(event) => event.stopPropagation()}
@@ -183,7 +210,7 @@ export default function CommentWindow({
               onClick={handleSubmitClick}
               disabled={isSubmitting}
             >
-              {isSubmitting ? '제출중...' : '제출'}
+              {getSaveButtonContent('create')}
             </S.SubmitButton>
           </S.InputRow>
         </S.Section>

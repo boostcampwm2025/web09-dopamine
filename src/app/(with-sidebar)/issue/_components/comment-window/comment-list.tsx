@@ -2,7 +2,6 @@
 
 import { useMemo } from 'react';
 import * as S from './comment-window.styles';
-import { useCommentOverflow } from './hooks/use-comment-overflow';
 import { CommentListContext } from './comment-list-context';
 import CommentListItem from './comment-list-item';
 import { useCommentWindowContext } from './comment-window-context';
@@ -11,12 +10,9 @@ export default function CommentList() {
   const {
     comments,
     errorMessage,
+    isLoading,
     isMutating,
     mutatingCommentId,
-    shouldShowLoading,
-    shouldShowError,
-    shouldShowEmpty,
-    shouldShowComments,
     editingValue,
     setEditingValue,
     isCommentOwner,
@@ -24,19 +20,26 @@ export default function CommentList() {
     getSaveButtonContent,
     getDeleteButtonContent,
     shouldShowReadMore,
+    expandedCommentIds,
+    overflowCommentIds,
+    registerCommentBody,
+    registerCommentMeasure,
+    handleExpand,
     handleEditStart,
     handleEditCancel,
     handleEditSave,
     handleEditKeyDown,
     handleDelete,
   } = useCommentWindowContext();
-  const {
-    expandedCommentIds,
-    overflowCommentIds,
-    registerCommentBody,
-    registerCommentMeasure,
-    handleExpand,
-  } = useCommentOverflow({ items: comments });
+
+  const getCommentMetaMessage = () => {
+    if (isLoading) return '댓글을 불러오는 중...';
+    if (errorMessage) return errorMessage;
+    if (comments.length === 0) return '등록된 댓글이 없습니다.';
+    return null;
+  };
+
+  const commentMetaMessage = getCommentMetaMessage();
 
   const contextValue = useMemo(
     () => ({
@@ -87,22 +90,12 @@ export default function CommentList() {
     <CommentListContext.Provider value={contextValue}>
       <S.CommentSection>
         <S.CommentList>
-          {shouldShowLoading && (
+          {commentMetaMessage && (
             <S.CommentItem>
-              <S.CommentMeta>댓글을 불러오는 중...</S.CommentMeta>
+              <S.CommentMeta>{commentMetaMessage}</S.CommentMeta>
             </S.CommentItem>
           )}
-          {shouldShowError && (
-            <S.CommentItem>
-              <S.CommentMeta>{errorMessage}</S.CommentMeta>
-            </S.CommentItem>
-          )}
-          {shouldShowEmpty && (
-            <S.CommentItem>
-              <S.CommentMeta>등록된 댓글이 없습니다.</S.CommentMeta>
-            </S.CommentItem>
-          )}
-          {shouldShowComments &&
+          {!isLoading && !errorMessage &&
             comments.map((comment) => (
               <CommentListItem key={comment.id} comment={comment} />
             ))}

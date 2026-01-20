@@ -4,6 +4,8 @@ import { theme } from '@/styles/theme';
 export const Window = styled.section`
   position: absolute;
   z-index: 1100;
+  width: 420px;
+  height: 500px;
   min-width: 260px;
   max-width: calc(100vw - 32px);
   max-height: min(800px, calc(100vh - 32px));

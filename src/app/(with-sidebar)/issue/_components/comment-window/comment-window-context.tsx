@@ -7,12 +7,9 @@ import type { Comment } from '@/lib/api/comment';
 interface CommentWindowContextValue {
   comments: Comment[];
   errorMessage: string | null;
+  isLoading: boolean;
   isMutating: boolean;
   mutatingCommentId: string | null;
-  shouldShowLoading: boolean;
-  shouldShowError: boolean;
-  shouldShowEmpty: boolean;
-  shouldShowComments: boolean;
   editingValue: string;
   setEditingValue: (value: string) => void;
   isCommentOwner: (commentUserId?: string) => boolean;
@@ -20,6 +17,11 @@ interface CommentWindowContextValue {
   getSaveButtonContent: (commentId: string) => string;
   getDeleteButtonContent: (commentId: string) => string;
   shouldShowReadMore: (isExpanded: boolean, canExpand: boolean) => boolean;
+  expandedCommentIds: string[];
+  overflowCommentIds: string[];
+  registerCommentBody: (commentId: string) => (node: HTMLDivElement | null) => void;
+  registerCommentMeasure: (commentId: string) => (node: HTMLDivElement | null) => void;
+  handleExpand: (commentId: string) => void;
   handleEditStart: (comment: Comment) => void;
   handleEditCancel: () => void;
   handleEditSave: () => void;
