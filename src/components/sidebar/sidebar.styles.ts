@@ -57,14 +57,17 @@ export const SidebarInput = styled.input`
 
 export const SidebarTitle = styled.div`
   display: flex;
-
   align-items: center;
-  justify-content: space-between;
   width: 100%;
   padding: 10px 16px;
   font-size: ${theme.font.size.medium};
-  font-weight: 700;
+  font-weight: ${theme.font.weight.bold};
   letter-spacing: 1px;
+
+  & span {
+    font-weight: ${theme.font.weight.medium};
+    margin-left: 8px;
+  }
 `;
 
 export const SidebarList = styled.ul`

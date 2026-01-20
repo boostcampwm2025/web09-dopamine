@@ -63,7 +63,13 @@ export default function IssueSidebar() {
       )}
 
       <div>
-        <S.SidebarTitle>MEMBER LIST</S.SidebarTitle>
+        <S.SidebarTitle>
+          MEMBER LIST
+          <span>
+            ({onlineMemberIds.length}/{sortedMembers.length})
+          </span>
+        </S.SidebarTitle>
+
         <S.SidebarList>
           {sortedMembers.map((user) => {
             const isOnline = onlineMemberIds.includes(user.id);
