@@ -26,14 +26,14 @@ export async function POST(req: NextRequest) {
     return error;
   }
 
-  const { title } = await req.json();
+  const { title, description } = await req.json();
 
   if (!title) {
     return createErrorResponse('TITLE_REQUIRED', 400);
   }
 
   try {
-    const result = await projectRepository.createProject(title, ownerId!);
+    const result = await projectRepository.createProject(title, ownerId!, description);
     return createSuccessResponse(result, 201);
   } catch (error) {
     console.error('프로젝트 생성 실패:', error);
