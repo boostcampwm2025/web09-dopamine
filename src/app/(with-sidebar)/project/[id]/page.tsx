@@ -10,19 +10,19 @@ const ProjectPage = () => {
   // TODO: 실제 데이터로 교체 필요
   const topics = [
     {
-      id: 1,
+      id: '1',
       title: '서비스 홍보 방안',
       issueCount: 8,
       status: '진행 중',
     },
     {
-      id: 2,
+      id: '2',
       title: 'UI/UX 개선',
       issueCount: 5,
       status: '진행 중',
     },
     {
-      id: 3,
+      id: '3',
       title: '성능 최적화',
       issueCount: 3,
       status: '완료',
@@ -67,6 +67,7 @@ const ProjectPage = () => {
           {topics.map((topic) => (
             <Card
               key={topic.id}
+              id={topic.id}
               variant="item"
               leftIcon="/folder.svg"
               title={topic.title}
