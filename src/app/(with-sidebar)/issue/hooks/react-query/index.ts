@@ -1,3 +1,4 @@
+export * from './use-ai-structure-mutation';
 export * from './use-category-mutation';
 export * from './use-category-query';
 export * from './use-idea-mutations';

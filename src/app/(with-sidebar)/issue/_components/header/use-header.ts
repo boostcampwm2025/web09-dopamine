@@ -9,12 +9,12 @@ import { getIssueMember } from '@/lib/api/issue';
 import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
 import { IssueStatus } from '@/types/issue';
 import {
+  useAIStructuringMutation,
   useCategoryOperations,
   useIdeasWithTemp,
   useIssueQuery,
   useIssueStatusMutations,
 } from '../../hooks';
-import { useAIStructuringMutation } from '../../hooks/react-query/use-ai-structure-mutation';
 
 interface UseHeaderParams {
   issueId: string;
