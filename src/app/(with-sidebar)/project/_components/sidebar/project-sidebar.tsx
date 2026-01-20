@@ -1,21 +1,12 @@
 'use client';
 
 import { useParams } from 'next/navigation';
-import { useProjectQuery } from '../../hooks/use-project-query';
 import MemberSidebarItem from '@/components/sidebar/member-sidebar-item';
 import Sidebar from '@/components/sidebar/sidebar';
 import SidebarItem from '@/components/sidebar/sidebar-item';
 import * as S from '@/components/sidebar/sidebar.styles';
+import { useProjectQuery } from '../../hooks/use-project-query';
 import * as ProjectS from './projcet-sidebar.styles';
-
-const MEMBER_LIST = [
-  { id: '1', name: '김민수', role: 'OWNER', image: '/profile.svg' },
-  { id: '2', name: '이지은', role: 'MEMBER', image: '/profile.svg' },
-  { id: '3', name: '박준호', role: 'MEMBER', image: '/profile.svg' },
-  { id: '4', name: '정서현', role: 'MEMBER', image: '/profile.svg' },
-  { id: '5', name: '김수호', role: 'MEMBER', image: '/profile.svg' },
-  { id: '6', name: '장발장', role: 'MEMBER', image: '/profile.svg' },
-];
 
 const ProjectSidebar = () => {
   const params = useParams();
@@ -23,6 +14,7 @@ const ProjectSidebar = () => {
 
   const { data: projectData } = useProjectQuery(projectId);
   const topics = projectData?.topics || [];
+  const members = projectData?.members || [];
 
   return (
     <Sidebar>
@@ -55,15 +47,21 @@ const ProjectSidebar = () => {
           <S.SidebarTitle>MEMBER LIST</S.SidebarTitle>
           <ProjectS.ScrollableSection>
             <S.SidebarList>
-              {MEMBER_LIST.map((member, index) => (
-                <MemberSidebarItem
-                  key={index}
-                  profile={member.image}
-                  id={member.id}
-                  name={member.name}
-                  role={member.role}
-                />
-              ))}
+              {members.length > 0 ? (
+                members.map((member) => (
+                  <MemberSidebarItem
+                    key={member.id}
+                    profile={member.image || '/profile.svg'}
+                    id={member.id}
+                    name={member.name || '익명'}
+                    role={member.role}
+                  />
+                ))
+              ) : (
+                <div style={{ padding: '16px', color: '#9ca3af', fontSize: '14px' }}>
+                  멤버가 없습니다
+                </div>
+              )}
             </S.SidebarList>
           </ProjectS.ScrollableSection>
         </ProjectS.MemberSectionWrapper>

@@ -49,6 +49,27 @@ export const getProjectWithTopics = async (projectId: string) => {
       description: true,
       ownerId: true,
       createdAt: true,
+      owner: {
+        select: {
+          id: true,
+          name: true,
+          image: true,
+        },
+      },
+      projectMembers: {
+        where: {
+          deletedAt: null,
+        },
+        select: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              image: true,
+            },
+          },
+        },
+      },
       topics: {
         where: {
           deletedAt: null,
@@ -77,6 +98,23 @@ export const getProjectWithTopics = async (projectId: string) => {
     return null;
   }
 
+  // 멤버 리스트 생성 (중복 제거)
+  const memberMap = new Map();
+
+  // 프로젝트 멤버들 추가
+  project.projectMembers.forEach((pm) => {
+    if (pm.user) {
+      memberMap.set(pm.user.id, {
+        id: pm.user.id,
+        name: pm.user.name,
+        image: pm.user.image,
+        role: pm.user.id === project.ownerId ? 'OWNER' : 'MEMBER',
+      });
+    }
+  });
+
+  const members = Array.from(memberMap.values());
+
   return {
     id: project.id,
     owner_id: project.ownerId,
@@ -88,6 +126,7 @@ export const getProjectWithTopics = async (projectId: string) => {
       title: topic.title,
       issueCount: topic._count.issues,
     })),
+    members,
   };
 };
 

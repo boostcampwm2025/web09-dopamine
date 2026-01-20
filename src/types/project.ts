@@ -9,4 +9,10 @@ export interface ProjectwithTopic {
     title: string;
     issueCount: number;
   }[];
+  members: {
+    id: string;
+    name: string | null;
+    image: string | null;
+    role: 'OWNER' | 'MEMBER';
+  }[];
 }
