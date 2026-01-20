@@ -1,5 +1,6 @@
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
 import { BroadcastingEvent, CreateStreamParams } from '@/types/sse';
+import { broadcastMemberPresence } from '../utils/broadcast-helpers';
 
 interface ConnectedClient {
   userId: string;
@@ -36,15 +37,7 @@ export class SSEManager {
         // 스트림 버퍼로 인큐
         controller.enqueue(encoder.encode(connectMessage));
 
-        const onlineUserIds = this.getOnlineMemberIds(issueId);
-
-        this.broadcast({
-          issueId,
-          event: {
-            type: SSE_EVENT_TYPES.MEMBER_PRESENCE,
-            data: { onlineUserIds },
-          },
-        });
+        broadcastMemberPresence(issueId);
 
         // 하트비트 (30초마다 연결 유지)
         // 프록시가 연결을 끊지 않도록 방지
@@ -80,15 +73,7 @@ export class SSEManager {
             }
           }
 
-          const onlineUserIds = this.getOnlineMemberIds(issueId);
-
-          this.broadcast({
-            issueId,
-            event: {
-              type: SSE_EVENT_TYPES.MEMBER_PRESENCE,
-              data: { onlineUserIds },
-            },
-          });
+          broadcastMemberPresence(issueId);
 
           try {
             controller.close();
