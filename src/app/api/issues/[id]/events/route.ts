@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sseManager } from '@/lib/sse/sse-manager';
+import { getUserIdFromRequest } from '@/lib/utils/cookie';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,8 +19,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
    * @todo Session 혹은 JWT 등에서 사용자 정보를 받아오도록 수정 필요
    * 우선 쿠키에서 정보를 받아오는 것으로 수정
    */
-  const cookieStore = request.cookies;
-  const userId = cookieStore.get('issue-user-id')?.value;
+  const userId = getUserIdFromRequest(request, issueId);
 
   if (!userId) {
     return new NextResponse('Unauthorized: User ID required', { status: 401 });

@@ -36,7 +36,6 @@ export function useCloseIssueModal({ issueId, isOwner }: UseCloseIssueModalParam
         const response = await fetch(`/api/issues/${issueId}/close-modal`, {
           method: 'PATCH',
           headers: {
-            'x-user-id': userId,
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({ memo: memoValue }),
@@ -60,9 +59,6 @@ export function useCloseIssueModal({ issueId, isOwner }: UseCloseIssueModalParam
     try {
       const response = await fetch(`/api/issues/${issueId}/close-modal`, {
         method: 'DELETE',
-        headers: {
-          'x-user-id': userId,
-        },
       });
 
       if (!response.ok) {

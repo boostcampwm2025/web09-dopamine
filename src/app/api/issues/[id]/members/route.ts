@@ -9,6 +9,7 @@ import { createAnonymousUser } from '@/lib/repositories/user.repository';
 import { issueMemberService } from '@/lib/services/issue-member.service';
 import { broadcast } from '@/lib/sse/sse-service';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
+import { setUserIdCookie } from '@/lib/utils/cookie';
 
 export async function GET(
   req: NextRequest,
@@ -71,14 +72,7 @@ export async function POST(
       };
     });
 
-    const cookieStore = await cookies();
-    cookieStore.set('issue-user-id', result.userId, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/',
-      maxAge: 60 * 60 * 24,
-    });
+    await setUserIdCookie(issueId, result.userId);
 
     broadcast({
       issueId,
