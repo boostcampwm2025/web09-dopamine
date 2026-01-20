@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 import { Node, ReactFlow, addEdge, applyEdgeChanges, applyNodeChanges } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { ISSUE_STATUS } from '@/constants/issue';
@@ -20,6 +20,10 @@ const nodeTypes = {
   topicNode: TopicNode,
 };
 
+const defaultEdgeOptions = {
+  style: EDGE_STYLE,
+};
+
 function nodesToReactFlowNodes(issues: IssueMapData[], nodes: IssueNode[]) {
   return nodes.map((node) => {
     const issue = issues.find((i) => i.id === node.issueId);
@@ -36,17 +40,26 @@ function nodesToReactFlowNodes(issues: IssueMapData[], nodes: IssueNode[]) {
 }
 
 function connectionsToReactFlowEdges(connections: IssueConnection[]) {
-  return connections.map((conn) => ({
-    id: conn.id,
-    source: conn.issueAId,
-    target: conn.issueBId,
-    sourceHandle: conn.sourceHandle,
-    targetHandle: conn.targetHandle,
-  }));
+  return connections.map((conn) => {
+    // TopicNode의 Handle ID 규칙에 맞게 변환 (ex. "left" → "left-source")
+    const sourceHandleId = conn.sourceHandle ? `${conn.sourceHandle}-source` : undefined;
+    const targetHandleId = conn.targetHandle ? `${conn.targetHandle}-target` : undefined;
+
+    return {
+      id: conn.id,
+      source: conn.issueAId,
+      target: conn.issueBId,
+      sourceHandle: sourceHandleId,
+      targetHandle: targetHandleId,
+    };
+  });
 }
 
-export default function TopicCanvas({ issues, nodes: issueNodes, connections }: TopicCanvasProps) {
-  const initialNodes = useMemo(() => nodesToReactFlowNodes(issues, issueNodes), [issues, issueNodes]);
+function TopicCanvas({ issues, nodes: issueNodes, connections }: TopicCanvasProps) {
+  const initialNodes = useMemo(
+    () => nodesToReactFlowNodes(issues, issueNodes),
+    [issues, issueNodes],
+  );
   const initialEdges = useMemo(() => connectionsToReactFlowEdges(connections), [connections]);
   const [nodes, setNodes] = useState(initialNodes);
   const [edges, setEdges] = useState(initialEdges);
@@ -80,10 +93,6 @@ export default function TopicCanvas({ issues, nodes: issueNodes, connections }: 
     [],
   );
 
-  const defaultEdgeOptions = {
-    style: EDGE_STYLE,
-  };
-
   return (
     <div style={{ width: '100vw', height: '100vh' }}>
       <ReactFlow
@@ -100,7 +109,10 @@ export default function TopicCanvas({ issues, nodes: issueNodes, connections }: 
           maxZoom: 1,
         }}
         fitView
+        onlyRenderVisibleElements={true}
       />
     </div>
   );
 }
+
+export default memo(TopicCanvas);
