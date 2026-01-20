@@ -244,7 +244,10 @@ export const Input = styled.textarea`
   padding: 10px 12px;
   border: none;
   font-size: ${theme.font.size.medium};
-  min-height: 72px;
+  line-height: 1.5;
+  min-height: calc(1.5em + 20px);
+  max-height: calc(1.5em * 5 + 20px);
+  overflow-y: hidden;
   resize: none;
 
   &:focus {

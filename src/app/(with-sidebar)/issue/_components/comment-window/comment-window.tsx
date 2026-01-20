@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import CommentList from './comment-list';
 import * as S from './comment-window.styles';
 import { useWindow } from './hooks/use-window';
@@ -22,6 +22,16 @@ export default function CommentWindow({
 }: CommentWindowProps) {
   const fixedWidth = 420;
   const fixedHeight = 500;
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, []);
 
   const {
     position,
@@ -44,6 +54,34 @@ export default function CommentWindow({
     handleDelete,
     handleEditKeyDown,
   } = useWindow({ initialPosition, issueId, ideaId, userId });
+
+  const resizeTextarea = useCallback((element?: HTMLTextAreaElement | null) => {
+    const target = element ?? textareaRef.current;
+    if (!target) return;
+
+    target.style.height = 'auto';
+    const styles = window.getComputedStyle(target);
+    const lineHeight = Number.parseFloat(styles.lineHeight) || 0;
+    const paddingTop = Number.parseFloat(styles.paddingTop) || 0;
+    const paddingBottom = Number.parseFloat(styles.paddingBottom) || 0;
+    const maxHeight = lineHeight * 5 + paddingTop + paddingBottom;
+    const nextHeight = Math.min(target.scrollHeight, maxHeight);
+
+    target.style.height = `${nextHeight}px`;
+    target.style.overflowY = target.scrollHeight > maxHeight ? 'auto' : 'hidden';
+  }, []);
+
+  useEffect(() => {
+    resizeTextarea();
+  }, [inputValue, resizeTextarea]);
+
+  const handleInputChange = useCallback(
+    (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+      setInputValue(event.target.value);
+      resizeTextarea(event.target);
+    },
+    [resizeTextarea, setInputValue],
+  );
 
   return (
     <S.Window
@@ -88,10 +126,11 @@ export default function CommentWindow({
             <S.Input
               placeholder="댓글 입력"
               value={inputValue}
-              onChange={(event) => setInputValue(event.target.value)}
+              onChange={handleInputChange}
               onKeyDown={handleInputKeyDown}
               disabled={isSubmitting}
-              rows={3}
+              rows={1}
+              ref={textareaRef}
             />
             <S.SubmitButton
               type="button"
