@@ -1,11 +1,6 @@
 import { useMemo } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import {
-  type Comment,
-  createComment,
-  deleteComment,
-  updateComment,
-} from '@/lib/api/comment';
+import { type Comment, createComment, deleteComment, updateComment } from '@/lib/api/comment';
 import { getCommentQueryKey } from './use-comment-query';
 
 interface CreateCommentParams {
@@ -24,19 +19,13 @@ interface DeleteCommentParams {
 
 export const useCommentMutations = (issueId: string, ideaId: string) => {
   const queryClient = useQueryClient();
-  const commentQueryKey = useMemo(
-    () => getCommentQueryKey(issueId, ideaId),
-    [ideaId, issueId],
-  );
+  const commentQueryKey = useMemo(() => getCommentQueryKey(issueId, ideaId), [ideaId, issueId]);
 
   const createMutation = useMutation({
     mutationFn: ({ userId, content }: CreateCommentParams) =>
       createComment(issueId, ideaId, { userId, content }),
     onSuccess: (created) => {
-      queryClient.setQueryData<Comment[]>(commentQueryKey, (prev) => [
-        ...(prev ?? []),
-        created,
-      ]);
+      queryClient.setQueryData<Comment[]>(commentQueryKey, (prev) => [...(prev ?? []), created]);
     },
   });
 
@@ -55,8 +44,7 @@ export const useCommentMutations = (issueId: string, ideaId: string) => {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: ({ commentId }: DeleteCommentParams) =>
-      deleteComment(issueId, ideaId, commentId),
+    mutationFn: ({ commentId }: DeleteCommentParams) => deleteComment(issueId, ideaId, commentId),
     onSuccess: (_, variables) => {
       queryClient.setQueryData<Comment[]>(commentQueryKey, (prev) =>
         (prev ?? []).filter((comment) => comment.id !== variables.commentId),

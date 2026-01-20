@@ -30,7 +30,11 @@ export async function fetchComments(id: string, ideaId: string): Promise<Comment
  * @param ideaId - 아이디어 식별자
  * @param payload - 유저 ID와 댓글 내용을 포함한 객체
  */
-export async function createComment(id: string, ideaId: string, payload: { userId: string; content: string }) {
+export async function createComment(
+  id: string,
+  ideaId: string,
+  payload: { userId: string; content: string },
+) {
   return getAPIResponseData<Comment>({
     url: `/api/issues/${id}/ideas/${ideaId}/comment`,
     method: 'POST',

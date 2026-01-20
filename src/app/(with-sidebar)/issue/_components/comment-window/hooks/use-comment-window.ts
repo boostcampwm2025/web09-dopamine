@@ -32,9 +32,7 @@ export function getCommentErrorMessage({
   deleteMutation,
 }: GetCommentErrorMessageOptions) {
   const missingContextMessage =
-    !issueId || !ideaId
-      ? '아이디어 정보가 없어 댓글을 불러오지 못했습니다.'
-      : null;
+    !issueId || !ideaId ? '아이디어 정보가 없어 댓글을 불러오지 못했습니다.' : null;
   const queryErrorMessage = commentsQuery.error
     ? commentsQuery.error instanceof Error
       ? commentsQuery.error.message

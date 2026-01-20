@@ -182,8 +182,7 @@ export const EditInput = styled.textarea`
 
 export const Btn = styled.button<{ $variant?: 'default' | 'danger' }>`
   border: 1px solid
-    ${({ $variant }) =>
-      $variant === 'danger' ? theme.colors.red[400] : theme.colors.gray[200]};
+    ${({ $variant }) => ($variant === 'danger' ? theme.colors.red[400] : theme.colors.gray[200])};
   background: ${({ $variant }) =>
     $variant === 'danger' ? theme.colors.red[50] : theme.colors.white};
   color: ${({ $variant }) =>

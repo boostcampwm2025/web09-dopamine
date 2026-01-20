@@ -9,10 +9,7 @@ export const getCommentQueryKey = (issueId: string, ideaId: string) => [
 ];
 
 export const useCommentQuery = (issueId: string, ideaId: string) => {
-  const commentQueryKey = useMemo(
-    () => getCommentQueryKey(issueId, ideaId),
-    [ideaId, issueId],
-  );
+  const commentQueryKey = useMemo(() => getCommentQueryKey(issueId, ideaId), [ideaId, issueId]);
 
   const commentsQuery = useQuery({
     queryKey: commentQueryKey,

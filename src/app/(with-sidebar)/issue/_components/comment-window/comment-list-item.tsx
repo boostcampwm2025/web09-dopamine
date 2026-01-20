@@ -3,8 +3,8 @@
 import { useCallback } from 'react';
 import type { Comment } from '@/lib/api/comment';
 import { getCommentMeta } from '@/lib/utils/comment';
-import * as S from './comment-window.styles';
 import { useCommentListContext } from './comment-list-context';
+import * as S from './comment-window.styles';
 
 interface CommentListItemProps {
   comment: Comment;
@@ -46,10 +46,7 @@ export default function CommentListItem({ comment }: CommentListItemProps) {
     if (isMutating) return;
     handleDelete(comment.id);
   }, [comment.id, handleDelete, isMutating]);
-  const handleExpandClick = useCallback(
-    () => handleExpand(comment.id),
-    [comment.id, handleExpand],
-  );
+  const handleExpandClick = useCallback(() => handleExpand(comment.id), [comment.id, handleExpand]);
 
   return (
     <S.CommentItem>
@@ -73,14 +70,22 @@ export default function CommentListItem({ comment }: CommentListItemProps) {
                 >
                   {getSaveButtonContent(comment.id)}
                 </S.Btn>
-                <S.Btn type="button" onClick={handleEditCancel} disabled={isMutating}>
+                <S.Btn
+                  type="button"
+                  onClick={handleEditCancel}
+                  disabled={isMutating}
+                >
                   취소
                 </S.Btn>
               </>
             )}
             {!isEditing && (
               <>
-                <S.Btn type="button" onClick={handleEditStartClick} disabled={isMutating}>
+                <S.Btn
+                  type="button"
+                  onClick={handleEditStartClick}
+                  disabled={isMutating}
+                >
                   수정
                 </S.Btn>
                 <S.Btn
@@ -106,11 +111,17 @@ export default function CommentListItem({ comment }: CommentListItemProps) {
       )}
       {!isEditing && (
         <>
-          <S.CommentBody ref={registerCommentBody(comment.id)} $isClamped={!isExpanded}>
+          <S.CommentBody
+            ref={registerCommentBody(comment.id)}
+            $isClamped={!isExpanded}
+          >
             {comment.content}
           </S.CommentBody>
           {shouldShowReadMore(isExpanded, canExpand) && (
-            <S.ReadMoreButton type="button" onClick={handleExpandClick}>
+            <S.ReadMoreButton
+              type="button"
+              onClick={handleExpandClick}
+            >
               더보기
             </S.ReadMoreButton>
           )}

@@ -2,12 +2,12 @@
 
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import CommentList from './comment-list';
-import * as S from './comment-window.styles';
-import { useCommentList } from './hooks/use-comment-list';
-import { getCommentErrorMessage, useCommentWindow } from './hooks/use-comment-window';
 import { CommentWindowContext } from './comment-window-context';
+import * as S from './comment-window.styles';
 import { useCommentMutations } from './hooks/react-query/use-comment-mutations';
 import { useCommentQuery } from './hooks/react-query/use-comment-query';
+import { useCommentList } from './hooks/use-comment-list';
+import { getCommentErrorMessage, useCommentWindow } from './hooks/use-comment-window';
 
 export interface CommentWindowProps {
   issueId: string;

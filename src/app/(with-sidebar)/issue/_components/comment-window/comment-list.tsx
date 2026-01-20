@@ -1,10 +1,10 @@
 'use client';
 
 import { useMemo } from 'react';
-import * as S from './comment-window.styles';
 import { CommentListContext } from './comment-list-context';
 import CommentListItem from './comment-list-item';
 import { useCommentWindowContext } from './comment-window-context';
+import * as S from './comment-window.styles';
 
 export default function CommentList() {
   const {
@@ -95,9 +95,13 @@ export default function CommentList() {
               <S.CommentMeta>{commentMetaMessage}</S.CommentMeta>
             </S.CommentItem>
           )}
-          {!isLoading && !errorMessage &&
+          {!isLoading &&
+            !errorMessage &&
             comments.map((comment) => (
-              <CommentListItem key={comment.id} comment={comment} />
+              <CommentListItem
+                key={comment.id}
+                comment={comment}
+              />
             ))}
         </S.CommentList>
       </S.CommentSection>
