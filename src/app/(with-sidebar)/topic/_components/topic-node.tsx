@@ -12,13 +12,12 @@ function badgeFormatter(status: IssueStatus) {
   switch (status) {
     case ISSUE_STATUS.BRAINSTORMING:
     case ISSUE_STATUS.CATEGORIZE:
-      return 'OPEN';
+      return 'BLUE';
     case ISSUE_STATUS.VOTE:
-      return 'VOTING';
     case ISSUE_STATUS.SELECT:
-      return 'SELECTING';
+      return 'GREEN';
     case ISSUE_STATUS.CLOSE:
-      return 'CLOSED';
+      return 'GRAY';
     default:
       return 'UNKNOWN';
   }
@@ -31,7 +30,7 @@ export default function TopicNode({ data }: NodeProps<Node<TopicNodeData>>) {
   return (
     <S.NodeContainer status={status}>
       <S.BadgeWrapper>
-        <S.Badge status={status}>{badgeFormatter(status)}</S.Badge>
+        <S.Badge status={status}>{status}</S.Badge>
       </S.BadgeWrapper>
 
       <S.TitleWrapper>
