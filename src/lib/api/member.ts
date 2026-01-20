@@ -10,7 +10,7 @@ export function searchByNickname(issueId: string, nickname: string) {
       };
     }>
   >({
-    url: `/api/issues/${issueId}/members/${nickname}`,
+    url: `/api/issues/${issueId}/members/search/${nickname}`,
     method: 'GET',
   });
 }

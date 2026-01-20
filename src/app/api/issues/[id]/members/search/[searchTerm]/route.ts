@@ -4,7 +4,7 @@ import { issueMemberRepository } from '@/lib/repositories/issue-member.repositor
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string, searchTerm: string}> },
+  { params }: { params: Promise<{ id: string; searchTerm: string }> },
 ): Promise<NextResponse> {
   const { id, searchTerm } = await params;
 
@@ -12,7 +12,7 @@ export async function GET(
     const members = await issueMemberRepository.findMembersByNickname(id, searchTerm);
     return createSuccessResponse(members);
   } catch (error) {
-    console.error('사용자 정보 조회 실패:', error);
+    console.error('멤버 검색 조회 실패:', error);
     return createErrorResponse('MEMBER_FETCH_FAILED', 500);
   }
 }
