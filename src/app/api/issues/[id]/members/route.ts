@@ -1,3 +1,4 @@
+import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 import { IssueRole } from '@prisma/client';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
@@ -68,6 +69,15 @@ export async function POST(
       return {
         userId: user.id,
       };
+    });
+
+    const cookieStore = await cookies();
+    cookieStore.set('issue-user-id', result.userId, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 60 * 60 * 24,
     });
 
     broadcast({
