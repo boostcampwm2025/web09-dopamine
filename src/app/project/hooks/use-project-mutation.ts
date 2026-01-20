@@ -31,7 +31,6 @@ export const useDeleteProjectMutation = () => {
 
     onError: (error) => {
       console.error('프로젝트 삭제 실패:', error);
-      toast.error(error.message || '프로젝트 삭제에 실패했습니다.');
     },
   });
 };
