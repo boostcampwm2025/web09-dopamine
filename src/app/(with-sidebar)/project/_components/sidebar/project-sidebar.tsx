@@ -1,15 +1,12 @@
+'use client';
+
+import { useParams } from 'next/navigation';
+import { useProjectQuery } from '../../hooks/use-project-query';
 import MemberSidebarItem from '@/components/sidebar/member-sidebar-item';
 import Sidebar from '@/components/sidebar/sidebar';
 import SidebarItem from '@/components/sidebar/sidebar-item';
 import * as S from '@/components/sidebar/sidebar.styles';
 import * as ProjectS from './projcet-sidebar.styles';
-
-const TOPIC_LIST = [
-  { title: '서비스 홍보 방안', href: '#' },
-  { title: '프론트앤드 아키텍쳐', href: '#' },
-  { title: '바이럴 문구 작성', href: '#' },
-  { title: '초기 유저 리텐션 전략', href: '#' },
-] as const;
 
 const MEMBER_LIST = [
   { id: '1', name: '김민수', role: 'OWNER', image: '/profile.svg' },
@@ -21,6 +18,12 @@ const MEMBER_LIST = [
 ];
 
 const ProjectSidebar = () => {
+  const params = useParams();
+  const projectId = params.id as string;
+
+  const { data: projectData } = useProjectQuery(projectId);
+  const topics = projectData?.topics || [];
+
   return (
     <Sidebar>
       <ProjectS.SidebarSection>
@@ -28,14 +31,20 @@ const ProjectSidebar = () => {
           <S.SidebarTitle>TOPIC LIST</S.SidebarTitle>
           <ProjectS.ScrollableSection>
             <S.SidebarList>
-              {TOPIC_LIST.map((topic, index) => (
-                <SidebarItem
-                  isTopic
-                  key={index}
-                  title={topic.title}
-                  href={topic.href}
-                />
-              ))}
+              {topics.length > 0 ? (
+                topics.map((topic) => (
+                  <SidebarItem
+                    isTopic
+                    key={topic.id}
+                    title={topic.title}
+                    href={`/topic/${topic.id}`}
+                  />
+                ))
+              ) : (
+                <div style={{ padding: '16px', color: '#9ca3af', fontSize: '14px' }}>
+                  토픽이 없습니다
+                </div>
+              )}
             </S.SidebarList>
           </ProjectS.ScrollableSection>
         </ProjectS.TopicSectionWrapper>
