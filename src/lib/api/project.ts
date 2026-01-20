@@ -8,12 +8,12 @@ export function getProjects() {
   });
 }
 
-export function createProject(title: string) {
+export function createProject(title: string, description?: string) {
   return getAPIResponseData<CreateProjectResponse>({
     url: '/api/projects',
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ title }),
+    body: JSON.stringify({ title, description }),
   });
 }
 
