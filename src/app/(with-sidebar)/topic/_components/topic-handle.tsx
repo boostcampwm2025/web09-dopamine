@@ -1,5 +1,6 @@
 import { memo, useMemo } from 'react';
 import { Handle, Position } from '@xyflow/react';
+import { theme } from '@/styles/theme';
 import { IssueStatus } from '@/types/issue';
 import './topic-handle.css';
 
@@ -25,14 +26,14 @@ function colorSelector(status: IssueStatus) {
   switch (status) {
     case 'BRAINSTORMING':
     case 'CATEGORIZE':
-      return '#3b82f6'; // BLUE
+      return theme.colors.blue[500]; // BLUE
     case 'VOTE':
     case 'SELECT':
-      return '#10b981'; // GREEN
+      return theme.colors.green[500]; // GREEN
     case 'CLOSE':
-      return '#6b7280'; // GRAY
+      return theme.colors.gray[500]; // GRAY
     default:
-      return '#b1b1b7'; // DEFAULT GRAY
+      return theme.colors.gray[500]; // DEFAULT GRAY
   }
 }
 
