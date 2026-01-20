@@ -32,7 +32,7 @@ model User {
   name          String?   @db.VarChar(30)
   email         String?   @unique @db.VarChar(255)
   emailVerified DateTime? @map("email_verified")
-  avatarUrl     String?   @map("avatar_url") @db.VarChar(2048)
+  image         String?   @map("avatar_url") @db.VarChar(2048)
   displayName   String?   @map("display_name") @db.VarChar(30)
   provider      String?   @db.VarChar(30)
   createdAt     DateTime  @default(now()) @map("created_at")
