@@ -3,16 +3,13 @@ import { create } from 'zustand';
 interface IssueStore {
   isAIStructuring: boolean;
   actions: {
-    startAIStructure: () => void;
-    finishAIStructure: () => void;
+    setIsAIStructuring: (isLoading: boolean) => void;
   };
 }
 
 export const useIssueStore = create<IssueStore>((set) => ({
   isAIStructuring: false,
-
   actions: {
-    startAIStructure: () => set({ isAIStructuring: true }),
-    finishAIStructure: () => set({ isAIStructuring: false }),
+    setIsAIStructuring: (isLoading) => set({ isAIStructuring: isLoading }),
   },
 }));

@@ -125,32 +125,6 @@ export function categorizeIdeas(issueId: string) {
   });
 }
 
-export function applyAIStructure(
-  issueId: string,
-  categories: Array<{ title: string; ideaIds: string[] }>,
-) {
-  return getAPIResponseData<{
-    categories: Array<{
-      id: string;
-      title: string;
-      issueId: string;
-      positionX: number | null;
-      positionY: number | null;
-      width: number;
-      height: number;
-      createdAt: string;
-      updatedAt: string;
-      deletedAt: string | null;
-    }>;
-    ideaCategoryMap: Record<string, string>;
-  }>({
-    url: `/api/issues/${issueId}/ai-structure`,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ categories }),
-  });
-}
-
 /* =========================
  * Selected Idea
  * ========================= */

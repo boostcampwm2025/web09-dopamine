@@ -86,7 +86,7 @@ export async function findReportWithDetailsById(
                   id: true,
                   name: true,
                   displayName: true,
-                  avatarUrl: true,
+                  image: true,
                 },
               },
             },
