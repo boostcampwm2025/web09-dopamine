@@ -9,12 +9,11 @@ type CategoryPayload = {
   height?: number;
 };
 
-
 export function fetchCategories(issueId: string): Promise<Category[]> {
-    return getAPIResponseData<Category[]>({
-      url: `/api/issues/${issueId}/category`,
-      method: 'GET',
-    });
+  return getAPIResponseData<Category[]>({
+    url: `/api/issues/${issueId}/category`,
+    method: 'GET',
+  });
 }
 
 export function createCategory(issueId: string, payload: CategoryPayload): Promise<Category> {
@@ -39,10 +38,7 @@ export function updateCategory(
   });
 }
 
-export function deleteCategory(
-  issueId: string,
-  categoryId: string,
-): Promise<void> {
+export function deleteCategory(issueId: string, categoryId: string): Promise<void> {
   return getAPIResponseData<void>({
     url: `/api/issues/${issueId}/category/${categoryId}`,
     method: 'DELETE',

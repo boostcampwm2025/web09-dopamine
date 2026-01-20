@@ -7,6 +7,8 @@ import IssueHeader from '@/app/(with-sidebar)/issue/_components/header/header';
 import IssueSidebar from '@/app/(with-sidebar)/issue/_components/layout/issue-sidebar';
 import TopicHeader from '@/app/(with-sidebar)/topic/_components/header/topic-header';
 import TopicSidebar from '@/app/(with-sidebar)/topic/_components/topic-sidebar';
+import ProjectHeader from './project/_components/header/header';
+import ProjectSidebar from './project/_components/sidebar/project-sidebar';
 
 const LayoutContainer = styled.div`
   display: flex;
@@ -29,17 +31,28 @@ const ContentArea = styled.div`
 export default function WithSidebarLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
 
-  const renderHeader = () => {
-    if (pathname?.startsWith('/topic')) {
-      return <TopicHeader />;
-    }
-
+  const getLayout = () => {
     if (pathname?.startsWith('/issue')) {
-      return <IssueHeader />;
+      return {
+        header: <IssueHeader />,
+        sidebar: <IssueSidebar />,
+      };
     }
 
-    return null;
+    if (pathname?.startsWith('/project')) {
+      return {
+        header: <ProjectHeader />,
+        sidebar: <ProjectSidebar />,
+      };
+    }
+
+    return {
+      header: null,
+      sidebar: null,
+    };
   };
+
+  const { header, sidebar } = getLayout();
 
   const renderSidebar = () => {
     if (pathname?.startsWith('/topic')) {
@@ -55,9 +68,9 @@ export default function WithSidebarLayout({ children }: { children: ReactNode })
 
   return (
     <LayoutContainer>
-      {renderHeader()}
+      {header}
       <BodyContainer>
-        {renderSidebar()}
+        {sidebar}
         <ContentArea>{children}</ContentArea>
       </BodyContainer>
     </LayoutContainer>

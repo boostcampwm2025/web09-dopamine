@@ -153,6 +153,7 @@ export default function IdeaCard(props: IdeaCardProps) {
   return (
     <S.Card
       ref={setNodeRef}
+      data-idea-card={props.id}
       issueStatus={issueStatus}
       status={status}
       isDragging={isDragging}
@@ -169,6 +170,8 @@ export default function IdeaCard(props: IdeaCardProps) {
     >
       <IdeaCardBadge status={status} />
       <IdeaCardHeader
+        ideaId={props.id}
+        userId={currentUserId}
         isEditing={isEditing}
         editValue={editValue}
         displayContent={displayContent}

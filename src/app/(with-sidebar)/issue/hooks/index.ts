@@ -4,6 +4,7 @@ export * from './use-drag-and-drop';
 export * from './use-draggable';
 export * from './use-filter-idea';
 export * from './use-idea-operations';
+export * from './use-idea-status';
 export * from './use-ideas-with-temp';
 export * from './use-issue-data';
 export * from './use-issue-events';

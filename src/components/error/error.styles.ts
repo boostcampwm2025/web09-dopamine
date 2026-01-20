@@ -32,7 +32,9 @@ export const PostItMain = styled.div`
   width: 380px;
   padding: 2rem;
   background-color: ${theme.colors.green[100]};
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -4px rgba(0, 0, 0, 0.1);
   clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%);
 `;
 
@@ -98,10 +100,13 @@ export const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
   transition: all 0.2s;
   background-color: ${(props) =>
     props.variant === 'secondary' ? theme.colors.green[200] : theme.colors.green[600]};
-  color: ${(props) => (props.variant === 'secondary' ? theme.colors.green[700] : theme.colors.white)};
+  color: ${(props) =>
+    props.variant === 'secondary' ? theme.colors.green[700] : theme.colors.white};
 
   &:hover {
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+    box-shadow:
+      0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 2px 4px -2px rgba(0, 0, 0, 0.1);
   }
 
   &:active {

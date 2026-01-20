@@ -11,7 +11,13 @@ import { useIssueData } from './use-issue-data';
 
 export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) {
   // 통합된 아이디어 목록 (서버 + temp)
-  const { ideas, hasEditingIdea, addTempIdea, deleteTempIdea, isError: isIdeasError } = useIdeasWithTemp(issueId);
+  const {
+    ideas,
+    hasEditingIdea,
+    addTempIdea,
+    deleteTempIdea,
+    isError: isIdeasError,
+  } = useIdeasWithTemp(issueId);
 
   // z-index 관리
   const { addCard, removeCard, setInitialCardData } = useIdeaCardStackStore(issueId);
@@ -87,7 +93,6 @@ export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) 
 
   // 아이디어 삭제
   const handleDeleteIdea = (id: string) => {
-
     if (id.startsWith('temp-')) {
       deleteTempIdea();
       removeCard(id);
