@@ -26,7 +26,10 @@ export function ProjectList() {
     <S.Container>
       <S.CardGrid>
         {projects?.map((project) => (
-          <ProjectCard key={project.id} {...project} />
+          <ProjectCard
+            key={project.id}
+            {...project}
+          />
         ))}
         <ProjectCard isCreateCard />
       </S.CardGrid>

@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useModalStore } from '@/components/modal/use-modal-store';
 import ProjectCreateModal from '../project-create-modal/project-create-modal';
 import * as S from './project-card.styles';
@@ -13,13 +14,14 @@ interface ProjectCardProps {
 }
 
 export function ProjectCard({
-  id, // TODO: 프로젝트 상세 페이지 이동 시 사용 예정
+  id,
   title,
   icon,
   memberCount,
   isCreateCard = false,
 }: ProjectCardProps) {
   const { openModal } = useModalStore();
+  const router = useRouter();
 
   const handleCreateClick = () => {
     openModal({
@@ -27,6 +29,10 @@ export function ProjectCard({
       content: <ProjectCreateModal />,
       hasCloseButton: true,
     });
+  };
+
+  const handleGoProject = () => {
+    router.push(`/project/${id}`);
   };
 
   if (isCreateCard) {
@@ -39,7 +45,7 @@ export function ProjectCard({
   }
 
   return (
-    <S.Card>
+    <S.Card onClick={handleGoProject}>
       <S.CardHeader hasIcon={!!icon}>
         {icon && <S.Icon>{icon}</S.Icon>}
         <S.Title>{title}</S.Title>
