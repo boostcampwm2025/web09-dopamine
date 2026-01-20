@@ -16,3 +16,10 @@ export function createProject(title: string) {
     body: JSON.stringify({ title }),
   });
 }
+
+export function deleteProject(id: string) {
+  return getAPIResponseData<{ id: string }>({
+    url: `/api/projects/${id}`,
+    method: 'DELETE',
+  });
+}
