@@ -1,13 +1,12 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Node, ReactFlow, addEdge, applyEdgeChanges, applyNodeChanges } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { ISSUE_STATUS } from '@/constants/issue';
 import { EDGE_STYLE } from '@/constants/topic';
 import topicEdge from './topic-edge';
 import TopicNode, { TopicNodeData } from './topic-node';
-import { createForceLayout, generateRandomPosition } from '../_utils/force-layout';
 
 interface TopicCanvasProps {
   issues: any[]; // 일단 any
@@ -23,19 +22,19 @@ function issuesFormatter(issues: any[]) {
     {
       id: 'n1',
       type: 'topicNode',
-      position: generateRandomPosition(),
+      position: { x: 100, y: 100 },
       data: { title: '홍보 플랫폼 선정', status: ISSUE_STATUS.VOTE },
     },
     {
       id: 'n2',
       type: 'topicNode',
-      position: generateRandomPosition(),
+      position: { x: 400, y: 200 },
       data: { title: '예산 확정', status: ISSUE_STATUS.SELECT },
     },
     {
       id: 'n3',
       type: 'topicNode',
-      position: generateRandomPosition(),
+      position: { x: 250, y: 350 },
       data: { title: '마케팅 전략', status: ISSUE_STATUS.BRAINSTORMING },
     },
   ] as Node<TopicNodeData>[];
@@ -50,23 +49,6 @@ export default function TopicCanvas({ issues }: TopicCanvasProps) {
   const initialEdges = useMemo(() => edgesFormatter(issues), []);
   const [nodes, setNodes] = useState(initialNodes);
   const [edges, setEdges] = useState(initialEdges);
-
-  // d3-force로 노드 위치 자동 계산 (애니메이션 포함)
-  useEffect(() => {
-    const simulation = createForceLayout({
-      nodes,
-      edges: edges.map((edge) => ({
-        source: edge.source,
-        target: edge.target,
-      })),
-      onTick: setNodes,
-    });
-
-    // 시뮬레이션 종료 시 정리
-    return () => {
-      simulation.stop();
-    };
-  }, [edges, nodes.length]); // edges 또는 노드 개수 변경 시 재계산
 
   const onNodesChange = useCallback(
     (changes: any) => setNodes((nodesSnapshot) => applyNodeChanges(changes, nodesSnapshot)),
