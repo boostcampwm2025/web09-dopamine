@@ -1,9 +1,10 @@
 'use client';
 
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import CommentList from './comment-list';
 import * as S from './comment-window.styles';
 import { useWindow } from './hooks/use-window';
+import { CommentWindowContext } from './comment-window-context';
 
 export interface CommentWindowProps {
   issueId: string;
@@ -62,6 +63,53 @@ export default function CommentWindow({
     handleEditKeyDown,
   } = useWindow({ initialPosition, issueId, ideaId, userId });
 
+  const commentContextValue = useMemo(
+    () => ({
+      comments,
+      errorMessage,
+      isMutating,
+      mutatingCommentId,
+      shouldShowLoading,
+      shouldShowError,
+      shouldShowEmpty,
+      shouldShowComments,
+      editingValue,
+      setEditingValue,
+      isCommentOwner,
+      isEditingComment,
+      getSaveButtonContent,
+      getDeleteButtonContent,
+      shouldShowReadMore,
+      handleEditStart,
+      handleEditCancel,
+      handleEditSave,
+      handleEditKeyDown,
+      handleDelete,
+    }),
+    [
+      comments,
+      editingValue,
+      errorMessage,
+      getDeleteButtonContent,
+      getSaveButtonContent,
+      handleDelete,
+      handleEditCancel,
+      handleEditKeyDown,
+      handleEditSave,
+      handleEditStart,
+      isCommentOwner,
+      isEditingComment,
+      isMutating,
+      mutatingCommentId,
+      setEditingValue,
+      shouldShowComments,
+      shouldShowEmpty,
+      shouldShowError,
+      shouldShowLoading,
+      shouldShowReadMore,
+    ],
+  );
+
   const resizeTextarea = useCallback((element?: HTMLTextAreaElement | null) => {
     const target = element ?? textareaRef.current;
     if (!target) return;
@@ -116,28 +164,9 @@ export default function CommentWindow({
         </S.Controls>
       </S.Header>
       <S.Body>
-        <CommentList
-          comments={comments}
-          errorMessage={errorMessage}
-          isMutating={isMutating}
-          mutatingCommentId={mutatingCommentId}
-          shouldShowLoading={shouldShowLoading}
-          shouldShowError={shouldShowError}
-          shouldShowEmpty={shouldShowEmpty}
-          shouldShowComments={shouldShowComments}
-          editingValue={editingValue}
-          setEditingValue={setEditingValue}
-          isCommentOwner={isCommentOwner}
-          isEditingComment={isEditingComment}
-          getSaveButtonContent={getSaveButtonContent}
-          getDeleteButtonContent={getDeleteButtonContent}
-          shouldShowReadMore={shouldShowReadMore}
-          handleEditStart={handleEditStart}
-          handleEditCancel={handleEditCancel}
-          handleEditSave={handleEditSave}
-          handleEditKeyDown={handleEditKeyDown}
-          handleDelete={handleDelete}
-        />
+        <CommentWindowContext.Provider value={commentContextValue}>
+          <CommentList />
+        </CommentWindowContext.Provider>
         <S.Section>
           <S.InputRow>
             <S.Input
