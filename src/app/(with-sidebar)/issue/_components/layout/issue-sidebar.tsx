@@ -43,48 +43,44 @@ export default function IssueSidebar() {
       {!isQuickIssue && (
         <>
           <IssueGraphLink />
-          <div>
-            <S.SidebarTitle>
-              <span>ISSUE LIST</span>
-              <NewIssueButton />
-            </S.SidebarTitle>
-            <S.SidebarList>
-              {ISSUE_LIST.map((issue) => (
-                <SidebarItem
-                  key={issue.title}
-                  title={issue.title}
-                  href={issue.href}
-                  status={issue.status}
-                />
-              ))}
-            </S.SidebarList>
-          </div>
+          <S.SidebarTitle>
+            <span>ISSUE LIST</span>
+            <NewIssueButton />
+          </S.SidebarTitle>
+          <S.SidebarList>
+            {ISSUE_LIST.map((issue) => (
+              <SidebarItem
+                key={issue.title}
+                title={issue.title}
+                href={issue.href}
+                status={issue.status}
+              />
+            ))}
+          </S.SidebarList>
         </>
       )}
 
-      <div>
-        <S.SidebarTitle>
-          MEMBER LIST
-          <span>
-            ({onlineMemberIds.length}/{sortedMembers.length})
-          </span>
-        </S.SidebarTitle>
+      <S.SidebarTitle>
+        MEMBER LIST
+        <span>
+          ({onlineMemberIds.length}/{sortedMembers.length})
+        </span>
+      </S.SidebarTitle>
 
-        <S.SidebarList>
-          {sortedMembers.map((user) => {
-            const isOnline = onlineMemberIds.includes(user.id);
-            return (
-              <MemberSidebarItem
-                key={user.displayName}
-                id={user.id}
-                name={user.displayName}
-                role={user.role}
-                isConnected={isOnline}
-              />
-            );
-          })}
-        </S.SidebarList>
-      </div>
+      <S.SidebarList>
+        {sortedMembers.map((user) => {
+          const isOnline = onlineMemberIds.includes(user.id);
+          return (
+            <MemberSidebarItem
+              key={user.displayName}
+              id={user.id}
+              name={user.displayName}
+              role={user.role}
+              isConnected={isOnline}
+            />
+          );
+        })}
+      </S.SidebarList>
     </Sidebar>
   );
 }
