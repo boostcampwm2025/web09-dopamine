@@ -2,6 +2,7 @@ import MemberSidebarItem from '@/components/sidebar/member-sidebar-item';
 import Sidebar from '@/components/sidebar/sidebar';
 import SidebarItem from '@/components/sidebar/sidebar-item';
 import * as S from '@/components/sidebar/sidebar.styles';
+import * as ProjectS from './projcet-sidebar.styles';
 
 const TOPIC_LIST = [
   { title: '서비스 홍보 방안', href: '#' },
@@ -22,37 +23,42 @@ const MEMBER_LIST = [
 const ProjectSidebar = () => {
   return (
     <Sidebar>
-      <div>
-        <S.SidebarTitle>TOPIC LIST</S.SidebarTitle>
-        <S.SidebarList>
-          {TOPIC_LIST.map((topic, index) => {
-            return (
-              <SidebarItem
-                isTopic={true}
-                key={index}
-                title={topic.title}
-                href={topic.href}
-              />
-            );
-          })}
-        </S.SidebarList>
-      </div>
-      <div>
-        <S.SidebarTitle>MEMBER LIST</S.SidebarTitle>
-        <S.SidebarList>
-          {MEMBER_LIST.map((member, index) => {
-            return (
-              <MemberSidebarItem
-                profile={member.image}
-                key={index}
-                id={member.id}
-                name={member.name}
-                role={member.role}
-              />
-            );
-          })}
-        </S.SidebarList>
-      </div>
+      <ProjectS.SidebarSection>
+        <ProjectS.TopicSectionWrapper>
+          <S.SidebarTitle>TOPIC LIST</S.SidebarTitle>
+          <ProjectS.ScrollableSection>
+            <S.SidebarList>
+              {TOPIC_LIST.map((topic, index) => (
+                <SidebarItem
+                  isTopic
+                  key={index}
+                  title={topic.title}
+                  href={topic.href}
+                />
+              ))}
+            </S.SidebarList>
+          </ProjectS.ScrollableSection>
+        </ProjectS.TopicSectionWrapper>
+
+        <ProjectS.Divider />
+
+        <ProjectS.MemberSectionWrapper>
+          <S.SidebarTitle>MEMBER LIST</S.SidebarTitle>
+          <ProjectS.ScrollableSection>
+            <S.SidebarList>
+              {MEMBER_LIST.map((member, index) => (
+                <MemberSidebarItem
+                  key={index}
+                  profile={member.image}
+                  id={member.id}
+                  name={member.name}
+                  role={member.role}
+                />
+              ))}
+            </S.SidebarList>
+          </ProjectS.ScrollableSection>
+        </ProjectS.MemberSectionWrapper>
+      </ProjectS.SidebarSection>
     </Sidebar>
   );
 };
