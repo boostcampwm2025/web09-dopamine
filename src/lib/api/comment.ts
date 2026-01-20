@@ -67,10 +67,8 @@ export async function updateComment(
  * @param commentId - 삭제할 댓글 식별자
  */
 export async function deleteComment(issueId: string, ideaId: string, commentId: string) {
-  return getAPIResponseData<Comment>({
+  return getAPIResponseData<void>({
     url: `/api/issues/${issueId}/ideas/${ideaId}/comment/${commentId}`,
     method: 'DELETE',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({}),
   });
 }

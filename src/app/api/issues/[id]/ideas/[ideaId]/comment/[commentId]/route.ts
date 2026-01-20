@@ -43,7 +43,7 @@ export async function DELETE(
 
   try {
     await commentRepository.softDelete(commentId);
-    return createSuccessResponse(null, 204);
+    return createSuccessResponse(null, 200);
   } catch (error: any) {
     console.error('댓글 삭제 중 오류 발생:', error);
 

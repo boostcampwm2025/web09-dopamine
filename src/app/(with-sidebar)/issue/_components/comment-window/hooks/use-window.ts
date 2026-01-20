@@ -144,7 +144,7 @@ export function useWindow({ initialPosition, issueId, ideaId, userId }: UseWindo
           setEditingValue('');
         }
       } catch (error) {
-        setErrorMessage(error instanceof Error ? error.message : '?“ê????? œ?˜ì? ëª»í–ˆ?µë‹ˆ??');
+        setErrorMessage(error instanceof Error ? error.message : '댓글을 삭제하지 못했습니다.');
       } finally {
         setIsMutating(false);
         setMutatingCommentId(null);

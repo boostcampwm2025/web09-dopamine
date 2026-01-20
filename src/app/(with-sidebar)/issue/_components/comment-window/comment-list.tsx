@@ -2,7 +2,6 @@
 
 import { useCallback } from 'react';
 import type { KeyboardEvent } from 'react';
-import { useModalStore } from '@/components/modal/use-modal-store';
 import type { Comment } from '@/lib/api/comment';
 import { getCommentMeta } from '@/lib/utils/comment';
 import * as S from './comment-window.styles';
@@ -41,7 +40,6 @@ export default function CommentList({
   handleEditKeyDown,
   handleDelete,
 }: CommentListProps) {
-  const { openModal, closeModal } = useModalStore();
   const {
     expandedCommentIds,
     overflowCommentIds,
@@ -53,36 +51,9 @@ export default function CommentList({
   const handleDeleteClick = useCallback(
     (commentId: string) => {
       if (isMutating) return;
-
-      openModal({
-        title: '댓글 삭제',
-        content: (
-          <S.ConfirmBox>
-            <S.ConfirmMessage>정말 삭제할까요?</S.ConfirmMessage>
-            <S.ConfirmActions>
-              <S.ConfirmButton
-                type="button"
-                onClick={closeModal}
-                disabled={isMutating}
-              >
-                취소
-              </S.ConfirmButton>
-              <S.ConfirmDangerButton
-                type="button"
-                onClick={() => {
-                  closeModal();
-                  handleDelete(commentId);
-                }}
-                disabled={isMutating}
-              >
-                삭제
-              </S.ConfirmDangerButton>
-            </S.ConfirmActions>
-          </S.ConfirmBox>
-        ),
-      });
+      handleDelete(commentId);
     },
-    [closeModal, handleDelete, isMutating, openModal],
+    [handleDelete, isMutating],
   );
 
   return (
