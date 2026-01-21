@@ -1,33 +1,25 @@
 import Image from 'next/image';
+import { redirect } from 'next/navigation';
+import * as projectRepository from '@/lib/repositories/project.repository';
 import Card from '../_components/card/card';
 import CreateTopicButton from '../_components/create-topic-button/create-topic-button';
 import * as S from './page.styles';
 
-const ProjectPage = () => {
-  const title = '머피 서비스 런칭';
-  const desc = '2025 네이버 부스트캠프 멤버십 팀 프로젝트';
+interface ProjectPageProps {
+  params: Promise<{
+    id: string;
+  }>;
+}
 
-  // TODO: 실제 데이터로 교체 필요
-  const topics = [
-    {
-      id: '1',
-      title: '서비스 홍보 방안',
-      issueCount: 8,
-      status: '진행 중',
-    },
-    {
-      id: '2',
-      title: 'UI/UX 개선',
-      issueCount: 5,
-      status: '진행 중',
-    },
-    {
-      id: '3',
-      title: '성능 최적화',
-      issueCount: 3,
-      status: '완료',
-    },
-  ];
+export default async function ProjectPage({ params }: ProjectPageProps) {
+  const { id } = await params;
+  const projectData = await projectRepository.getProjectWithTopics(id);
+
+  if (!projectData) {
+    redirect('/project');
+  }
+
+  const { title, description, topics } = projectData;
 
   return (
     <S.ProjectPageContainer>
@@ -42,7 +34,7 @@ const ProjectPage = () => {
           />
           <S.ProjectTitleInfo>
             <S.ProjectTitle>{title}</S.ProjectTitle>
-            <S.ProjectCreatedDate>{desc}</S.ProjectCreatedDate>
+            <S.ProjectCreatedDate>{description}</S.ProjectCreatedDate>
           </S.ProjectTitleInfo>
         </S.ProjectTitleWrapper>
         <S.EditIconWrapper>
@@ -71,7 +63,7 @@ const ProjectPage = () => {
               variant="item"
               leftIcon="/folder.svg"
               title={topic.title}
-              subtitle={`이슈 ${topic.issueCount}개 • ${topic.status}`}
+              subtitle={`이슈 ${topic.issueCount}개`}
               showArrow
             />
           ))}
@@ -79,6 +71,4 @@ const ProjectPage = () => {
       </S.TopicSection>
     </S.ProjectPageContainer>
   );
-};
-
-export default ProjectPage;
+}

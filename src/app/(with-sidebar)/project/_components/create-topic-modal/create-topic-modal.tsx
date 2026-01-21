@@ -1,17 +1,19 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import * as S from '@/app/(with-sidebar)/issue/_components/issue-join-modal/issue-join-modal.styles';
-import { useCreateProjectMutation } from '@/app/project/hooks/use-project-mutation';
+import { useCreateTopicMutation } from '@/app/(with-sidebar)/topic/hooks/use-topic-mutation';
 import { useModalStore } from '@/components/modal/use-modal-store';
 
 export default function CreateTopicModal() {
   const router = useRouter();
+  const params = useParams();
+  const projectId = params.id as string;
   const [topicName, setTopicName] = useState('');
   const { closeModal } = useModalStore();
-  const { mutate, isPending } = useCreateProjectMutation();
+  const { mutate, isPending } = useCreateTopicMutation();
 
   const handleCreate = async () => {
     if (!topicName.trim()) {
@@ -19,13 +21,18 @@ export default function CreateTopicModal() {
       return;
     }
 
+    if (!projectId) {
+      toast.error('프로젝트 ID를 찾을 수 없습니다.');
+      return;
+    }
+
     mutate(
-      { title: topicName },
+      { title: topicName, projectId },
       {
-        onSuccess: (newTopic) => {
+        onSuccess: () => {
           toast.success('토픽이 생성되었습니다!');
           closeModal();
-          router.push(`/topic/${newTopic.id}`);
+          router.refresh();
         },
       },
     );
