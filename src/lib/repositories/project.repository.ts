@@ -10,6 +10,7 @@ export const getProjectsByOwnerId = async (ownerId: string) => {
       id: true,
       title: true,
       description: true,
+      ownerId: true,
       createdAt: true,
       updatedAt: true,
       _count: {
@@ -31,6 +32,7 @@ export const getProjectsByOwnerId = async (ownerId: string) => {
     id: project.id,
     title: project.title,
     description: project.description,
+    ownerId: project.ownerId,
     memberCount: project._count.projectMembers,
     createdAt: project.createdAt,
     updatedAt: project.updatedAt,
@@ -135,12 +137,13 @@ export const getProjectWithTopics = async (projectId: string) => {
   };
 };
 
-export const createProject = async (title: string, ownerId: string) => {
+export const createProject = async (title: string, ownerId: string, description?: string) => {
   return await prisma.$transaction(async (tx) => {
     // 1. 프로젝트 생성
     const project = await tx.project.create({
       data: {
         title,
+        description,
         ownerId,
       },
     });
@@ -150,6 +153,38 @@ export const createProject = async (title: string, ownerId: string) => {
       data: {
         projectId: project.id,
         userId: ownerId,
+      },
+    });
+
+    return {
+      id: project.id,
+      title: project.title,
+      ownerId: project.ownerId,
+      createdAt: project.createdAt,
+    };
+  });
+};
+
+export const deleteProject = async (id: string, ownerId: string) => {
+  return await prisma.$transaction(async (tx) => {
+    // 1. 프로젝트 삭제
+    const project = await tx.project.update({
+      where: {
+        id,
+        ownerId,
+      },
+      data: {
+        deletedAt: new Date(),
+      },
+    });
+
+    // 2. 프로젝트 멤버 삭제
+    await tx.projectMember.updateMany({
+      where: {
+        projectId: id,
+      },
+      data: {
+        deletedAt: new Date(),
       },
     });
 

@@ -1,6 +1,7 @@
-import { Handle, Node, NodeProps, Position } from '@xyflow/react';
+import { Node, NodeProps, Position } from '@xyflow/react';
 import { ISSUE_STATUS } from '@/constants/issue';
 import { IssueStatus } from '@/types/issue';
+import TopicHandle from './topic-handle';
 import * as S from './topic-node.styles';
 
 export interface TopicNodeData extends Record<string, unknown> {
@@ -12,13 +13,12 @@ function badgeFormatter(status: IssueStatus) {
   switch (status) {
     case ISSUE_STATUS.BRAINSTORMING:
     case ISSUE_STATUS.CATEGORIZE:
-      return 'OPEN';
+      return 'BLUE';
     case ISSUE_STATUS.VOTE:
-      return 'VOTING';
     case ISSUE_STATUS.SELECT:
-      return 'SELECTING';
+      return 'GREEN';
     case ISSUE_STATUS.CLOSE:
-      return 'CLOSED';
+      return 'GRAY';
     default:
       return 'UNKNOWN';
   }
@@ -31,23 +31,67 @@ export default function TopicNode({ data }: NodeProps<Node<TopicNodeData>>) {
   return (
     <S.NodeContainer status={status}>
       <S.BadgeWrapper>
-        <S.Badge status={status}>{badgeFormatter(status)}</S.Badge>
+        <S.Badge status={status}>{status}</S.Badge>
       </S.BadgeWrapper>
 
       <S.TitleWrapper>
         <S.Title status={status}>{title}</S.Title>
       </S.TitleWrapper>
-      <Handle
-        id="a"
+      {/* 소스와 타깃 모두 지정해서 자유롭게 연결할 수 있음 */}
+      {/* Top Handles */}
+      <TopicHandle
         type="target"
+        status={status}
         position={Position.Top}
-        style={{ borderRadius: 0 }}
+        id="top-target"
       />
-      <Handle
-        id="b"
+      <TopicHandle
         type="source"
+        status={status}
+        position={Position.Top}
+        id="top-source"
+      />
+
+      {/* Bottom Handles */}
+      <TopicHandle
+        type="target"
+        status={status}
         position={Position.Bottom}
-        style={{ borderRadius: 0 }}
+        id="bottom-target"
+      />
+      <TopicHandle
+        type="source"
+        status={status}
+        position={Position.Bottom}
+        id="bottom-source"
+      />
+
+      {/* Left Handles */}
+      <TopicHandle
+        type="target"
+        status={status}
+        position={Position.Left}
+        id="left-target"
+      />
+      <TopicHandle
+        type="source"
+        status={status}
+        position={Position.Left}
+        id="left-source"
+      />
+
+      {/* Right Handles */}
+      <TopicHandle
+        type="target"
+        status={status}
+        position={Position.Right}
+        id="right-target"
+      />
+      <TopicHandle
+        type="source"
+        status={status}
+        position={Position.Right}
+        id="right-source"
       />
     </S.NodeContainer>
   );
