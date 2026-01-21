@@ -43,6 +43,20 @@ export const Input = styled.input`
   resize: none;
 `;
 
+export const Textarea = styled.textarea`
+  width: 100%;
+  border: 1px solid ${theme.colors.gray[300]};
+  padding: 12px 44px 12px 8px;
+  border-radius: ${theme.radius.small};
+  font-size: ${theme.font.size.medium};
+  color: ${theme.colors.gray[900]};
+  box-sizing: border-box;
+
+  &:focus {
+    outline: none;
+  }
+`;
+
 export const InputDescription = styled.div`
   font-size: ${theme.font.size.medium};
   color: ${theme.colors.red[500]};

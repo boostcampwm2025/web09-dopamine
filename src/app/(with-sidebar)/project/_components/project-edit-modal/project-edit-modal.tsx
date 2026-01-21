@@ -18,20 +18,24 @@ interface EditProjectModalProps {
 
 export default function EditProjectModal({ projectId, currentTitle, currentDescription }: EditProjectModalProps) {
   const router = useRouter();
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
+  const [title, setTitle] = useState(currentTitle);
+  const [description, setDescription] = useState(currentDescription);
   const { closeModal } = useModalStore();
-  const displayTitle = title.length > 0 ? title : (currentTitle ?? '');
-  const titleLength = displayTitle.length;
-  const isTitleOverLimit = title.length > maxTitleLength;
-  const isTitleLessLimit = title.length < 1;
-  const isDescriptionOverLimit = description.length > maxDescriptionLength;
-  const isDescriptionLessLimit = description.length < 1;
+  const displayTitle = title!.length > 0 ? title : (currentTitle ?? '');
+  const titleLengthRef = useRef(displayTitle!.length);
+  const descriptionLengthRef = useRef(currentDescription!.length);
+  const titleLength = titleLengthRef.current;
+  const isTitleOverLimit = titleLength > maxTitleLength;
+  const isTitleLessLimit = titleLength < 1;
+  const descriptionLength = descriptionLengthRef.current;
+  const isDescriptionOverLimit = descriptionLength > maxDescriptionLength;
+  const isDescriptionLessLimit = descriptionLength < 1;
   const { mutate, isPending } = useUpdateProjectMutation();
 
+
   const handleEdit = async () => {
-    const nextTitle = title.trim() || currentTitle?.trim() || '';
-    const nextDescription = description.trim() || currentDescription?.trim();
+    const nextTitle = title!.trim() || currentTitle?.trim() || '';
+    const nextDescription = description!.trim() || currentDescription?.trim();
 
     if (!nextTitle) {
       toast.error('프로젝트 제목을 입력해주세요.');
@@ -81,12 +85,12 @@ export default function EditProjectModal({ projectId, currentTitle, currentDescr
           <S.InputWrapper>
             <S.InputTitle>프로젝트 설명</S.InputTitle>
             <S.InputRow>
-              <S.Input
+              <S.Textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder={currentDescription ?? '프로젝트 설명을 입력해주세요.'}
               />
-              <S.CharCount $isOverLimit={isDescriptionOverLimit}>{description.length}/{maxDescriptionLength}</S.CharCount>
+              <S.CharCount $isOverLimit={isDescriptionOverLimit}>{descriptionLength}/{maxDescriptionLength}</S.CharCount>
             </S.InputRow>
             {(isDescriptionOverLimit || isDescriptionLessLimit) && 
               <S.InputDescription>
