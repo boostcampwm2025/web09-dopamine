@@ -1,4 +1,7 @@
 import { prisma } from '@/lib/prisma';
+import { PrismaTransaction } from '@/types/prisma';
+
+type PrismaClientOrTx = PrismaTransaction | typeof prisma;
 
 export const getProjectsByOwnerId = async (ownerId: string) => {
   const projects = await prisma.project.findMany({
@@ -194,5 +197,25 @@ export const deleteProject = async (id: string, ownerId: string) => {
       ownerId: project.ownerId,
       createdAt: project.createdAt,
     };
+  });
+};
+
+export const updateProject = async (
+  id: string,
+  title: string,
+  description?: string,
+  tx?: PrismaTransaction,
+) => {
+  // 트랜잭션이 제공되면 그것을 사용하고, 그렇지 않으면 기본 prisma 클라이언트를 사용합니다.
+  const client: PrismaClientOrTx = tx ?? prisma;
+
+  return client.project.update({
+    where: {
+      id,
+    },
+    data: {
+      title,
+      description,
+    },
   });
 };
