@@ -5,7 +5,6 @@ import Card from '../_components/card/card';
 import EditProjectButton from '../_components/edit-project-button/edit-project-button';
 import CreateTopicButton from '../_components/create-topic-button/create-topic-button';
 import * as S from './page.styles';
-import { formatRelativeTime } from '@/lib/utils/time';
 
 interface ProjectPageProps {
   params: Promise<{
@@ -23,12 +22,18 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
 
   const { title, description, topics, created_at } = projectData;
 
+  const createdAt = created_at.toLocaleDateString('ko-KR', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+
   return (
     <S.ProjectPageContainer>
       <S.ProjectTitleBox>
         {/* 프로젝트 헤더 */}
         <S.ProjectTitleHeader>
-          <S.DateSection>{formatRelativeTime(created_at)}</S.DateSection>
+          <S.DateSection>{createdAt}</S.DateSection>
           <EditProjectButton projectId={id} currentTitle={title} currentDescription={description ?? undefined} />
         </S.ProjectTitleHeader>
         {/* 프로젝트 제목 */}
