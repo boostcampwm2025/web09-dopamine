@@ -9,6 +9,7 @@ import { useIssueData, useIssueId } from '../../hooks';
 import { useIssueStore } from '../../store/use-issue-store';
 import IssueGraphLink from './issue-graph-link';
 import NewIssueButton from './new-issue-button';
+import { getChoseong } from 'es-hangul';
 
 const ISSUE_LIST = [
   { title: 'new issue', href: '#', status: ISSUE_STATUS.BRAINSTORMING },
@@ -45,7 +46,20 @@ export default function IssueSidebar() {
     const trimmed = searchTerm.trim();
     if (!trimmed) return sortedMembers;
     const normalized = trimmed.toLowerCase();
-    return sortedMembers.filter((member) => member.displayName.toLowerCase().includes(normalized));
+    const searchChoseong = getChoseong(trimmed);
+    
+    return sortedMembers.filter((member) => {
+      const name = member.displayName;
+
+      // 일반 문자열 포함 여부 확인 (한글 완성형 및 영문 대소문자 대응)
+      if (name.toLowerCase().includes(normalized)) return true;
+      
+      // 검색어에서 초성을 추출할 수 없는 경우(특수문자 등)는 다음 단계로 넘어감
+      if (!searchChoseong) return false;
+      
+      // 초성 검색 비교
+      return getChoseong(name).includes(searchChoseong);
+    });
   }, [searchTerm, sortedMembers]);
 
   const handleSearchChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
