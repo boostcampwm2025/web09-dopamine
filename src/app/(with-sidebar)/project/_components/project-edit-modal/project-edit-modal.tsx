@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { useUpdateProjectMutation } from '@/app/(with-sidebar)/project/hooks/use-project-mutation';
