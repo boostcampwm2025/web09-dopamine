@@ -21,17 +21,18 @@ export default function EditProjectModal({ projectId, currentTitle, currentDescr
   const [title, setTitle] = useState(currentTitle);
   const [description, setDescription] = useState(currentDescription);
   const { closeModal } = useModalStore();
-  const displayTitle = title!.length > 0 ? title : (currentTitle ?? '');
-  const titleLengthRef = useRef(displayTitle!.length);
-  const descriptionLengthRef = useRef(currentDescription!.length);
-  const titleLength = titleLengthRef.current;
+  const [titleLength, setTitleLength] = useState(title!.length);
   const isTitleOverLimit = titleLength > maxTitleLength;
   const isTitleLessLimit = titleLength < 1;
-  const descriptionLength = descriptionLengthRef.current;
+  const [descriptionLength, setDescriptionLength] = useState(description!.length);
   const isDescriptionOverLimit = descriptionLength > maxDescriptionLength;
   const isDescriptionLessLimit = descriptionLength < 1;
   const { mutate, isPending } = useUpdateProjectMutation();
 
+  useEffect(() => {
+    setTitleLength(title?.length || 0);
+    setDescriptionLength(description?.length || 0);
+  }, [title, description]);
 
   const handleEdit = async () => {
     const nextTitle = title!.trim() || currentTitle?.trim() || '';
