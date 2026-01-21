@@ -5,18 +5,9 @@ import { ideaRepository } from '@/lib/repositories/idea.repository';
 import { findIssueById } from '@/lib/repositories/issue.repository';
 import { categorizeService } from '@/lib/services/categorize.service';
 import { broadcast } from '@/lib/sse/sse-service';
-import { parseAiResponse, validateAIResponse } from '@/lib/utils/ai-response-validator';
+import { validateAIFunctionCallResponse } from '@/lib/utils/ai-response-validator';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 import { broadcastError } from '@/lib/utils/broadcast-helpers';
-
-interface AICategoryResponse {
-  categoryName: string;
-  ideaIds: string[];
-}
-
-interface AIFunctionArguments {
-  categories: AICategoryResponse[];
-}
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id: issueId } = await params;
@@ -87,27 +78,16 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
     const data = await res.json();
 
-    const toolCalls = data.result.message.toolCalls;
-    if (!toolCalls || toolCalls.length === 0) {
-      console.error('AI 응답에 toolCalls가 없습니다:', data);
-      broadcastError(issueId, 'AI 응답 형식이 올바르지 않습니다.');
+    // AI 응답 검증 및 파싱
+    const validationResult = validateAIFunctionCallResponse(data);
+
+    if (!validationResult.isValid || !validationResult.data) {
+      console.error('AI 응답 검증 실패:', validationResult.error);
+      broadcastError(issueId, validationResult.error || 'AI 응답 형식이 올바르지 않습니다.');
       return createErrorResponse('AI_RESPONSE_INVALID', 500);
     }
 
-    const args = toolCalls[0].function.arguments as AIFunctionArguments;
-
-    if (!args.categories || args.categories.length === 0) {
-      broadcastError(issueId, 'AI 카테고리화에 실패했습니다.');
-      return createErrorResponse('AI_CATEGORIZATION_FAILED', 500);
-    }
-
-    // DB 업데이트 및 브로드캐스팅
-    const categoryPayloads = args.categories.map((category) => ({
-      title: category.categoryName,
-      ideaIds: category.ideaIds,
-    }));
-
-    console.log('[AI 카테고리화] 카테고리 페이로드:', JSON.stringify(categoryPayloads, null, 2));
+    const categoryPayloads = validationResult.data;
 
     const result = await categorizeService.categorizeAndBroadcast(issueId, categoryPayloads);
 
@@ -121,8 +101,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
     return createSuccessResponse(result);
   } catch (error) {
-    console.error('AI 카테고리화 실패:', error);
-
+    console.error('[AI 카테고리화] 에러 발생:', error);
     broadcastError(issueId, '서버 내부 오류로 AI 분류에 실패했습니다.');
 
     return createErrorResponse('AI_CATEGORIZATION_FAILED', 500);
