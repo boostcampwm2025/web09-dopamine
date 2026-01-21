@@ -29,7 +29,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         {/* 프로젝트 헤더 */}
         <S.ProjectTitleHeader>
           <S.DateSection>{formatRelativeTime(created_at)}</S.DateSection>
-          <ProjectEditButton currentTitle={title} currentDescription={description ?? undefined} />
+          <ProjectEditButton projectId={id} currentTitle={title} currentDescription={description ?? undefined} />
         </S.ProjectTitleHeader>
         {/* 프로젝트 제목 */}
         <S.ProjectTitleWrapper>

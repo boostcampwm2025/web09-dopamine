@@ -3,42 +3,47 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
-import { useQuickStartMutation } from '@/app/(with-sidebar)/issue/hooks';
+import { useUpdateProjectMutation } from '@/app/project/hooks/use-project-mutation';
 import LoadingOverlay from '@/components/loading-overlay/loading-overlay';
-import { generateRandomNickname } from '@/lib/utils/nickname';
 import { useModalStore } from '../use-modal-store';
 import * as S from './project-edit-modal.styles';
 
 interface EditProjectModalProps {
+  projectId: string;
   currentTitle?: string;
   currentDescription?: string;
 }
 
-export default function EditProjectModal({ currentTitle, currentDescription }: EditProjectModalProps) {
+export default function EditProjectModal({ projectId, currentTitle, currentDescription }: EditProjectModalProps) {
   const router = useRouter();
-  const [title, setTitle] = useState(currentTitle);
-  const [description, setDescription] = useState(currentDescription);
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
   const { closeModal } = useModalStore();
 
-  const { mutate, isPending } = useQuickStartMutation();
+  const { mutate, isPending } = useUpdateProjectMutation();
 
   const handleQuickStart = async () => {
-    if (!title?.trim()) {
-      toast.error('프로젝트 이름을 입력해주세요.');
+    const nextTitle = title.trim() || currentTitle?.trim() || '';
+    const nextDescription = description.trim() || currentDescription?.trim();
+
+    if (!nextTitle) {
+      toast.error('프로젝트 제목을 입력해주세요.');
       return;
     }
 
-    //To Do 백엔드 로직 연결
-
-    // mutate(
-    //   { title, description, },
-    //   {
-    //     onSuccess: (newIssue) => {
-    //       closeModal();
-    //       router.push(`/project/${newIssue.issueId}`);
-    //     },
-    //   },
-    // );
+    mutate(
+      {
+        id: projectId,
+        title: nextTitle,
+        description: nextDescription || undefined,
+      },
+      {
+        onSuccess: () => {
+          closeModal();
+          router.refresh();
+        },
+      },
+    );
   };
 
   return (
@@ -50,7 +55,7 @@ export default function EditProjectModal({ currentTitle, currentDescription }: E
             <S.Input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder={title || '프로젝트 제목을 입력해주세요.'}
+              placeholder={currentTitle ?? '프로젝트 제목을 입력해주세요.'}
             />
           </S.InputWrapper>
           <S.InputWrapper>
@@ -58,7 +63,7 @@ export default function EditProjectModal({ currentTitle, currentDescription }: E
             <S.Input
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder={description || '프로젝트 설명을 입력해주세요.'}
+              placeholder={currentDescription ?? '프로젝트 설명을 입력해주세요.'}
             />
           </S.InputWrapper>
         </S.InfoContainer>

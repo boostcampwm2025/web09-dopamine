@@ -6,17 +6,24 @@ import { useModalStore } from '@/components/modal/use-modal-store';
 import * as S from '@/app/(with-sidebar)/project/[id]/page.styles';
 
 interface ProjectEditButtonProps {
+  projectId: string;
   currentTitle: string;
   currentDescription?: string;
 }
 
-export default function ProjectEditButton({ currentTitle, currentDescription }: ProjectEditButtonProps) {
+export default function ProjectEditButton({ projectId, currentTitle, currentDescription }: ProjectEditButtonProps) {
   const { openModal } = useModalStore();
 
   const handleEditClick = () => {
     openModal({
       title: '프로젝트 이름 수정',
-      content: <ProjectEditModal currentTitle={currentTitle} currentDescription={currentDescription} />,
+      content: (
+        <ProjectEditModal
+          projectId={projectId}
+          currentTitle={currentTitle}
+          currentDescription={currentDescription}
+        />
+      ),
       closeOnOverlayClick: true,
       hasCloseButton: true,
     });
