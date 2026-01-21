@@ -5,6 +5,7 @@ import SidebarItem from '@/components/sidebar/sidebar-item';
 import * as S from '@/components/sidebar/sidebar.styles';
 import { ISSUE_STATUS, MEMBER_ROLE } from '@/constants/issue';
 import { useIssueData, useIssueId } from '../../hooks';
+import { useIssueStore } from '../../store/use-issue-store';
 import IssueGraphLink from './issue-graph-link';
 import NewIssueButton from './new-issue-button';
 
@@ -19,54 +20,67 @@ const ISSUE_LIST = [
 export default function IssueSidebar() {
   const issueId = useIssueId();
   const { isQuickIssue, members } = useIssueData(issueId);
+  const { onlineMemberIds } = useIssueStore();
 
   const sortedMembers = useMemo(() => {
     return [...members].sort((a, b) => {
       if (a.role !== b.role) {
         return a.role === MEMBER_ROLE.OWNER ? -1 : 1;
       }
-      return Number(b.isConnected) - Number(a.isConnected);
+
+      const isAOnline = onlineMemberIds.includes(a.id);
+      const isBOnline = onlineMemberIds.includes(b.id);
+
+      if (isAOnline !== isBOnline) {
+        return Number(isBOnline) - Number(isAOnline);
+      }
+      return a.displayName.localeCompare(b.displayName);
     });
-  }, [members]);
+  }, [members, onlineMemberIds]);
 
   return (
     <Sidebar>
       {!isQuickIssue && (
         <>
           <IssueGraphLink />
-          <div>
-            <S.SidebarTitle>
-              <span>ISSUE LIST</span>
-              <NewIssueButton />
-            </S.SidebarTitle>
-            <S.SidebarList>
-              {ISSUE_LIST.map((issue) => (
-                <SidebarItem
-                  key={issue.title}
-                  title={issue.title}
-                  href={issue.href}
-                  status={issue.status}
-                />
-              ))}
-            </S.SidebarList>
-          </div>
+          <S.SidebarTitle>
+            <span>ISSUE LIST</span>
+            <NewIssueButton />
+          </S.SidebarTitle>
+          <S.SidebarList>
+            {ISSUE_LIST.map((issue) => (
+              <SidebarItem
+                key={issue.title}
+                title={issue.title}
+                href={issue.href}
+                status={issue.status}
+              />
+            ))}
+          </S.SidebarList>
         </>
       )}
 
-      <div>
-        <S.SidebarTitle>MEMBER LIST</S.SidebarTitle>
-        <S.SidebarList>
-          {sortedMembers.map((user) => (
+      <S.SidebarTitle>
+        MEMBER LIST
+        <span>
+          ({onlineMemberIds.length}/{sortedMembers.length})
+        </span>
+      </S.SidebarTitle>
+
+      <S.SidebarList>
+        {sortedMembers.map((user) => {
+          const isOnline = onlineMemberIds.includes(user.id);
+          return (
             <MemberSidebarItem
               key={user.displayName}
               id={user.id}
               name={user.displayName}
               role={user.role}
-              isConnected={user.isConnected}
+              isConnected={isOnline}
             />
-          ))}
-        </S.SidebarList>
-      </div>
+          );
+        })}
+      </S.SidebarList>
     </Sidebar>
   );
 }

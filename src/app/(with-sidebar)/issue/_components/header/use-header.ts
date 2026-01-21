@@ -55,9 +55,6 @@ export function useHeader({ issueId }: UseHeaderParams) {
       // API 호출하여 SSE 브로드캐스팅
       const response = await fetch(`/api/issues/${issueId}/close-modal`, {
         method: 'POST',
-        headers: {
-          'x-user-id': userId,
-        },
       });
 
       if (!response.ok) {

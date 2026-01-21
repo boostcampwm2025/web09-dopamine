@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect } from 'react';
+import { signIn, useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { signIn, useSession } from 'next-auth/react';
 import styled from '@emotion/styled';
 import Background from '@/components/background/background';
 import CreateIssueModal from '@/components/modal/issue-create-modal/issue-create-modal';

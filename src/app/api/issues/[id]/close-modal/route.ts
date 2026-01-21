@@ -4,6 +4,7 @@ import { SSE_EVENT_TYPES } from '@/constants/sse-events';
 import { issueMemberRepository } from '@/lib/repositories/issue-member.repository';
 import { broadcast } from '@/lib/sse/sse-service';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
+import { getUserIdFromRequest } from '@/lib/utils/cookie';
 
 export async function POST(
   req: NextRequest,
@@ -12,7 +13,7 @@ export async function POST(
   const { id: issueId } = await params;
 
   // userId 추출
-  const userId = req.headers.get('x-user-id');
+  const userId = getUserIdFromRequest(req, issueId);
 
   if (!userId) {
     return createErrorResponse('USER_ID_REQUIRED', 401);
@@ -44,7 +45,7 @@ export async function DELETE(
   const { id: issueId } = await params;
 
   // userId 추출
-  const userId = req.headers.get('x-user-id');
+  const userId = getUserIdFromRequest(req, issueId);
 
   if (!userId) {
     return createErrorResponse('USER_ID_REQUIRED', 401);
@@ -77,7 +78,7 @@ export async function PATCH(
   const { memo } = await req.json();
 
   // userId 추출
-  const userId = req.headers.get('x-user-id');
+  const userId = getUserIdFromRequest(req, issueId);
 
   if (!userId) {
     return createErrorResponse('USER_ID_REQUIRED', 401);

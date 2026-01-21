@@ -1,3 +1,4 @@
+import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 import { IssueRole } from '@prisma/client';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
@@ -8,6 +9,7 @@ import { createAnonymousUser } from '@/lib/repositories/user.repository';
 import { issueMemberService } from '@/lib/services/issue-member.service';
 import { broadcast } from '@/lib/sse/sse-service';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
+import { setUserIdCookie } from '@/lib/utils/cookie';
 
 export async function GET(
   req: NextRequest,
@@ -69,6 +71,8 @@ export async function POST(
         userId: user.id,
       };
     });
+
+    await setUserIdCookie(issueId, result.userId);
 
     broadcast({
       issueId,

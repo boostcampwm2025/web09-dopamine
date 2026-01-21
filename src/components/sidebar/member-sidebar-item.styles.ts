@@ -1,5 +1,4 @@
 import styled from '@emotion/styled';
-import { MEMBER_ROLE } from '@/constants/issue';
 import { theme } from '@/styles/theme';
 
 export const MemberItemButton = styled.button<{ hasOnClick?: boolean }>`
