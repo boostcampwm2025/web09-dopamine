@@ -1,5 +1,5 @@
 import { topicService } from '@/lib/services/topic.service';
-import TopicCanvas from '../_components/issue-canvas/topic-canvas';
+import TopicCanvas from '../_components/topic-canvas/topic-canvas';
 
 export default async function TopicPage({ params }: { params: Promise<{ id: string }> }) {
   const { id: topicId } = await params;
