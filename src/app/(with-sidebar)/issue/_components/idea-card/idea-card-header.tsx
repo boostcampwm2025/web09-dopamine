@@ -10,6 +10,7 @@ import CommentWindow from '../comment-window/comment-window';
 import * as S from './idea-card.styles';
 
 interface IdeaCardHeaderProps {
+  issueId: string;
   ideaId: string;
   userId: string;
   isEditing: boolean;
@@ -27,6 +28,7 @@ interface IdeaCardHeaderProps {
 }
 
 export default function IdeaCardHeader({
+  issueId,
   ideaId,
   userId,
   isEditing,
@@ -124,6 +126,7 @@ export default function IdeaCardHeader({
       </S.Header>
       {isCommentOpen ? (
         <CommentWindow
+          issueId={issueId}
           ideaId={ideaId}
           userId={userId}
           initialPosition={commentPosition ?? undefined}
