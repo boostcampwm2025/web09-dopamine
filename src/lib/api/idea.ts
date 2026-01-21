@@ -31,11 +31,6 @@ export function getIdea(issueId: string, ideaId: string, userId?: string): Promi
     'Content-Type': 'application/json',
   };
 
-  // TODO: userId 서버에서 추론하도록 개선 필요
-  if (userId) {
-    headers['x-user-id'] = userId;
-  }
-
   return getAPIResponseData<Idea>({
     url: `/api/issues/${issueId}/idea/${ideaId}`,
     method: 'GET',

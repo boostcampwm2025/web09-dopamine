@@ -4,15 +4,16 @@ import { prisma } from '@/lib/prisma';
 import { ideaRepository } from '@/lib/repositories/idea.repository';
 import { broadcast } from '@/lib/sse/sse-service';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
+import { getUserIdFromRequest } from '@/lib/utils/cookie';
 
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string; ideaId: string }> },
 ) {
   try {
-    const { id, ideaId } = await params;
-    //TODO: userId 전달 방식 수정 필요
-    const userId = req.headers.get('x-user-id');
+    const { id: issueId, ideaId } = await params;
+
+    const userId = getUserIdFromRequest(req, issueId);
 
     const idea = await prisma.idea.findUnique({
       where: {
@@ -52,7 +53,6 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string; ideaId: string }> },
 ): Promise<NextResponse> {
   const { id: issueId, ideaId } = await params;
-  const { searchParams } = new URL(req.url);
 
   if (!ideaId) {
     return createErrorResponse('IDEA_ID_REQUIRED', 400);

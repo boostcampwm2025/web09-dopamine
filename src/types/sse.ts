@@ -16,7 +16,7 @@ export interface SSEManagerStats {
 
 export interface CreateStreamParams {
   issueId: string;
-  userId: string | null;
+  userId: string;
   signal: AbortSignal;
 }
 
