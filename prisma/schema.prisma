@@ -141,6 +141,8 @@ model ProjectInvitation {
   createdAt     DateTime @default(now())
   
   invitees     ProjectInvitee[]    
+
+  @@map("project_invitaions")
 }
 
 model ProjectInvitee {
@@ -155,6 +157,7 @@ model ProjectInvitee {
 
   @@unique([invitationId, email])
   @@index([email])
+  @@map("project_invitees")
 }
 
 model Topic {
