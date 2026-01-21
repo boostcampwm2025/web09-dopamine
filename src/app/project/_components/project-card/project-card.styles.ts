@@ -23,14 +23,6 @@ export const Card = styled(BaseCard)`
   position: relative;
 `;
 
-export const DeleteButton = styled.button`
-  position: absolute;
-  top: 24px;
-  right: 24px;
-  cursor: pointer;
-  z-index: 10;
-`;
-
 export const CardHeader = styled.div<{ hasIcon?: boolean }>`
   display: flex;
   flex-direction: column;
@@ -146,14 +138,4 @@ export const DeleteButton = styled.button`
   right: 24px;
   cursor: pointer;
   z-index: 10;
-  background: none;
-  border: none;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  
-  &:hover {
-    opacity: 0.7;
-  }
 `;

@@ -6,6 +6,7 @@ import * as S from './project-card.styles';
 import { useDeleteProjectMutation } from '@/app/project/hooks/use-project-mutation';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
+import { useSession } from 'next-auth/react';
 
 interface ProjectCardProps {
   id?: string;
