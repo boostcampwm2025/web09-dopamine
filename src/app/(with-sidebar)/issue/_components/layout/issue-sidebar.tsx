@@ -1,5 +1,5 @@
-import { useCallback, useMemo, useState } from 'react';
-import type { ChangeEvent, KeyboardEvent } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import type { ChangeEvent } from 'react';
 import MemberSidebarItem from '@/components/sidebar/member-sidebar-item';
 import Sidebar from '@/components/sidebar/sidebar';
 import SidebarItem from '@/components/sidebar/sidebar-item';
@@ -52,21 +52,21 @@ export default function IssueSidebar() {
     setSearchValue(event.target.value);
   }, []);
 
-  const handleSearchKeyDown = useCallback(
-    (event: KeyboardEvent<HTMLInputElement>) => {
-      if (event.key !== 'Enter') return;
-      event.preventDefault();
+  useEffect(() => {
+    const debounceId = window.setTimeout(() => {
       setSearchTerm(searchValue);
-    },
-    [searchValue],
-  );
+    }, 300);
+
+    return () => {
+      window.clearTimeout(debounceId);
+    };
+  }, [searchValue]);
 
   return (
     <Sidebar
       inputProps={{
         value: searchValue,
         onChange: handleSearchChange,
-        onKeyDown: handleSearchKeyDown,
       }}
     >
       {!isQuickIssue && (
