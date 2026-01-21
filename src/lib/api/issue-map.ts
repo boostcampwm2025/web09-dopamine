@@ -2,8 +2,8 @@ import type { IssueConnection, IssueMapData, IssueNode } from '@/types/issue';
 import getAPIResponseData from '../utils/api-response';
 
 type CreateConnectionPayload = {
-  issueAId: string;
-  issueBId: string;
+  sourceIssueId: string;
+  targetIssueId: string;
   sourceHandle: string | null;
   targetHandle: string | null;
 };
