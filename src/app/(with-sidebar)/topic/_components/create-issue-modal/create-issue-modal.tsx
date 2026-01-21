@@ -20,7 +20,7 @@ export default function CreateIssueModal() {
     onSuccess: (data) => {
       toast.success('이슈가 생성되었습니다!');
       closeModal();
-      router.push(`/issue/${data.issueId}`);
+      router.push(`/topic/${topicId}/issue/${data.issueId}`);
     },
     onError: (error: Error) => {
       toast.error(error.message || '이슈 생성에 실패했습니다.');
