@@ -1,7 +1,7 @@
 'use client';
 
-import { signIn } from 'next-auth/react';
 import { Session } from 'next-auth';
+import { signIn } from 'next-auth/react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import Background from '@/components/background/background';
@@ -25,17 +25,19 @@ export default function HomePage({ session }: HomePageProps) {
   const { openModal } = useModalStore();
 
   const handleStart = () => {
-    if (session) {
-      router.push('/project');
-      return;
-    }
-
     openModal({
       title: '이슈 생성',
       content: <CreateIssueModal />,
       closeOnOverlayClick: true,
       hasCloseButton: true,
     });
+  };
+
+  const handleGoToProject = () => {
+    if (session) {
+      router.push('/project');
+      return;
+    }
   };
 
   const handleSocialLogin = (provider: string) => {
@@ -45,6 +47,35 @@ export default function HomePage({ session }: HomePageProps) {
       // TODO: 다른 로그인 제공자 구현
       alert('준비 중인 기능입니다.');
     }
+  };
+
+  const renderProjectOrSocialLogin = () => {
+    return (
+      <>
+        {session ? (
+          <S.StartButton
+            background="#3B82F6"
+            onClick={handleGoToProject}
+          >
+            프로젝트로 이동
+          </S.StartButton>
+        ) : (
+          <S.SocialLoginContainer>
+            {SOCIAL_ICONS.map((icon) => (
+              <Image
+                key={icon.alt}
+                src={icon.src}
+                alt={icon.alt}
+                width={50}
+                height={50}
+                style={{ cursor: 'pointer' }}
+                onClick={() => handleSocialLogin(icon.provider)}
+              />
+            ))}
+          </S.SocialLoginContainer>
+        )}
+      </>
+    );
   };
 
   return (
@@ -78,28 +109,15 @@ export default function HomePage({ session }: HomePageProps) {
               background="#F0FDF4"
             >
               Murphy
-            </S.Highlight>{' '}
+            </S.Highlight>
             가 가장 스마트한
           </S.Text>
           <S.Text>길을 안내합니다.</S.Text>
         </S.SubTitleContainer>
-        <S.BtnContainer>
+        <S.ButtonContainer>
+          {renderProjectOrSocialLogin()}
           <S.StartButton onClick={handleStart}>빠르게 시작하기</S.StartButton>
-        </S.BtnContainer>
-        <S.HorizontalLine />
-        <S.SocialLoginContainer>
-          {SOCIAL_ICONS.map((icon) => (
-            <Image
-              key={icon.alt}
-              src={icon.src}
-              alt={icon.alt}
-              width={50}
-              height={50}
-              style={{ cursor: 'pointer' }}
-              onClick={() => handleSocialLogin(icon.provider)}
-            />
-          ))}
-        </S.SocialLoginContainer>
+        </S.ButtonContainer>
       </S.Container>
     </>
   );

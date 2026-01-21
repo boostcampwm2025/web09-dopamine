@@ -59,17 +59,11 @@ export const Text = styled.p`
   line-height: 32px;
 `;
 
-export const BtnContainer = styled(BaseFlex)`
-  margin-top: 30px;
-  flex-direction: row;
-  gap: 8px;
-`;
-
-export const StartButton = styled.button`
+export const StartButton = styled.button<{ background?: string }>`
   width: 200px;
   height: 60px;
   border-radius: 16px;
-  background: #00a94f;
+  background: ${({ background }) => background || '#00a94f'};
   color: #fff;
   font-size: 24px;
   font-weight: 600;
@@ -77,12 +71,12 @@ export const StartButton = styled.button`
 `;
 
 export const SocialLoginContainer = styled(BaseFlex)`
+  margin-top: 20px;
   flex-direction: row;
   gap: 50px;
 `;
 
-export const HorizontalLine = styled.div`
-  width: 450px;
-  height: 1px;
-  background: #9a9a9a;
+export const ButtonContainer = styled(BaseFlex)`
+  margin-top: 10px;
+  gap: 40px;
 `;
