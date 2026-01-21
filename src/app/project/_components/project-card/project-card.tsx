@@ -3,6 +3,9 @@
 import { useModalStore } from '@/components/modal/use-modal-store';
 import ProjectCreateModal from '../project-create-modal/project-create-modal';
 import * as S from './project-card.styles';
+import { useDeleteProjectMutation } from '../../hooks/use-project-mutation';
+import toast from 'react-hot-toast';
+import Image from 'next/image';
 
 interface ProjectCardProps {
   id?: string;
@@ -13,13 +16,14 @@ interface ProjectCardProps {
 }
 
 export function ProjectCard({
-  id, // TODO: 프로젝트 상세 페이지 이동 시 사용 예정
+  id,
   title,
   icon,
   memberCount,
   isCreateCard = false,
 }: ProjectCardProps) {
   const { openModal } = useModalStore();
+  const {mutate: deleteProject} = useDeleteProjectMutation();
 
   const handleCreateClick = () => {
     openModal({
@@ -27,6 +31,22 @@ export function ProjectCard({
       content: <ProjectCreateModal />,
       hasCloseButton: true,
     });
+  };
+
+    const handleDeleteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (confirm('정말 이 프로젝트를 삭제하시겠습니까?')) {
+      if (id) {
+        deleteProject({ id },{
+          onSuccess: () => {
+            toast.success('프로젝트가 삭제되었습니다.');
+          },
+          onError: () => {
+            toast.error('프로젝트 삭제에 실패했습니다.');
+          }
+        });
+      }
+    }
   };
 
   if (isCreateCard) {
@@ -40,6 +60,14 @@ export function ProjectCard({
 
   return (
     <S.Card>
+       <S.DeleteButton onClick={handleDeleteClick} title="프로젝트 삭제">
+        <Image
+          src="/close.svg"
+          alt="삭제"
+          width={14}
+          height={14}
+        />
+      </S.DeleteButton>
       <S.CardHeader hasIcon={!!icon}>
         {icon && <S.Icon>{icon}</S.Icon>}
         <S.Title>{title}</S.Title>
