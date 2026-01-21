@@ -37,3 +37,5 @@ export interface ProjectwithTopic {
     role: 'OWNER' | 'MEMBER';
   }[];
 }
+
+export const maxTitleLength = 30;
