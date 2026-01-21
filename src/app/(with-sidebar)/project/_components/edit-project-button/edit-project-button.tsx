@@ -5,13 +5,13 @@ import ProjectEditModal from '@/components/modal/project-edit-modal/project-edit
 import { useModalStore } from '@/components/modal/use-modal-store';
 import * as S from '@/app/(with-sidebar)/project/[id]/page.styles';
 
-interface ProjectEditButtonProps {
+interface EditProjectProps {
   projectId: string;
   currentTitle: string;
   currentDescription?: string;
 }
 
-export default function ProjectEditButton({ projectId, currentTitle, currentDescription }: ProjectEditButtonProps) {
+export default function EditProject({ projectId, currentTitle, currentDescription }: EditProjectProps) {
   const { openModal } = useModalStore();
 
   const handleEditClick = () => {
