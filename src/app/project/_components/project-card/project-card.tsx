@@ -11,12 +11,12 @@ import ProjectCreateModal from '../project-create-modal/project-create-modal';
 import * as S from './project-card.styles';
 
 interface ProjectCardProps {
-  id: string;
-  title: string;
+  id?: string;
+  title?: string;
   icon?: string;
-  memberCount: number;
+  memberCount?: number;
   isCreateCard?: boolean;
-  ownerId: string;
+  ownerId?: string;
 }
 
 export function ProjectCard({
@@ -40,8 +40,8 @@ export function ProjectCard({
       title: '멤버 초대하기',
       content: (
         <InviteProjectModal
-          id={id}
-          title={title}
+          id={id!}
+          title={title!}
         />
       ),
       hasCloseButton: true,
