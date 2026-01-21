@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import * as S from './topic-header.styles';
+import CreateIssueButton from '../create-issue-button/create-issue-button';
 
 export default function TopicHeader() {
   return (
@@ -15,6 +16,7 @@ export default function TopicHeader() {
         />
         토픽 제목
       </S.LeftSection>
+      <CreateIssueButton />
     </S.HeaderContainer>
   );
 }
