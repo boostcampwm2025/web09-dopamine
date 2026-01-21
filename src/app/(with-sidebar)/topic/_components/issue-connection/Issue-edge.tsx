@@ -85,14 +85,6 @@ export default function IssueEdge({
           />
         </button>
       </EdgeToolbar>
-      <circle
-        cx={targetX}
-        cy={targetY}
-        fill={theme.colors.white}
-        r={3}
-        stroke={EDGE_STYLE.stroke}
-        strokeWidth={STROKE_WIDTH}
-      />
     </>
   );
 }
