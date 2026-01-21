@@ -5,7 +5,10 @@ interface Invitee {
 }
 
 interface CreateInvitationResponse {
-  data: { token: string; projectId: string; expiresAt: string; invitees: Invitee[] };
+  token: string;
+  projectId: string;
+  expiresAt: string;
+  invitees: Invitee[];
 }
 
 export const createInvitation = (projectId: string, emails: string[]) => {

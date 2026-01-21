@@ -91,8 +91,8 @@ export default function InviteProjectModal({ id, title }: InviteModalProps) {
     }
 
     createToken.mutate(tags, {
-      onSuccess: (response) => {
-        const { token } = response.data;
+      onSuccess: (data) => {
+        const { token } = data;
         setCode(token);
         handleCopy(token);
       },
