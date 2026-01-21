@@ -20,6 +20,7 @@ export const Card = styled(BaseCard)`
   justify-content: space-between;
   gap: 20px;
   border: 1px solid ${theme.colors.gray[200]};
+  position: relative;
 `;
 
 export const CardHeader = styled.div<{ hasIcon?: boolean }>`
@@ -129,4 +130,12 @@ export const CreateText = styled.p`
   color: ${theme.colors.gray[300]};
   margin: 0;
   font-weight: ${theme.font.weight.bold};
+`;
+
+export const DeleteButton = styled.button`
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  cursor: pointer;
+  z-index: 10;
 `;

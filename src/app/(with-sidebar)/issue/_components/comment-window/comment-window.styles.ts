@@ -4,6 +4,8 @@ import { theme } from '@/styles/theme';
 export const Window = styled.section`
   position: absolute;
   z-index: 1100;
+  width: 420px;
+  height: 500px;
   min-width: 260px;
   max-width: calc(100vw - 32px);
   max-height: min(800px, calc(100vh - 32px));
@@ -27,9 +29,10 @@ export const Header = styled.header`
 `;
 
 export const Title = styled.span`
-  font-size: ${theme.font.size.medium};
+  font-size: ${theme.font.size.large};
   font-weight: ${theme.font.weight.semibold};
   color: ${theme.colors.gray[800]};
+  padding-left: 12px;
 `;
 
 export const Controls = styled.div`
@@ -81,6 +84,13 @@ export const CommentList = styled.div`
   flex-direction: column;
   gap: 12px;
   overflow: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
 `;
 
 export const CommentItem = styled.div`
@@ -97,7 +107,7 @@ export const CommentHeader = styled.div`
 `;
 
 export const CommentMeta = styled.div`
-  font-size: ${theme.font.size.small};
+  font-size: ${theme.font.size.medium};
   color: ${theme.colors.gray[500]};
 `;
 
@@ -170,26 +180,21 @@ export const EditInput = styled.textarea`
   }
 `;
 
-export const ActionButton = styled.button`
-  padding: 6px 10px;
-  border-radius: ${theme.radius.small};
-  border: 1px solid ${theme.colors.gray[200]};
-  background: ${theme.colors.white};
-  color: ${theme.colors.gray[700]};
+export const Btn = styled.button<{ $variant?: 'default' | 'danger' }>`
+  border: 1px solid
+    ${({ $variant }) => ($variant === 'danger' ? theme.colors.red[400] : theme.colors.gray[200])};
+  background: ${({ $variant }) =>
+    $variant === 'danger' ? theme.colors.red[50] : theme.colors.white};
+  color: ${({ $variant }) =>
+    $variant === 'danger' ? theme.colors.red[600] : theme.colors.gray[700]};
   font-size: ${theme.font.size.small};
+  font-weight: ${theme.font.weight.semibold};
   cursor: pointer;
-
+  padding: 4px 8px;
+  border-radius: 8px;
   &:hover {
-    background: ${theme.colors.gray[100]};
-  }
-`;
-
-export const DangerButton = styled(ActionButton)`
-  border-color: ${theme.colors.red[400]};
-  color: ${theme.colors.red[600]};
-
-  &:hover {
-    background: ${theme.colors.red[50]};
+    background: ${({ $variant }) =>
+      $variant === 'danger' ? theme.colors.red[100] : theme.colors.gray[100]};
   }
 `;
 
@@ -226,15 +231,6 @@ export const ConfirmButton = styled.button`
   }
 `;
 
-export const ConfirmDangerButton = styled(ConfirmButton)`
-  border-color: ${theme.colors.red[400]};
-  color: ${theme.colors.red[600]};
-
-  &:hover {
-    background: ${theme.colors.red[50]};
-  }
-`;
-
 export const InputRow = styled.div`
   display: grid;
   grid-template-columns: 1fr auto;
@@ -245,10 +241,15 @@ export const InputRow = styled.div`
   padding: 10px 12px;
 `;
 
-export const Input = styled.input`
+export const Input = styled.textarea`
   padding: 10px 12px;
   border: none;
   font-size: ${theme.font.size.medium};
+  line-height: 1.5;
+  min-height: calc(1.5em + 20px);
+  max-height: calc(1.5em * 5 + 20px);
+  overflow-y: hidden;
+  resize: none;
 
   &:focus {
     outline: 2px solid ${theme.colors.blue[200]};

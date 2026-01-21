@@ -26,12 +26,9 @@ export const NodeContainer = styled.div<{ status: IssueStatus }>`
           outline: 3px solid ${theme.colors.blue[400]};
         `;
       case ISSUE_STATUS.VOTE:
-        return `
-          outline: 2px solid ${theme.colors.green[600]};
-        `;
       case ISSUE_STATUS.SELECT:
         return `
-          outline: 2px solid ${theme.colors.yellow[600]};
+          outline: 2px solid ${theme.colors.green[600]};
         `;
       case ISSUE_STATUS.CLOSE:
         return `
@@ -69,14 +66,10 @@ export const Badge = styled.div<{ status: IssueStatus }>`
           color: ${theme.colors.blue[600]};
         `;
       case ISSUE_STATUS.VOTE:
+      case ISSUE_STATUS.SELECT:
         return `
           background-color: ${theme.colors.green[100]};
           color: ${theme.colors.green[600]};
-        `;
-      case ISSUE_STATUS.SELECT:
-        return `
-          background-color: ${theme.colors.yellow[100]};
-          color: ${theme.colors.yellow[600]};
         `;
       case ISSUE_STATUS.CLOSE:
         return `

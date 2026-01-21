@@ -10,6 +10,7 @@ import * as S from './project-create-modal.styles';
 export default function ProjectCreateModal() {
   const router = useRouter();
   const [projectName, setProjectName] = useState('');
+  const [description, setDescription] = useState('');
   const { closeModal } = useModalStore();
   const { mutate, isPending } = useCreateProjectMutation();
 
@@ -20,7 +21,7 @@ export default function ProjectCreateModal() {
     }
 
     mutate(
-      { title: projectName },
+      { title: projectName, description },
       {
         onSuccess: (newProject) => {
           toast.success('프로젝트가 생성되었습니다!');
@@ -51,6 +52,16 @@ export default function ProjectCreateModal() {
             }}
             autoFocus
             disabled={isPending}
+          />
+        </S.InputWrapper>
+        <S.InputWrapper>
+          <S.InputTitle>설명 (선택)</S.InputTitle>
+          <S.Textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="프로젝트에 대한 간단한 설명을 입력하세요"
+            disabled={isPending}
+            rows={3}
           />
         </S.InputWrapper>
       </S.InfoContainer>
