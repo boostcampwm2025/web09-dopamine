@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import ProjectEditModal from '@/components/modal/project-edit-modal/project-edit-modal';
+import ProjectEditModal from '@/app/(with-sidebar)/project/_components/project-edit-modal/project-edit-modal';
 import { useModalStore } from '@/components/modal/use-modal-store';
 import * as S from '@/app/(with-sidebar)/project/[id]/page.styles';
 

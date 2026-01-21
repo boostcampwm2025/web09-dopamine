@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { useUpdateProjectMutation } from '@/app/project/hooks/use-project-mutation';
 import LoadingOverlay from '@/components/loading-overlay/loading-overlay';
-import { useModalStore } from '../use-modal-store';
+import { useModalStore } from '@/components/modal/use-modal-store';
 import * as S from './project-edit-modal.styles';
 
 interface EditProjectModalProps {
