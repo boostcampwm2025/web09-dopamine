@@ -1,7 +1,11 @@
+'use client';
+
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import * as S from './card.styles';
 
 interface CardProps {
+  id: string;
   variant?: 'header' | 'item';
   leftIcon: string;
   title: string;
@@ -12,6 +16,7 @@ interface CardProps {
 }
 
 const Card = ({
+  id,
   variant = 'header',
   leftIcon,
   title,
@@ -20,10 +25,16 @@ const Card = ({
   showArrow = false,
   onClick,
 }: CardProps) => {
+  const router = useRouter();
+
+  const goTopic = () => {
+    router.push(`/topic/${id}`);
+  };
+
   return (
     <S.CardContainer
       variant={variant}
-      onClick={onClick}
+      onClick={goTopic}
     >
       <S.LeftSection>
         <S.IconWrapper variant={variant}>
