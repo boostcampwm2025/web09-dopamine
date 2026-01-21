@@ -3,12 +3,13 @@ import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-help
 
 export async function POST(req: Request, { params }: { params: { projectId: string } }) {
   try {
+    const { projectId } = await params;
     const { emails } = await req.json();
 
     const token = crypto.randomUUID();
 
     const newInvitation = await InvitationRepository.createInvitation(
-      params.projectId,
+      projectId,
       token,
       emails,
     );
