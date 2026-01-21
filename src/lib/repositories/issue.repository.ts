@@ -44,3 +44,55 @@ export async function updateIssueStatus(
     },
   });
 }
+
+export async function findIssuesWithMapDataByTopicId(topicId: string) {
+  const issues = await prisma.issue.findMany({
+    where: {
+      topicId,
+      deletedAt: null,
+    },
+    select: {
+      id: true,
+      title: true,
+      status: true,
+      createdAt: true,
+      updatedAt: true,
+      issueNode: {
+        where: {
+          deletedAt: null,
+        },
+        select: {
+          id: true,
+          positionX: true,
+          positionY: true,
+        },
+      },
+    },
+  });
+
+  const connections = await prisma.issueConnection.findMany({
+    where: {
+      deletedAt: null,
+      issueA: {
+        topicId,
+        deletedAt: null,
+      },
+      issueB: {
+        topicId,
+        deletedAt: null,
+      },
+    },
+    select: {
+      id: true,
+      issueAId: true,
+      issueBId: true,
+      sourceHandle: true,
+      targetHandle: true,
+    },
+  });
+
+  return {
+    issues,
+    connections,
+  };
+}

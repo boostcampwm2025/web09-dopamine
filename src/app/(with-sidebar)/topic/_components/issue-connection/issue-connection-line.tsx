@@ -1,15 +1,17 @@
-import React from 'react';
 import { useConnection } from '@xyflow/react';
 import { EDGE_STYLE } from '@/constants/topic';
+import { theme } from '@/styles/theme';
 
-interface TopicEdgeProps {
+interface IssueConnectionLineProps {
   fromX: number;
   fromY: number;
   toX: number;
   toY: number;
 }
 
-export default function topicEdge({ fromX, fromY, toX, toY }: TopicEdgeProps) {
+const STROKE_WIDTH = 1.5;
+
+export default function IssueConnectionLine({ fromX, fromY, toX, toY }: IssueConnectionLineProps) {
   const { fromHandle } = useConnection();
 
   if (!fromHandle) return null;
@@ -27,10 +29,10 @@ export default function topicEdge({ fromX, fromY, toX, toY }: TopicEdgeProps) {
       <circle
         cx={toX}
         cy={toY}
-        fill="#fff"
+        fill={theme.colors.white}
         r={3}
         stroke={EDGE_STYLE.stroke}
-        strokeWidth={1.5}
+        strokeWidth={STROKE_WIDTH}
       />
     </g>
   );
