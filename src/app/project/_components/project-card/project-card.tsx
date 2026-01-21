@@ -35,7 +35,7 @@ export function ProjectCard({
 
     const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (confirm('정말 이 프로젝트를 삭제하시겠습니까?')) {
+    if (confirm('프로젝트를 삭제하면 모든 토픽, 이슈, 멤버 정보도 같이 삭제됩니다.\n정말 삭제하시겠습니까?')) {
       if (id) {
         deleteProject({ id },{
           onSuccess: () => {
