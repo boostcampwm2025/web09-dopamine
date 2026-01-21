@@ -18,10 +18,10 @@ export default function Sidebar({ children, inputProps }: SidebarProps) {
           width={16}
           height={16}
         />
+        <S.SrOnly htmlFor={inputId}>Search</S.SrOnly>
         <S.SidebarInput
           id={inputId}
           type="text"
-          aria-label="Search"
           {...inputProps}
         />
       </S.InputWrapper>
