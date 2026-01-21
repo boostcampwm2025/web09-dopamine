@@ -2,6 +2,7 @@ import Image from 'next/image';
 import { redirect } from 'next/navigation';
 import * as projectRepository from '@/lib/repositories/project.repository';
 import Card from '../_components/card/card';
+import ProjectEditButton from '../_components/project-edit-button/project-edit-button';
 import CreateTopicButton from '../_components/create-topic-button/create-topic-button';
 import * as S from './page.styles';
 import { formatRelativeTime } from '@/lib/utils/time';
@@ -28,14 +29,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         {/* 프로젝트 헤더 */}
         <S.ProjectTitleHeader>
           <S.DateSection>{formatRelativeTime(created_at)}</S.DateSection>
-          <S.EditIconWrapper>
-            <Image
-              src="/edit.svg"
-              alt="편집"
-              width={16}
-              height={16}
-            />
-          </S.EditIconWrapper>
+          <ProjectEditButton currentTitle={title} currentDescription={description ?? undefined} />
         </S.ProjectTitleHeader>
         {/* 프로젝트 제목 */}
         <S.ProjectTitleWrapper>
