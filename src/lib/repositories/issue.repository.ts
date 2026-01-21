@@ -4,9 +4,16 @@ import { PrismaTransaction } from '@/types/prisma';
 
 type PrismaClientOrTx = PrismaTransaction | typeof prisma;
 
-export async function createIssue(tx: PrismaTransaction, title: string) {
+export async function createIssue(
+  tx: PrismaTransaction,
+  title: string,
+  topicId?: string,
+) {
   return tx.issue.create({
-    data: { title },
+    data: {
+      title,
+      ...(topicId && { topicId }),
+    },
   });
 }
 
