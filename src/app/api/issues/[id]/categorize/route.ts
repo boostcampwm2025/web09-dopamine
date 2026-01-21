@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import aiRequest from '@/constants/ai-request';
+import { aiRequest, tools } from '@/constants/ai-request';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
 import { ideaRepository } from '@/lib/repositories/idea.repository';
 import { findIssueById } from '@/lib/repositories/issue.repository';
@@ -8,6 +8,15 @@ import { broadcast } from '@/lib/sse/sse-service';
 import { parseAiResponse, validateAIResponse } from '@/lib/utils/ai-response-validator';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 import { broadcastError } from '@/lib/utils/broadcast-helpers';
+
+interface AICategoryResponse {
+  categoryName: string;
+  ideaIds: string[];
+}
+
+interface AIFunctionArguments {
+  categories: AICategoryResponse[];
+}
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id: issueId } = await params;
@@ -42,6 +51,13 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         [아이디어 목록]
         ${ideas.map((i) => `- (${i.id}) ${i.content}`).join('\n')}`;
 
+    const toolChoice = {
+      type: 'function',
+      function: {
+        name: 'classify_ideas',
+      },
+    };
+
     const res = await fetch('https://clovastudio.stream.ntruss.com/v3/chat-completions/HCX-005', {
       method: 'POST',
       headers: {
@@ -54,40 +70,44 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         messages: [
           {
             role: 'system',
-            content: aiRequest.prompt.trim(),
+            content:
+              '너는 협업 아이디어를 분류하는 AI다. 아이디어를 의미와 목적이 유사한 것끼리 묶어 카테고리로 분류하라. 사소한 차이로 카테고리를 분리하지 말고, 가능한 한 통합하라. 각 카테고리는 최소 2개 이상의 아이디어를 포함해야 하며, 전체 카테고리 수는 2개 이상 8개 이하로 제한한다.',
           },
           {
             role: 'user',
             content: userContent,
           },
         ],
+        tools,
+        toolChoice,
         maxTokens: aiRequest.maxTokens,
         temperature: aiRequest.temperature,
       }),
     });
 
     const data = await res.json();
-    const parsedData = parseAiResponse(data.result.message.content);
 
-    // validate
-    // const inputIdeaIds = ideas.map((i) => i.id);
-    // const validation = validateAIResponse(data, inputIdeaIds);
+    const toolCalls = data.result.message.toolCalls;
+    if (!toolCalls || toolCalls.length === 0) {
+      console.error('AI 응답에 toolCalls가 없습니다:', data);
+      broadcastError(issueId, 'AI 응답 형식이 올바르지 않습니다.');
+      return createErrorResponse('AI_RESPONSE_INVALID', 500);
+    }
 
-    // if (!validation.isValid) {
-    //   broadcastError(issueId, 'AI 응답 검증에 실패했습니다.');
-    //   return createErrorResponse('AI_RESPONSE_VALIDATION_FAILED', 500);
-    // }
+    const args = toolCalls[0].function.arguments as AIFunctionArguments;
 
-    if (!parsedData || parsedData === null) {
+    if (!args.categories || args.categories.length === 0) {
       broadcastError(issueId, 'AI 카테고리화에 실패했습니다.');
       return createErrorResponse('AI_CATEGORIZATION_FAILED', 500);
     }
 
     // DB 업데이트 및 브로드캐스팅
-    const categoryPayloads = parsedData.categories.map((category) => ({
-      title: category.title,
+    const categoryPayloads = args.categories.map((category) => ({
+      title: category.categoryName,
       ideaIds: category.ideaIds,
     }));
+
+    console.log('[AI 카테고리화] 카테고리 페이로드:', JSON.stringify(categoryPayloads, null, 2));
 
     const result = await categorizeService.categorizeAndBroadcast(issueId, categoryPayloads);
 
