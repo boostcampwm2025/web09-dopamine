@@ -24,7 +24,7 @@ export const Textarea = styled.textarea`
   border-radius: ${theme.radius.small};
   font-size: ${theme.font.size.medium};
   color: ${theme.colors.gray[900]};
-  resize: vertical;
+  resize: none;
   font-family: inherit;
   outline: none;
   transition: border-color 0.2s;
