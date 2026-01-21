@@ -69,27 +69,4 @@ export const issueMemberRepository = {
       },
     });
   },
-
-  async findMembersByNickname(issueId: string, nickname: string) {
-    return prisma.issueMember.findMany({
-      where: {
-        issueId,
-        deletedAt: null,
-        user: {
-          displayName: {
-            contains: nickname,
-          },
-        },
-      },
-      select: {
-        id: true,
-        user: {
-          select: {
-            id: true,
-            displayName: true,
-          },
-        },
-      },
-    });
-  },
 };
