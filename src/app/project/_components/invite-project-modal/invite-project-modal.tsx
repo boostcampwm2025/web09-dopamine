@@ -11,6 +11,7 @@ interface InviteModalProps {
 }
 export default function InviteProjectModal({ id, title }: InviteModalProps) {
   const [tags, setTags] = useState<string[]>([]);
+  const [code, setCode] = useState('');
   const [inputValue, setInputValue] = useState('');
   const { closeModal } = useModalStore();
 
@@ -36,6 +37,7 @@ export default function InviteProjectModal({ id, title }: InviteModalProps) {
 
     setTags([...tags, trimmedEmail]);
     setInputValue('');
+    if (code) setCode('');
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -49,9 +51,38 @@ export default function InviteProjectModal({ id, title }: InviteModalProps) {
 
   const handleRemoveTag = (index: number) => {
     setTags(tags.filter((_, i) => i !== index));
+    if (code) setCode('');
   };
 
-  const handleInvite = () => {};
+  const handleCopy = async (code: string) => {
+    // 1. 현재 도메인 + 프로젝트 경로 + 초대코드 조합
+    const fullUrl = `${window.location.origin}/project/${id}?code=${code}`;
+
+    try {
+      // 2. 클립보드에 쓰기
+      await navigator.clipboard.writeText(fullUrl);
+      toast.success('초대 링크를 복사했습니다!');
+    } catch (err) {
+      console.error('복사 실패:', err);
+      toast.error('초대 링크를 클립보드에 복사할 수 없습니다.');
+    }
+  };
+
+  const handleInvite = async () => {
+    if (inputValue.trim()) {
+      toast.error('입력 중인 이메일이 있습니다!');
+      return;
+    }
+
+    if (tags.length === 0) {
+      toast.error('이메일을 입력해주세요!');
+      return;
+    }
+    // 추후 백엔드에서 생성하는 방식으로 변경
+    const token = crypto.randomUUID();
+    setCode(token);
+    await handleCopy(token);
+  };
 
   const handleCancel = () => {
     closeModal();
@@ -92,6 +123,14 @@ export default function InviteProjectModal({ id, title }: InviteModalProps) {
       </S.InfoContainer>
 
       <S.Footer>
+        {code && (
+          <S.CopyLinkButton
+            type="button"
+            onClick={() => handleCopy(code)}
+          >
+            초대 링크 다시 복사하기
+          </S.CopyLinkButton>
+        )}
         <S.CancelButton
           type="button"
           onClick={handleCancel}
@@ -101,8 +140,9 @@ export default function InviteProjectModal({ id, title }: InviteModalProps) {
         <S.SubmitButton
           type="button"
           onClick={handleInvite}
+          disabled={!!code}
         >
-          {'초대 링크 생성'}
+          초대 링크 생성
         </S.SubmitButton>
       </S.Footer>
     </S.Container>

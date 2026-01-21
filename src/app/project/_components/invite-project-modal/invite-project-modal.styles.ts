@@ -42,3 +42,9 @@ export const TagListItem = styled.li`
     }
   }
 `;
+
+export const CopyLinkButton = styled.button`
+  &:hover {
+    color: ${theme.colors.gray[500]};
+  }
+`;
