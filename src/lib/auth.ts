@@ -23,9 +23,9 @@ export const authOptions: NextAuthOptions = {
     },
     async jwt({ token, user, trigger, session }) {
       if (trigger === 'update' && session?.name) {
-          token.name = session.name
+        token.name = session.name;
       }
-      
+
       if (user) {
         token.id = user.id;
       }
@@ -33,6 +33,6 @@ export const authOptions: NextAuthOptions = {
     },
   },
   pages: {
-    signIn: '/login',
+    signIn: '/',
   },
 };
