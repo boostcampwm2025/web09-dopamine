@@ -10,6 +10,7 @@ export const getProjectsByOwnerId = async (ownerId: string) => {
       id: true,
       title: true,
       description: true,
+      ownerId: true,
       createdAt: true,
       updatedAt: true,
       _count: {
@@ -31,6 +32,7 @@ export const getProjectsByOwnerId = async (ownerId: string) => {
     id: project.id,
     title: project.title,
     description: project.description,
+    ownerId: project.ownerId,
     memberCount: project._count.projectMembers,
     createdAt: project.createdAt,
     updatedAt: project.updatedAt,

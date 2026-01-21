@@ -8,7 +8,7 @@ export interface Project {
   deletedAt?: string | null;
 }
 
-export interface ProjectListItem extends Omit<Project, 'ownerId'> {
+export interface ProjectListItem extends Project {
   memberCount: number;
 }
 

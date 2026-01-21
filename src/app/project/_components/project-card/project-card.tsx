@@ -7,12 +7,15 @@ import { useDeleteProjectMutation } from '../../hooks/use-project-mutation';
 import toast from 'react-hot-toast';
 import Image from 'next/image';
 
+import { useSession } from 'next-auth/react';
+
 interface ProjectCardProps {
   id?: string;
   title?: string;
   icon?: string;
   memberCount?: number;
   isCreateCard?: boolean;
+  ownerId?: string;
 }
 
 export function ProjectCard({
@@ -21,9 +24,13 @@ export function ProjectCard({
   icon,
   memberCount,
   isCreateCard = false,
+  ownerId,
 }: ProjectCardProps) {
+  const { data: session } = useSession();
   const { openModal } = useModalStore();
   const {mutate: deleteProject} = useDeleteProjectMutation();
+
+  const isOwner = session?.user?.id === ownerId;
 
   const handleCreateClick = () => {
     openModal({
@@ -60,6 +67,7 @@ export function ProjectCard({
 
   return (
     <S.Card>
+      {isOwner && (
        <S.DeleteButton onClick={handleDeleteClick} title="프로젝트 삭제">
         <Image
           src="/close.svg"
@@ -68,6 +76,7 @@ export function ProjectCard({
           height={14}
         />
       </S.DeleteButton>
+      )}
       <S.CardHeader hasIcon={!!icon}>
         {icon && <S.Icon>{icon}</S.Icon>}
         <S.Title>{title}</S.Title>
