@@ -13,6 +13,34 @@ interface ValidationResult {
   data?: CategorizeResult;
 }
 
+export const parseAiResponse = (rawResponseData: string) => {
+  if (!rawResponseData) return { categories: [] };
+
+  // 1. 잡다한 기호 제거 및 줄 단위 분리
+  const cleanText = rawResponseData.replace(/```/g, '').trim();
+  const lines = cleanText.split('\n');
+
+  const categories = lines
+    .map((line: string) => {
+      // 2. 파이프(|) 기준 분리
+      const [titlePart, idsPart] = line.split('|');
+
+      if (!titlePart || !idsPart) return null;
+
+      // 3. 데이터 정제
+      return {
+        title: titlePart.trim(),
+        ideaIds: idsPart
+          .split(',')
+          .map((id: string) => id.trim())
+          .filter(Boolean),
+      };
+    })
+    .filter((item) => item !== null);
+
+  return { categories };
+};
+
 export function validateAIResponse(aiResponse: any, inputIdeaIds: string[]): ValidationResult {
   // AI 응답 존재 여부 확인
   const result = aiResponse.result?.message?.content;
@@ -24,10 +52,14 @@ export function validateAIResponse(aiResponse: any, inputIdeaIds: string[]): Val
     };
   }
 
+  // 정규식으로 마크다운 코드블록 제거
+  const cleanJsonString = result.replace(/^```json\s*|```\s*$/g, '').trim();
+
   // JSON 파싱
   let parsedResult: CategorizeResult;
+
   try {
-    parsedResult = JSON.parse(result);
+    parsedResult = JSON.parse(cleanJsonString);
   } catch (error) {
     return {
       isValid: false,
