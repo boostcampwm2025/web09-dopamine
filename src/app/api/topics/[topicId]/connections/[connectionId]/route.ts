@@ -9,9 +9,12 @@ export async function DELETE(
   const { connectionId } = await params;
 
   try {
-    await prisma.issueConnection.delete({
+    await prisma.issueConnection.update({
       where: {
         id: connectionId,
+      },
+      data: {
+        deletedAt: new Date(),
       },
     });
 
