@@ -3,10 +3,9 @@
 import { useModalStore } from '@/components/modal/use-modal-store';
 import ProjectCreateModal from '../project-create-modal/project-create-modal';
 import * as S from './project-card.styles';
-import { useDeleteProjectMutation } from '../../hooks/use-project-mutation';
-import toast from 'react-hot-toast';
+import { useDeleteProjectMutation } from '@/app/project/hooks/use-project-mutation';
 import Image from 'next/image';
-
+import toast from 'react-hot-toast';
 import { useSession } from 'next-auth/react';
 
 interface ProjectCardProps {
