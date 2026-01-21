@@ -15,6 +15,10 @@ export default function InviteProjectModal({ id, title }: InviteModalProps) {
   const [inputValue, setInputValue] = useState('');
   const { closeModal } = useModalStore();
 
+  const resetCode = () => {
+    if (code) setCode('');
+  };
+
   const addTag = (email: string) => {
     const trimmedEmail = email.trim();
     if (trimmedEmail === '') return;
@@ -37,7 +41,7 @@ export default function InviteProjectModal({ id, title }: InviteModalProps) {
 
     setTags([...tags, trimmedEmail]);
     setInputValue('');
-    if (code) setCode('');
+    resetCode();
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -51,7 +55,12 @@ export default function InviteProjectModal({ id, title }: InviteModalProps) {
 
   const handleRemoveTag = (index: number) => {
     setTags(tags.filter((_, i) => i !== index));
-    if (code) setCode('');
+    resetCode();
+  };
+
+  const handleResetTag = () => {
+    setTags([]);
+    resetCode();
   };
 
   const handleCopy = async (code: string) => {
@@ -96,7 +105,17 @@ export default function InviteProjectModal({ id, title }: InviteModalProps) {
           <S.Title>{title}</S.Title>
         </S.InputWrapper>
         <S.InputWrapper>
-          <S.InputTitle>이메일 입력 ({tags.length}/10)</S.InputTitle>
+          <S.EmailInputTitle>
+            이메일 입력 ({tags.length}/10){' '}
+            {tags.length > 0 && (
+              <S.ResetButton
+                type="button"
+                onClick={handleResetTag}
+              >
+                초기화
+              </S.ResetButton>
+            )}
+          </S.EmailInputTitle>
           <S.Input
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
