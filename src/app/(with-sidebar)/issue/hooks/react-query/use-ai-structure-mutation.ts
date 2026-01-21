@@ -11,6 +11,7 @@ export function useAIStructuringMutation(issueId: string) {
     mutationFn: () => categorizeIdeas(issueId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['issues', issueId, 'categories'] });
+      queryClient.invalidateQueries({ queryKey: ['issues', issueId, 'ideas'] });
     },
 
     onError: (err) => {
