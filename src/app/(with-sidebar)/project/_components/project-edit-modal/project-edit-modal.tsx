@@ -7,7 +7,7 @@ import { useUpdateProjectMutation } from '@/app/project/hooks/use-project-mutati
 import LoadingOverlay from '@/components/loading-overlay/loading-overlay';
 import { useModalStore } from '@/components/modal/use-modal-store';
 import * as S from './project-edit-modal.styles';
-import { maxTitleLength } from '@/types/project';
+import { maxTitleLength, maxDescriptionLength } from '@/types/project';
 import { isProjectTitleTooLong } from '@/lib/utils/project-title';
 
 interface EditProjectModalProps {
@@ -23,8 +23,10 @@ export default function EditProjectModal({ projectId, currentTitle, currentDescr
   const { closeModal } = useModalStore();
   const displayTitle = title.length > 0 ? title : (currentTitle ?? '');
   const titleLength = displayTitle.length;
-  const isTitleOverLimit = titleLength > maxTitleLength;
-  const isTitleLessLimit = titleLength < 1;
+  const isTitleOverLimit = title.length > maxTitleLength;
+  const isTitleLessLimit = title.length < 1;
+  const isDescriptionOverLimit = description.length > maxDescriptionLength;
+  const isDescriptionLessLimit = description.length < 1;
   const { mutate, isPending } = useUpdateProjectMutation();
 
   const handleEdit = async () => {
@@ -78,11 +80,19 @@ export default function EditProjectModal({ projectId, currentTitle, currentDescr
           </S.InputWrapper>
           <S.InputWrapper>
             <S.InputTitle>프로젝트 설명</S.InputTitle>
-            <S.Input
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder={currentDescription ?? '프로젝트 설명을 입력해주세요.'}
-            />
+            <S.InputRow>
+              <S.Input
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder={currentDescription ?? '프로젝트 설명을 입력해주세요.'}
+              />
+              <S.CharCount $isOverLimit={isDescriptionOverLimit}>{description.length}/{maxDescriptionLength}</S.CharCount>
+            </S.InputRow>
+            {(isDescriptionOverLimit || isDescriptionLessLimit) && 
+              <S.InputDescription>
+                * 프로젝트 설명은 1~{maxDescriptionLength}자 이내로 입력해주세요.
+              </S.InputDescription>
+            }
           </S.InputWrapper>
         </S.InfoContainer>
 
