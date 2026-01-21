@@ -139,3 +139,21 @@ export const CreateText = styled.p`
   margin: 0;
   font-weight: ${theme.font.weight.bold};
 `;
+
+export const DeleteButton = styled.button`
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  cursor: pointer;
+  z-index: 10;
+  background: none;
+  border: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  &:hover {
+    opacity: 0.7;
+  }
+`;

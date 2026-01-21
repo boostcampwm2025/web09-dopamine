@@ -13,3 +13,7 @@ export function getConnectionCount(issueId: string): number {
 export function getConnectionsInfo(): Record<string, number> {
   return sseManager.getConnectionsInfo();
 }
+
+export function getOnlineMemberIds(issueId: string): string[] {
+  return sseManager.getOnlineMemberIds(issueId);
+}

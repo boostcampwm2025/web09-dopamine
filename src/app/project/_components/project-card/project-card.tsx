@@ -13,6 +13,7 @@ interface ProjectCardProps {
   icon?: string;
   memberCount?: number;
   isCreateCard?: boolean;
+  ownerId?: string;
 }
 
 export function ProjectCard({
@@ -21,9 +22,13 @@ export function ProjectCard({
   icon,
   memberCount,
   isCreateCard = false,
+  ownerId,
 }: ProjectCardProps) {
+  const { data: session } = useSession();
   const { openModal } = useModalStore();
-  const { mutate: deleteProject } = useDeleteProjectMutation();
+  const {mutate: deleteProject} = useDeleteProjectMutation();
+
+  const isOwner = session?.user?.id === ownerId;
 
   const handleCreateClick = () => {
     openModal({
@@ -33,9 +38,9 @@ export function ProjectCard({
     });
   };
 
-  const handleDeleteClick = (e: React.MouseEvent) => {
+    const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (confirm('정말 이 프로젝트를 삭제하시겠습니까?')) {
+    if (confirm('프로젝트를 삭제하면 모든 토픽, 이슈, 멤버 정보도 같이 삭제됩니다.\n정말 삭제하시겠습니까?')) {
       if (id) {
         deleteProject({ id },{
           onSuccess: () => {
@@ -60,7 +65,8 @@ export function ProjectCard({
 
   return (
     <S.Card>
-      <S.DeleteButton onClick={handleDeleteClick} title="프로젝트 삭제">
+      {isOwner && (
+       <S.DeleteButton onClick={handleDeleteClick} title="프로젝트 삭제">
         <Image
           src="/close.svg"
           alt="삭제"
@@ -68,6 +74,7 @@ export function ProjectCard({
           height={14}
         />
       </S.DeleteButton>
+      )}
       <S.CardHeader hasIcon={!!icon}>
         {icon && <S.Icon>{icon}</S.Icon>}
         <S.Title>{title}</S.Title>

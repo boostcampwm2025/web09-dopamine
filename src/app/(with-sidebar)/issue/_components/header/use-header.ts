@@ -3,13 +3,13 @@ import { useQuery } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import CloseIssueModal from '@/app/(with-sidebar)/issue/_components/close-issue-modal/close-issue-modal';
 import { useCanvasStore } from '@/app/(with-sidebar)/issue/store/use-canvas-store';
-import { useIssueStore } from '@/app/(with-sidebar)/issue/store/use-issue-store';
 import { useModalStore } from '@/components/modal/use-modal-store';
 import { ISSUE_STATUS, MEMBER_ROLE } from '@/constants/issue';
 import { getIssueMember } from '@/lib/api/issue';
 import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
 import { IssueStatus } from '@/types/issue';
 import {
+  useAIStructuringMutation,
   useCategoryOperations,
   useIdeasWithTemp,
   useIssueQuery,
@@ -23,6 +23,7 @@ interface UseHeaderParams {
 export function useHeader({ issueId }: UseHeaderParams) {
   const { data: issue } = useIssueQuery(issueId);
   const { nextStep } = useIssueStatusMutations(issueId);
+
   const userId = getUserIdForIssue(issueId) ?? '';
 
   // 현재 사용자의 정보 조회
@@ -32,8 +33,9 @@ export function useHeader({ issueId }: UseHeaderParams) {
     enabled: !!userId,
   });
 
+  const { handleAIStructure } = useAIStructuringMutation(issueId);
+
   const isOwner = currentUser && currentUser.role === MEMBER_ROLE.OWNER;
-  const { startAIStructure } = useIssueStore((state) => state.actions);
   const { ideas, hasEditingIdea } = useIdeasWithTemp(issueId);
   const { openModal } = useModalStore();
   const scale = useCanvasStore((state) => state.scale);
@@ -53,9 +55,6 @@ export function useHeader({ issueId }: UseHeaderParams) {
       // API 호출하여 SSE 브로드캐스팅
       const response = await fetch(`/api/issues/${issueId}/close-modal`, {
         method: 'POST',
-        headers: {
-          'x-user-id': userId,
-        },
       });
 
       if (!response.ok) {
@@ -129,6 +128,16 @@ export function useHeader({ issueId }: UseHeaderParams) {
     }
   }, [isOwner, validateStep, nextStep]);
 
+  // AI 구조화
+  const handleAIStructureStart = () => {
+    if (!isOwner) {
+      toast.error('방장만 AI 구조화를 진행할 수 있습니다.');
+      return;
+    }
+
+    handleAIStructure();
+  };
+
   return {
     issue,
     isOwner,
@@ -136,6 +145,6 @@ export function useHeader({ issueId }: UseHeaderParams) {
     handleCloseIssue,
     handleNextStep,
     handleAddCategory,
-    startAIStructure,
+    handleAIStructureStart,
   };
 }

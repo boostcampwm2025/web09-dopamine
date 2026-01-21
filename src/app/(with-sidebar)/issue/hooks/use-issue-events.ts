@@ -7,6 +7,7 @@ import { MEMBER_ROLE } from '@/constants/issue';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
 import { getIssueMember } from '@/lib/api/issue';
 import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
+import { useIssueStore } from '../store/use-issue-store';
 import { selectedIdeaQueryKey } from './react-query/use-selected-idea-query';
 
 interface UseIssueEventsParams {
@@ -29,6 +30,9 @@ export function useIssueEvents({
   const eventSourceRef = useRef<EventSource | null>(null);
   const selectedIdeaKey = useMemo(() => selectedIdeaQueryKey(issueId), [issueId]);
 
+  const { setIsAIStructuring } = useIssueStore((state) => state.actions);
+  const { setOnlineMemberIds } = useIssueStore((state) => state.actions);
+
   // userId를 useMemo로 캐싱하여 불필요한 재계산 방지
   const userId = useMemo(() => getUserIdForIssue(issueId) ?? '', [issueId]);
 
@@ -50,7 +54,7 @@ export function useIssueEvents({
   const SSE_REQ_URL = `/api/issues/${issueId}/events`;
 
   useEffect(() => {
-    if (!enabled || !issueId) return;
+    if (!enabled || !issueId || !userId) return;
 
     // EventSource 생성
     const eventSource = new EventSource(SSE_REQ_URL);
@@ -116,6 +120,25 @@ export function useIssueEvents({
       queryClient.invalidateQueries({ queryKey: ['issues', issueId, 'categories'] });
     });
 
+    // AI 구조화 핸들러
+    eventSource.addEventListener(SSE_EVENT_TYPES.AI_STRUCTURING_STARTED, () => {
+      setIsAIStructuring(true);
+    });
+
+    eventSource.addEventListener(SSE_EVENT_TYPES.AI_STRUCTURING_COMPLETED, () => {
+      setIsAIStructuring(false);
+      toast.success('AI 구조화가 완료되었습니다.');
+    });
+
+    eventSource.addEventListener(SSE_EVENT_TYPES.AI_STRUCTURING_FAILED, (event) => {
+      const data = JSON.parse((event as MessageEvent).data);
+      const errorMessage = data.message || 'AI 구조화 중 오류가 발생했습니다.';
+
+      setIsAIStructuring(false);
+
+      toast.error(errorMessage);
+    });
+
     // 투표 이벤트 핸들러
     eventSource.addEventListener(SSE_EVENT_TYPES.VOTE_CHANGED, (event) => {
       const data = JSON.parse((event as MessageEvent).data);
@@ -137,6 +160,12 @@ export function useIssueEvents({
 
     eventSource.addEventListener(SSE_EVENT_TYPES.MEMBER_LEFT, () => {
       queryClient.invalidateQueries({ queryKey: ['issues', issueId, 'members'] });
+    });
+
+    eventSource.addEventListener(SSE_EVENT_TYPES.MEMBER_PRESENCE, (event) => {
+      const data = JSON.parse((event as MessageEvent).data);
+      // Zustand 스토어 업데이트
+      setOnlineMemberIds(data.onlineUserIds || []);
     });
 
     // 채택된 아이디어 이벤트 핸들러
@@ -188,8 +217,9 @@ export function useIssueEvents({
     return () => {
       eventSource.close();
       eventSourceRef.current = null;
+      setIsAIStructuring(false);
     };
-  }, [issueId, enabled, selectedIdeaKey, userId]);
+  }, [issueId, enabled, selectedIdeaKey, userId, setIsAIStructuring]);
 
   return { isConnected, error };
 }
