@@ -29,7 +29,7 @@ export default function InviteProjectModal({ id, title }: InviteModalProps) {
     }
 
     if (tags.length >= 10) {
-      toast.error('한번에 10개까지 추가할 수 있습니다');
+      toast.error('한번에 10개까지 추가할 수 있습니다.');
       return;
     }
 
@@ -79,7 +79,7 @@ export default function InviteProjectModal({ id, title }: InviteModalProps) {
 
   const handleInvite = async () => {
     if (inputValue.trim()) {
-      toast.error('입력 중인 이메일이 있습니다!');
+      toast.error('입력 중인 이메일이 있습니다.');
       return;
     }
 
@@ -106,7 +106,7 @@ export default function InviteProjectModal({ id, title }: InviteModalProps) {
         </S.InputWrapper>
         <S.InputWrapper>
           <S.EmailInputTitle>
-            이메일 입력 ({tags.length}/10){' '}
+            초대 이메일 ({tags.length}/10){' '}
             {tags.length > 0 && (
               <S.ResetButton
                 type="button"
@@ -120,7 +120,7 @@ export default function InviteProjectModal({ id, title }: InviteModalProps) {
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="murphy@example.com"
+            placeholder="초대할 이메일을 입력하고 Enter를 눌러주세요."
             autoComplete="off"
           />
         </S.InputWrapper>
