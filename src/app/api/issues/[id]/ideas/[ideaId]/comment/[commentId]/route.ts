@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { SSE_EVENT_TYPES } from '@/constants/sse-events';
 import { commentRepository } from '@/lib/repositories/comment.repository';
+import { broadcast } from '@/lib/sse/sse-service';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 
 /**
@@ -10,7 +12,7 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string; ideaId: string; commentId: string }> },
 ): Promise<NextResponse> {
-  const { commentId } = await params;
+  const { id: issueId, ideaId, commentId } = await params;
   const { content } = await req.json();
 
   if (!content) {
@@ -19,6 +21,18 @@ export async function PATCH(
 
   try {
     const comment = await commentRepository.update(commentId, content);
+
+    broadcast({
+      issueId,
+      event: {
+        type: SSE_EVENT_TYPES.COMMENT_UPDATED,
+        data: {
+          ideaId,
+          commentId,
+        },
+      },
+    });
+
     return createSuccessResponse(comment);
   } catch (error: any) {
     console.error('댓글 수정 중 오류 발생:', error);
@@ -39,10 +53,22 @@ export async function DELETE(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string; ideaId: string; commentId: string }> },
 ): Promise<NextResponse> {
-  const { commentId } = await params;
+  const { id: issueId, ideaId, commentId } = await params;
 
   try {
     await commentRepository.softDelete(commentId);
+
+    broadcast({
+      issueId,
+      event: {
+        type: SSE_EVENT_TYPES.COMMENT_DELETED,
+        data: {
+          ideaId,
+          commentId,
+        },
+      },
+    });
+
     return createSuccessResponse(null, 200);
   } catch (error: any) {
     console.error('댓글 삭제 중 오류 발생:', error);

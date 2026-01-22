@@ -147,6 +147,32 @@ export function useIssueEvents({
       }
     });
 
+    // 댓글 이벤트 핸들러
+    eventSource.addEventListener(SSE_EVENT_TYPES.COMMENT_CREATED, (event) => {
+      const data = JSON.parse((event as MessageEvent).data);
+      // 특정 아이디어의 댓글과 아이디어 정보 갱신 (댓글 개수 업데이트)
+      if (data.ideaId) {
+        queryClient.invalidateQueries({ queryKey: ['comments', issueId, data.ideaId] });
+        queryClient.invalidateQueries({ queryKey: ['issues', issueId, 'ideas', data.ideaId] });
+      }
+    });
+
+    eventSource.addEventListener(SSE_EVENT_TYPES.COMMENT_UPDATED, (event) => {
+      const data = JSON.parse((event as MessageEvent).data);
+      if (data.ideaId) {
+        queryClient.invalidateQueries({ queryKey: ['comments', issueId, data.ideaId] });
+      }
+    });
+
+    eventSource.addEventListener(SSE_EVENT_TYPES.COMMENT_DELETED, (event) => {
+      const data = JSON.parse((event as MessageEvent).data);
+      // 특정 아이디어의 댓글과 아이디어 정보 갱신 (댓글 개수 업데이트)
+      if (data.ideaId) {
+        queryClient.invalidateQueries({ queryKey: ['comments', issueId, data.ideaId] });
+        queryClient.invalidateQueries({ queryKey: ['issues', issueId, 'ideas', data.ideaId] });
+      }
+    });
+
     // 이슈 상태 이벤트 핸들러
     eventSource.addEventListener(SSE_EVENT_TYPES.ISSUE_STATUS_CHANGED, () => {
       queryClient.invalidateQueries({ queryKey: ['issues', issueId] });

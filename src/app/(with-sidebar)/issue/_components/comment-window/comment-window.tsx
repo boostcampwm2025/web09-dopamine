@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import CommentList from './comment-list';
@@ -14,6 +14,7 @@ export interface CommentWindowProps {
   ideaId: string;
   userId: string;
   initialPosition?: { x: number; y: number };
+  scale?: number;
   onClose?: () => void;
 }
 
@@ -22,6 +23,7 @@ export default function CommentWindow({
   ideaId,
   userId,
   initialPosition,
+  scale = 1,
   onClose,
 }: CommentWindowProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -170,8 +172,20 @@ export default function CommentWindow({
     handleSubmit(textareaRef.current ?? undefined);
   }, [handleSubmit]);
 
+  const handleClose = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.stopPropagation();
+      e.preventDefault();
+      onClose?.();
+    },
+    [onClose],
+  );
+
   return (
     <S.Window
+      x={initialPosition?.x}
+      y={initialPosition?.y}
+      scale={scale}
       role="dialog"
       aria-label="댓글"
       onPointerDown={(event) => event.stopPropagation()}
@@ -184,7 +198,7 @@ export default function CommentWindow({
           <S.CloseButton
             type="button"
             aria-label="Close"
-            onClick={onClose}
+            onClick={handleClose}
           >
             &times;
           </S.CloseButton>

@@ -106,11 +106,13 @@ export function useCommentWindow({
     [createMutation, ideaId, inputValue, issueId, openTooltip, userId, closeTooltip],
   );
 
-  /**
-   * [입력 핸들링] 인풋창에서 Enter 키를 눌렀을 때 제출 함수를 실행합니다.
-   */
   const handleInputKeyDown = useCallback(
     (event: KeyboardEvent<HTMLTextAreaElement>) => {
+      // 한글 입력 중이면 제출하지 않음
+      if (event.nativeEvent.isComposing) {
+        return;
+      }
+
       if (event.key === 'Enter' && !event.shiftKey) {
         event.preventDefault();
         handleSubmit(event.currentTarget);

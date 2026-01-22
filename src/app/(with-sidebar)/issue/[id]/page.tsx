@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useParams, usePathname, useRouter } from 'next/navigation';
 import { DndContext, DragOverlay } from '@dnd-kit/core';
 import Canvas from '@/app/(with-sidebar)/issue/_components/canvas/canvas';
@@ -13,6 +13,7 @@ import LoadingOverlay from '@/components/loading-overlay/loading-overlay';
 import { useModalStore } from '@/components/modal/use-modal-store';
 import { ISSUE_STATUS, ISSUE_STATUS_DESCRIPTION } from '@/constants/issue';
 import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
+import { getActiveDiscussionIdeaIds } from '@/lib/utils/active-discussion-idea';
 import IssueJoinModal from '../_components/issue-join-modal/issue-join-modal';
 import {
   useCategoryOperations,
@@ -30,7 +31,8 @@ const IssuePage = () => {
   const params = useParams<{ id: string; issueId?: string }>();
   const pathname = usePathname();
   const issueIdFromPath = pathname?.split('/issue/')[1]?.split('/')[0] ?? '';
-  const issueId = params.issueId ?? (Array.isArray(params.id) ? params.id[0] : (params.id ?? issueIdFromPath));
+  const issueId =
+    params.issueId ?? (Array.isArray(params.id) ? params.id[0] : (params.id ?? issueIdFromPath));
   const router = useRouter();
   const { openModal, isOpen } = useModalStore();
   const hasOpenedModal = useRef(false);
@@ -64,7 +66,7 @@ const IssuePage = () => {
         hasCloseButton: false,
       });
     }
-  }, [issueId, isOpen, openModal]);
+  }, [issueId, isOpen, openModal, userId]);
 
   // 이슈가 종료된 경우 summary 페이지로 리다이렉트
   useEffect(() => {
@@ -108,6 +110,9 @@ const IssuePage = () => {
   // 하이라이트된 아이디어
   const { activeFilter, setFilter, filteredIds } = useFilterIdea(issueId);
   const getIdeaStatus = useIdeaStatus(filteredIds, activeFilter);
+
+  // 댓글이 많은 아이디어 계산
+  const activeDiscussionIdeaIds = useMemo(() => getActiveDiscussionIdeaIds(ideas), [ideas]);
 
   // 에러 여부 확인
   const hasError = isIssueError || isIdeasError || isCategoryError;
@@ -159,6 +164,7 @@ const IssuePage = () => {
                       position={null}
                       isSelected={idea.id === selectedIdeaId}
                       status={getIdeaStatus(idea.id)}
+                      isHotIdea={activeDiscussionIdeaIds.has(idea.id)}
                       isVoteButtonVisible={isVoteButtonVisible}
                       isVoteDisabled={isVoteDisabled}
                       onSave={(content) => handleSaveIdea(idea.id, content)}
