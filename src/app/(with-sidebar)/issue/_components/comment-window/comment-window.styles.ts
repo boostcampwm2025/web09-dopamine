@@ -124,7 +124,7 @@ export const CommentMeta = styled.div`
 export const CommentActions = styled.div`
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 `;
 
 export const CommentBody = styled.div<{ $isClamped: boolean }>`
@@ -191,20 +191,24 @@ export const EditInput = styled.textarea`
 `;
 
 export const Btn = styled.button<{ $variant?: 'default' | 'danger' }>`
-  border: 1px solid
-    ${({ $variant }) => ($variant === 'danger' ? theme.colors.red[400] : theme.colors.gray[200])};
-  background: ${({ $variant }) =>
-    $variant === 'danger' ? theme.colors.red[50] : theme.colors.white};
+  border: none;
+  background: transparent;
   color: ${({ $variant }) =>
-    $variant === 'danger' ? theme.colors.red[600] : theme.colors.gray[700]};
-  font-size: ${theme.font.size.small};
-  font-weight: ${theme.font.weight.semibold};
+    $variant === 'danger' ? theme.colors.gray[400] : theme.colors.gray[400]};
+  font-size: 12px;
+  font-weight: 400;
   cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 8px;
+  padding: 2px 4px;
+  transition: color 0.15s ease;
+
   &:hover {
-    background: ${({ $variant }) =>
-      $variant === 'danger' ? theme.colors.red[100] : theme.colors.gray[100]};
+    color: ${({ $variant }) =>
+      $variant === 'danger' ? theme.colors.red[600] : theme.colors.gray[700]};
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 `;
 
