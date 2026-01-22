@@ -65,7 +65,6 @@ export const Card = styled.article<{
   border-radius: ${theme.radius.medium};
   padding: 35px 35px 30px 35px;
   box-shadow: 0 4px 10px rgba(31, 41, 55, 0.06);
-  transition: all 0.2s ease;
   ${({ isHotIdea, status }) =>
     isHotIdea
       ? `
