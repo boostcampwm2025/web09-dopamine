@@ -15,6 +15,9 @@ export interface Idea {
   memo: string | null;
   positionX: number | null;
   positionY: number | null;
+  agreeCount?: number;
+  disagreeCount?: number;
+  myVote?: 'AGREE' | 'DISAGREE' | null;
   createdAt: Date | string;
   updatedAt: Date | string;
   deletedAt: Date | string | null;

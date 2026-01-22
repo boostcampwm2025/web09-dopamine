@@ -1,22 +1,11 @@
 'use client';
 
-import { useDroppable } from '@dnd-kit/core';
-import useCategory from '@/app/(with-sidebar)/issue/hooks/use-category-card';
-import { useDraggable } from '../../hooks/use-draggable';
 import type { Position } from '../../types/idea';
 import { useCanvasContext } from '../canvas/canvas-context';
-import {
-  Actions,
-  Btn,
-  ChildrenWrapper,
-  DangerBtn,
-  Dot,
-  Header,
-  HeaderLeft,
-  Input,
-  StyledCategoryCard,
-  Title,
-} from './category-card.styles';
+import CategoryCardHeader from './category-card-header';
+import { ChildrenWrapper, StyledCategoryCard } from './category-card.styles';
+import { useCategoryCard } from './use-category-card';
+import { useCategoryDnd } from './use-category-dnd';
 
 interface CategoryCardProps {
   id: string;
@@ -46,37 +35,20 @@ export default function CategoryCard({
   onDrag,
   onDragStart,
   onDragEnd,
-  onDropIdea,
   checkCollision,
 }: CategoryCardProps) {
   const { scale } = useCanvasContext();
 
-  // dnd-kit useDroppable
-  const { setNodeRef: setDroppableRef, isOver } = useDroppable({
+  const { setDroppableRef, cardStyle, draggable } = useCategoryDnd({
     id,
-    data: { type: 'category', categoryId: id },
+    position,
+    scale,
+    onPositionChange,
+    onDrag,
+    onDragStart,
+    onDragEnd,
+    checkCollision,
   });
-
-  // 카테고리 드래그 기능
-  const draggable = onPositionChange
-    ? useDraggable({
-        initialPosition: position,
-        scale,
-        onDragStart: onDragStart,
-        onDrag: onDrag
-          ? (newPosition, delta) => {
-              onDrag(id, newPosition, delta);
-            }
-          : undefined,
-        onDragEnd: (newPosition) => {
-          onPositionChange(id, newPosition);
-          onDragEnd?.();
-        },
-        checkCollision: checkCollision
-          ? (newPosition) => checkCollision(id, newPosition)
-          : undefined,
-      })
-    : null;
 
   const {
     curTitle,
@@ -86,7 +58,7 @@ export default function CategoryCard({
     setDraftTitle,
     submitEditedTitle,
     cancelEditingTitle,
-  } = useCategory({
+  } = useCategoryCard({
     id,
     issueId,
     title,
@@ -98,64 +70,20 @@ export default function CategoryCard({
       data-category-id={id}
       isMuted={isMuted}
       aria-label={`${curTitle} 카테고리`}
-      style={
-        draggable
-          ? {
-              position: 'absolute' as const,
-              left: draggable.position.x,
-              top: draggable.position.y,
-              cursor: draggable.isDragging ? 'grabbing' : 'grab',
-              userSelect: 'none' as const,
-              zIndex: 0, // 항상 아이디어 카드보다 낮게
-              outline: isOver ? '2px dashed #4CAF50' : 'none',
-              backgroundColor: isOver ? 'rgba(76, 175, 80, 0.1)' : undefined,
-            }
-          : {
-              outline: isOver ? '2px dashed #4CAF50' : 'none',
-              backgroundColor: isOver ? 'rgba(76, 175, 80, 0.1)' : undefined,
-            }
-      }
+      style={cardStyle}
     >
-      <Header
+      <CategoryCardHeader
+        curTitle={curTitle}
+        draftTitle={draftTitle}
+        isEditing={isEditing}
         isMuted={isMuted}
+        onStartEdit={() => setIsEditing(true)}
+        onChangeTitle={setDraftTitle}
+        onSubmitTitle={submitEditedTitle}
+        onCancelEdit={cancelEditingTitle}
+        onRemove={onRemove}
         onMouseDown={draggable?.handleMouseDown}
-      >
-        <HeaderLeft>
-          <Dot isMuted={isMuted} />
-          {isEditing ? (
-            <Input
-              value={draftTitle}
-              onChange={(e) => setDraftTitle(e.target.value)}
-              onBlur={() => submitEditedTitle(draftTitle)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') submitEditedTitle(draftTitle);
-                if (e.key === 'Escape') cancelEditingTitle();
-              }}
-              autoFocus
-            />
-          ) : (
-            <Title isMuted={isMuted}>{curTitle}</Title>
-          )}
-        </HeaderLeft>
-        {!isEditing && (
-          <Actions>
-            <Btn
-              onClick={() => setIsEditing(true)}
-              isMuted={isMuted}
-            >
-              수정
-            </Btn>
-            {onRemove && (
-              <DangerBtn
-                onClick={() => onRemove()}
-                isMuted={isMuted}
-              >
-                삭제
-              </DangerBtn>
-            )}
-          </Actions>
-        )}
-      </Header>
+      />
       {children && <ChildrenWrapper>{children}</ChildrenWrapper>}
     </StyledCategoryCard>
   );

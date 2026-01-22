@@ -1,13 +1,11 @@
-import { useMemo } from 'react';
 import MemberSidebarItem from '@/components/sidebar/member-sidebar-item';
 import Sidebar from '@/components/sidebar/sidebar';
 import SidebarItem from '@/components/sidebar/sidebar-item';
 import * as S from '@/components/sidebar/sidebar.styles';
-import { ISSUE_STATUS, MEMBER_ROLE } from '@/constants/issue';
-import { useIssueData } from '../../hooks/use-issue-data';
-import { useIssueId } from '../../hooks/use-issue-id';
+import { ISSUE_STATUS } from '@/constants/issue';
 import IssueGraphLink from './issue-graph-link';
 import NewIssueButton from './new-issue-button';
+import { useIssueSidebar } from './use-issue-sidebar';
 
 const ISSUE_LIST = [
   { title: 'new issue', href: '#', status: ISSUE_STATUS.BRAINSTORMING },
@@ -18,56 +16,79 @@ const ISSUE_LIST = [
 ] as const;
 
 export default function IssueSidebar() {
-  const issueId = useIssueId();
-  const { isQuickIssue, members } = useIssueData(issueId);
-
-  const sortedMembers = useMemo(() => {
-    return [...members].sort((a, b) => {
-      if (a.role !== b.role) {
-        return a.role === MEMBER_ROLE.OWNER ? -1 : 1;
-      }
-      return Number(b.isConnected) - Number(a.isConnected);
-    });
-  }, [members]);
+  const {
+    topicId,
+    isTopicPage,
+    topicIssues,
+    filteredMembers,
+    onlineMemberIds,
+    sortedMembers,
+    searchValue,
+    handleSearchChange,
+    showMemberList,
+    showIssueList,
+  } = useIssueSidebar();
 
   return (
-    <Sidebar>
-      {!isQuickIssue && (
+    <Sidebar
+      inputProps={{
+        value: searchValue,
+        onChange: handleSearchChange,
+      }}
+    >
+      {showIssueList && (
         <>
-          <IssueGraphLink />
-          <div>
-            <S.SidebarTitle>
-              <span>ISSUE LIST</span>
-              <NewIssueButton />
-            </S.SidebarTitle>
-            <S.SidebarList>
-              {ISSUE_LIST.map((issue) => (
-                <SidebarItem
-                  key={issue.title}
-                  title={issue.title}
-                  href={issue.href}
-                  status={issue.status}
-                />
-              ))}
-            </S.SidebarList>
-          </div>
+          {!isTopicPage && <IssueGraphLink />}
+          <S.SidebarTitle>
+            <span>ISSUE LIST</span>
+            <NewIssueButton />
+          </S.SidebarTitle>
+          <S.SidebarList>
+            {topicId
+              ? topicIssues.map((issue) => (
+                  <SidebarItem
+                    key={issue.id}
+                    title={issue.title}
+                    href={`/issue/${issue.id}`}
+                    status={issue.status as any}
+                  />
+                ))
+              : ISSUE_LIST.map((issue) => (
+                  <SidebarItem
+                    key={issue.title}
+                    title={issue.title}
+                    href={issue.href}
+                    status={issue.status}
+                  />
+                ))}
+          </S.SidebarList>
         </>
       )}
 
-      <div>
-        <S.SidebarTitle>MEMBER LIST</S.SidebarTitle>
-        <S.SidebarList>
-          {sortedMembers.map((user) => (
-            <MemberSidebarItem
-              key={user.displayName}
-              id={user.id}
-              name={user.displayName}
-              role={user.role}
-              isConnected={user.isConnected}
-            />
-          ))}
-        </S.SidebarList>
-      </div>
+      {showMemberList && (
+        <>
+          <S.SidebarTitle>
+            MEMBER LIST
+            <span>
+              ({onlineMemberIds.length}/{sortedMembers.length})
+            </span>
+          </S.SidebarTitle>
+          <S.SidebarList>
+            {filteredMembers.map((user) => {
+              const isOnline = onlineMemberIds.includes(user.id);
+              return (
+                <MemberSidebarItem
+                  key={user.displayName}
+                  id={user.id}
+                  name={user.displayName}
+                  role={user.role}
+                  isConnected={isOnline}
+                />
+              );
+            })}
+          </S.SidebarList>
+        </>
+      )}
     </Sidebar>
   );
 }

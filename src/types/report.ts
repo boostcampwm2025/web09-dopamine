@@ -33,7 +33,7 @@ export interface ReportWithDetails {
         id: string;
         name: string | null;
         displayName: string | null;
-        avatarUrl: string | null;
+        image: string | null;
       };
     }>;
   };
@@ -110,5 +110,5 @@ export interface UserDto {
   id: string;
   name: string | null;
   displayName: string | null;
-  avatarUrl: string | null;
+  image: string | null;
 }

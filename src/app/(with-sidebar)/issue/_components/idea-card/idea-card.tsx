@@ -1,18 +1,21 @@
 'use client';
 
-import { useEffect } from 'react';
-import Image from 'next/image';
+import { useEffect, useRef, useState } from 'react';
+import type { MouseEventHandler, PointerEventHandler } from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
-import useIdeaCard from '@/app/(with-sidebar)/issue/hooks/use-idea-card';
-import { ISSUE_STATUS, VOTE_TYPE } from '@/constants/issue';
+import Portal from '@/components/portal/portal';
 import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
-import { useIdeaQuery } from '../../hooks/queries/use-idea-query';
-import { useSelectedIdeaMutation } from '../../hooks/queries/use-selected-idea-mutation';
-import { useIssueData } from '../../hooks/use-issue-data';
+import { useIdeaQuery, useIssueData, useSelectedIdeaMutation } from '../../hooks';
 import { useIdeaCardStackStore } from '../../store/use-idea-card-stack-store';
 import type { CardStatus, Position } from '../../types/idea';
+import { useCanvasContext } from '../canvas/canvas-context';
+import CommentWindow from '../comment-window/comment-window';
+import IdeaCardBadge from './idea-card-badge';
+import IdeaCardFooter from './idea-card-footer';
+import IdeaCardHeader from './idea-card-header';
 import * as S from './idea-card.styles';
+import { useIdeaCard } from './use-idea-card';
 
 interface IdeaCardProps {
   id: string;
@@ -28,6 +31,7 @@ interface IdeaCardProps {
   disagreeCount?: number;
   editable?: boolean;
   status?: CardStatus;
+  isHotIdea?: boolean;
   onVoteChange?: (agreeCount: number, disagreeCount: number) => void;
   categoryId?: string | null;
   onSave?: (content: string) => void;
@@ -60,6 +64,9 @@ export default function IdeaCard(props: IdeaCardProps) {
   // 현재 로그인한 사용자가 이 아이디어의 작성자인지 확인
   const currentUserId = getUserIdForIssue(props.issueId);
   const isCurrentUser = currentUserId === props.userId;
+  const inCategory = !!props.categoryId;
+  const listenersRef = useRef<{ onPointerDown?: PointerEventHandler } | null>(null);
+  const getListeners = () => listenersRef.current ?? undefined;
 
   // 비즈니스 로직 (투표, 편집 등)
   const {
@@ -73,20 +80,107 @@ export default function IdeaCard(props: IdeaCardProps) {
     handleDisagree,
     submitEdit,
     handleKeyDownEdit,
+    handlePointerDown,
+    handleDeleteClick,
+    handleCardClick,
   } = useIdeaCard({
     id: props.id,
+    issueId: props.issueId,
     userId: currentUserId,
     content: props.content,
     isSelected: props.isSelected,
     status: props.status,
     editable: !!props.editable,
     onSave: props.onSave,
+    categoryId: props.categoryId,
+    inCategory,
+    issueStatus,
+    bringToFront,
+    getListeners,
+    onDelete: props.onDelete,
+    onClick: props.onClick,
+    selectIdea,
   });
 
-  const { data: idea } = useIdeaQuery(props.id, currentUserId);
+  const { data: idea } = useIdeaQuery(props.issueId, props.id, currentUserId);
+
+  // 댓글 윈도우 상태 관리
+  const [isCommentOpen, setIsCommentOpen] = useState(false);
+  const [commentPosition, setCommentPosition] = useState<{ x: number; y: number } | null>(null);
+  const commentButtonRef = useRef<HTMLButtonElement | null>(null);
+  const cardRef = useRef<HTMLElement | null>(null);
+  const { scale } = useCanvasContext();
+  const normalizedScale = scale || 1;
+
+  // 댓글 버튼 위치 업데이트 함수
+  const updateCommentPosition = () => {
+    if (!commentButtonRef.current) return;
+
+    const buttonRect = commentButtonRef.current.getBoundingClientRect();
+    setCommentPosition({
+      x: buttonRect.right + 8,
+      y: buttonRect.top,
+    });
+  };
+
+  const handleOpenComment: MouseEventHandler<HTMLButtonElement> = (event) => {
+    event.stopPropagation();
+    commentButtonRef.current = event.currentTarget;
+    const nextOpen = !isCommentOpen;
+
+    if (nextOpen) {
+      updateCommentPosition();
+    }
+
+    setIsCommentOpen(nextOpen);
+  };
+
+  // 댓글창이 열려있을 때 아이디어 카드 위치 변화 감지
+  useEffect(() => {
+    if (!isCommentOpen || !commentButtonRef.current) return;
+
+    // 초기 위치 설정
+    updateCommentPosition();
+
+    // ResizeObserver로 뷰포트 크기 변화 감지
+    const resizeObserver = new ResizeObserver(() => {
+      updateCommentPosition();
+    });
+    resizeObserver.observe(document.body);
+
+    // 스크롤 이벤트 감지
+    const handleScroll = () => updateCommentPosition();
+    window.addEventListener('scroll', handleScroll, true);
+
+    // MutationObserver로 DOM 변화 감지 (카테고리 이동, 아이디어 이동 등)
+    const mutationObserver = new MutationObserver(() => {
+      updateCommentPosition();
+    });
+    mutationObserver.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['style', 'class'],
+    });
+
+    // 주기적으로 위치 체크 (드래그 중 등)
+    const intervalId = setInterval(updateCommentPosition, 50);
+
+    return () => {
+      resizeObserver.disconnect();
+      mutationObserver.disconnect();
+      window.removeEventListener('scroll', handleScroll, true);
+      clearInterval(intervalId);
+    };
+  }, [isCommentOpen]);
+
+  // setNodeRef와 cardRef를 함께 사용
+  const combinedRef = (node: HTMLElement | null) => {
+    setNodeRef(node);
+    cardRef.current = node;
+  };
 
   // 드래그 로직
-  const inCategory = !!props.categoryId;
 
   // dnd-kit useDraggable
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
@@ -98,11 +192,15 @@ export default function IdeaCard(props: IdeaCardProps) {
   });
 
   useEffect(() => {
+    listenersRef.current = listeners || null;
+  }, [listeners]);
+
+  useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
       textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
     }
-  }, [editValue]);
+  }, [editValue, textareaRef]);
 
   useEffect(() => {
     // 입력 중인 카드의 드래그가 끝난 경우, textarea에 포커스
@@ -114,7 +212,7 @@ export default function IdeaCard(props: IdeaCardProps) {
 
       return () => clearTimeout(timer);
     }
-  }, [isDragging]);
+  }, [isDragging, isEditing, textareaRef]);
 
   // 스타일 계산
   // 자유 배치 모드(categoryId === null)면 absolute positioning
@@ -133,45 +231,16 @@ export default function IdeaCard(props: IdeaCardProps) {
         }
       : {};
 
-  const handlePointerDown = (e: React.PointerEvent) => {
-    // z-index 업데이트는 드래그 시작 전에 처리
-    if (props.id && !inCategory) {
-      bringToFront(props.id);
-    }
-
-    if (isEditing) {
-      textareaRef.current?.focus();
-    }
-
-    // listeners의 onPointerDown도 호출 (드래그를 위해)
-    if (listeners?.onPointerDown) {
-      listeners.onPointerDown(e);
-    }
-  };
-
-  const handleDeleteClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    props.onDelete?.();
-  };
-
-  const handleCardClick = () => {
-    if (!props.id || !props.categoryId || isEditing || issueStatus !== ISSUE_STATUS.SELECT) {
-      return;
-    }
-    if (props.onClick) {
-      props.onClick();
-      return;
-    }
-    selectIdea(props.id);
-  };
-
   return (
     <S.Card
-      ref={setNodeRef}
+      ref={combinedRef}
+      data-idea-card={props.id}
       issueStatus={issueStatus}
       status={status}
       isDragging={isDragging}
       inCategory={inCategory}
+      isCommentOpen={isCommentOpen}
+      isHotIdea={props.isHotIdea}
       onClick={handleCardClick}
       onPointerDown={handlePointerDown}
       {...attributes}
@@ -182,82 +251,47 @@ export default function IdeaCard(props: IdeaCardProps) {
           ))}
       style={cardStyle}
     >
-      <S.Badge status={status}>
-        <Image
-          src="/crown.svg"
-          alt="채택 아이콘"
-          width={20}
-          height={20}
-        />
-        <span>채택</span>
-      </S.Badge>
-
-      <S.Header>
-        {isEditing ? (
-          <S.EditableInput
-            ref={textareaRef}
-            rows={1}
-            value={editValue}
-            onChange={(e) => setEditValue(e.target.value)}
-            onPointerDown={(e) => e.stopPropagation()}
-            onKeyDown={handleKeyDownEdit}
-            onMouseDown={(e) => e.stopPropagation()}
-            autoFocus
-            placeholder="아이디어를 입력해주세요."
+      <IdeaCardBadge
+        status={status}
+        isHotIdea={props.isHotIdea}
+      />
+      <IdeaCardHeader
+        isEditing={isEditing}
+        editValue={editValue}
+        displayContent={displayContent}
+        isVoteButtonVisible={props.isVoteButtonVisible}
+        isCurrentUser={isCurrentUser}
+        author={props.author}
+        issueStatus={issueStatus}
+        commentCount={idea?.comments?.length ?? 0}
+        textareaRef={textareaRef}
+        setEditValue={setEditValue}
+        handleKeyDownEdit={handleKeyDownEdit}
+        submitEdit={submitEdit}
+        onDelete={handleDeleteClick}
+        onCommentClick={handleOpenComment}
+      />
+      <IdeaCardFooter
+        isVoteButtonVisible={props.isVoteButtonVisible}
+        status={status}
+        myVote={idea?.myVote ?? undefined}
+        agreeCount={idea?.agreeCount}
+        disagreeCount={idea?.disagreeCount}
+        isVoteDisabled={props.isVoteDisabled}
+        onAgree={handleAgree}
+        onDisagree={handleDisagree}
+      />
+      {isCommentOpen && commentPosition && (
+        <Portal>
+          <CommentWindow
+            issueId={props.issueId}
+            ideaId={props.id}
+            userId={currentUserId}
+            initialPosition={commentPosition}
+            scale={normalizedScale}
+            onClose={() => setIsCommentOpen(false)}
           />
-        ) : (
-          <S.Content>{displayContent}</S.Content>
-        )}
-        <S.Meta>
-          <S.AuthorPill isCurrentUser={isCurrentUser}>{props.author}</S.AuthorPill>
-          {props.isVoteButtonVisible ? (
-            <S.IconButton aria-label="comment">
-              <Image
-                src="/comment.svg"
-                alt="댓글"
-                width={14}
-                height={14}
-              />
-            </S.IconButton>
-          ) : (
-            <>{isEditing ? <S.SubmitButton onClick={submitEdit}>제출</S.SubmitButton> : null}</>
-          )}
-        </S.Meta>
-        {issueStatus === ISSUE_STATUS.BRAINSTORMING && isCurrentUser && (
-          <S.DeleteButton
-            aria-label="delete"
-            onClick={handleDeleteClick}
-          >
-            <Image
-              src="/close.svg"
-              alt="삭제"
-              width={14}
-              height={14}
-            />
-          </S.DeleteButton>
-        )}
-      </S.Header>
-      {props.isVoteButtonVisible && (
-        <S.Footer>
-          <S.VoteButton
-            kind={VOTE_TYPE.AGREE}
-            cardStatus={status}
-            active={idea?.myVote === VOTE_TYPE.AGREE}
-            onClick={handleAgree}
-            disabled={props.isVoteDisabled}
-          >
-            찬성 {idea?.agreeCount}
-          </S.VoteButton>
-          <S.VoteButton
-            kind={VOTE_TYPE.DISAGREE}
-            cardStatus={status}
-            active={idea?.myVote === VOTE_TYPE.DISAGREE}
-            onClick={handleDisagree}
-            disabled={props.isVoteDisabled}
-          >
-            반대 {idea?.disagreeCount}
-          </S.VoteButton>
-        </S.Footer>
+        </Portal>
       )}
     </S.Card>
   );

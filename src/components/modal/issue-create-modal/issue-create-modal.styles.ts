@@ -28,7 +28,7 @@ export const Input = styled.input`
   width: 100%;
   border: 1px solid ${theme.colors.gray[300]};
   padding: 12px 8px;
-  border-radius: 6px;
+  border-radius: ${theme.radius.small};
   font-size: ${theme.font.size.medium};
   color: ${theme.colors.gray[900]};
   box-sizing: border-box;
@@ -41,19 +41,25 @@ export const Input = styled.input`
 export const Footer = styled.div`
   display: flex;
   justify-content: flex-end;
+  gap: 12px;
 `;
 
 export const SubmitButton = styled.button`
   height: 40px;
   padding: 0 18px;
   border: none;
-  border-radius: ${theme.radius.small};
+  border-radius: ${theme.radius.medium};
   background: ${theme.colors.green[600]};
   color: ${theme.colors.white};
   font-weight: 600;
   cursor: pointer;
 
-  &:hover {
+  &:not(:disabled):hover {
     background: ${theme.colors.green[700]};
+  }
+
+  &:disabled {
+    background-color: ${theme.colors.gray[300]};
+    cursor: not-allowed;
   }
 `;

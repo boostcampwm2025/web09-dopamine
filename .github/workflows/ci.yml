@@ -1,21 +1,39 @@
-name: CI - Build Test
+name: CI
 
 on:
   pull_request:
-    branches: [ "main", "dev" ]
+    branches: ['main', 'dev']
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+  push:
+    branches: ['dev']
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
 
 jobs:
-  build-test:
+  build-check:
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
 
-      - name: Build Docker image (test only)
-        uses: docker/build-push-action@v5
+      # Node.js 설치
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          context: .
-          file: ./Dockerfile
-          push: false
-          tags: web09-dopamine:test
-          platforms: linux/amd64
+          node-version: '22'
+          cache: 'yarn'
+
+      # 의존성 설치
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      # Prisma 생성
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      # Next.js 빌드
+      - name: Build
+        run: yarn build

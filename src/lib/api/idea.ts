@@ -1,85 +1,61 @@
 import type { CreateIdeaRequest, Idea } from '@/types/idea';
+import getAPIResponseData from '../utils/api-response';
 
-export async function fetchIdeas(issueId: string): Promise<Idea[]> {
-  try {
-    const response = await fetch(`/api/issues/${issueId}/idea`);
-    if (response.ok) {
-      const data = await response.json();
-      return data.ideas;
-    }
-    return [];
-  } catch (error) {
-    console.error('아이디어 조회 실패:', error);
-    return [];
-  }
+type UpdateIdeaPayload = {
+  positionX?: number | null;
+  positionY?: number | null;
+  categoryId?: string | null;
+};
+
+// 아이디어 목록 조회
+export function fetchIdeas(issueId: string): Promise<Idea[]> {
+  return getAPIResponseData<Idea[]>({
+    url: `/api/issues/${issueId}/ideas`,
+    method: 'GET',
+  });
 }
 
-export async function createIdea(issueId: string, ideaData: CreateIdeaRequest): Promise<Idea> {
-  const response = await fetch(`/api/issues/${issueId}/idea`, {
+// 아이디어 생성
+export function createIdea(issueId: string, ideaData: CreateIdeaRequest): Promise<Idea> {
+  return getAPIResponseData<Idea>({
+    url: `/api/issues/${issueId}/ideas`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(ideaData),
   });
-
-  if (!response.ok) {
-    throw new Error('아이디어 생성에 실패했습니다.');
-  }
-
-  return response.json();
 }
 
-export async function deleteIdea(issueId: string, ideaId: string): Promise<{ success: boolean }> {
-  const response = await fetch(`/api/issues/${issueId}/idea?ideaId=${ideaId}`, {
-    method: 'DELETE',
-  });
-
-  if (!response.ok) {
-    throw new Error('아이디어 삭제에 실패했습니다.');
-  }
-
-  return response.json();
-}
-
-export const getIdea = async (ideaId: string, userId?: string) => {
-  //TODO: userId를 클라이언트에서 전달하지 않는 방식으로 수정 필요
+// 단일 아이디어 조회 (myVote 포함)
+export function getIdea(issueId: string, ideaId: string, userId?: string): Promise<Idea> {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
   };
 
-  if (userId) {
-    headers['x-user-id'] = userId;
-  }
-
-  const response = await fetch(`/api/ideas/${ideaId}`, {
+  return getAPIResponseData<Idea>({
+    url: `/api/issues/${issueId}/idea/${ideaId}`,
     method: 'GET',
-    headers: headers,
+    headers,
   });
+}
 
-  if (!response.ok) {
-    throw new Error('아이디어 조회에 실패했습니다.');
-  }
-
-  return response.json();
-};
-
-export async function updateIdea(
+// 아이디어 위치 / 카테고리 수정
+export function updateIdea(
   issueId: string,
   ideaId: string,
-  payload: {
-    positionX?: number | null;
-    positionY?: number | null;
-    categoryId?: string | null;
-  },
+  payload: UpdateIdeaPayload,
 ): Promise<Idea> {
-  const response = await fetch(`/api/issues/${issueId}/idea`, {
+  return getAPIResponseData<Idea>({
+    url: `/api/issues/${issueId}/idea/${ideaId}`,
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ ideaId, ...payload }),
   });
+}
 
-  if (!response.ok) {
-    throw new Error('아이디어 수정에 실패했습니다.');
-  }
-
-  return response.json();
+// 아이디어 삭제
+export function deleteIdea(issueId: string, ideaId: string): Promise<void> {
+  return getAPIResponseData<void>({
+    url: `/api/issues/${issueId}/idea/${ideaId}`,
+    method: 'DELETE',
+  });
 }

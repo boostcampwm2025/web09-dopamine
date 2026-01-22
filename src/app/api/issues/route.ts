@@ -1,15 +1,18 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { IssueRole } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { issueMemberRepository } from '@/lib/repositories/issue-member.repository';
 import { createIssue } from '@/lib/repositories/issue.repository';
 import { createAnonymousUser } from '@/lib/repositories/user.repository';
+import { createErrorResponse } from '@/lib/utils/api-helpers';
+import { createSuccessResponse } from '@/lib/utils/api-helpers';
+import { setUserIdCookie } from '@/lib/utils/cookie';
 
 export async function POST(req: NextRequest) {
   const { title, nickname } = await req.json();
 
   if (!nickname || !title) {
-    return NextResponse.json({ message: 'nickname과 title은 필수입니다.' }, { status: 400 });
+    return createErrorResponse('NICKNAME_AND_TITLE_REQUIRED', 400);
   }
 
   try {
@@ -24,9 +27,14 @@ export async function POST(req: NextRequest) {
       };
     });
 
-    return NextResponse.json(result, { status: 201 });
+    // 빠른 이슈일 때만 익명 쿠키 생성
+    if (nickname) {
+      await setUserIdCookie(result.issueId, result.userId);
+    }
+
+    return createSuccessResponse(result, 201);
   } catch (error) {
     console.error('빠른 이슈 생성 실패:', error);
-    return NextResponse.json({ message: '이슈 생성 실패' }, { status: 500 });
+    return createErrorResponse('ISSUE_CREATE_FAILED', 500);
   }
 }

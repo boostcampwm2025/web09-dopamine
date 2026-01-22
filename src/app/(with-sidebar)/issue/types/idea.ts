@@ -28,6 +28,11 @@ export interface IdeaWithPosition {
   disagreeCount?: number;
   needDiscussion?: boolean;
   editable?: boolean;
+  comments?: Array<{
+    id: string;
+    content: string;
+    createdAt: Date | string;
+  }>;
 }
 
 export type CardStatus = 'mostLiked' | 'needDiscussion' | 'selected' | 'default';

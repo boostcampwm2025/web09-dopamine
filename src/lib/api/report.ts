@@ -1,6 +1,7 @@
 /**
  * 리포트 관련 API 함수
  */
+import getAPIResponseData from '@/lib/utils/api-response';
 
 export interface WordCloudItem {
   word: string;
@@ -20,16 +21,10 @@ export interface WordCloudResponse {
  */
 export async function getWordClouds(issueId: string): Promise<WordCloudItem[]> {
   try {
-    const response = await fetch(`/api/reports/${issueId}/word-cloud`, {
+    const data = await getAPIResponseData<WordCloudResponse>({
+      url: `/api/reports/${issueId}/word-cloud`,
       method: 'GET',
-      cache: 'no-store',
     });
-
-    if (!response.ok) {
-      throw new Error('워드클라우드 조회에 실패했습니다.');
-    }
-
-    const data: WordCloudResponse = await response.json();
 
     return data.wordClouds.map((item) => ({
       word: item.word,
@@ -46,16 +41,10 @@ export async function getWordClouds(issueId: string): Promise<WordCloudItem[]> {
  */
 export async function generateWordCloud(issueId: string): Promise<WordCloudItem[]> {
   try {
-    const response = await fetch(`/api/reports/${issueId}/word-cloud`, {
+    const data = await getAPIResponseData<{ success: boolean; wordClouds: WordCloudItem[] }>({
+      url: `/api/reports/${issueId}/word-cloud`,
       method: 'POST',
-      cache: 'no-store',
     });
-
-    if (!response.ok) {
-      throw new Error('워드클라우드 생성에 실패했습니다.');
-    }
-
-    const data = await response.json();
 
     return data.wordClouds || [];
   } catch (error) {

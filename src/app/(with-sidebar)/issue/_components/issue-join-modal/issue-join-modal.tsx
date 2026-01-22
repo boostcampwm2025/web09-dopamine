@@ -1,7 +1,7 @@
 'use client';
 
-import { IssueJoinModalProps, useIssueJoinModal } from '../../hooks/use-issue-join-modal';
 import * as S from './issue-join-modal.styles';
+import { IssueJoinModalProps, useIssueJoinModal } from './use-issue-join-modal';
 
 export default function IssueJoinModal({ issueId }: IssueJoinModalProps) {
   const { nickname, isLoading, setNickname, handleJoin } = useIssueJoinModal({ issueId });

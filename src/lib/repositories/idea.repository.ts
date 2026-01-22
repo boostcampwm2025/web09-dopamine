@@ -1,5 +1,5 @@
-﻿import { prisma } from '@/lib/prisma';
-import { Prisma } from '@prisma/client';
+﻿import { Prisma } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 
 export const ideaRepository = {
   async findByIssueId(issueId: string) {
@@ -14,7 +14,7 @@ export const ideaRepository = {
             id: true,
             name: true,
             displayName: true,
-            avatarUrl: true,
+            image: true,
           },
         },
         category: {
@@ -39,10 +39,20 @@ export const ideaRepository = {
     });
   },
 
-  async resetCategoriesByIssueId(
-    issueId: string,
-    tx: Prisma.TransactionClient = prisma,
-  ) {
+  async findIdAndContentByIssueId(issueId: string) {
+    return prisma.idea.findMany({
+      where: {
+        issueId,
+        deletedAt: null,
+      },
+      select: {
+        id: true,
+        content: true,
+      },
+    });
+  },
+
+  async resetCategoriesByIssueId(issueId: string, tx: Prisma.TransactionClient = prisma) {
     return tx.idea.updateMany({
       where: { issueId },
       data: { categoryId: null, positionX: null, positionY: null },
@@ -72,7 +82,7 @@ export const ideaRepository = {
             id: true,
             name: true,
             displayName: true,
-            avatarUrl: true,
+            image: true,
           },
         },
         category: {
@@ -92,11 +102,14 @@ export const ideaRepository = {
     });
   },
 
-  async update(ideaId: string, data: {
-    positionX?: number;
-    positionY?: number;
-    categoryId?: string;
-  }) {
+  async update(
+    ideaId: string,
+    data: {
+      positionX?: number;
+      positionY?: number;
+      categoryId?: string;
+    },
+  ) {
     const { positionX, positionY, categoryId } = data;
     return prisma.idea.update({
       where: { id: ideaId },
@@ -111,7 +124,7 @@ export const ideaRepository = {
             id: true,
             name: true,
             displayName: true,
-            avatarUrl: true,
+            image: true,
           },
         },
         category: {
@@ -122,8 +135,5 @@ export const ideaRepository = {
         },
       },
     });
-  }
+  },
 };
-
-
-

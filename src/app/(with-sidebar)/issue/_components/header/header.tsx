@@ -4,10 +4,10 @@ import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import { useTooltipStore } from '@/components/tooltip/use-tooltip-store';
 import { ISSUE_STATUS } from '@/constants/issue';
-import { useHeader } from '../../hooks/use-header';
 import ProgressBar from '../progress-bar/progress-bar';
 import HeaderButton from './header-button';
 import * as S from './header.styles';
+import { useHeader } from './use-header';
 
 const Header = () => {
   const params = useParams<{ id: string }>();
@@ -19,8 +19,11 @@ const Header = () => {
     handleCloseIssue,
     handleNextStep,
     handleAddCategory,
-    startAIStructure,
-  } = useHeader({ issueId });
+    handleAIStructureStart,
+    handleCopyURL,
+  } = useHeader({
+    issueId,
+  });
 
   const openTooltip = useTooltipStore((state) => state.openTooltip);
   const closeTooltip = useTooltipStore((state) => state.closeTooltip);
@@ -41,7 +44,7 @@ const Header = () => {
               imageSrc="/stick.svg"
               alt="AI 구조화"
               text="AI 구조화"
-              onClick={startAIStructure}
+              onClick={handleAIStructureStart}
               variant="outline"
             />
           </>
@@ -99,6 +102,7 @@ const Header = () => {
         <HeaderButton
           imageSrc="/share.svg"
           alt="공유하기"
+          onClick={handleCopyURL}
         />
       </S.RightSection>
     </S.HeaderContainer>

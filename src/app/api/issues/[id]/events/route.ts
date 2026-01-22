@@ -1,5 +1,7 @@
 import { NextRequest } from 'next/server';
 import { sseManager } from '@/lib/sse/sse-manager';
+import { createErrorResponse } from '@/lib/utils/api-helpers';
+import { getUserIdFromRequest } from '@/lib/utils/cookie';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,9 +18,13 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
   /**
    * @todo Session 혹은 JWT 등에서 사용자 정보를 받아오도록 수정 필요
-   * 임시로 x-user-id 헤더에 담아서 보내도록 함
+   * 우선 쿠키에서 정보를 받아오는 것으로 수정
    */
-  const userId = request.headers.get('x-user-id');
+  const userId = getUserIdFromRequest(request, issueId);
+
+  if (!userId) {
+    return createErrorResponse('USER_ID_REQUIRED', 401);
+  }
 
   // SSE 스트림 생성
   const stream = sseManager.createStream({

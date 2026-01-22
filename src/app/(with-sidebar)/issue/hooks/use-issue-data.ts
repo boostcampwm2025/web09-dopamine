@@ -1,12 +1,12 @@
 import { useIssueStore } from '@/app/(with-sidebar)/issue/store/use-issue-store';
 import { ISSUE_STATUS } from '@/constants/issue';
 import { IssueStatus } from '@/types/issue';
-import { useIssueMemberQuery } from './queries/use-issue-member-query';
-import { useIssueQuery } from './queries/use-issue-query';
+import { useIssueMemberQuery } from './react-query/use-issue-member-query';
+import { useIssueQuery } from './react-query/use-issue-query';
 
-export function useIssueData(issueId: string) {
-  const { data: issue } = useIssueQuery(issueId);
-  const { data: members = [] } = useIssueMemberQuery(issueId);
+export function useIssueData(issueId: string, enabled: boolean = true) {
+  const { data: issue, isError: isIssueError } = useIssueQuery(issueId, enabled);
+  const { data: members = [], isError: isMembersError } = useIssueMemberQuery(issueId, enabled);
 
   const status = issue?.status as IssueStatus;
   const isQuickIssue = !issue?.topicId;
@@ -18,6 +18,7 @@ export function useIssueData(issueId: string) {
   const isVoteDisabled = status === ISSUE_STATUS.SELECT;
 
   return {
+    isIssueError: isIssueError || isMembersError,
     status,
     members,
     isQuickIssue,

@@ -50,7 +50,8 @@ export const MemoInputWrapper = styled.div`
   align-items: center;
   border: 1px solid ${theme.colors.gray[200]};
   border-radius: ${theme.radius.medium};
-  padding: 8px 0;`;
+  padding: 8px 0;
+`;
 
 export const MemoInput = styled.textarea`
   width: 100%;
@@ -74,13 +75,12 @@ export const MemoInput = styled.textarea`
 
   &::-webkit-scrollbar-track {
     background: transparent;
-      border-radius: ${theme.radius.medium};
-
+    border-radius: ${theme.radius.medium};
   }
 
   &::-webkit-scrollbar-thumb {
     background: ${theme.colors.gray[300]};
-      border-radius: ${theme.radius.medium};
+    border-radius: ${theme.radius.medium};
   }
 `;
 

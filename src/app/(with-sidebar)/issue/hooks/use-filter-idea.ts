@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
-import type { IdeaWithPosition } from '../types/idea';
 
 export type FilterType = 'most-liked' | 'need-discussion' | 'none';
 
-export const useFilterIdea = (issueId: string, initialIdeas: IdeaWithPosition[]) => {
+export const useFilterIdea = (issueId: string) => {
   const [activeFilter, setActiveFilter] = useState<FilterType>('none');
   const [filteredIds, setFilteredIds] = useState<Set<string>>(new Set());
 
@@ -25,18 +24,23 @@ export const useFilterIdea = (issueId: string, initialIdeas: IdeaWithPosition[])
 
       try {
         // 2. 서버에 선택된 필터 기준에 따른 아이디어 ID 목록을 요청
-        const response = await fetch(`/api/issues/${issueId}/idea?filter=${activeFilter}`);
-        
+        const response = await fetch(`/api/issues/${issueId}/ideas?filter=${activeFilter}`);
+
         if (!response.ok) {
           throw new Error('Failed to fetch filtered ids');
         }
-        
-        const data = await response.json();
+
+        const result = await response.json();
+
+        // 표준 응답 형식 처리: { success, data, error }
+        if (!result.success) {
+          throw new Error(result.error?.message || 'Failed to fetch filtered ids');
+        }
 
         // 3. [검증] 최신 요청에 대한 응답인 경우에만 상태 업데이트
         // (네트워크 지연으로 인해 이전 필터 결과가 나중에 도착하는 현상 방지)
         if (!cancelled) {
-          setFilteredIds(new Set(data.filteredIds ?? []));
+          setFilteredIds(new Set(result.data.filteredIds ?? []));
         }
       } catch (error) {
         // 4. 요청 실패 시 에러 로그를 남기고 필터링된 목록을 비움
@@ -52,7 +56,7 @@ export const useFilterIdea = (issueId: string, initialIdeas: IdeaWithPosition[])
     return () => {
       cancelled = true;
     };
-  }, [issueId, activeFilter, initialIdeas]);
+  }, [issueId, activeFilter]);
 
   return {
     activeFilter,

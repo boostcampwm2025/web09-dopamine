@@ -3,7 +3,7 @@
   justify-content: center;
   width: 100%;
   height: fit-content;
-  background: #F9FAFB;
+  background: #f9fafb;
 }
 
 .container {
@@ -15,7 +15,7 @@
   padding: 60px 80px;
   flex: 1;
   height: fit-content;
-  background: #F9FAFB;
+  background: #f9fafb;
   max-width: 1200px;
 }
 
@@ -26,8 +26,8 @@
 }
 
 .componentBox {
-  background: #FFFFFF;
-  border: 1px solid #E5E7EB;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
   border-radius: 12px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.03);
   display: flex;

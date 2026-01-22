@@ -17,6 +17,7 @@ export const Sidebar = styled.aside`
   background-color: ${theme.colors.white};
   color: ${theme.colors.gray[400]};
   box-shadow: 2px 0 2px -1px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
 `;
 
 export const InputWrapper = styled.div`
@@ -57,32 +58,38 @@ export const SidebarInput = styled.input`
 
 export const SidebarTitle = styled.div`
   display: flex;
-
   align-items: center;
   justify-content: space-between;
   width: 100%;
   padding: 10px 16px;
   font-size: ${theme.font.size.medium};
-  font-weight: 700;
+  font-weight: ${theme.font.weight.bold};
   letter-spacing: 1px;
+
+  & span {
+    font-weight: ${theme.font.weight.medium};
+    margin-left: 8px;
+  }
 `;
 
 export const SidebarList = styled.ul`
   display: flex;
   flex-flow: column nowrap;
+  flex: 1 1 0;
   overflow-y: auto;
+  min-height: 0;
+  gap: 4px;
 `;
 export const SidebarListItem = styled.li`
   display: flex;
   flex-flow: row nowrap;
-  flex-grow: 1;
+  flex-shrink: 0;
 `;
 
 export const ListItemLink = styled(Link)`
   display: flex;
   flex-flow: row nowrap;
   align-items: center;
-  justify-content: space-between;
   width: 100%;
   padding: 10px 16px 10px 24px;
   background-color: ${theme.colors.white};
@@ -90,6 +97,7 @@ export const ListItemLink = styled(Link)`
   color: ${theme.colors.gray[700]};
   border: none;
   text-decoration: none;
+  gap: 8px;
 
   &:hover,
   &:focus {
@@ -109,4 +117,12 @@ export const StatusLabel = styled.span<{
   background-color: ${theme.colors.white};
   border: 1px solid ${({ status }) => theme.status[status].color};
   border-radius: ${theme.radius.large};
+  margin-left: auto;
+`;
+
+export const Bullet = styled.div`
+  width: 8px;
+  height: 8px;
+  background-color: ${theme.colors.gray[300]};
+  border-radius: ${theme.radius.full};
 `;

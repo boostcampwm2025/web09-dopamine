@@ -1,14 +1,14 @@
-﻿import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
-import { useCategoryMutations } from '@/app/(with-sidebar)/issue/hooks/queries/use-category-mutation';
-import { useCategoryQuery } from '@/app/(with-sidebar)/issue/hooks/queries/use-category-query';
+import { useCategoryMutations } from './react-query/use-category-mutation';
+import { useCategoryQuery } from './react-query/use-category-query';
 import type { Position } from '@/app/(with-sidebar)/issue/types/idea';
 import type { IdeaWithPosition } from '@/app/(with-sidebar)/issue/types/idea';
 
 export function useCategoryOperations(issueId: string, ideas: IdeaWithPosition[], scale: number) {
   const categorySizesRef = useRef<Map<string, { width: number; height: number }>>(new Map());
 
-  const { data: categories = [] } = useCategoryQuery(issueId);
+  const { data: categories = [], isError } = useCategoryQuery(issueId);
 
   const { create, update, remove } = useCategoryMutations(issueId);
 
@@ -136,6 +136,7 @@ export function useCategoryOperations(issueId: string, ideas: IdeaWithPosition[]
 
   return {
     categories,
+    isError,
     checkCategoryOverlap,
     handleCategoryPositionChange,
     handleDeleteCategory,
