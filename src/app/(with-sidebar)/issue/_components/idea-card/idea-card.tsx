@@ -31,6 +31,7 @@ interface IdeaCardProps {
   disagreeCount?: number;
   editable?: boolean;
   status?: CardStatus;
+  isHotIdea?: boolean;
   onVoteChange?: (agreeCount: number, disagreeCount: number) => void;
   categoryId?: string | null;
   onSave?: (content: string) => void;
@@ -146,7 +147,7 @@ export default function IdeaCard(props: IdeaCardProps) {
       textareaRef.current.style.height = 'auto';
       textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
     }
-  }, [editValue]);
+  }, [editValue, textareaRef]);
 
   useEffect(() => {
     // 입력 중인 카드의 드래그가 끝난 경우, textarea에 포커스
@@ -158,7 +159,7 @@ export default function IdeaCard(props: IdeaCardProps) {
 
       return () => clearTimeout(timer);
     }
-  }, [isDragging]);
+  }, [isDragging, isEditing, textareaRef]);
 
   // 스타일 계산
   // 자유 배치 모드(categoryId === null)면 absolute positioning
@@ -196,7 +197,10 @@ export default function IdeaCard(props: IdeaCardProps) {
           ))}
       style={cardStyle}
     >
-      <IdeaCardBadge status={status} />
+      <IdeaCardBadge
+        status={status}
+        isHotIdea={props.isHotIdea}
+      />
       <IdeaCardHeader
         isEditing={isEditing}
         editValue={editValue}

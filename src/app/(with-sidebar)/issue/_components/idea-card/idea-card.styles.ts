@@ -7,7 +7,7 @@ import { CardStatus } from '../../types/idea';
 export const Badge = styled.div<{ status?: CardStatus }>`
   position: absolute;
   top: -20px;
-  right: 12px;
+  left: 12px;
   display: inline-flex;
   align-items: center;
   gap: 5px;
@@ -19,6 +19,40 @@ export const Badge = styled.div<{ status?: CardStatus }>`
   font-weight: 800;
   opacity: ${({ status }) => (status === 'selected' ? 1 : 0)};
 `;
+
+export const HotPotatoBadge = styled.div`
+  position: absolute;
+  top: -15px;
+  left: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: linear-gradient(
+    135deg,
+    ${theme.colors.yellow[600]} 0%,
+    ${theme.colors.red[500]} 100%
+  );
+  color: ${theme.colors.white};
+  border-radius: ${theme.radius.large};
+  box-shadow: 0 6px 18px rgba(220, 38, 38, 0.4);
+  font-weight: 700;
+  font-size: 14px;
+  animation: hotPotatoPulse 2s ease-in-out infinite;
+
+  @keyframes hotPotatoPulse {
+    0%,
+    100% {
+      transform: scale(1);
+      box-shadow: 0 6px 18px rgba(220, 38, 38, 0.4);
+    }
+    50% {
+      transform: scale(1.05);
+      box-shadow: 0 8px 24px rgba(220, 38, 38, 0.6);
+    }
+  }
+`;
+
 export const Card = styled.article<{
   issueStatus?: IssueStatus;
   status?: CardStatus;
