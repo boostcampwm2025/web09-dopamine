@@ -35,8 +35,11 @@ export const CLIENT_ERROR_MESSAGES: Record<string, string> = {
   OWNER_PERMISSION_REQUIRED: '방장 권한이 필요합니다.',
 
   // 프로젝트 초대
+  INVITATION_NOT_FOUND: '유효하지 않은 초대 링크입니다.',
   INVITATION_TOKEN_CREATE_FAILED: '초대 링크를 생성할 수 없습니다.',
   PROJECT_JOIN_FAILED: '프로젝트에 참여할 수 없습니다.',
+  CODE_REQUIRED: '초대 코드가 필요합니다.',
+  INVITATION_EXPIRED: '만료된 초대 링크입니다.',
 
   // 카테고리 AI 구조화
   CATEGORIES_REQUIRED: '카테고리 데이터가 필요합니다.',

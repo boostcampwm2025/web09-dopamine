@@ -157,6 +157,10 @@ export function useCommentList({
 
   const handleEditKeyDown = useCallback(
     (event: KeyboardEvent<HTMLTextAreaElement>) => {
+      if (event.nativeEvent.isComposing) {
+        return;
+      }
+
       if (event.key === 'Enter' && !event.shiftKey) {
         event.preventDefault();
         handleEditSave();

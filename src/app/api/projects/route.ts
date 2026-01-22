@@ -11,7 +11,10 @@ export async function GET() {
   }
 
   try {
-    const projects = await projectRepository.getProjectsByOwnerId(ownerId!);
+    // 내 소유의 프로젝트와 게트스로 참여중인 프로젝트를 모두 불려옴
+    const myOwnProjects = await projectRepository.getProjectsByOwnerId(ownerId!);
+    const guestProjects = await projectRepository.getProjectsByMemberId(ownerId!);
+    const projects = [...myOwnProjects, ...guestProjects];
     return createSuccessResponse(projects, 200);
   } catch (error) {
     console.error('프로젝트 목록 조회 실패:', error);

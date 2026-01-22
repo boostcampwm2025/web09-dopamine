@@ -22,6 +22,11 @@ export const SSE_EVENT_TYPES = {
   // 투표
   VOTE_CHANGED: 'vote:changed',
 
+  // 댓글
+  COMMENT_CREATED: 'comment:created',
+  COMMENT_UPDATED: 'comment:updated',
+  COMMENT_DELETED: 'comment:deleted',
+
   // 이슈 상태
   ISSUE_STATUS_CHANGED: 'issue:status_changed',
   CLOSE_MODAL_OPENED: 'close_modal:opened',

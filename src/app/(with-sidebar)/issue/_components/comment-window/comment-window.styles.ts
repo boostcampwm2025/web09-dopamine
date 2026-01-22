@@ -1,9 +1,13 @@
-﻿import styled from '@emotion/styled';
+import styled from '@emotion/styled';
 import { theme } from '@/styles/theme';
 
-export const Window = styled.section`
-  position: absolute;
-  z-index: 1100;
+export const Window = styled.section<{ x?: number; y?: number; scale?: number }>`
+  position: fixed;
+  left: ${({ x }) => (x !== undefined ? `${x}px` : '0px')};
+  top: ${({ y }) => (y !== undefined ? `${y}px` : '0px')};
+  transform: ${({ scale = 1 }) => `scale(${scale})`};
+  transform-origin: top left;
+  z-index: 9999;
   width: 420px;
   height: 500px;
   min-width: 260px;
@@ -82,7 +86,7 @@ export const CommentSection = styled(Section)`
 export const CommentList = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 0;
   overflow: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -94,8 +98,13 @@ export const CommentList = styled.div`
 `;
 
 export const CommentItem = styled.div`
-  padding: 12px 14px;
+  padding: 14px 14px;
   position: relative;
+  border-bottom: 1px solid ${theme.colors.gray[100]};
+
+  &:last-child {
+    border-bottom: none;
+  }
 `;
 
 export const CommentHeader = styled.div`
@@ -103,24 +112,25 @@ export const CommentHeader = styled.div`
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 `;
 
 export const CommentMeta = styled.div`
-  font-size: ${theme.font.size.medium};
+  font-size: ${theme.font.size.small};
   color: ${theme.colors.gray[500]};
+  font-weight: 500;
 `;
 
 export const CommentActions = styled.div`
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 `;
 
 export const CommentBody = styled.div<{ $isClamped: boolean }>`
-  font-size: ${theme.font.size.medium};
-  color: ${theme.colors.gray[800]};
-  line-height: 1.5;
+  font-size: 15px;
+  color: ${theme.colors.gray[900]};
+  line-height: 1.6;
   max-width: 100%;
   white-space: pre-wrap;
   word-break: break-word;
@@ -143,8 +153,8 @@ export const CommentMeasure = styled.div`
   width: 100%;
   visibility: hidden;
   pointer-events: none;
-  font-size: ${theme.font.size.medium};
-  line-height: 1.5;
+  font-size: 15px;
+  line-height: 1.6;
   white-space: pre-wrap;
   word-break: break-word;
   height: auto;
@@ -181,20 +191,24 @@ export const EditInput = styled.textarea`
 `;
 
 export const Btn = styled.button<{ $variant?: 'default' | 'danger' }>`
-  border: 1px solid
-    ${({ $variant }) => ($variant === 'danger' ? theme.colors.red[400] : theme.colors.gray[200])};
-  background: ${({ $variant }) =>
-    $variant === 'danger' ? theme.colors.red[50] : theme.colors.white};
+  border: none;
+  background: transparent;
   color: ${({ $variant }) =>
-    $variant === 'danger' ? theme.colors.red[600] : theme.colors.gray[700]};
-  font-size: ${theme.font.size.small};
-  font-weight: ${theme.font.weight.semibold};
+    $variant === 'danger' ? theme.colors.gray[400] : theme.colors.gray[400]};
+  font-size: 12px;
+  font-weight: 400;
   cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 8px;
+  padding: 2px 4px;
+  transition: color 0.15s ease;
+
   &:hover {
-    background: ${({ $variant }) =>
-      $variant === 'danger' ? theme.colors.red[100] : theme.colors.gray[100]};
+    color: ${({ $variant }) =>
+      $variant === 'danger' ? theme.colors.red[600] : theme.colors.gray[700]};
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 `;
 
