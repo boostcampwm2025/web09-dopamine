@@ -54,7 +54,12 @@ export const SubmitButton = styled.button`
   font-weight: 600;
   cursor: pointer;
 
-  &:hover {
+  &:not(:disabled):hover {
     background: ${theme.colors.green[700]};
+  }
+
+  &:disabled {
+    background-color: ${theme.colors.gray[300]};
+    cursor: not-allowed;
   }
 `;

@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { useDeleteProjectMutation } from '@/app/project/hooks/use-project-mutation';
 import { useModalStore } from '@/components/modal/use-modal-store';
+import InviteProjectModal from '../invite-project-modal/invite-project-modal';
 import ProjectCreateModal from '../project-create-modal/project-create-modal';
 import * as S from './project-card.styles';
 
@@ -32,6 +33,20 @@ export function ProjectCard({
   const { mutate: deleteProject } = useDeleteProjectMutation();
 
   const isOwner = session?.user?.id === ownerId;
+
+  const handleInviteMember = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    openModal({
+      title: '멤버 초대하기',
+      content: (
+        <InviteProjectModal
+          id={id!}
+          title={title!}
+        />
+      ),
+      hasCloseButton: true,
+    });
+  };
 
   const handleCreateClick = () => {
     openModal({
@@ -69,7 +84,7 @@ export function ProjectCard({
             <S.MemberAvatar />
             <S.MemberAvatar />
           </S.MemberAvatars>
-          <S.AddMember>+ 초대하기</S.AddMember>
+          <S.AddMember onClick={(e) => handleInviteMember(e)}>+ 초대하기</S.AddMember>
         </S.CardBody>
       </S.CardFooter>
     </S.Card>

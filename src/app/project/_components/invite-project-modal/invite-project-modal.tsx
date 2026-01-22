@@ -1,0 +1,169 @@
+'use client';
+
+import { useState } from 'react';
+import toast from 'react-hot-toast';
+import { useModalStore } from '@/components/modal/use-modal-store';
+import * as S from './invite-project-modal.styles';
+
+interface InviteModalProps {
+  id: string;
+  title: string;
+}
+export default function InviteProjectModal({ id, title }: InviteModalProps) {
+  const [tags, setTags] = useState<string[]>([]);
+  const [code, setCode] = useState('');
+  const [inputValue, setInputValue] = useState('');
+  const { closeModal } = useModalStore();
+
+  const resetCode = () => {
+    if (code) setCode('');
+  };
+
+  const addTag = (email: string) => {
+    const trimmedEmail = email.trim();
+    if (trimmedEmail === '') return;
+
+    if (tags.includes(trimmedEmail)) {
+      toast.error('이미 포함된 이메일입니다.');
+      return;
+    }
+
+    if (tags.length >= 10) {
+      toast.error('한번에 10개까지 추가할 수 있습니다.');
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(trimmedEmail)) {
+      toast.error('올바른 이메일 형식이 아닙니다.');
+      return;
+    }
+
+    setTags([...tags, trimmedEmail]);
+    setInputValue('');
+    resetCode();
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.nativeEvent.isComposing) return;
+
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addTag(inputValue);
+    }
+  };
+
+  const handleRemoveTag = (index: number) => {
+    setTags(tags.filter((_, i) => i !== index));
+    resetCode();
+  };
+
+  const handleResetTag = () => {
+    setTags([]);
+    resetCode();
+  };
+
+  const handleCopy = async (code: string) => {
+    // 1. 현재 도메인 + 프로젝트 경로 + 초대코드 조합
+    const fullUrl = `${window.location.origin}/project/${id}?code=${code}`;
+
+    try {
+      // 2. 클립보드에 쓰기
+      await navigator.clipboard.writeText(fullUrl);
+      toast.success('초대 링크를 복사했습니다!');
+    } catch (err) {
+      console.error('복사 실패:', err);
+      toast.error('초대 링크를 클립보드에 복사할 수 없습니다.');
+    }
+  };
+
+  const handleInvite = async () => {
+    if (inputValue.trim()) {
+      toast.error('입력 중인 이메일이 있습니다.');
+      return;
+    }
+
+    if (tags.length === 0) {
+      toast.error('이메일을 입력해주세요!');
+      return;
+    }
+    // 추후 백엔드에서 생성하는 방식으로 변경
+    const token = crypto.randomUUID();
+    setCode(token);
+    await handleCopy(token);
+  };
+
+  const handleCancel = () => {
+    closeModal();
+  };
+
+  return (
+    <S.Container>
+      <S.InfoContainer>
+        <S.InputWrapper>
+          <S.InputTitle>프로젝트 이름</S.InputTitle>
+          <S.Title>{title}</S.Title>
+        </S.InputWrapper>
+        <S.InputWrapper>
+          <S.EmailInputTitle>
+            초대 이메일 ({tags.length}/10){' '}
+            {tags.length > 0 && (
+              <S.ResetButton
+                type="button"
+                onClick={handleResetTag}
+              >
+                초기화
+              </S.ResetButton>
+            )}
+          </S.EmailInputTitle>
+          <S.Input
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="초대할 이메일을 입력하고 Enter를 눌러주세요."
+            autoComplete="off"
+          />
+        </S.InputWrapper>
+        <S.TagList>
+          {tags.map((tag, i) => {
+            return (
+              <S.TagListItem key={tag}>
+                {tag}
+                <button
+                  type="button"
+                  onClick={() => handleRemoveTag(i)}
+                >
+                  &times;
+                </button>
+              </S.TagListItem>
+            );
+          })}
+        </S.TagList>
+      </S.InfoContainer>
+
+      <S.Footer>
+        {code && (
+          <S.CopyLinkButton
+            type="button"
+            onClick={() => handleCopy(code)}
+          >
+            초대 링크 다시 복사하기
+          </S.CopyLinkButton>
+        )}
+        <S.CancelButton
+          type="button"
+          onClick={handleCancel}
+        >
+          취소
+        </S.CancelButton>
+        <S.SubmitButton
+          type="button"
+          onClick={handleInvite}
+          disabled={!!code}
+        >
+          초대 링크 생성
+        </S.SubmitButton>
+      </S.Footer>
+    </S.Container>
+  );
+}
