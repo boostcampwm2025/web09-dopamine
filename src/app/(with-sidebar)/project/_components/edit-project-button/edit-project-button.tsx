@@ -1,9 +1,9 @@
 'use client';
 
 import Image from 'next/image';
+import * as S from '@/app/(with-sidebar)/project/[id]/page.styles';
 import ProjectEditModal from '@/app/(with-sidebar)/project/_components/project-edit-modal/project-edit-modal';
 import { useModalStore } from '@/components/modal/use-modal-store';
-import * as S from '@/app/(with-sidebar)/project/[id]/page.styles';
 
 interface EditProjectProps {
   projectId: string;
@@ -11,7 +11,11 @@ interface EditProjectProps {
   currentDescription?: string;
 }
 
-export default function EditProject({ projectId, currentTitle, currentDescription }: EditProjectProps) {
+export default function EditProject({
+  projectId,
+  currentTitle,
+  currentDescription,
+}: EditProjectProps) {
   const { openModal } = useModalStore();
 
   const handleEditClick = () => {

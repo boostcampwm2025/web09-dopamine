@@ -6,9 +6,9 @@ import toast from 'react-hot-toast';
 import { useUpdateProjectMutation } from '@/app/(with-sidebar)/project/hooks/use-project-mutation';
 import LoadingOverlay from '@/components/loading-overlay/loading-overlay';
 import { useModalStore } from '@/components/modal/use-modal-store';
-import * as S from './project-edit-modal.styles';
-import { maxTitleLength, maxDescriptionLength } from '@/types/project';
 import { isProjectTitleTooLong } from '@/lib/utils/project-title';
+import { maxDescriptionLength, maxTitleLength } from '@/types/project';
+import * as S from './project-edit-modal.styles';
 
 interface EditProjectModalProps {
   projectId: string;
@@ -16,7 +16,11 @@ interface EditProjectModalProps {
   currentDescription?: string;
 }
 
-export default function EditProjectModal({ projectId, currentTitle, currentDescription }: EditProjectModalProps) {
+export default function EditProjectModal({
+  projectId,
+  currentTitle,
+  currentDescription,
+}: EditProjectModalProps) {
   const router = useRouter();
   const [title, setTitle] = useState(currentTitle);
   const [description, setDescription] = useState(currentDescription);
@@ -75,13 +79,15 @@ export default function EditProjectModal({ projectId, currentTitle, currentDescr
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder={currentTitle ?? '프로젝트 제목을 입력해주세요.'}
               />
-              <S.CharCount $isOverLimit={isTitleOverLimit}>{titleLength}/{maxTitleLength}</S.CharCount>
+              <S.CharCount $isOverLimit={isTitleOverLimit}>
+                {titleLength}/{maxTitleLength}
+              </S.CharCount>
             </S.InputRow>
-            {(isTitleOverLimit || isTitleLessLimit) && 
+            {(isTitleOverLimit || isTitleLessLimit) && (
               <S.InputDescription>
                 * 프로젝트 제목은 1~{maxTitleLength}자 이내로 입력해주세요.
               </S.InputDescription>
-            }
+            )}
           </S.InputWrapper>
           <S.InputWrapper>
             <S.InputTitle>프로젝트 설명</S.InputTitle>
@@ -91,13 +97,15 @@ export default function EditProjectModal({ projectId, currentTitle, currentDescr
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder={currentDescription ?? '프로젝트 설명을 입력해주세요.'}
               />
-              <S.CharCount $isOverLimit={isDescriptionOverLimit}>{descriptionLength}/{maxDescriptionLength}</S.CharCount>
+              <S.CharCount $isOverLimit={isDescriptionOverLimit}>
+                {descriptionLength}/{maxDescriptionLength}
+              </S.CharCount>
             </S.InputRow>
-            {(isDescriptionOverLimit || isDescriptionLessLimit) && 
+            {(isDescriptionOverLimit || isDescriptionLessLimit) && (
               <S.InputDescription>
                 * 프로젝트 설명은 1~{maxDescriptionLength}자 이내로 입력해주세요.
               </S.InputDescription>
-            }
+            )}
           </S.InputWrapper>
         </S.InfoContainer>
 

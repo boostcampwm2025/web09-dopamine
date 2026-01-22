@@ -17,6 +17,6 @@ export const useUpdateProjectMutation = () => {
     onError: (error) => {
       console.error('프로젝트 수정 실패:', error);
       toast.error(error.message || '프로젝트 수정에 실패했습니다.');
-    }
+    },
   });
 };

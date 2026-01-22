@@ -6,14 +6,14 @@ export async function getAuthenticatedUserId() {
   const session = await getServerSession(authOptions);
 
   if (!session || !session.user) {
-    return { 
-      userId: null, 
-      error: createErrorResponse('UNAUTHORIZED', 401) 
+    return {
+      userId: null,
+      error: createErrorResponse('UNAUTHORIZED', 401),
     };
   }
 
-  return { 
-    userId: session.user.id, 
-    error: null 
+  return {
+    userId: session.user.id,
+    error: null,
   };
 }

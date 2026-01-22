@@ -5,7 +5,7 @@ import * as S from './project-header.styles';
 
 const ProjectHeader = () => {
   const params = useParams<{ id: string }>();
-  const projectId = params?.id; 
+  const projectId = params?.id;
 
   return (
     <S.HeaderContainer>

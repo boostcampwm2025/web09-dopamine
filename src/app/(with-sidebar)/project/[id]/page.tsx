@@ -2,8 +2,8 @@ import Image from 'next/image';
 import { redirect } from 'next/navigation';
 import * as projectRepository from '@/lib/repositories/project.repository';
 import Card from '../_components/card/card';
-import EditProjectButton from '../_components/edit-project-button/edit-project-button';
 import CreateTopicButton from '../_components/create-topic-button/create-topic-button';
+import EditProjectButton from '../_components/edit-project-button/edit-project-button';
 import * as S from './page.styles';
 
 interface ProjectPageProps {
@@ -34,7 +34,11 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         {/* 프로젝트 헤더 */}
         <S.ProjectTitleHeader>
           <S.DateSection>{createdAt}</S.DateSection>
-          <EditProjectButton projectId={id} currentTitle={title} currentDescription={description ?? undefined} />
+          <EditProjectButton
+            projectId={id}
+            currentTitle={title}
+            currentDescription={description ?? undefined}
+          />
         </S.ProjectTitleHeader>
         {/* 프로젝트 제목 */}
         <S.ProjectTitleWrapper>

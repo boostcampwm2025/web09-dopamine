@@ -1,10 +1,10 @@
 'use client';
 
+import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
-import { useProjectQuery } from '../../hooks/use-project-query';
 import HeaderButton from '@/app/(with-sidebar)/issue/_components/header/header-button';
+import { useProjectQuery } from '../../hooks/use-project-query';
 import * as S from './header.styles';
 
 const ProjectHeader = () => {

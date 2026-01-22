@@ -1,9 +1,9 @@
 import { getServerSession } from 'next-auth';
 import { NextRequest } from 'next/server';
+import { get } from 'http';
 import { authOptions } from '@/lib/auth';
 import * as projectRepository from '@/lib/repositories/project.repository';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
-import { get } from 'http';
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   // 인증 확인
