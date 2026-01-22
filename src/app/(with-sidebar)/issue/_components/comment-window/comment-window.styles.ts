@@ -86,7 +86,7 @@ export const CommentSection = styled(Section)`
 export const CommentList = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 0;
   overflow: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -98,8 +98,13 @@ export const CommentList = styled.div`
 `;
 
 export const CommentItem = styled.div`
-  padding: 12px 14px;
+  padding: 14px 14px;
   position: relative;
+  border-bottom: 1px solid ${theme.colors.gray[100]};
+
+  &:last-child {
+    border-bottom: none;
+  }
 `;
 
 export const CommentHeader = styled.div`
@@ -107,12 +112,13 @@ export const CommentHeader = styled.div`
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 `;
 
 export const CommentMeta = styled.div`
-  font-size: ${theme.font.size.medium};
+  font-size: ${theme.font.size.small};
   color: ${theme.colors.gray[500]};
+  font-weight: 500;
 `;
 
 export const CommentActions = styled.div`
@@ -122,9 +128,9 @@ export const CommentActions = styled.div`
 `;
 
 export const CommentBody = styled.div<{ $isClamped: boolean }>`
-  font-size: ${theme.font.size.medium};
-  color: ${theme.colors.gray[800]};
-  line-height: 1.5;
+  font-size: 15px;
+  color: ${theme.colors.gray[900]};
+  line-height: 1.6;
   max-width: 100%;
   white-space: pre-wrap;
   word-break: break-word;
@@ -147,8 +153,8 @@ export const CommentMeasure = styled.div`
   width: 100%;
   visibility: hidden;
   pointer-events: none;
-  font-size: ${theme.font.size.medium};
-  line-height: 1.5;
+  font-size: 15px;
+  line-height: 1.6;
   white-space: pre-wrap;
   word-break: break-word;
   height: auto;
