@@ -25,6 +25,7 @@ export function getIssue(issueId: string) {
     title: string;
     status: string;
     topicId?: string | null;
+    projectId?: string | null;
     createdAt: string;
     updatedAt: string;
   }>({
