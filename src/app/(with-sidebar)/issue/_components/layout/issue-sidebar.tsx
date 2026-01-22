@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { ChangeEvent } from 'react';
-import { useParams, usePathname } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { getChoseong } from 'es-hangul';
 import MemberSidebarItem from '@/components/sidebar/member-sidebar-item';
@@ -8,8 +8,9 @@ import Sidebar from '@/components/sidebar/sidebar';
 import SidebarItem from '@/components/sidebar/sidebar-item';
 import * as S from '@/components/sidebar/sidebar.styles';
 import { ISSUE_STATUS, MEMBER_ROLE } from '@/constants/issue';
+import { useTopicId } from '@/hooks/use-topic-id';
 import { getTopicIssues } from '@/lib/api/issue-map';
-import { useIssueData, useIssueId, useIssueQuery } from '../../hooks';
+import { useIssueData, useIssueId } from '../../hooks';
 import { useIssueStore } from '../../store/use-issue-store';
 import IssueGraphLink from './issue-graph-link';
 import NewIssueButton from './new-issue-button';
@@ -25,21 +26,15 @@ const ISSUE_LIST = [
 export default function IssueSidebar() {
   const issueId = useIssueId();
   const pathname = usePathname();
-  const params = useParams();
 
   // 현재 페이지가 토픽 페이지인지 확인
   const isTopicPage = pathname?.startsWith('/topic');
-  const topicIdFromUrl = isTopicPage ? (params.id as string) : null;
 
   const { isQuickIssue, members } = useIssueData(issueId);
   const { onlineMemberIds } = useIssueStore();
 
-  // 이슈 페이지에서 토픽 ID 가져오기
-  const { data: issue } = useIssueQuery(issueId);
-  const topicIdFromIssue = issue?.topicId;
-
-  // 토픽 ID 결정: 토픽 페이지면 URL에서, 이슈 페이지면 이슈 데이터에서
-  const topicId = isTopicPage ? topicIdFromUrl : topicIdFromIssue;
+  // 토픽 ID 가져오기 (토픽 페이지면 URL에서, 이슈 페이지면 이슈 데이터에서)
+  const topicId = useTopicId();
 
   // 토픽의 이슈 목록 가져오기 (토픽 페이지 또는 정식 이슈인 경우)
   const { data: topicIssues = [] } = useQuery({

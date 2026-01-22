@@ -1,32 +1,23 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useParams, usePathname, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useMutation } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import * as S from '@/app/(with-sidebar)/issue/_components/issue-join-modal/issue-join-modal.styles';
 import { useCreateIssueInTopicMutation } from '@/app/(with-sidebar)/issue/hooks';
-import { useIssueQuery } from '@/app/(with-sidebar)/issue/hooks';
 import { useModalStore } from '@/components/modal/use-modal-store';
+import { useTopicId } from '@/hooks/use-topic-id';
 import { createIssueInTopic } from '@/lib/api/issue';
 
 export default function CreateIssueModal() {
   const router = useRouter();
-  const params = useParams();
-  const pathname = usePathname();
   const [issueTitle, setIssueTitle] = useState('');
   const { closeModal } = useModalStore();
   const { mutate, isPending } = useCreateIssueInTopicMutation();
 
-  // 토픽 ID 결정: 토픽 페이지면 URL에서, 이슈 페이지면 이슈 데이터에서
-  const isTopicPage = pathname?.startsWith('/topic');
-  const topicIdFromUrl = isTopicPage ? (params.id as string) : null;
-
-  // 이슈 페이지에서는 이슈 데이터에서 topicId 가져오기
-  const issueId = !isTopicPage ? (params.id as string) : '';
-  const { data: issue } = useIssueQuery(issueId);
-  const topicIdFromIssue = issue?.topicId;
-  const topicId = isTopicPage ? topicIdFromUrl : topicIdFromIssue;
+  // 토픽 ID 가져오기 (토픽 페이지면 URL에서, 이슈 페이지면 이슈 데이터에서)
+  const topicId = useTopicId();
 
   const handleCreate = () => {
     if (!topicId) {
