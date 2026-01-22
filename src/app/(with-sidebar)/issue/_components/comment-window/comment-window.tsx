@@ -181,6 +181,26 @@ export default function CommentWindow({
     [onClose],
   );
 
+  // 클릭 시 이벤트 전파 방지
+  const handleWindowClick = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
+    event.stopPropagation();
+  }, []);
+
+  // 포인터 다운 시 이벤트 전파 방지
+  const handleWindowPointerDown = useCallback((event: React.PointerEvent<HTMLDivElement>) => {
+    event.stopPropagation();
+  }, []);
+
+  // 휠 이벤트 전파 방지
+  const handleWindowWheel = useCallback((event: React.WheelEvent<HTMLDivElement>) => {
+    event.stopPropagation();
+  }, []);
+
+  // 휠 캡처 이벤트 전파 방지
+  const handleWindowWheelCapture = useCallback((event: React.WheelEvent<HTMLDivElement>) => {
+    event.stopPropagation();
+  }, []);
+
   return (
     <S.Window
       x={initialPosition?.x}
@@ -188,9 +208,10 @@ export default function CommentWindow({
       scale={scale}
       role="dialog"
       aria-label="댓글"
-      onPointerDown={(event) => event.stopPropagation()}
-      onWheel={(event) => event.stopPropagation()}
-      onWheelCapture={(event) => event.stopPropagation()}
+      onClick={handleWindowClick}
+      onPointerDown={handleWindowPointerDown}
+      onWheel={handleWindowWheel}
+      onWheelCapture={handleWindowWheelCapture}
     >
       <S.Header>
         <S.Title>댓글</S.Title>
