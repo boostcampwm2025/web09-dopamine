@@ -14,7 +14,7 @@ export interface TopicNodeData extends Record<string, unknown> {
 
 function TopicNode({ id, data }: NodeProps<Node<TopicNodeData>>) {
   const router = useRouter();
-  const title = data.title ?? '홍보 플랫폼 선정';
+  const title = data.title;
   const status = data.status ?? ISSUE_STATUS.CLOSE;
   const { hoveredNodeId, connectedNodeIds } = useTopicHoverContext();
   const dimmed = hoveredNodeId ? !connectedNodeIds.has(id) : false;
