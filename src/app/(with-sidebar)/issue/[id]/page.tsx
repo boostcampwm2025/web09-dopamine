@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, usePathname, useRouter } from 'next/navigation';
 import { DndContext, DragOverlay } from '@dnd-kit/core';
 import Canvas from '@/app/(with-sidebar)/issue/_components/canvas/canvas';
@@ -42,6 +42,11 @@ const IssuePage = () => {
 
   const { data: selectedIdeaId } = useSelectedIdeaQuery(issueId);
 
+  // 드래그 중인 아이디어의 임시 position 관리
+  const [draggingPositions, setDraggingPositions] = useState<
+    Record<string, { x: number; y: number }>
+  >({});
+
   // 1. 이슈 데이터 초기화
   const { isLoading } = useIssueQuery(issueId);
   const {
@@ -80,15 +85,46 @@ const IssuePage = () => {
 
   // 2. 아이디어 관련 작업
   const {
-    ideas,
+    ideas: serverIdeas,
     isIdeasError,
     handleCreateIdea,
     handleSaveIdea,
     handleDeleteIdea,
     handleSelectIdea,
-    handleIdeaPositionChange,
+    handleIdeaPositionChange: serverHandleIdeaPositionChange,
     handleMoveIdeaToCategory,
   } = useIdeaOperations(issueId, isCreateIdeaActive);
+
+  // 드래그 중인 position을 오버레이
+  const ideas = useMemo(() => {
+    return serverIdeas.map((idea) => {
+      if (draggingPositions[idea.id]) {
+        return { ...idea, position: draggingPositions[idea.id] };
+      }
+      return idea;
+    });
+  }, [serverIdeas, draggingPositions]);
+
+  // position 변경 핸들러 (로컬 상태로 즉시 반영)
+  const handleIdeaPositionChange = useCallback(
+    (id: string, position: { x: number; y: number }) => {
+      // 즉시 로컬 상태 업데이트 (튕김 방지)
+      setDraggingPositions((prev) => ({ ...prev, [id]: position }));
+
+      // 서버 요청 (백그라운드)
+      serverHandleIdeaPositionChange(id, position);
+
+      // 서버 응답 후 로컬 상태 제거
+      setTimeout(() => {
+        setDraggingPositions((prev) => {
+          const next = { ...prev };
+          delete next[id];
+          return next;
+        });
+      }, 300);
+    },
+    [serverHandleIdeaPositionChange],
+  );
 
   // 3. 카테고리 관련 작업
   const {
@@ -178,7 +214,7 @@ const IssuePage = () => {
 
             {/* 자유 배치 아이디어들 (categoryId === null) */}
             {ideas
-              .filter((idea) => idea.categoryId === null)
+              .filter((idea) => idea.categoryId === null && idea.position !== null)
               .map((idea) => (
                 <IdeaCard
                   key={idea.id}
