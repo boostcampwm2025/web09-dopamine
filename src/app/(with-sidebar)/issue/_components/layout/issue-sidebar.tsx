@@ -121,7 +121,7 @@ export default function IssueSidebar() {
           {!isTopicPage && <IssueGraphLink />}
           <S.SidebarTitle>
             <span>ISSUE LIST</span>
-            {!isTopicPage && <NewIssueButton />}
+            <NewIssueButton />
           </S.SidebarTitle>
           <S.SidebarList>
             {topicId
