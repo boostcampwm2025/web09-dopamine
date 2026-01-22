@@ -1,4 +1,5 @@
-import { memo } from 'react';
+import { memo, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { Node, NodeProps, Position } from '@xyflow/react';
 import { ISSUE_STATUS } from '@/constants/issue';
 import { IssueStatus } from '@/types/issue';
@@ -12,17 +13,24 @@ export interface TopicNodeData extends Record<string, unknown> {
 }
 
 function TopicNode({ id, data }: NodeProps<Node<TopicNodeData>>) {
-  const title = data.title ?? '홍보 플랫폼 선정';
+  const router = useRouter();
+  const title = data.title;
   const status = data.status ?? ISSUE_STATUS.CLOSE;
   const { hoveredNodeId, connectedNodeIds } = useTopicHoverContext();
   const dimmed = hoveredNodeId ? !connectedNodeIds.has(id) : false;
 
+  const handleClick = useCallback(() => {
+    router.push(`/issue/${id}`);
+  }, [id, router]);
+
   return (
     <S.NodeContainer
       status={status}
+      onClick={handleClick}
       style={{
         opacity: dimmed ? 0.3 : 1,
         transition: 'opacity 0.2s ease-in-out',
+        cursor: 'pointer',
       }}
     >
       <S.BadgeWrapper>

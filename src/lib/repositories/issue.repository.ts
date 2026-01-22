@@ -5,10 +5,24 @@ import { PrismaTransaction } from '@/types/prisma';
 type PrismaClientOrTx = PrismaTransaction | typeof prisma;
 
 export async function createIssue(tx: PrismaTransaction, title: string, topicId?: string) {
+  if (topicId) {
+    // 이슈랑 이슈노드 함께 만들기
+    return tx.issue.create({
+      data: {
+        title,
+        topicId,
+        issueNode: {
+          create: {
+            positionX: 500,
+            positionY: 400,
+          },
+        },
+      },
+    });
+  }
   return tx.issue.create({
     data: {
       title,
-      ...(topicId && { topicId }),
     },
   });
 }

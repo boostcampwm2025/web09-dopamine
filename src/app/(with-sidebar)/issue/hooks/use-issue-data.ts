@@ -4,9 +4,9 @@ import { IssueStatus } from '@/types/issue';
 import { useIssueMemberQuery } from './react-query/use-issue-member-query';
 import { useIssueQuery } from './react-query/use-issue-query';
 
-export function useIssueData(issueId: string) {
-  const { data: issue, isError: isIssueError } = useIssueQuery(issueId);
-  const { data: members = [], isError: isMembersError } = useIssueMemberQuery(issueId);
+export function useIssueData(issueId: string, enabled: boolean = true) {
+  const { data: issue, isError: isIssueError } = useIssueQuery(issueId, enabled);
+  const { data: members = [], isError: isMembersError } = useIssueMemberQuery(issueId, enabled);
 
   const status = issue?.status as IssueStatus;
   const isQuickIssue = !issue?.topicId;

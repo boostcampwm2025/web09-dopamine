@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { ISSUE_STATUS, STEP_FLOW } from '@/constants/issue';
-import { createQuickIssue, updateIssueStatus } from '@/lib/api/issue';
+import { createIssueInTopic, createQuickIssue, updateIssueStatus } from '@/lib/api/issue';
 import { setUserIdForIssue } from '@/lib/storage/issue-user-storage';
 import { IssueStatus } from '@/types/issue';
 
@@ -95,4 +95,25 @@ export const useIssueStatusMutations = (issueId: string) => {
   };
 
   return { nextStep: handleNextStep, close };
+};
+
+export const useCreateIssueInTopicMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: { topicId: string; title: string }) =>
+      createIssueInTopic(data.topicId, data.title),
+
+    onSuccess: (newIssue, variables) => {
+      // 토픽의 이슈 목록 캐시 무효화
+      queryClient.invalidateQueries({
+        queryKey: ['topics', variables.topicId, 'issues'],
+      });
+      toast.success('이슈가 생성되었습니다!');
+    },
+
+    onError: (error: Error) => {
+      toast.error(error.message || '이슈 생성에 실패했습니다.');
+    },
+  });
 };
