@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { SSE_EVENT_TYPES } from '@/constants/sse-events';
 import { commentRepository } from '@/lib/repositories/comment.repository';
+import { broadcast } from '@/lib/sse/sse-service';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 
 /**
@@ -29,7 +31,7 @@ export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string; ideaId: string }> },
 ): Promise<NextResponse> {
-  const { ideaId } = await params;
+  const { id: issueId, ideaId } = await params;
   const { userId, content } = await req.json();
 
   if (!userId || !content) {
@@ -41,6 +43,17 @@ export async function POST(
       ideaId,
       userId,
       content,
+    });
+
+    broadcast({
+      issueId,
+      event: {
+        type: SSE_EVENT_TYPES.COMMENT_CREATED,
+        data: {
+          ideaId,
+          commentId: comment.id,
+        },
+      },
     });
 
     return createSuccessResponse(comment, 201);
