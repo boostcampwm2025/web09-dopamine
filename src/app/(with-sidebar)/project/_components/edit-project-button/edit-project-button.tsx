@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import * as S from '@/app/(with-sidebar)/project/[id]/page.styles';
-import ProjectEditModal from '@/app/(with-sidebar)/project/_components/project-edit-modal/project-edit-modal';
+import ProjectModal from '@/app/(with-sidebar)/project/_components/project-modal/project-modal';
 import { useModalStore } from '@/components/modal/use-modal-store';
 
 interface EditProjectProps {
@@ -22,7 +22,8 @@ export default function EditProject({
     openModal({
       title: '프로젝트 수정',
       content: (
-        <ProjectEditModal
+        <ProjectModal
+          variant="project"
           projectId={projectId}
           currentTitle={currentTitle}
           currentDescription={currentDescription}
