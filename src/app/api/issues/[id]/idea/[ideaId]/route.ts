@@ -25,6 +25,16 @@ export async function GET(
             id: true,
           },
         },
+        comments: {
+          where: {
+            deletedAt: null,
+          },
+          select: {
+            id: true,
+            content: true,
+            createdAt: true,
+          },
+        },
       },
     });
 
@@ -74,10 +84,10 @@ export async function DELETE(
     });
 
     return createSuccessResponse(null);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('아이디어 삭제 실패:', error);
 
-    if (error.code === 'P2025') {
+    if (error && typeof error === 'object' && 'code' in error && error.code === 'P2025') {
       return createErrorResponse('IDEA_NOT_FOUND', 404);
     }
 
@@ -113,10 +123,10 @@ export async function PATCH(
     });
 
     return createSuccessResponse(updatedIdea);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('아이디어 수정 실패:', error);
 
-    if (error.code === 'P2025') {
+    if (error && typeof error === 'object' && 'code' in error && error.code === 'P2025') {
       return createErrorResponse('IDEA_NOT_FOUND', 404);
     }
 

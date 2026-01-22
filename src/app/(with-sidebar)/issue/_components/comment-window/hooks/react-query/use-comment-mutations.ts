@@ -26,6 +26,8 @@ export const useCommentMutations = (issueId: string, ideaId: string) => {
       createComment(issueId, ideaId, { userId, content }),
     onSuccess: (created) => {
       queryClient.setQueryData<Comment[]>(commentQueryKey, (prev) => [...(prev ?? []), created]);
+      // 아이디어 쿼리 갱신하여 댓글 개수 업데이트
+      queryClient.invalidateQueries({ queryKey: ['issues', issueId, 'ideas', ideaId] });
     },
   });
 
@@ -49,6 +51,8 @@ export const useCommentMutations = (issueId: string, ideaId: string) => {
       queryClient.setQueryData<Comment[]>(commentQueryKey, (prev) =>
         (prev ?? []).filter((comment) => comment.id !== variables.commentId),
       );
+      // 아이디어 쿼리 갱신하여 댓글 개수 업데이트
+      queryClient.invalidateQueries({ queryKey: ['issues', issueId, 'ideas', ideaId] });
     },
   });
 

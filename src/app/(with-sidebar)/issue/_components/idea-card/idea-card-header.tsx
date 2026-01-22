@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import type { KeyboardEventHandler, MouseEventHandler, RefObject } from 'react';
@@ -20,6 +20,7 @@ interface IdeaCardHeaderProps {
   isCurrentUser: boolean;
   author: string;
   issueStatus?: IssueStatus;
+  commentCount?: number;
   textareaRef: RefObject<HTMLTextAreaElement | null>;
   setEditValue: (value: string) => void;
   handleKeyDownEdit: KeyboardEventHandler<HTMLTextAreaElement>;
@@ -38,6 +39,7 @@ export default function IdeaCardHeader({
   isCurrentUser,
   author,
   issueStatus,
+  commentCount = 0,
   textareaRef,
   setEditValue,
   handleKeyDownEdit,
@@ -105,6 +107,7 @@ export default function IdeaCardHeader({
                 width={14}
                 height={14}
               />
+              <S.CommentCount>{commentCount}</S.CommentCount>
             </S.IconButton>
           ) : (
             <>{isEditing ? <S.SubmitButton onClick={submitEdit}>제출</S.SubmitButton> : null}</>

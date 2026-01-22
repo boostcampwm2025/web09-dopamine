@@ -170,16 +170,27 @@ export const SubmitButton = styled.button`
 export const IconButton = styled.button`
   background: ${theme.colors.white};
   border: 1px solid ${theme.colors.gray[200]};
-  width: 42px;
+  min-width: 42px;
   height: 42px;
+  padding: 0 10px;
   border-radius: ${theme.radius.medium};
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 6px;
+  color: ${theme.colors.gray[400]};
 
   &:hover {
     background-color: ${theme.colors.gray[100]};
   }
+`;
+
+export const CommentCount = styled.span`
+  font-size: 12px;
+  font-weight: 600;
+  color: ${theme.colors.gray[500]};
+  line-height: 1;
+  margin-top: 1px;
 `;
 
 export const DeleteButton = styled(IconButton)`
