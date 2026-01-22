@@ -5,7 +5,7 @@ import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-help
 
 export async function DELETE(
   _req: Request,
-  { params }: { params: Promise<{ projectId: string }> },
+  { params }: { params: Promise<{ projectId: string; memberId: string }> },
 ) {
   const session = await getServerSession(authOptions);
 

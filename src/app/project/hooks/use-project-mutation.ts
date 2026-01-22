@@ -41,7 +41,8 @@ export const useLeaveProjectMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: { id: string }) => leaveProject(data.id),
+    mutationFn: (data: { projectId: string; memberId: string }) =>
+      leaveProject(data.projectId, data.memberId),
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['projects'] });

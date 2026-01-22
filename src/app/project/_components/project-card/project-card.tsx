@@ -129,10 +129,15 @@ export function ProjectCard({
   const handleLeaveClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     setIsMenuOpen(false);
+    const memberId = session?.user?.id;
+    if (!memberId) {
+      toast.error('로그인이 필요합니다.');
+      return;
+    }
     if (confirm('프로젝트에서 나가시겠습니까?')) {
       if (id) {
         leaveProject(
-          { id },
+          { projectId: id, memberId },
           {
             onSuccess: () => {
               toast.success('프로젝트에서 나갔습니다.');

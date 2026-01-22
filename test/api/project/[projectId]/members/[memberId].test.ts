@@ -1,5 +1,5 @@
 import { getServerSession } from 'next-auth';
-import { DELETE } from '@/app/api/project/[projectId]/leave/route';
+import { DELETE } from '@/app/api/project/[projectId]/members/[memberId]/route';
 import { LeaveService } from '@/lib/services/leave.service';
 
 jest.mock('next-auth', () => ({
@@ -14,7 +14,7 @@ jest.mock('@/lib/services/leave.service', () => ({
 const mockedGetServerSession = getServerSession as jest.MockedFunction<typeof getServerSession>;
 const mockedLeaveService = LeaveService as jest.Mocked<typeof LeaveService>;
 
-describe('DELETE /api/project/[projectId]/leave (프로젝트 탈퇴 API)', () => {
+describe('DELETE /api/project/[projectId]/members/[memberId] (프로젝트 탈퇴 API)', () => {
   const projectId = 'project-1';
   const userId = 'user-1';
 
@@ -22,14 +22,14 @@ describe('DELETE /api/project/[projectId]/leave (프로젝트 탈퇴 API)', () =
     jest.clearAllMocks();
   });
 
-  const createParams = (id: string) => ({
-    params: Promise.resolve({ projectId: id }),
+  const createParams = (id: string, memberId: string) => ({
+    params: Promise.resolve({ projectId: id, memberId }),
   });
 
   it('인증되지 않은 사용자가 요청하면 401 에러를 반환한다', async () => {
     mockedGetServerSession.mockResolvedValue(null);
 
-    const response = await DELETE({} as Request, createParams(projectId));
+    const response = await DELETE({} as Request, createParams(projectId, userId));
     const data = await response.json();
 
     expect(response.status).toBe(401);
@@ -40,7 +40,7 @@ describe('DELETE /api/project/[projectId]/leave (프로젝트 탈퇴 API)', () =
     mockedGetServerSession.mockResolvedValue({ user: { id: userId } } as any);
     mockedLeaveService.leaveProject.mockRejectedValue(new Error('PROJECT_NOT_FOUND'));
 
-    const response = await DELETE({} as Request, createParams(projectId));
+    const response = await DELETE({} as Request, createParams(projectId, userId));
     const data = await response.json();
 
     expect(response.status).toBe(404);
@@ -51,7 +51,7 @@ describe('DELETE /api/project/[projectId]/leave (프로젝트 탈퇴 API)', () =
     mockedGetServerSession.mockResolvedValue({ user: { id: userId } } as any);
     mockedLeaveService.leaveProject.mockRejectedValue(new Error('PROJECT_OWNER_CANNOT_LEAVE'));
 
-    const response = await DELETE({} as Request, createParams(projectId));
+    const response = await DELETE({} as Request, createParams(projectId, userId));
     const data = await response.json();
 
     expect(response.status).toBe(403);
@@ -62,7 +62,7 @@ describe('DELETE /api/project/[projectId]/leave (프로젝트 탈퇴 API)', () =
     mockedGetServerSession.mockResolvedValue({ user: { id: userId } } as any);
     mockedLeaveService.leaveProject.mockRejectedValue(new Error('PROJECT_MEMBER_NOT_FOUND'));
 
-    const response = await DELETE({} as Request, createParams(projectId));
+    const response = await DELETE({} as Request, createParams(projectId, userId));
     const data = await response.json();
 
     expect(response.status).toBe(404);
@@ -73,7 +73,7 @@ describe('DELETE /api/project/[projectId]/leave (프로젝트 탈퇴 API)', () =
     mockedGetServerSession.mockResolvedValue({ user: { id: userId } } as any);
     mockedLeaveService.leaveProject.mockResolvedValue({ projectId });
 
-    const response = await DELETE({} as Request, createParams(projectId));
+    const response = await DELETE({} as Request, createParams(projectId, userId));
     const data = await response.json();
 
     expect(response.status).toBe(200);
