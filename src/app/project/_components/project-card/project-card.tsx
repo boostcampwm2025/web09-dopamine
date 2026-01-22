@@ -5,7 +5,10 @@ import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
-import { useDeleteProjectMutation } from '@/app/project/hooks/use-project-mutation';
+import {
+  useDeleteProjectMutation,
+  useLeaveProjectMutation,
+} from '@/app/project/hooks/use-project-mutation';
 import { useModalStore } from '@/components/modal/use-modal-store';
 import InviteProjectModal from '../invite-project-modal/invite-project-modal';
 import ProjectCreateModal from '../project-create-modal/project-create-modal';
@@ -32,6 +35,7 @@ export function ProjectCard({
   const { openModal } = useModalStore();
   const router = useRouter();
   const { mutate: deleteProject } = useDeleteProjectMutation();
+  const { mutate: leaveProject } = useLeaveProjectMutation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const suppressNextClickRef = useRef(false);
@@ -75,10 +79,7 @@ export function ProjectCard({
   useEffect(() => {
     if (!isMenuOpen) return;
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        menuRef.current &&
-        !menuRef.current.contains(event.target as Node)
-      ) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         suppressNextClickRef.current = true;
         setIsMenuOpen(false);
       }
@@ -125,23 +126,63 @@ export function ProjectCard({
     }
   };
 
+  const handleLeaveClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsMenuOpen(false);
+    const memberId = session?.user?.id;
+    if (!memberId) {
+      toast.error('로그인이 필요합니다.');
+      return;
+    }
+    if (confirm('프로젝트에서 나가시겠습니까?')) {
+      if (id) {
+        leaveProject(
+          { projectId: id, memberId },
+          {
+            onSuccess: () => {
+              toast.success('프로젝트에서 나갔습니다.');
+            },
+            onError: () => {
+              toast.error('프로젝트 나가기 실패했습니다.');
+            },
+          },
+        );
+      }
+    }
+  };
+
   return (
     <S.Card onClick={handleGoProject}>
       <S.MenuWrapper ref={menuRef}>
-        <S.Button onClick={handleMenuToggle} type="button">
+        <S.Button
+          onClick={handleMenuToggle}
+          type="button"
+        >
           <Image
-            src="/settings.svg"
-            alt="설정"
-            width={14}
-            height={14}
+            src="/hamburger.svg"
+            alt="메뉴 열기"
+            width={20}
+            height={20}
           />
         </S.Button>
         {isMenuOpen && (
           <S.MenuModal onClick={(e) => e.stopPropagation()}>
-            <S.MenuItem onClick={handleDeleteClick} type="button">
-              삭제
-              <S.Tooltip role="tooltip">삭제하면 복구할 수 없습니다</S.Tooltip>
-            </S.MenuItem>
+            {isOwner ? (
+              <S.MenuItem
+                onClick={handleDeleteClick}
+                type="button"
+              >
+                삭제
+                <S.Tooltip role="tooltip">삭제하면 복구할 수 없습니다</S.Tooltip>
+              </S.MenuItem>
+            ) : (
+              <S.MenuItem
+                onClick={handleLeaveClick}
+                type="button"
+              >
+                나가기
+              </S.MenuItem>
+            )}
           </S.MenuModal>
         )}
       </S.MenuWrapper>

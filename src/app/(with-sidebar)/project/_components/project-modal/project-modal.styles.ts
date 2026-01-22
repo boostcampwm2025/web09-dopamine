@@ -1,16 +1,16 @@
 import styled from '@emotion/styled';
-import { theme } from '@/styles/theme';
 import {
   FormContainer,
+  FormFooter,
   FormInfoContainer,
   FormInput,
   FormInputRow,
   FormInputTitle,
   FormInputWrapper,
-  FormTextarea,
-  FormFooter,
   FormSubmitButton,
+  FormTextarea,
 } from '@/components/modal/modal-form.styles';
+import { theme } from '@/styles/theme';
 
 type Variant = 'topic' | 'project';
 

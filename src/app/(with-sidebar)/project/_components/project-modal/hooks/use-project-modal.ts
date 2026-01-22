@@ -3,11 +3,11 @@
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
+import { useUpdateProjectMutation } from '@/app/(with-sidebar)/project/hooks/use-project-mutation';
+import { useCreateTopicMutation } from '@/app/(with-sidebar)/topic/hooks/use-topic-mutation';
 import { useModalStore } from '@/components/modal/use-modal-store';
 import { MAX_DESCRIPTION_LENGTH, MAX_TITLE_LENGTH } from '@/constants/project';
 import { isProjectTitleTooLong } from '@/lib/utils/project-title';
-import { useUpdateProjectMutation } from '@/app/(with-sidebar)/project/hooks/use-project-mutation';
-import { useCreateTopicMutation } from '@/app/(with-sidebar)/topic/hooks/use-topic-mutation';
 
 type ProjectModalProps =
   | {
@@ -28,7 +28,7 @@ export default function useProjectModal(props: ProjectModalProps) {
   const projectProps = isProject ? props : null;
   const resolvedProjectId =
     props.variant === 'topic'
-      ? props.projectId ?? (params.id as string | undefined)
+      ? (props.projectId ?? (params.id as string | undefined))
       : props.projectId;
   const [topicName, setTopicName] = useState('');
   const [title, setTitle] = useState(projectProps?.currentTitle);
