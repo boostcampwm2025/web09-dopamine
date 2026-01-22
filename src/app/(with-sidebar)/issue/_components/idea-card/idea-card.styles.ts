@@ -59,12 +59,22 @@ export const Card = styled.article<{
   isDragging?: boolean;
   inCategory?: boolean;
   isCommentOpen?: boolean;
+  isHotIdea?: boolean;
 }>`
   position: relative;
   border-radius: ${theme.radius.medium};
   padding: 35px 35px 30px 35px;
   box-shadow: 0 4px 10px rgba(31, 41, 55, 0.06);
   transition: all 0.2s ease;
+  ${({ isHotIdea, status }) =>
+    isHotIdea
+      ? `
+    z-index: 100;
+    border: 2px solid ${theme.colors.red[500]};
+    box-shadow: 0 8px 24px rgba(220, 38, 38, 0.3);
+    ${status === 'default' || !status ? `background: ${theme.colors.red[50]};` : ''}
+  `
+      : ''}
   ${({ status, isCommentOpen }) => {
     switch (status) {
       case 'needDiscussion':
@@ -93,20 +103,35 @@ export const Card = styled.article<{
         `;
     }
   }}
-  min-width: 30em;
-  max-width: 30em;
 
   &:hover {
     ${({ issueStatus, status }) => {
       if (issueStatus === ISSUE_STATUS.SELECT && status !== 'selected') {
         return `
-        border: 2px solid ${theme.colors.yellow[400]};
+        border: 2px solid ${theme.colors.yellow[400]} !important;
         background: ${theme.colors.white};
-        box-shadow: 0 4px 10px rgba(252, 220, 89, 0.86);
+        box-shadow: 0 4px 10px rgba(252, 220, 89, 0.86) !important;
+        `;
+      }
+      // 채택된 상태에서 호버 시 노란색 유지
+      if (status === 'selected') {
+        return `
+        border: 2px solid ${theme.colors.yellow[500]} !important;
         `;
       }
     }}
   }
+
+  ${({ isHotIdea, status }) =>
+    isHotIdea && status !== 'selected'
+      ? `
+    z-index: 100;
+    border: 2px solid ${theme.colors.red[500]} !important;
+    box-shadow: 0 8px 24px rgba(220, 38, 38, 0.3) !important;
+  `
+      : ''}
+  min-width: 30em;
+  max-width: 30em;
 
   /* 등장 애니메이션 */
   @keyframes ideaCardAppear {
