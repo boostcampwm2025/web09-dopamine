@@ -154,6 +154,8 @@ export function useIssueEvents({
       if (data.ideaId) {
         queryClient.invalidateQueries({ queryKey: ['comments', issueId, data.ideaId] });
         queryClient.invalidateQueries({ queryKey: ['issues', issueId, 'ideas', data.ideaId] });
+        // 치열한 토론중 브로드캐스팅을 위해 추가
+        queryClient.invalidateQueries({ queryKey: ['issues', issueId, 'ideas'] });
       }
     });
 
@@ -170,6 +172,8 @@ export function useIssueEvents({
       if (data.ideaId) {
         queryClient.invalidateQueries({ queryKey: ['comments', issueId, data.ideaId] });
         queryClient.invalidateQueries({ queryKey: ['issues', issueId, 'ideas', data.ideaId] });
+        // 치열한 토론중 브로드캐스팅을 위해 추가
+        queryClient.invalidateQueries({ queryKey: ['issues', issueId, 'ideas'] });
       }
     });
 
