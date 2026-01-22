@@ -30,3 +30,23 @@ export async function GET(
     return createErrorResponse('PROJECT_FETCH_FAILED', 500);
   }
 }
+
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  // 인증 확인
+  const session = await getServerSession(authOptions);
+
+  if (!session || !session.user) {
+    return createErrorResponse('UNAUTHORIZED', 401);
+  }
+
+  const { id: projectId } = await params;
+  const { title, description } = await req.json();
+
+  try {
+    const project = await projectRepository.updateProject(projectId, title, description);
+    return createSuccessResponse(project, 200);
+  } catch (error) {
+    console.error('프로젝트 수정 실패:', error);
+    return createErrorResponse('PROJECT_UPDATE_FAILED', 500);
+  }
+}

@@ -83,7 +83,7 @@ export const MemberAvatar = styled.div`
   border-radius: 50%;
   background-color: ${theme.colors.gray[200]};
   border: 2px solid white;
-  
+
   &:not(:first-of-type) {
     margin-left: -8px;
   }

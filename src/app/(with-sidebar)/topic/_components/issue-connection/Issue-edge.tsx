@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import Image from 'next/image';
 import { BaseEdge, EdgeProps, EdgeToolbar, getBezierPath, useViewport } from '@xyflow/react';
 import { EDGE_STYLE } from '@/constants/topic';
@@ -32,8 +33,10 @@ export default function IssueEdge({
   targetPosition,
   markerEnd,
   onDelete,
+  selected,
 }: IssueEdgeProps) {
   const { zoom } = useViewport();
+  const [isHovered, setIsHovered] = useState(false);
   const [edgePath, centerX, centerY] = getBezierPath({
     sourceX,
     sourceY,
@@ -50,13 +53,26 @@ export default function IssueEdge({
   };
 
   return (
-    <>
+    <g
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {/* 투명한 넓은 영역 추가하여 호버 감지 용이 */}
+      <path
+        d={edgePath}
+        fill="none"
+        stroke="transparent"
+        strokeWidth={28}
+        style={{ cursor: 'pointer' }}
+      />
+      {/* 실제 보이는 엣지 */}
       <BaseEdge
         id={id}
         path={edgePath}
         markerEnd={markerEnd}
         style={{
           ...EDGE_STYLE,
+          pointerEvents: 'none',
         }}
       />
       <circle
@@ -66,12 +82,13 @@ export default function IssueEdge({
         r={3}
         stroke={EDGE_STYLE.stroke}
         strokeWidth={STROKE_WIDTH}
+        style={{ pointerEvents: 'none' }}
       />
       <EdgeToolbar
         edgeId={id}
         x={centerX}
         y={centerY}
-        isVisible={zoom >= BUTTON_VISIABLE_ZOOM_LEVEL}
+        isVisible={(isHovered || selected) && zoom >= BUTTON_VISIABLE_ZOOM_LEVEL}
       >
         <button
           style={DELETE_BUTTON_STYLE}
@@ -85,14 +102,6 @@ export default function IssueEdge({
           />
         </button>
       </EdgeToolbar>
-      <circle
-        cx={targetX}
-        cy={targetY}
-        fill={theme.colors.white}
-        r={3}
-        stroke={EDGE_STYLE.stroke}
-        strokeWidth={STROKE_WIDTH}
-      />
-    </>
+    </g>
   );
 }

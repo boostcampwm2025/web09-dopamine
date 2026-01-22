@@ -19,7 +19,25 @@ export const ProjectPageContainer = styled.div`
 export const ProjectTitleBox = styled.div`
   ${boxStyle}
   position: relative;
-  padding: 36px 24px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+`;
+
+export const ProjectTitleHeader = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+export const DateSection = styled.div`
+  font-size: ${theme.font.size.small};
+  font-weight: ${theme.font.weight.medium};
+  color: ${theme.colors.gray[600]};
+  display: flex;
+  align-items: center;
 `;
 
 export const ProjectTitleWrapper = styled.div`
@@ -47,7 +65,6 @@ export const ProjectCreatedDate = styled.div`
 `;
 
 export const EditIconWrapper = styled.div`
-  position: absolute;
   top: 12px;
   right: 12px;
   display: flex;

@@ -35,8 +35,8 @@ export type IssueNode = {
 
 export type IssueConnection = {
   id: string;
-  issueAId: string;
-  issueBId: string;
+  sourceIssueId: string;
+  targetIssueId: string;
   sourceHandle: string | null;
   targetHandle: string | null;
 };

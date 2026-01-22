@@ -12,19 +12,19 @@ export async function GET(
     const connections = await prisma.issueConnection.findMany({
       where: {
         deletedAt: null,
-        issueA: {
+        sourceIssue: {
           topicId,
           deletedAt: null,
         },
-        issueB: {
+        targetIssue: {
           topicId,
           deletedAt: null,
         },
       },
       select: {
         id: true,
-        issueAId: true,
-        issueBId: true,
+        sourceIssueId: true,
+        targetIssueId: true,
         sourceHandle: true,
         targetHandle: true,
       },
@@ -38,17 +38,17 @@ export async function GET(
 }
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ topicId: string }> }) {
-  const { issueAId, issueBId, sourceHandle, targetHandle } = await req.json();
+  const { sourceIssueId, targetIssueId, sourceHandle, targetHandle } = await req.json();
 
-  if (!issueAId || !issueBId) {
+  if (!sourceIssueId || !targetIssueId) {
     return createErrorResponse('ISSUE_IDS_REQUIRED', 400);
   }
 
   try {
     const connection = await prisma.issueConnection.create({
       data: {
-        issueAId,
-        issueBId,
+        sourceIssueId,
+        targetIssueId,
         sourceHandle,
         targetHandle,
       },

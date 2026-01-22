@@ -20,6 +20,7 @@ const Header = () => {
     handleNextStep,
     handleAddCategory,
     handleAIStructureStart,
+    handleCopyURL,
   } = useHeader({
     issueId,
   });
@@ -101,6 +102,7 @@ const Header = () => {
         <HeaderButton
           imageSrc="/share.svg"
           alt="공유하기"
+          onClick={handleCopyURL}
         />
       </S.RightSection>
     </S.HeaderContainer>

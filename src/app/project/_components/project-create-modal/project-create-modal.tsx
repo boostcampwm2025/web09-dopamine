@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
-import { useModalStore } from '@/components/modal/use-modal-store';
 import { useCreateProjectMutation } from '@/app/project/hooks/use-project-mutation';
+import { useModalStore } from '@/components/modal/use-modal-store';
 import * as S from './project-create-modal.styles';
 
 export default function ProjectCreateModal() {
@@ -67,10 +67,18 @@ export default function ProjectCreateModal() {
       </S.InfoContainer>
 
       <S.Footer>
-        <S.CancelButton type="button" onClick={handleCancel} disabled={isPending}>
+        <S.CancelButton
+          type="button"
+          onClick={handleCancel}
+          disabled={isPending}
+        >
           취소
         </S.CancelButton>
-        <S.SubmitButton type="button" onClick={handleCreate} disabled={isPending}>
+        <S.SubmitButton
+          type="button"
+          onClick={handleCreate}
+          disabled={isPending}
+        >
           {isPending ? '생성 중...' : '만들기'}
         </S.SubmitButton>
       </S.Footer>

@@ -30,8 +30,8 @@ function connectionsToReactFlowEdges(connections: IssueConnection[]) {
 
     return {
       id: conn.id,
-      source: conn.issueAId,
-      target: conn.issueBId,
+      source: conn.sourceIssueId,
+      target: conn.targetIssueId,
       sourceHandle: sourceHandleId,
       targetHandle: targetHandleId,
     };
@@ -120,8 +120,8 @@ export function useTopicCanvas({
       // 중복 체크
       const isDuplicate = connections.some(
         (conn) =>
-          (conn.issueAId === params.source && conn.issueBId === params.target) ||
-          (conn.issueAId === params.target && conn.issueBId === params.source),
+          (conn.sourceIssueId === params.source && conn.targetIssueId === params.target) ||
+          (conn.sourceIssueId === params.target && conn.targetIssueId === params.source),
       );
 
       if (isDuplicate) {
@@ -133,8 +133,8 @@ export function useTopicCanvas({
       const targetHandle = params.targetHandle?.replace('-target', '') || null;
 
       createConnection({
-        issueAId: params.source,
-        issueBId: params.target,
+        sourceIssueId: params.source,
+        targetIssueId: params.target,
         sourceHandle,
         targetHandle,
       });
