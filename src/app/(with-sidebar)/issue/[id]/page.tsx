@@ -100,7 +100,7 @@ const IssuePage = () => {
 
   // userId 체크 및 모달 표시
   useEffect(() => {
-    if (!issueId || hasOpenedModal.current || isOpen) return;
+    if (!issueId || hasOpenedModal.current || isOpen || sessionStatus === 'loading') return;
 
     // 로그인한 사용자는 참여 모달 표시 안 함 (토픽 -> 이슈)
     if (session?.user?.id) return;
@@ -115,7 +115,7 @@ const IssuePage = () => {
         hasCloseButton: false,
       });
     }
-  }, [issueId, session, isOpen, openModal, userId]);
+  }, [issueId, session, sessionStatus, isOpen, openModal, userId]);
 
   // 이슈가 종료된 경우 summary 페이지로 리다이렉트
   useEffect(() => {
