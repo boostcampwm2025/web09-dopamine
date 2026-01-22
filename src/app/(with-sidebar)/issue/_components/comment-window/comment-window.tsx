@@ -172,6 +172,15 @@ export default function CommentWindow({
     handleSubmit(textareaRef.current ?? undefined);
   }, [handleSubmit]);
 
+  const handleClose = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.stopPropagation();
+      e.preventDefault();
+      onClose?.();
+    },
+    [onClose],
+  );
+
   return (
     <S.Window
       x={initialPosition?.x}
@@ -189,7 +198,7 @@ export default function CommentWindow({
           <S.CloseButton
             type="button"
             aria-label="Close"
-            onClick={onClose}
+            onClick={handleClose}
           >
             &times;
           </S.CloseButton>
