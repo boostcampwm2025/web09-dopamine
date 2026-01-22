@@ -1,13 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { useUpdateProjectMutation } from '@/app/(with-sidebar)/project/hooks/use-project-mutation';
 import LoadingOverlay from '@/components/loading-overlay/loading-overlay';
 import { useModalStore } from '@/components/modal/use-modal-store';
+import { MAX_DESCRIPTION_LENGTH, MAX_TITLE_LENGTH } from '@/constants/project';
 import { isProjectTitleTooLong } from '@/lib/utils/project-title';
-import { maxDescriptionLength, maxTitleLength } from '@/constants/project';
 import * as S from './project-edit-modal.styles';
 
 interface EditProjectModalProps {
@@ -25,18 +25,13 @@ export default function EditProjectModal({
   const [title, setTitle] = useState(currentTitle);
   const [description, setDescription] = useState(currentDescription);
   const { closeModal } = useModalStore();
-  const [titleLength, setTitleLength] = useState(title!.length);
-  const isTitleOverLimit = titleLength > maxTitleLength;
+  const titleLength = title?.length || 0;
+  const isTitleOverLimit = titleLength > MAX_TITLE_LENGTH;
   const isTitleLessLimit = titleLength < 1;
-  const [descriptionLength, setDescriptionLength] = useState(description!.length);
-  const isDescriptionOverLimit = descriptionLength > maxDescriptionLength;
+  const descriptionLength = description?.length || 0;
+  const isDescriptionOverLimit = descriptionLength > MAX_DESCRIPTION_LENGTH;
   const isDescriptionLessLimit = descriptionLength < 1;
   const { mutate, isPending } = useUpdateProjectMutation();
-
-  useEffect(() => {
-    setTitleLength(title?.length || 0);
-    setDescriptionLength(description?.length || 0);
-  }, [title, description]);
 
   const handleEdit = async () => {
     const nextTitle = title!.trim() || currentTitle?.trim() || '';
@@ -48,7 +43,7 @@ export default function EditProjectModal({
     }
 
     if (isProjectTitleTooLong(nextTitle)) {
-      toast.error(`프로젝트 제목은 ${maxTitleLength}자 이하로 입력해주세요.`);
+      toast.error(`프로젝트 제목은 ${MAX_TITLE_LENGTH}자 이하로 입력해주세요.`);
       return;
     }
 
@@ -80,12 +75,12 @@ export default function EditProjectModal({
                 placeholder={currentTitle ?? '프로젝트 제목을 입력해주세요.'}
               />
               <S.CharCount $isOverLimit={isTitleOverLimit}>
-                {titleLength}/{maxTitleLength}
+                {titleLength}/{MAX_TITLE_LENGTH}
               </S.CharCount>
             </S.InputRow>
             {(isTitleOverLimit || isTitleLessLimit) && (
               <S.InputDescription>
-                * 프로젝트 제목은 1~{maxTitleLength}자 이내로 입력해주세요.
+                * 프로젝트 제목은 1~{MAX_TITLE_LENGTH}자 이내로 입력해주세요.
               </S.InputDescription>
             )}
           </S.InputWrapper>
@@ -98,12 +93,12 @@ export default function EditProjectModal({
                 placeholder={currentDescription ?? '프로젝트 설명을 입력해주세요.'}
               />
               <S.CharCount $isOverLimit={isDescriptionOverLimit}>
-                {descriptionLength}/{maxDescriptionLength}
+                {descriptionLength}/{MAX_DESCRIPTION_LENGTH}
               </S.CharCount>
             </S.InputRow>
             {(isDescriptionOverLimit || isDescriptionLessLimit) && (
               <S.InputDescription>
-                * 프로젝트 설명은 1~{maxDescriptionLength}자 이내로 입력해주세요.
+                * 프로젝트 설명은 1~{MAX_DESCRIPTION_LENGTH}자 이내로 입력해주세요.
               </S.InputDescription>
             )}
           </S.InputWrapper>

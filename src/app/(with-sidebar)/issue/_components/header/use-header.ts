@@ -73,7 +73,7 @@ export function useHeader({ issueId }: UseHeaderParams) {
       content: React.createElement(CloseIssueModal, { issueId, isOwner }),
       modalType: 'close-issue',
     });
-  }, [issueId, userId, isOwner, openModal]);
+  }, [issueId, isOwner, openModal]);
 
   // 단계 검증
   const validateStep = useCallback(() => {
@@ -138,6 +138,22 @@ export function useHeader({ issueId }: UseHeaderParams) {
     handleAIStructure();
   };
 
+  // URL 공유
+  const handleCopyURL = () => {
+    const textToCopy = `${process.env.NEXT_PUBLIC_BASE_URL}/issue/${issueId}`;
+    copyToClipboard(textToCopy);
+  };
+
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast.success('클립보드에 복사되었습니다.');
+    } catch (error) {
+      console.error(error);
+      toast.error('URL 복사가 실패했습니다.');
+    }
+  };
+
   return {
     issue,
     isOwner,
@@ -146,5 +162,6 @@ export function useHeader({ issueId }: UseHeaderParams) {
     handleNextStep,
     handleAddCategory,
     handleAIStructureStart,
+    handleCopyURL,
   };
 }

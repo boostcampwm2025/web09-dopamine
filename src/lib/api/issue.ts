@@ -118,7 +118,10 @@ export function generateNickname(issueId: string) {
  * ========================= */
 
 export function categorizeIdeas(issueId: string) {
-  return getAPIResponseData<any>({
+  return getAPIResponseData<{
+    categories: Array<{ id: string }>;
+    ideaCategoryMap: Record<string, string>;
+  }>({
     url: `/api/issues/${issueId}/categorize`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
