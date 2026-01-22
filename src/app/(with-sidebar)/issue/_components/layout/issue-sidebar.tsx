@@ -1,18 +1,11 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import type { ChangeEvent } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { getChoseong } from 'es-hangul';
 import MemberSidebarItem from '@/components/sidebar/member-sidebar-item';
 import Sidebar from '@/components/sidebar/sidebar';
 import SidebarItem from '@/components/sidebar/sidebar-item';
 import * as S from '@/components/sidebar/sidebar.styles';
-import { ISSUE_STATUS, MEMBER_ROLE } from '@/constants/issue';
-import { useTopicId } from '@/hooks/use-topic-id';
-import { getTopicIssues } from '@/lib/api/issue-map';
-import { useIssueData, useIssueId } from '../../hooks';
-import { useIssueStore } from '../../store/use-issue-store';
+import { ISSUE_STATUS } from '@/constants/issue';
 import IssueGraphLink from './issue-graph-link';
 import NewIssueButton from './new-issue-button';
+import { useIssueSidebar } from './use-issue-sidebar';
 
 const ISSUE_LIST = [
   { title: 'new issue', href: '#', status: ISSUE_STATUS.BRAINSTORMING },
@@ -23,81 +16,18 @@ const ISSUE_LIST = [
 ] as const;
 
 export default function IssueSidebar() {
-  const issueId = useIssueId();
-
-  const { isQuickIssue, members } = useIssueData(issueId);
-  const { onlineMemberIds } = useIssueStore();
-
-  // 토픽 ID 및 페이지 타입 가져오기 (토픽 페이지면 URL에서, 이슈 페이지면 이슈 데이터에서)
-  const { topicId, isTopicPage } = useTopicId();
-
-  // 토픽의 이슈 목록 가져오기 (토픽 페이지 또는 정식 이슈인 경우)
-  const { data: topicIssues = [] } = useQuery({
-    queryKey: ['topics', topicId, 'issues'],
-    queryFn: () => getTopicIssues(topicId!),
-    enabled: !!topicId,
-  });
-
-  const [searchValue, setSearchValue] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
-
-  const sortedMembers = useMemo(() => {
-    return [...members].sort((a, b) => {
-      if (a.role !== b.role) {
-        return a.role === MEMBER_ROLE.OWNER ? -1 : 1;
-      }
-
-      const isAOnline = onlineMemberIds.includes(a.id);
-      const isBOnline = onlineMemberIds.includes(b.id);
-
-      if (isAOnline !== isBOnline) {
-        return Number(isBOnline) - Number(isAOnline);
-      }
-      return a.displayName.localeCompare(b.displayName);
-    });
-    }, [members, onlineMemberIds]);
-
-  const filteredMembers = useMemo(() => {
-    const trimmed = searchTerm.trim();
-    if (!trimmed) return sortedMembers;
-    const normalized = trimmed.toLowerCase();
-    const searchChoseong = getChoseong(trimmed);
-    
-    return sortedMembers.filter((member) => {
-      const name = member.displayName;
-
-      // 일반 문자열 포함 여부 확인 (한글 완성형 및 영문 대소문자 대응)
-      if (name.toLowerCase().includes(normalized)) return true;
-      
-      // 검색어에서 초성을 추출할 수 없는 경우(특수문자 등)는 다음 단계로 넘어감
-      if (!searchChoseong) return false;
-      
-      // 초성 검색 비교
-      return getChoseong(name).includes(searchChoseong);
-    });
-  }, [searchTerm, sortedMembers]);
-
-  const handleSearchChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-    setSearchValue(event.target.value);
-  }, []);
-
-  useEffect(() => {
-    const debounceId = window.setTimeout(() => {
-      setSearchTerm(searchValue);
-    }, 300);
-
-    return () => {
-      window.clearTimeout(debounceId);
-    };
-  }, [searchValue]);
-
-  // 토픽 페이지에서는 멤버 리스트를 표시하지 않음
-  const showMemberList = !isTopicPage;
-
-  // 이슈 목록을 표시할지 결정
-  // - 토픽 페이지: 항상 표시
-  // - 이슈 페이지: quickIssue가 아닌 경우만 표시 (topicId가 있는 정식 이슈)
-  const showIssueList = isTopicPage || !isQuickIssue;
+  const {
+    topicId,
+    isTopicPage,
+    topicIssues,
+    filteredMembers,
+    onlineMemberIds,
+    sortedMembers,
+    searchValue,
+    handleSearchChange,
+    showMemberList,
+    showIssueList,
+  } = useIssueSidebar();
 
   return (
     <Sidebar
