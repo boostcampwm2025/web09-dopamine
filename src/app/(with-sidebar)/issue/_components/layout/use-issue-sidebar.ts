@@ -7,6 +7,13 @@ import { useIssueData, useIssueId, useTopicIssuesQuery } from '../../hooks';
 import { useIssueStore } from '../../store/use-issue-store';
 
 export const useIssueSidebar = () => {
+  // 클라이언트 마운트 감지
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   // 토픽 ID 및 페이지 타입 가져오기
   const { topicId, isTopicPage } = useTopicId();
 
@@ -88,6 +95,9 @@ export const useIssueSidebar = () => {
   const showIssueList = isTopicPage || !isQuickIssue;
 
   return {
+    // 마운트 상태
+    isMounted,
+
     // 데이터
     topicId,
     isTopicPage,

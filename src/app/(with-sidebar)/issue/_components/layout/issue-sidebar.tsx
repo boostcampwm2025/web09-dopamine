@@ -17,6 +17,7 @@ const ISSUE_LIST = [
 
 export default function IssueSidebar() {
   const {
+    isMounted,
     topicId,
     isTopicPage,
     topicIssues,
@@ -36,7 +37,7 @@ export default function IssueSidebar() {
         onChange: handleSearchChange,
       }}
     >
-      {showIssueList && (
+      {isMounted && showIssueList && (
         <>
           {!isTopicPage && <IssueGraphLink />}
           <S.SidebarTitle>
@@ -65,7 +66,7 @@ export default function IssueSidebar() {
         </>
       )}
 
-      {showMemberList && (
+      {isMounted && showMemberList && (
         <>
           <S.SidebarTitle>
             MEMBER LIST
