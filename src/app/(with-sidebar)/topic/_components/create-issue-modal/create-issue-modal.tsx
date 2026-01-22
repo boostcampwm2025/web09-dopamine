@@ -1,44 +1,63 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, usePathname, useRouter } from 'next/navigation';
+import { useMutation } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import * as S from '@/app/(with-sidebar)/issue/_components/issue-join-modal/issue-join-modal.styles';
+import { useCreateIssueInTopicMutation } from '@/app/(with-sidebar)/issue/hooks';
+import { useIssueQuery } from '@/app/(with-sidebar)/issue/hooks';
 import { useModalStore } from '@/components/modal/use-modal-store';
-import { useMutation } from '@tanstack/react-query';
 import { createIssueInTopic } from '@/lib/api/issue';
 
 export default function CreateIssueModal() {
   const router = useRouter();
   const params = useParams();
-  const topicId = params.id as string;
+  const pathname = usePathname();
   const [issueTitle, setIssueTitle] = useState('');
   const { closeModal } = useModalStore();
+  const { mutate, isPending } = useCreateIssueInTopicMutation();
 
-  const { mutate, isPending } = useMutation({
-    mutationFn: (title: string) => createIssueInTopic(topicId, title),
-    onSuccess: (data) => {
-      toast.success('이슈가 생성되었습니다!');
-      closeModal();
-      router.push(`/issue/${data.issueId}`);
-    },
-    onError: (error: Error) => {
-      toast.error(error.message || '이슈 생성에 실패했습니다.');
-    },
-  });
+  // 토픽 ID 결정: 토픽 페이지면 URL에서, 이슈 페이지면 이슈 데이터에서
+  const isTopicPage = pathname?.startsWith('/topic');
+  const topicIdFromUrl = isTopicPage ? (params.id as string) : null;
 
-  const handleCreate = async () => {
+  // 이슈 페이지에서는 이슈 데이터에서 topicId 가져오기
+  const issueId = !isTopicPage ? (params.id as string) : '';
+  const { data: issue } = useIssueQuery(issueId);
+  const topicIdFromIssue = issue?.topicId;
+  const topicId = isTopicPage ? topicIdFromUrl : topicIdFromIssue;
+
+  const handleCreate = () => {
+    if (!topicId) {
+      toast.error('토픽 정보를 찾을 수 없습니다.');
+      return;
+    }
+
     if (!issueTitle.trim()) {
       toast.error('이슈 제목을 입력해주세요.');
       return;
     }
 
-    if (!topicId) {
-      toast.error('토픽 ID를 찾을 수 없습니다.');
-      return;
-    }
+    mutate(
+      { topicId, title: issueTitle },
+      {
+        onSuccess: (data) => {
+          closeModal();
+          router.push(`/issue/${data.issueId}`);
+        },
+      },
+    );
+  };
 
-    mutate(issueTitle);
+  const onKeyDownEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && !isPending) {
+      handleCreate();
+    }
+  };
+
+  const onChangeTitle = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setIssueTitle(e.target.value);
   };
 
   return (
@@ -48,13 +67,9 @@ export default function CreateIssueModal() {
           <S.InputTitle>이슈 제목</S.InputTitle>
           <S.Input
             value={issueTitle}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setIssueTitle(e.target.value)}
+            onChange={onChangeTitle}
             placeholder="제목을 입력하세요"
-            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-              if (e.key === 'Enter' && !isPending) {
-                handleCreate();
-              }
-            }}
+            onKeyDown={onKeyDownEnter}
             autoFocus
             disabled={isPending}
           />
