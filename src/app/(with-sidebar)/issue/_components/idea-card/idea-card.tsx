@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import type { MouseEventHandler, PointerEventHandler } from 'react';
+import { useSession } from 'next-auth/react';
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import Portal from '@/components/portal/portal';
@@ -56,13 +57,16 @@ export type DragItemPayload = {
 
 export default function IdeaCard(props: IdeaCardProps) {
   const issueId = props.issueId ?? '';
+  const { data: session } = useSession();
   const { mutate: selectIdea } = useSelectedIdeaMutation(issueId);
-  const { status: issueStatus } = useIssueData(props.issueId);
+  const { status: issueStatus, isQuickIssue } = useIssueData(props.issueId);
   const { bringToFront, getZIndex } = useIdeaCardStackStore(props.issueId);
   const zIndex = props.id ? getZIndex(props.id) : 0;
 
-  // 현재 로그인한 사용자가 이 아이디어의 작성자인지 확인
-  const currentUserId = getUserIdForIssue(props.issueId);
+  // 현재 사용자가 이 아이디어의 작성자인지 확인
+  const issueUserId = getUserIdForIssue(props.issueId) ?? '';
+  const sessionUserId = session?.user?.id ?? '';
+  const currentUserId = isQuickIssue ? issueUserId : sessionUserId || issueUserId;
   const isCurrentUser = currentUserId === props.userId;
   const inCategory = !!props.categoryId;
   const listenersRef = useRef<{ onPointerDown?: PointerEventHandler } | null>(null);
