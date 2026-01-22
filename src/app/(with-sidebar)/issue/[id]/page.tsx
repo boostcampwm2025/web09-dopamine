@@ -62,6 +62,16 @@ const IssuePage = () => {
 
   const { data: session } = useSession();
 
+  // 토픽 내 이슈 접근 권한 검증
+  useEffect(() => {
+    if (!issueId || isLoading) return;
+
+    // 토픽 내 이슈인데 로그인하지 않은 경우 → 홈으로 리다이렉트
+    if (!isQuickIssue && !session?.user?.id) {
+      router.replace('/');
+    }
+  }, [issueId, isQuickIssue, session, isLoading, router]);
+
   // userId 체크 및 모달 표시
   useEffect(() => {
     if (!issueId || hasOpenedModal.current || isOpen) return;
