@@ -37,12 +37,10 @@ export const Name = styled.p`
   color: black;
 `;
 
-export const Avatar = styled.div`
-  position: relative;
-  display: block;
-  background-color: ${theme.colors.gray[100]};
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  overflow: hidden;
+export const Profile = styled.div`
+  display: flex;
+  gap: 12px;
+  font-weight: ${theme.font.weight.semibold};
+  align-items: center;
+  cursor: pointer;
 `;
