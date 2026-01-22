@@ -185,6 +185,7 @@ export default function IdeaCard(props: IdeaCardProps) {
       status={status}
       isDragging={isDragging}
       inCategory={inCategory}
+      isCommentOpen={isCommentOpen}
       onClick={handleCardClick}
       onPointerDown={handlePointerDown}
       {...attributes}

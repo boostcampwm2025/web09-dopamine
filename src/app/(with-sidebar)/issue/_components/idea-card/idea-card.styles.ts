@@ -24,34 +24,38 @@ export const Card = styled.article<{
   status?: CardStatus;
   isDragging?: boolean;
   inCategory?: boolean;
+  isCommentOpen?: boolean;
 }>`
   position: relative;
   border-radius: ${theme.radius.medium};
   padding: 35px 35px 30px 35px;
   box-shadow: 0 4px 10px rgba(31, 41, 55, 0.06);
-  ${({ status }) => {
+  transition: all 0.2s ease;
+  ${({ status, isCommentOpen }) => {
     switch (status) {
       case 'needDiscussion':
         return `
         border: 2px solid ${theme.colors.red[600]};
-        background: ${theme.colors.red[50]};
+        background: ${isCommentOpen ? theme.colors.red[100] : theme.colors.red[50]};
+        ${isCommentOpen ? 'box-shadow: 0 8px 20px rgba(220, 38, 38, 0.15);' : ''}
         `;
       case 'mostLiked':
         return `border: 2px solid ${theme.colors.blue[600]};
-        background: ${theme.colors.blue[50]};
+        background: ${isCommentOpen ? theme.colors.blue[100] : theme.colors.blue[50]};
+        ${isCommentOpen ? 'box-shadow: 0 8px 20px rgba(37, 99, 235, 0.15);' : ''}
         `;
       case 'selected':
         return `
         border: 2px solid ${theme.colors.yellow[500]};
-        background: ${theme.colors.yellow[50]};
-        box-shadow: 0 4px 10px rgba(250, 204, 21, 0.86);
+        background: ${isCommentOpen ? theme.colors.yellow[100] : theme.colors.yellow[50]};
+        box-shadow: ${isCommentOpen ? '0 8px 20px rgba(250, 204, 21, 0.3)' : '0 4px 10px rgba(250, 204, 21, 0.86)'};
         `;
       case 'default':
       default:
         return `
-        border: 1px solid ${theme.colors.gray[200]};
-        background: ${theme.colors.white};
-        box-shadow: 0 4px 10px rgba(31, 41, 55, 0.06);
+        border: 1px solid ${isCommentOpen ? theme.colors.blue[300] : theme.colors.gray[200]};
+        background: ${isCommentOpen ? theme.colors.blue[50] : theme.colors.white};
+        box-shadow: ${isCommentOpen ? '0 8px 20px rgba(37, 99, 235, 0.12)' : '0 4px 10px rgba(31, 41, 55, 0.06)'};
         `;
     }
   }}
