@@ -1,7 +1,14 @@
+import type { InputHTMLAttributes, ReactNode } from 'react';
 import * as S from './sidebar.styles';
 
-//TODO: input에 이벤트 연결 필요
-export default function Sidebar({ children }: { children: React.ReactNode }) {
+interface SidebarProps {
+  children: ReactNode;
+  inputProps?: InputHTMLAttributes<HTMLInputElement>;
+}
+
+export default function Sidebar({ children, inputProps }: SidebarProps) {
+  const inputId = inputProps?.id ?? 'sidebar';
+
   return (
     <S.Sidebar>
       <S.InputWrapper>
@@ -11,10 +18,11 @@ export default function Sidebar({ children }: { children: React.ReactNode }) {
           width={16}
           height={16}
         />
-        <S.SrOnly htmlFor="sidebar">사이드바 입력창</S.SrOnly>
+        <S.SrOnly htmlFor={inputId}>Search</S.SrOnly>
         <S.SidebarInput
-          id="sidebar"
+          id={inputId}
           type="text"
+          {...inputProps}
         />
       </S.InputWrapper>
       {children}
