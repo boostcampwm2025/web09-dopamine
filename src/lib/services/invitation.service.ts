@@ -53,7 +53,7 @@ export const InvitationService = {
     }
 
     // 초대장 정보 업데이트 & 프로젝트 멤버에 유저 추가
-    await InvitationRepository.createProjectMember(invitation.id, userId, invitation.projectId);
+    await InvitationRepository.createProjectMember(validInvitee.id, userId, invitation.projectId);
 
     return { projectId: invitation.projectId };
   },

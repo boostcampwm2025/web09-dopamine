@@ -18,6 +18,11 @@ export const useInvitationMutations = (projectId: string) => {
   const joinProject = useMutation({
     mutationFn: (token: string) => acceptInvitation(projectId, token),
 
+    onSuccess: () => {
+      toast.success('프로젝트에 참여했습니다!');
+      router.push(`/project/${projectId}`);
+    },
+
     onError: (err) => {
       toast.error(err.message);
       if (err.message === CLIENT_ERROR_MESSAGES['ALREADY_EXISTED']) {
