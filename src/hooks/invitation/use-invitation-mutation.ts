@@ -1,8 +1,12 @@
+import { useRouter } from 'next/navigation';
 import { useMutation } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
+import { CLIENT_ERROR_MESSAGES } from '@/constants/error-messages';
 import { acceptInvitation, createInvitation } from '@/lib/api/invitation';
 
 export const useInvitationMutations = (projectId: string) => {
+  const router = useRouter();
+
   const createToken = useMutation({
     mutationFn: (emails: string[]) => createInvitation(projectId, emails),
 
@@ -16,6 +20,9 @@ export const useInvitationMutations = (projectId: string) => {
 
     onError: (err) => {
       toast.error(err.message);
+      if (err.message === CLIENT_ERROR_MESSAGES['ALREADY_EXISTED']) {
+        router.push(`/project/${projectId}`);
+      }
     },
   });
 
