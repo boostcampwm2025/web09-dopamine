@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { ChangeEvent } from 'react';
-import { usePathname } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { getChoseong } from 'es-hangul';
 import MemberSidebarItem from '@/components/sidebar/member-sidebar-item';
@@ -25,16 +24,12 @@ const ISSUE_LIST = [
 
 export default function IssueSidebar() {
   const issueId = useIssueId();
-  const pathname = usePathname();
-
-  // 현재 페이지가 토픽 페이지인지 확인
-  const isTopicPage = pathname?.startsWith('/topic');
 
   const { isQuickIssue, members } = useIssueData(issueId);
   const { onlineMemberIds } = useIssueStore();
 
-  // 토픽 ID 가져오기 (토픽 페이지면 URL에서, 이슈 페이지면 이슈 데이터에서)
-  const topicId = useTopicId();
+  // 토픽 ID 및 페이지 타입 가져오기 (토픽 페이지면 URL에서, 이슈 페이지면 이슈 데이터에서)
+  const { topicId, isTopicPage } = useTopicId();
 
   // 토픽의 이슈 목록 가져오기 (토픽 페이지 또는 정식 이슈인 경우)
   const { data: topicIssues = [] } = useQuery({

@@ -2,7 +2,7 @@ import { useParams, usePathname } from 'next/navigation';
 import { useIssueQuery } from '@/app/(with-sidebar)/issue/hooks';
 
 /**
- * 현재 페이지의 topicId를 반환하는 커스텀 훅
+ * 현재 페이지의 topicId와 페이지 타입을 반환하는 커스텀 훅
  * - 토픽 페이지: URL params에서 직접 추출
  * - 이슈 페이지: 이슈 데이터에서 topicId 추출
  */
@@ -18,5 +18,7 @@ export const useTopicId = () => {
   const { data: issue } = useIssueQuery(issueId);
   const topicIdFromIssue = issue?.topicId;
 
-  return isTopicPage ? topicIdFromUrl : topicIdFromIssue;
+  const topicId = isTopicPage ? topicIdFromUrl : topicIdFromIssue;
+
+  return { topicId, isTopicPage };
 };

@@ -2,13 +2,11 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useMutation } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import * as S from '@/app/(with-sidebar)/issue/_components/issue-join-modal/issue-join-modal.styles';
 import { useCreateIssueInTopicMutation } from '@/app/(with-sidebar)/issue/hooks';
 import { useModalStore } from '@/components/modal/use-modal-store';
 import { useTopicId } from '@/hooks/use-topic-id';
-import { createIssueInTopic } from '@/lib/api/issue';
 
 export default function CreateIssueModal() {
   const router = useRouter();
@@ -17,7 +15,7 @@ export default function CreateIssueModal() {
   const { mutate, isPending } = useCreateIssueInTopicMutation();
 
   // 토픽 ID 가져오기 (토픽 페이지면 URL에서, 이슈 페이지면 이슈 데이터에서)
-  const topicId = useTopicId();
+  const { topicId } = useTopicId();
 
   const handleCreate = () => {
     if (!topicId) {
