@@ -16,7 +16,6 @@ export const InvitationService = {
       token: invitation.token,
       projectId: invitation.projectId,
       projectTitle: invitation.project.title,
-      projectDesc: invitation.project.description,
       ownerName: invitation.project.owner?.name ?? '알 수 없는 사용자',
       memberCount: invitation.project._count.projectMembers,
       myEmail: invitation.invitees[0]?.email,

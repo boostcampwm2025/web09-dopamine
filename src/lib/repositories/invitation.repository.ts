@@ -31,7 +31,6 @@ export const InvitationRepository = {
           select: {
             id: true,
             title: true,
-            description: true,
 
             owner: {
               select: {

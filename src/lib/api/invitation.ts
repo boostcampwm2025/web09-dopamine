@@ -15,7 +15,6 @@ export interface InvitationInfoResponse {
   isValid: boolean;
   projectId: string;
   projectTitle: string;
-  projectDesc: string;
   ownerName: string;
   memberCount: number;
 }

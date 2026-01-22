@@ -1,35 +1,11 @@
-'use client';
-
-import { useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import toast from 'react-hot-toast';
-import LoadingOverlay from '@/components/loading-overlay/loading-overlay';
-import { useInvitationInfo } from '@/hooks/invitation/use-invitation-query';
+import { InvitationInfoResponse } from '@/lib/api/invitation';
 import * as S from './pags.styles';
 
-export function InvitationContainer() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const code = searchParams.get('code');
+interface InvitationContainerprops {
+  data: InvitationInfoResponse;
+}
 
-  const { data, isLoading, isError } = useInvitationInfo(code);
-
-  useEffect(() => {
-    if (!code || isError) {
-      toast.error('유효하지 않은 접근입니다!');
-      router.replace('/');
-    }
-  }, [code, isError, router]);
-
-  if (isLoading) {
-    return <LoadingOverlay message="초대 링크 확인 중.." />;
-  }
-
-  // 로딩은 끝났는데 데이터가 없거나 에러인 경우
-  if (!code || isError || !data) {
-    return null;
-  }
-
+export function InvitationContainer({ data }: InvitationContainerprops) {
   return (
     <S.InviteContainer fullScreen={true}>
       <S.PostItWrapper>
