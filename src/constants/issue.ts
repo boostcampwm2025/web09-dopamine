@@ -41,3 +41,5 @@ export const ISSUE_STATUS_DESCRIPTION: Record<IssueStatus, string> = {
   SELECT: '투표 결과를 참고해 팀의 최종 아이디어를 결정해보세요.',
   CLOSE: '',
 };
+
+export const DEFAULT_SELF_LABEL = '나';

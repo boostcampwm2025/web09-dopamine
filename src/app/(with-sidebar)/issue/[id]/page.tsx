@@ -14,7 +14,6 @@ import LoadingOverlay from '@/components/loading-overlay/loading-overlay';
 import { useModalStore } from '@/components/modal/use-modal-store';
 import { ISSUE_STATUS, ISSUE_STATUS_DESCRIPTION } from '@/constants/issue';
 import { joinIssueAsLoggedInUser } from '@/lib/api/issue';
-import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
 import { getActiveDiscussionIdeaIds } from '@/lib/utils/active-discussion-idea';
 import IssueJoinModal from '../_components/issue-join-modal/issue-join-modal';
 import {
@@ -24,6 +23,7 @@ import {
   useIdeaOperations,
   useIdeaStatus,
   useIssueData,
+  useIssueIdentity,
   useIssueEvents,
   useIssueQuery,
   useSelectedIdeaQuery,
@@ -40,7 +40,6 @@ const IssuePage = () => {
   const hasOpenedModal = useRef(false);
 
   const scale = useCanvasStore((state) => state.scale);
-  const issueUserId = getUserIdForIssue(issueId) ?? '';
 
   const { data: selectedIdeaId } = useSelectedIdeaQuery(issueId);
 
@@ -63,8 +62,7 @@ const IssuePage = () => {
   } = useIssueData(issueId);
 
   const { data: session, status: sessionStatus } = useSession();
-  const sessionUserId = session?.user?.id ?? '';
-  const currentUserId = isQuickIssue ? issueUserId : sessionUserId || issueUserId;
+  const { userId: currentUserId, issueUserId } = useIssueIdentity(issueId, { isQuickIssue });
 
   // 로그인 사용자가 이슈에 참여했는지 확인
   const isLoggedInUserMember = useMemo(() => {
