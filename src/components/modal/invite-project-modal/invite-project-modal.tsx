@@ -44,7 +44,7 @@ export default function InviteProjectModal({ id, title }: InviteModalProps) {
     }
 
     if (session?.user.email === trimmedEmail) {
-      toast.error('현재 사용자의 이메일은 추가할 수 없습니다.');
+      toast.error('현재 로그인 중인 계정입니다.');
       return;
     }
 
