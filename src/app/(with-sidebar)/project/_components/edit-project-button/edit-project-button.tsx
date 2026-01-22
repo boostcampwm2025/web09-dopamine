@@ -20,7 +20,7 @@ export default function EditProject({
 
   const handleEditClick = () => {
     openModal({
-      title: '프로젝트 수정',
+      title: '프로젝트 설정',
       content: (
         <ProjectModal
           variant="project"
@@ -35,18 +35,18 @@ export default function EditProject({
   };
 
   return (
-    <S.EditIconWrapper
+    <S.SettingIconWrapper
       onClick={handleEditClick}
-      aria-label="Edit"
+      aria-label="Setting"
       role="button"
       tabIndex={0}
     >
       <Image
-        src="/edit.svg"
+        src="/settings.svg"
         alt="Edit"
         width={16}
         height={16}
       />
-    </S.EditIconWrapper>
+    </S.SettingIconWrapper>
   );
 }
