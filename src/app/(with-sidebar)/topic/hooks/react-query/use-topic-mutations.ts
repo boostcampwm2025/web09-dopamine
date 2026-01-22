@@ -13,8 +13,8 @@ export const useTopicMutations = (topicId: string) => {
   // 연결 생성
   const createConnectionMutation = useMutation({
     mutationFn: async (data: {
-      issueAId: string;
-      issueBId: string;
+      sourceIssueId: string;
+      targetIssueId: string;
       sourceHandle: string | null;
       targetHandle: string | null;
     }) => {

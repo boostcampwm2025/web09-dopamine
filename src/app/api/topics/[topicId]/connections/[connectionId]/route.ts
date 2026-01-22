@@ -9,13 +9,16 @@ export async function DELETE(
   const { connectionId } = await params;
 
   try {
-    await prisma.issueConnection.delete({
+    await prisma.issueConnection.update({
       where: {
         id: connectionId,
       },
+      data: {
+        deletedAt: new Date(),
+      },
     });
 
-    return createSuccessResponse(null, 204);
+    return createSuccessResponse(null, 200);
   } catch (error) {
     console.error('연결 삭제 실패:', error);
     return createErrorResponse('CONNECTION_DELETE_FAILED', 500);
