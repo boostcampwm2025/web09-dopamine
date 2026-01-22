@@ -1,9 +1,9 @@
 'use client';
 
 import React from 'react';
+import * as S from '@/app/(with-sidebar)/project/_components/project-modal/project-modal.styles';
 import LoadingOverlay from '@/components/loading-overlay/loading-overlay';
 import useProjectModal, { ProjectModalProps } from './hooks/use-project-modal';
-import * as S from '@/app/(with-sidebar)/project/_components/project-modal/project-modal.styles';
 
 export default function ProjectModal(props: ProjectModalProps) {
   const {
@@ -49,7 +49,7 @@ export default function ProjectModal(props: ProjectModalProps) {
         </S.InputRow>
         {(isTitleOverLimit || isTitleLessLimit) && (
           <S.InputDescription>
-                    * 프로젝트 제목은 1~{MAX_TITLE_LENGTH}자 이내로 입력해주세요.
+            * 프로젝트 제목은 1~{MAX_TITLE_LENGTH}자 이내로 입력해주세요.
           </S.InputDescription>
         )}
       </S.InputWrapper>
@@ -68,7 +68,7 @@ export default function ProjectModal(props: ProjectModalProps) {
         </S.InputRow>
         {(isDescriptionOverLimit || isDescriptionLessLimit) && (
           <S.InputDescription>
-                    * 프로젝트 설명은 1~{MAX_DESCRIPTION_LENGTH}자 이내로 입력해주세요.
+            * 프로젝트 설명은 1~{MAX_DESCRIPTION_LENGTH}자 이내로 입력해주세요.
           </S.InputDescription>
         )}
       </S.InputWrapper>

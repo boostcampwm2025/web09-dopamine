@@ -79,10 +79,7 @@ export function ProjectCard({
   useEffect(() => {
     if (!isMenuOpen) return;
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        menuRef.current &&
-        !menuRef.current.contains(event.target as Node)
-      ) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         suppressNextClickRef.current = true;
         setIsMenuOpen(false);
       }
@@ -152,7 +149,10 @@ export function ProjectCard({
   return (
     <S.Card onClick={handleGoProject}>
       <S.MenuWrapper ref={menuRef}>
-        <S.Button onClick={handleMenuToggle} type="button">
+        <S.Button
+          onClick={handleMenuToggle}
+          type="button"
+        >
           <Image
             src="/hamburger.svg"
             alt="메뉴 열기"
@@ -163,14 +163,18 @@ export function ProjectCard({
         {isMenuOpen && (
           <S.MenuModal onClick={(e) => e.stopPropagation()}>
             {isOwner ? (
-              <S.MenuItem onClick={handleDeleteClick} type="button">
+              <S.MenuItem
+                onClick={handleDeleteClick}
+                type="button"
+              >
                 삭제
-                <S.Tooltip role="tooltip">
-                  삭제하면 복구할 수 없습니다
-                </S.Tooltip>
+                <S.Tooltip role="tooltip">삭제하면 복구할 수 없습니다</S.Tooltip>
               </S.MenuItem>
             ) : (
-              <S.MenuItem onClick={handleLeaveClick} type="button">
+              <S.MenuItem
+                onClick={handleLeaveClick}
+                type="button"
+              >
                 나가기
               </S.MenuItem>
             )}
