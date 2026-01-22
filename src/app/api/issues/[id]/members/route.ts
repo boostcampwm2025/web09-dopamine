@@ -64,8 +64,10 @@ export async function POST(
 
     let result: { userId: string };
 
-    // 로그인 사용자인 경우
-    if (session?.user?.id) {
+    const isQuickIssue = !issue.topicId;
+
+    // 토픽 이슈인 경우에만 로그인 사용자로 참여
+    if (!isQuickIssue && session?.user?.id) {
       // 이미 참여했는지 확인
       const existingMember = await issueMemberRepository.findMemberByUserId(
         issueId,
@@ -83,7 +85,7 @@ export async function POST(
 
       result = { userId: session.user.id };
     } else {
-      // 익명 사용자인 경우 (기존 로직)
+      // 빠른 이슈 또는 익명 사용자인 경우
       if (!nickname) {
         return createErrorResponse('NICKNAME_REQUIRED', 400);
       }
