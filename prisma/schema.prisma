@@ -54,18 +54,19 @@ model User {
 }
 
 model Account {
-  id                String  @id @default(uuid()) @db.Char(36)
-  userId            String  @map("user_id") @db.Char(36)
-  type              String
-  provider          String
-  providerAccountId String  @map("provider_account_id")
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String? @db.Text
-  session_state     String?
+  id                       String  @id @default(uuid()) @db.Char(36)
+  userId                   String  @map("user_id") @db.Char(36)
+  type                     String
+  provider                 String
+  providerAccountId        String  @map("provider_account_id")
+  refresh_token            String? @db.Text
+  access_token             String? @db.Text
+  expires_at               Int?
+  refresh_token_expires_in Int?
+  token_type               String?
+  scope                    String?
+  id_token                 String? @db.Text
+  session_state            String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 

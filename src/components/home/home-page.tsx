@@ -41,12 +41,14 @@ export default function HomePage({ session }: HomePageProps) {
   };
 
   const handleSocialLogin = (provider: string) => {
-    if (provider === 'google') {
-      signIn('google', { callbackUrl: '/project' });
-    } else {
-      // TODO: 다른 로그인 제공자 구현
-      alert('준비 중인 기능입니다.');
-    }
+    if (
+      provider === 'google' ||
+      provider === 'github' ||
+      provider === 'kakao' ||
+      provider === 'naver'
+    ) {
+      signIn(provider, { callbackUrl: '/project' });
+    } 
   };
 
   const renderProjectOrSocialLogin = () => {
