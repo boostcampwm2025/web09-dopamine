@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useSession } from 'next-auth/react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import CloseIssueModal from '@/app/(with-sidebar)/issue/_components/close-issue-modal/close-issue-modal';
@@ -7,12 +6,12 @@ import { useModalStore } from '@/components/modal/use-modal-store';
 import { MEMBER_ROLE } from '@/constants/issue';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
 import { getIssueMember } from '@/lib/api/issue';
-import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
 import { useIssueStore } from '../store/use-issue-store';
 import { selectedIdeaQueryKey } from './react-query/use-selected-idea-query';
 
 interface UseIssueEventsParams {
   issueId: string;
+  userId: string;
   enabled?: boolean;
 }
 
@@ -23,6 +22,7 @@ interface UseIssueEventsReturn {
 
 export function useIssueEvents({
   issueId,
+  userId,
   enabled = true,
 }: UseIssueEventsParams): UseIssueEventsReturn {
   const queryClient = useQueryClient();
@@ -30,12 +30,9 @@ export function useIssueEvents({
   const [error, setError] = useState<Event | null>(null);
   const eventSourceRef = useRef<EventSource | null>(null);
   const selectedIdeaKey = useMemo(() => selectedIdeaQueryKey(issueId), [issueId]);
-  const { data: session } = useSession();
 
   const { setIsAIStructuring } = useIssueStore((state) => state.actions);
   const { setOnlineMemberIds } = useIssueStore((state) => state.actions);
-
-  const userId = session?.user?.id ?? getUserIdForIssue(issueId) ?? '';
 
   // 현재 사용자의 정보 조회
   const { data: currentUser } = useQuery({

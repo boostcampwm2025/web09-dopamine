@@ -40,7 +40,7 @@ const IssuePage = () => {
   const hasOpenedModal = useRef(false);
 
   const scale = useCanvasStore((state) => state.scale);
-  const userId = getUserIdForIssue(issueId) ?? '';
+  const issueUserId = getUserIdForIssue(issueId) ?? '';
 
   const { data: selectedIdeaId } = useSelectedIdeaQuery(issueId);
 
@@ -63,6 +63,8 @@ const IssuePage = () => {
   } = useIssueData(issueId);
 
   const { data: session, status: sessionStatus } = useSession();
+  const sessionUserId = session?.user?.id ?? '';
+  const currentUserId = isQuickIssue ? issueUserId : sessionUserId || issueUserId;
 
   // 로그인 사용자가 이슈에 참여했는지 확인
   const isLoggedInUserMember = useMemo(() => {
@@ -83,6 +85,7 @@ const IssuePage = () => {
   // 로그인 사용자 자동 참여
   useEffect(() => {
     const autoJoinLoggedInUser = async () => {
+      if (isQuickIssue) return;
       if (!issueId || isLoading || sessionStatus === 'loading' || !session?.user?.id) return;
 
       // 이미 참여한 경우 스킵
@@ -96,17 +99,18 @@ const IssuePage = () => {
     };
 
     autoJoinLoggedInUser();
-  }, [issueId, isLoading, sessionStatus, session?.user?.id, isLoggedInUserMember]);
+  }, [issueId, isLoading, sessionStatus, session?.user?.id, isLoggedInUserMember, isQuickIssue]);
 
   // userId 체크 및 모달 표시
   useEffect(() => {
-    if (!issueId || hasOpenedModal.current || isOpen || sessionStatus === 'loading') return;
+    if (!issueId || isLoading || hasOpenedModal.current || isOpen || sessionStatus === 'loading')
+      return;
 
-    // 로그인한 사용자는 참여 모달 표시 안 함 (토픽 -> 이슈)
-    if (session?.user?.id) return;
+    // 빠른 이슈만 익명 참여 모달 표시
+    if (!isQuickIssue) return;
 
-    // 익명 사용자 + localStorage에 userId 없음 -> 참여 모달
-    if (!userId) {
+    // 빠른 이슈 + localStorage에 userId 없음 -> 참여 모달
+    if (!issueUserId) {
       hasOpenedModal.current = true;
       openModal({
         title: '이슈 참여',
@@ -115,7 +119,7 @@ const IssuePage = () => {
         hasCloseButton: false,
       });
     }
-  }, [issueId, session, sessionStatus, isOpen, openModal, userId]);
+  }, [issueId, isQuickIssue, isLoading, sessionStatus, isOpen, openModal, issueUserId]);
 
   // 이슈가 종료된 경우 summary 페이지로 리다이렉트
   useEffect(() => {
@@ -125,9 +129,9 @@ const IssuePage = () => {
   }, [status, issueId, router]);
 
   // SSE 연결
-  // 로그인 사용자 또는 localStorage에 userId가 있는 익명 사용자만 연결
-  const shouldConnectSSE = !!(session?.user?.id || userId);
-  useIssueEvents({ issueId, enabled: shouldConnectSSE });
+  // 빠른 이슈는 localStorage userId, 토픽 이슈는 로그인 userId 기준으로 연결
+  const shouldConnectSSE = !!currentUserId;
+  useIssueEvents({ issueId, userId: currentUserId, enabled: shouldConnectSSE });
 
   // 2. 아이디어 관련 작업
   const {

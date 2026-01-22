@@ -19,10 +19,11 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const { signal } = request;
 
   /**
-   * 로그인 사용자는 세션, 익명 사용자는 이슈 쿠키로 식별
+   * 이슈 쿠키가 있으면 익명 참여(빠른 이슈)로 우선 처리
    */
   const session = await getServerSession(authOptions);
-  const userId = session?.user?.id ?? getUserIdFromRequest(request, issueId);
+  const issueUserId = getUserIdFromRequest(request, issueId);
+  const userId = issueUserId ?? session?.user?.id;
 
   if (!userId) {
     return createErrorResponse('USER_ID_REQUIRED', 401);

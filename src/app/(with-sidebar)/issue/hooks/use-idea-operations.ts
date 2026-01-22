@@ -28,14 +28,14 @@ export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) 
 
   // 현재 사용자 정보 가져오기
   const { data: session } = useSession();
-  const { members } = useIssueData(issueId);
+  const { members, isQuickIssue } = useIssueData(issueId);
 
-  // 로그인 사용자는 session.user.id, 익명 사용자는 localStorage에서 userId 가져오기
-  const currentUserId = session?.user?.id || getUserIdForIssue(issueId);
+  const issueUserId = getUserIdForIssue(issueId) ?? '';
+  const sessionUserId = session?.user?.id ?? '';
+  const currentUserId = isQuickIssue ? issueUserId : sessionUserId || issueUserId;
   const currentUser = members.find((m: IssueMember) => m.id === currentUserId);
 
-  // 로그인 사용자는 session에서 이름 가져오기, 익명 사용자는 members에서 찾기
-  const currentUserDisplayName = session?.user?.name || currentUser?.displayName || '나';
+  const currentUserDisplayName = currentUser?.displayName || '나';
 
   const { mutate: selectIdea } = useSelectedIdeaMutation(issueId);
 
