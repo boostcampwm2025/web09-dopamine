@@ -31,7 +31,10 @@ export async function GET(
   }
 }
 
-export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ projectId: string }> },
+) {
   // 인증 확인
   const session = await getServerSession(authOptions);
 
@@ -39,7 +42,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     return createErrorResponse('UNAUTHORIZED', 401);
   }
 
-  const { id: projectId } = await params;
+  const { projectId } = await params;
   const { title, description } = await req.json();
 
   try {

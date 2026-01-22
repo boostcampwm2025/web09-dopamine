@@ -1,18 +1,14 @@
 import { InvitationRepository } from '@/lib/repositories/invitation.repository';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 
-export async function POST(req: Request, { params }: { params: { projectId: string } }) {
+export async function POST(req: Request, { params }: { params: Promise<{ projectId: string }> }) {
   try {
     const { projectId } = await params;
     const { emails } = await req.json();
 
     const token = crypto.randomUUID();
 
-    const newInvitation = await InvitationRepository.createInvitation(
-      projectId,
-      token,
-      emails,
-    );
+    const newInvitation = await InvitationRepository.createInvitation(projectId, token, emails);
 
     return createSuccessResponse(newInvitation, 201);
   } catch (error) {

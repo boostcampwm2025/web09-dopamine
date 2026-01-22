@@ -3,7 +3,7 @@ import { authOptions } from '@/lib/auth';
 import { InvitationService } from '@/lib/services/invitation.service';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 
-export async function POST(req: Request, { params }: { params: { projectId: string } }) {
+export async function POST(req: Request, { params }: { params: Promise<{ projectId: string }> }) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
