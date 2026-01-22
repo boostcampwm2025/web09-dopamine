@@ -30,7 +30,7 @@ export default function IdeaCardBadge({ status, isHotIdea }: IdeaCardBadgeProps)
     return (
       <S.HotPotatoBadge>
         <span>🔥</span>
-        <span>논의가 활발해요</span>
+        <span>치열한 토론중</span>
       </S.HotPotatoBadge>
     );
   }
