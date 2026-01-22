@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { createInvitation } from '@/lib/api/invitation';
+import { acceptInvitation, createInvitation } from '@/lib/api/invitation';
 
 export const useInvitationMutations = (projectId: string) => {
   const createToken = useMutation({
@@ -11,5 +11,13 @@ export const useInvitationMutations = (projectId: string) => {
     },
   });
 
-  return { createToken };
+  const joinProject = useMutation({
+    mutationFn: (token: string) => acceptInvitation(projectId, token),
+
+    onError: (err) => {
+      toast.error(err.message);
+    },
+  });
+
+  return { createToken, joinProject };
 };

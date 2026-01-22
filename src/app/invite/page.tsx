@@ -10,5 +10,10 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ c
 
   const invitationData = await InvitationService.getInvitationInfo(code);
 
-  return <InvitationContainer data={invitationData} />;
+  return (
+    <InvitationContainer
+      data={invitationData}
+      code={code}
+    />
+  );
 }
