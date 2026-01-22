@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useSession } from 'next-auth/react';
 import { useParams, usePathname, useRouter } from 'next/navigation';
 import { DndContext, DragOverlay } from '@dnd-kit/core';
 import Canvas from '@/app/(with-sidebar)/issue/_components/canvas/canvas';
@@ -52,16 +53,23 @@ const IssuePage = () => {
   const {
     isIssueError,
     status,
+    isQuickIssue,
     isAIStructuring,
     isCreateIdeaActive,
     isVoteButtonVisible,
     isVoteDisabled,
   } = useIssueData(issueId);
 
+  const { data: session } = useSession();
+
   // userId 체크 및 모달 표시
   useEffect(() => {
     if (!issueId || hasOpenedModal.current || isOpen) return;
 
+    // 로그인한 사용자는 참여 모달 표시 안 함 (토픽 -> 이슈)
+    if (session?.user?.id) return;
+
+    // 익명 사용자 + localStorage에 userId 없음 -> 참여 모달
     if (!userId) {
       hasOpenedModal.current = true;
       openModal({
@@ -71,7 +79,7 @@ const IssuePage = () => {
         hasCloseButton: false,
       });
     }
-  }, [issueId, isOpen, openModal, userId]);
+  }, [issueId, session, isOpen, openModal, userId]);
 
   // 이슈가 종료된 경우 summary 페이지로 리다이렉트
   useEffect(() => {
