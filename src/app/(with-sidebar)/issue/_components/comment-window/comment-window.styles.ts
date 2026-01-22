@@ -1,9 +1,13 @@
-﻿import styled from '@emotion/styled';
+import styled from '@emotion/styled';
 import { theme } from '@/styles/theme';
 
-export const Window = styled.section`
-  position: absolute;
-  z-index: 1100;
+export const Window = styled.section<{ x?: number; y?: number; scale?: number }>`
+  position: fixed;
+  left: ${({ x }) => (x !== undefined ? `${x}px` : '0px')};
+  top: ${({ y }) => (y !== undefined ? `${y}px` : '0px')};
+  transform: ${({ scale = 1 }) => `scale(${scale})`};
+  transform-origin: top left;
+  z-index: 9999;
   width: 420px;
   height: 500px;
   min-width: 260px;

@@ -1,13 +1,16 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
-import type { PointerEventHandler } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import type { MouseEventHandler, PointerEventHandler } from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
+import Portal from '@/components/portal/portal';
 import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
 import { useIdeaQuery, useIssueData, useSelectedIdeaMutation } from '../../hooks';
 import { useIdeaCardStackStore } from '../../store/use-idea-card-stack-store';
 import type { CardStatus, Position } from '../../types/idea';
+import { useCanvasContext } from '../canvas/canvas-context';
+import CommentWindow from '../comment-window/comment-window';
 import IdeaCardBadge from './idea-card-badge';
 import IdeaCardFooter from './idea-card-footer';
 import IdeaCardHeader from './idea-card-header';
@@ -100,6 +103,29 @@ export default function IdeaCard(props: IdeaCardProps) {
 
   const { data: idea } = useIdeaQuery(props.issueId, props.id, currentUserId);
 
+  // 댓글 윈도우 상태 관리
+  const [isCommentOpen, setIsCommentOpen] = useState(false);
+  const [commentPosition, setCommentPosition] = useState<{ x: number; y: number } | null>(null);
+  const { scale } = useCanvasContext();
+  const normalizedScale = scale || 1;
+
+  const handleOpenComment: MouseEventHandler<HTMLButtonElement> = (event) => {
+    event.stopPropagation();
+    const target = event.currentTarget;
+    const nextOpen = !isCommentOpen;
+
+    if (nextOpen) {
+      const targetRect = target.getBoundingClientRect();
+      // viewport 기준 절대 좌표로 설정
+      setCommentPosition({
+        x: targetRect.right + 8,
+        y: targetRect.top,
+      });
+    }
+
+    setIsCommentOpen(nextOpen);
+  };
+
   // 드래그 로직
 
   // dnd-kit useDraggable
@@ -171,9 +197,6 @@ export default function IdeaCard(props: IdeaCardProps) {
     >
       <IdeaCardBadge status={status} />
       <IdeaCardHeader
-        issueId={props.issueId}
-        ideaId={props.id}
-        userId={currentUserId}
         isEditing={isEditing}
         editValue={editValue}
         displayContent={displayContent}
@@ -187,6 +210,7 @@ export default function IdeaCard(props: IdeaCardProps) {
         handleKeyDownEdit={handleKeyDownEdit}
         submitEdit={submitEdit}
         onDelete={handleDeleteClick}
+        onCommentClick={handleOpenComment}
       />
       <IdeaCardFooter
         isVoteButtonVisible={props.isVoteButtonVisible}
@@ -198,6 +222,18 @@ export default function IdeaCard(props: IdeaCardProps) {
         onAgree={handleAgree}
         onDisagree={handleDisagree}
       />
+      {isCommentOpen && (
+        <Portal>
+          <CommentWindow
+            issueId={props.issueId}
+            ideaId={props.id}
+            userId={currentUserId}
+            initialPosition={commentPosition ?? undefined}
+            scale={normalizedScale}
+            onClose={() => setIsCommentOpen(false)}
+          />
+        </Portal>
+      )}
     </S.Card>
   );
 }
