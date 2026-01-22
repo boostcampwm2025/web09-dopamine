@@ -5,7 +5,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ c
   const { code } = await searchParams;
 
   if (!code || typeof code !== 'string') {
-    throw new Error('NO_CODE_URL');
+    throw new Error('CODE_REQUIRED');
   }
 
   const invitationData = await InvitationService.getInvitationInfo(code);

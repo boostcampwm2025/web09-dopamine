@@ -42,7 +42,6 @@ export const CLIENT_ERROR_MESSAGES: Record<string, string> = {
   INVITATION_EXPIRED: '만료된 초대 링크입니다.',
   EMAIL_NOT_AUTHORIZED: '유효하지 않은 이메일입니다. 다른 계정으로 참여해주세요.',
   ALREADY_EXISTED: '이미 참여중인 프로젝트입니다. 프로젝트 페이지로 이동합니다.',
-  NO_CODE_URL: '초대 코드가 없는 잘못된 접근입니다.',
 
   // 카테고리 AI 구조화
   CATEGORIES_REQUIRED: '카테고리 데이터가 필요합니다.',
