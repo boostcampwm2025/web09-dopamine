@@ -130,10 +130,10 @@ export function ProjectCard({
       <S.MenuWrapper ref={menuRef}>
         <S.Button onClick={handleMenuToggle} type="button">
           <Image
-            src="/settings.svg"
-            alt="설정"
-            width={14}
-            height={14}
+            src="/hamburger.svg"
+            alt="메뉴 열기"
+            width={20}
+            height={20}
           />
         </S.Button>
         {isMenuOpen && (
