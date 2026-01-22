@@ -70,12 +70,6 @@ export const StartButton = styled.button<{ background?: string }>`
   cursor: pointer;
 `;
 
-export const SocialLoginContainer = styled(BaseFlex)`
-  margin-top: 20px;
-  flex-direction: row;
-  gap: 50px;
-`;
-
 export const ButtonContainer = styled(BaseFlex)`
   margin-top: 10px;
   gap: 40px;
