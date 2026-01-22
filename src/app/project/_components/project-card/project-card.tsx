@@ -5,7 +5,10 @@ import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
-import { useDeleteProjectMutation } from '@/app/project/hooks/use-project-mutation';
+import {
+  useDeleteProjectMutation,
+  useLeaveProjectMutation,
+} from '@/app/project/hooks/use-project-mutation';
 import { useModalStore } from '@/components/modal/use-modal-store';
 import InviteProjectModal from '../invite-project-modal/invite-project-modal';
 import ProjectCreateModal from '../project-create-modal/project-create-modal';
@@ -32,6 +35,7 @@ export function ProjectCard({
   const { openModal } = useModalStore();
   const router = useRouter();
   const { mutate: deleteProject } = useDeleteProjectMutation();
+  const { mutate: leaveProject } = useLeaveProjectMutation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const suppressNextClickRef = useRef(false);
@@ -125,6 +129,26 @@ export function ProjectCard({
     }
   };
 
+  const handleLeaveClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsMenuOpen(false);
+    if (confirm('프로젝트에서 나가시겠습니까?')) {
+      if (id) {
+        leaveProject(
+          { id },
+          {
+            onSuccess: () => {
+              toast.success('프로젝트에서 나갔습니다.');
+            },
+            onError: () => {
+              toast.error('프로젝트 나가기 실패했습니다.');
+            },
+          },
+        );
+      }
+    }
+  };
+
   return (
     <S.Card onClick={handleGoProject}>
       <S.MenuWrapper ref={menuRef}>
@@ -138,10 +162,18 @@ export function ProjectCard({
         </S.Button>
         {isMenuOpen && (
           <S.MenuModal onClick={(e) => e.stopPropagation()}>
-            <S.MenuItem onClick={handleDeleteClick} type="button">
-              삭제
-              <S.Tooltip role="tooltip">삭제하면 복구할 수 없습니다</S.Tooltip>
-            </S.MenuItem>
+            {isOwner ? (
+              <S.MenuItem onClick={handleDeleteClick} type="button">
+                삭제
+                <S.Tooltip role="tooltip">
+                  삭제하면 복구할 수 없습니다
+                </S.Tooltip>
+              </S.MenuItem>
+            ) : (
+              <S.MenuItem onClick={handleLeaveClick} type="button">
+                나가기
+              </S.MenuItem>
+            )}
           </S.MenuModal>
         )}
       </S.MenuWrapper>
