@@ -7,12 +7,13 @@ import { useIssueData, useIssueId, useTopicIssuesQuery } from '../../hooks';
 import { useIssueStore } from '../../store/use-issue-store';
 
 export const useIssueSidebar = () => {
-  const issueId = useIssueId();
-  const { isQuickIssue, members } = useIssueData(issueId);
-  const { onlineMemberIds } = useIssueStore();
-
   // 토픽 ID 및 페이지 타입 가져오기
   const { topicId, isTopicPage } = useTopicId();
+
+  const issueId = useIssueId();
+  // 토픽 페이지에서는 이슈 데이터 가져오지 않음
+  const { isQuickIssue, members } = useIssueData(issueId, !isTopicPage);
+  const { onlineMemberIds } = useIssueStore();
 
   // 토픽의 이슈 목록 가져오기
   const { data: topicIssues = [] } = useTopicIssuesQuery(topicId);
