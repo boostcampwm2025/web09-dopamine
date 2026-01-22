@@ -22,6 +22,6 @@ export const StyledIssueGraphLink = styled(Link)`
   font-weight: 700;
   text-decoration: none;
   background-color: ${({ theme }) => theme.colors.green[600]};
-  border-radius: ${({ theme }) => theme.radius.medium};
+  border-radius: ${({ theme }) => theme.radius.small};
   box-shadow: 0 4px 4px -1px rgba(0, 0, 0, 0.2);
 `;
