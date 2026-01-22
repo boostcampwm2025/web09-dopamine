@@ -6,7 +6,6 @@ import styled from '@emotion/styled';
 import IssueHeader from '@/app/(with-sidebar)/issue/_components/header/header';
 import IssueSidebar from '@/app/(with-sidebar)/issue/_components/layout/issue-sidebar';
 import TopicHeader from '@/app/(with-sidebar)/topic/_components/header/topic-header';
-import TopicSidebar from '@/app/(with-sidebar)/topic/_components/topic-sidebar';
 import ProjectHeader from './project/_components/header/header';
 import ProjectSidebar from './project/_components/sidebar/project-sidebar';
 
@@ -42,7 +41,7 @@ export default function WithSidebarLayout({ children }: { children: ReactNode })
     if (pathname?.startsWith('/topic')) {
       return {
         header: <TopicHeader />,
-        sidebar: <TopicSidebar />,
+        sidebar: <IssueSidebar />,
       };
     }
 
