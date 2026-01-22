@@ -2,7 +2,7 @@
 
 import React from 'react';
 import LoadingOverlay from '@/components/loading-overlay/loading-overlay';
-import useProjectModal, { ProjectModalProps } from './use-project-modal';
+import useProjectModal, { ProjectModalProps } from './hooks/use-project-modal';
 import * as S from '@/app/(with-sidebar)/project/_components/project-modal/project-modal.styles';
 
 export default function ProjectModal(props: ProjectModalProps) {
