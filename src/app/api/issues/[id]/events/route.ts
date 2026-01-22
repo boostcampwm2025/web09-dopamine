@@ -1,4 +1,6 @@
+import { getServerSession } from 'next-auth';
 import { NextRequest } from 'next/server';
+import { authOptions } from '@/lib/auth';
 import { sseManager } from '@/lib/sse/sse-manager';
 import { createErrorResponse } from '@/lib/utils/api-helpers';
 import { getUserIdFromRequest } from '@/lib/utils/cookie';
@@ -17,10 +19,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const { signal } = request;
 
   /**
-   * @todo Session 혹은 JWT 등에서 사용자 정보를 받아오도록 수정 필요
-   * 우선 쿠키에서 정보를 받아오는 것으로 수정
+   * 로그인 사용자는 세션, 익명 사용자는 이슈 쿠키로 식별
    */
-  const userId = getUserIdFromRequest(request, issueId);
+  const session = await getServerSession(authOptions);
+  const userId = session?.user?.id ?? getUserIdFromRequest(request, issueId);
 
   if (!userId) {
     return createErrorResponse('USER_ID_REQUIRED', 401);

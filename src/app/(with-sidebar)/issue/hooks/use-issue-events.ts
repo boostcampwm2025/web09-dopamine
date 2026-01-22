@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useSession } from 'next-auth/react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import CloseIssueModal from '@/app/(with-sidebar)/issue/_components/close-issue-modal/close-issue-modal';
@@ -29,11 +30,12 @@ export function useIssueEvents({
   const [error, setError] = useState<Event | null>(null);
   const eventSourceRef = useRef<EventSource | null>(null);
   const selectedIdeaKey = useMemo(() => selectedIdeaQueryKey(issueId), [issueId]);
+  const { data: session } = useSession();
 
   const { setIsAIStructuring } = useIssueStore((state) => state.actions);
   const { setOnlineMemberIds } = useIssueStore((state) => state.actions);
 
-  const userId = getUserIdForIssue(issueId) ?? '';
+  const userId = session?.user?.id ?? getUserIdForIssue(issueId) ?? '';
 
   // 현재 사용자의 정보 조회
   const { data: currentUser } = useQuery({
