@@ -4,6 +4,7 @@ import * as S from './social-login.styles';
 
 interface SocialLoginProps {
   callbackUrl?: string;
+  iconSize?: number;
 }
 
 const SOCIAL_ICONS = [
@@ -13,7 +14,7 @@ const SOCIAL_ICONS = [
   { src: '/naver.svg', alt: 'naver', provider: 'naver' },
 ];
 
-export default function SocialLogin({ callbackUrl = '/project' }: SocialLoginProps) {
+export default function SocialLogin({ callbackUrl = '/project', iconSize = 50 }: SocialLoginProps) {
   const handleSocialLogin = (provider: string) => {
     if (
       provider === 'google' ||
@@ -31,8 +32,8 @@ export default function SocialLogin({ callbackUrl = '/project' }: SocialLoginPro
           key={icon.alt}
           src={icon.src}
           alt={icon.alt}
-          width={50}
-          height={50}
+          width={iconSize}
+          height={iconSize}
           style={{ cursor: 'pointer' }}
           onClick={() => handleSocialLogin(icon.provider)}
         />
