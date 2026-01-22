@@ -1,6 +1,28 @@
 import { InvitationRepository } from '../repositories/invitation.repository';
 
 export const InvitationService = {
+  async getInvitationInfo(token: string) {
+    const invitation = await InvitationRepository.findInvitationByToken(token);
+
+    if (!invitation) {
+      throw new Error('INVITATION_NOT_FOUND');
+    }
+    if (new Date() > invitation.expiresAt) {
+      throw new Error('INVITATION_EXPIRED');
+    }
+
+    return {
+      isValid: true,
+      token: invitation.token,
+      projectId: invitation.projectId,
+      projectTitle: invitation.project.title,
+      projectDesc: invitation.project.description,
+      ownerName: invitation.project.owner?.name ?? '알 수 없는 사용자',
+      memberCount: invitation.project._count.projectMembers,
+      myEmail: invitation.invitees[0]?.email,
+    };
+  },
+
   async acceptInvitation(token: string, userEmail: string, userId: string) {
     // 초대장 조회 (해당 이메일이 명단에 있는지 필터링해서 가져옴)
     const invitation = await InvitationRepository.findInvitationByEmail(token, userEmail);

@@ -19,6 +19,48 @@ export const InvitationRepository = {
     });
   },
 
+  async findInvitationByToken(token: string) {
+    return await prisma.projectInvitation.findUnique({
+      where: { token },
+      select: {
+        token: true,
+        expiresAt: true,
+        projectId: true,
+
+        project: {
+          select: {
+            id: true,
+            title: true,
+            description: true,
+
+            owner: {
+              select: {
+                name: true,
+              },
+            },
+
+            _count: {
+              select: {
+                projectMembers: {
+                  where: {
+                    deletedAt: null,
+                  },
+                },
+              },
+            },
+          },
+        },
+
+        // 내 이메일이 초대 명단에 있는지 확인용. 나중에 수정될 수 있음
+        invitees: {
+          select: {
+            email: true,
+          },
+        },
+      },
+    });
+  },
+
   async findInvitationByEmail(token: string, userEmail: string) {
     return await prisma.projectInvitation.findUnique({
       where: { token },
