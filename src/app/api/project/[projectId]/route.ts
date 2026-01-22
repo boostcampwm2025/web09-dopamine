@@ -4,7 +4,10 @@ import { authOptions } from '@/lib/auth';
 import * as projectRepository from '@/lib/repositories/project.repository';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 
-export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<{ projectId: string }> },
+) {
   // 인증 확인
   const session = await getServerSession(authOptions);
 
@@ -12,7 +15,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     return createErrorResponse('UNAUTHORIZED', 401);
   }
 
-  const { id: projectId } = await params;
+  const { projectId } = await params;
 
   try {
     const project = await projectRepository.getProjectWithTopics(projectId);
@@ -28,7 +31,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   }
 }
 
-export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ projectId: string }> },
+) {
   // 인증 확인
   const session = await getServerSession(authOptions);
 
@@ -36,7 +42,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     return createErrorResponse('UNAUTHORIZED', 401);
   }
 
-  const { id: projectId } = await params;
+  const { projectId } = await params;
   const { title, description } = await req.json();
 
   try {

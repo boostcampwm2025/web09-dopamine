@@ -108,6 +108,7 @@ model Project {
   owner          User            @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   projectMembers ProjectMember[]
   topics         Topic[]
+  invitations    ProjectInvitation[]
 
   @@index([ownerId])
   @@map("projects")
@@ -129,6 +130,35 @@ model ProjectMember {
   @@index([userId])
   @@index([projectId])
   @@map("project_members")
+}
+
+model ProjectInvitation {
+  id            String   @id @default(uuid())
+  token         String   @unique 
+  project       Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId     String
+
+  expiresAt     DateTime
+  createdAt     DateTime @default(now())
+  
+  invitees     ProjectInvitee[]    
+
+  @@map("project_invitaions")
+}
+
+model ProjectInvitee {
+  id           String            @id @default(uuid())
+  
+  email        String            
+  isAccepted   Boolean           @default(false)
+  acceptedAt   DateTime?         
+  
+  invitationId String
+  invitation   ProjectInvitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+
+  @@unique([invitationId, email])
+  @@index([email])
+  @@map("project_invitees")
 }
 
 model Topic {

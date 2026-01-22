@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import toast from 'react-hot-toast';
+import { useInvitationMutations } from '@/app/(with-sidebar)/project/hooks/use-invitation-mutation';
 import { useModalStore } from '@/components/modal/use-modal-store';
 import * as S from './invite-project-modal.styles';
 
@@ -10,6 +11,7 @@ interface InviteModalProps {
   title: string;
 }
 export default function InviteProjectModal({ id, title }: InviteModalProps) {
+  const { createToken } = useInvitationMutations(id);
   const [tags, setTags] = useState<string[]>([]);
   const [code, setCode] = useState('');
   const [inputValue, setInputValue] = useState('');
@@ -87,10 +89,14 @@ export default function InviteProjectModal({ id, title }: InviteModalProps) {
       toast.error('이메일을 입력해주세요!');
       return;
     }
-    // 추후 백엔드에서 생성하는 방식으로 변경
-    const token = crypto.randomUUID();
-    setCode(token);
-    await handleCopy(token);
+
+    createToken.mutate(tags, {
+      onSuccess: (data) => {
+        const { token } = data;
+        setCode(token);
+        handleCopy(token);
+      },
+    });
   };
 
   const handleCancel = () => {
@@ -159,9 +165,9 @@ export default function InviteProjectModal({ id, title }: InviteModalProps) {
         <S.SubmitButton
           type="button"
           onClick={handleInvite}
-          disabled={!!code}
+          disabled={!!code || createToken.isPending}
         >
-          초대 링크 생성
+          {createToken.isPending ? '링크 생성 중..' : '초대 링크 생성'}
         </S.SubmitButton>
       </S.Footer>
     </S.Container>

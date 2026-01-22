@@ -5,6 +5,7 @@ export const CLIENT_ERROR_MESSAGES: Record<string, string> = {
   INTERNAL_ERROR: '서버 내부 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
   VALIDATION_FAILED: '입력한 값이 올바르지 않습니다. 다시 확인해주세요.',
   UNKNOWN_ERROR: '알 수 없는 오류가 발생했습니다.',
+  UNAUTHORIZED_USER: '로그인이 필요합니다.',
 
   // 카테고리
   CATEGORY_NOT_FOUND: '카테고리를 찾을 수 없습니다.',
@@ -32,6 +33,10 @@ export const CLIENT_ERROR_MESSAGES: Record<string, string> = {
   NICKNAME_GENERATION_FAILED: '닉네임 생성에 실패했습니다.',
   USER_ID_REQUIRED: 'User ID가 필요합니다.',
   OWNER_PERMISSION_REQUIRED: '방장 권한이 필요합니다.',
+
+  // 프로젝트 초대
+  INVITATION_TOKEN_CREATE_FAILED: '초대 링크를 생성할 수 없습니다.',
+  PROJECT_JOIN_FAILED: '프로젝트에 참여할 수 없습니다.',
 
   // 카테고리 AI 구조화
   CATEGORIES_REQUIRED: '카테고리 데이터가 필요합니다.',
