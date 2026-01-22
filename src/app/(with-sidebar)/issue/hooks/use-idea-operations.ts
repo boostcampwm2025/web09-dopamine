@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useSession } from 'next-auth/react';
 import toast from 'react-hot-toast';
 import { useIdeaCardStackStore } from '@/app/(with-sidebar)/issue/store/use-idea-card-stack-store';
 import type { IdeaWithPosition, Position } from '@/app/(with-sidebar)/issue/types/idea';
@@ -26,10 +27,15 @@ export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) 
   const { createIdea, updateIdea, removeIdea } = useIdeaMutations(issueId);
 
   // 현재 사용자 정보 가져오기
+  const { data: session } = useSession();
   const { members } = useIssueData(issueId);
-  const currentUserId = getUserIdForIssue(issueId);
+
+  // 로그인 사용자는 session.user.id, 익명 사용자는 localStorage에서 userId 가져오기
+  const currentUserId = session?.user?.id || getUserIdForIssue(issueId);
   const currentUser = members.find((m: IssueMember) => m.id === currentUserId);
-  const currentUserDisplayName = currentUser?.displayName || '나';
+
+  // 로그인 사용자는 session에서 이름 가져오기, 익명 사용자는 members에서 찾기
+  const currentUserDisplayName = session?.user?.name || currentUser?.displayName || '나';
 
   const { mutate: selectIdea } = useSelectedIdeaMutation(issueId);
 

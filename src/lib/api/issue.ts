@@ -94,6 +94,17 @@ export function joinIssue(issueId: string, nickname: string) {
   });
 }
 
+export function joinIssueAsLoggedInUser(issueId: string) {
+  return getAPIResponseData<{
+    userId: string;
+  }>({
+    url: `/api/issues/${issueId}/members`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({}),
+  });
+}
+
 export function checkNicknameDuplicate(issueId: string, nickname: string) {
   const encodedNickname = encodeURIComponent(nickname);
   return getAPIResponseData<{

@@ -13,6 +13,7 @@ import { ErrorPage } from '@/components/error/error';
 import LoadingOverlay from '@/components/loading-overlay/loading-overlay';
 import { useModalStore } from '@/components/modal/use-modal-store';
 import { ISSUE_STATUS, ISSUE_STATUS_DESCRIPTION } from '@/constants/issue';
+import { joinIssueAsLoggedInUser } from '@/lib/api/issue';
 import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
 import { getActiveDiscussionIdeaIds } from '@/lib/utils/active-discussion-idea';
 import IssueJoinModal from '../_components/issue-join-modal/issue-join-modal';
@@ -53,6 +54,7 @@ const IssuePage = () => {
   const {
     isIssueError,
     status,
+    members,
     isQuickIssue,
     isAIStructuring,
     isCreateIdeaActive,
@@ -60,17 +62,41 @@ const IssuePage = () => {
     isVoteDisabled,
   } = useIssueData(issueId);
 
-  const { data: session } = useSession();
+  const { data: session, status: sessionStatus } = useSession();
+
+  // 로그인 사용자가 이슈에 참여했는지 확인
+  const isLoggedInUserMember = useMemo(() => {
+    if (!session?.user?.id || !members) return false;
+    return members.some((member) => member.id === session.user.id);
+  }, [session?.user?.id, members]);
 
   // 토픽 내 이슈 접근 권한 검증
   useEffect(() => {
-    if (!issueId || isLoading) return;
+    if (!issueId || isLoading || sessionStatus === 'loading') return;
 
     // 토픽 내 이슈인데 로그인하지 않은 경우 → 홈으로 리다이렉트
-    if (!isQuickIssue && !session?.user?.id) {
+    if (isQuickIssue === false && !session?.user?.id) {
       router.replace('/');
     }
-  }, [issueId, isQuickIssue, session, isLoading, router]);
+  }, [issueId, isQuickIssue, session, sessionStatus, isLoading, router]);
+
+  // 로그인 사용자 자동 참여
+  useEffect(() => {
+    const autoJoinLoggedInUser = async () => {
+      if (!issueId || isLoading || sessionStatus === 'loading' || !session?.user?.id) return;
+
+      // 이미 참여한 경우 스킵
+      if (isLoggedInUserMember) return;
+
+      try {
+        await joinIssueAsLoggedInUser(issueId);
+      } catch (error) {
+        console.error('자동 참여 실패:', error);
+      }
+    };
+
+    autoJoinLoggedInUser();
+  }, [issueId, isLoading, sessionStatus, session?.user?.id, isLoggedInUserMember]);
 
   // userId 체크 및 모달 표시
   useEffect(() => {
@@ -99,7 +125,9 @@ const IssuePage = () => {
   }, [status, issueId, router]);
 
   // SSE 연결
-  useIssueEvents({ issueId, enabled: !!userId });
+  // 로그인 사용자 또는 localStorage에 userId가 있는 익명 사용자만 연결
+  const shouldConnectSSE = !!(session?.user?.id || userId);
+  useIssueEvents({ issueId, enabled: shouldConnectSSE });
 
   // 2. 아이디어 관련 작업
   const {
