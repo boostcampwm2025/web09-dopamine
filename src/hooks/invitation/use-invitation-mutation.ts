@@ -19,7 +19,7 @@ export const useInvitationMutations = (projectId: string) => {
     mutationFn: (token: string) => acceptInvitation(projectId, token),
 
     onSuccess: () => {
-      toast.success('프로젝트에 참여했습니다!');
+      toast.success('프로젝트에 참여합니다!');
       router.push(`/project/${projectId}`);
     },
 
