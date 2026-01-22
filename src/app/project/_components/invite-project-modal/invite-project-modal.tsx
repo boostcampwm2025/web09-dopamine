@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import toast from 'react-hot-toast';
-import { useInvitationMutations } from '@/app/(with-sidebar)/project/hooks/use-invitation-mutation';
 import { useModalStore } from '@/components/modal/use-modal-store';
+import { useInvitationMutations } from '@/hooks/invitation';
 import * as S from './invite-project-modal.styles';
 
 interface InviteModalProps {
