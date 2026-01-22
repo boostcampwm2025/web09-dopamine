@@ -73,19 +73,19 @@ export async function findIssuesWithMapDataByTopicId(topicId: string) {
   const connections = await prisma.issueConnection.findMany({
     where: {
       deletedAt: null,
-      issueA: {
+      sourceIssue: {
         topicId,
         deletedAt: null,
       },
-      issueB: {
+      targetIssue: {
         topicId,
         deletedAt: null,
       },
     },
     select: {
       id: true,
-      issueAId: true,
-      issueBId: true,
+      sourceIssueId: true,
+      targetIssueId: true,
       sourceHandle: true,
       targetHandle: true,
     },

@@ -1,7 +1,7 @@
 'use client';
 
 import { memo, useMemo } from 'react';
-import { ReactFlow } from '@xyflow/react';
+import { ReactFlow, MarkerType } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { EDGE_STYLE } from '@/constants/topic';
 import { IssueConnection, IssueMapData, IssueNode } from '@/types/issue';
@@ -26,6 +26,10 @@ const nodeTypes = {
 const defaultEdgeOptions = {
   style: EDGE_STYLE,
   type: 'topicEdge',
+  markerEnd: {
+    type: MarkerType.ArrowClosed,
+    color: EDGE_STYLE.stroke,
+  },
 };
 
 function TopicCanvas({ topicId, issues, nodes: issueNodes, connections }: TopicCanvasProps) {

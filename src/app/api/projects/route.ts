@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import * as projectRepository from '@/lib/repositories/project.repository';
-import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 import { getAuthenticatedUserId } from '@/lib/utils/api-auth';
+import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 
 export async function GET() {
   const { userId: ownerId, error } = await getAuthenticatedUserId();
@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-export async function DELETE(req: NextRequest){
+export async function DELETE(req: NextRequest) {
   const { userId: ownerId, error } = await getAuthenticatedUserId();
 
   if (error) {

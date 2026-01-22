@@ -43,6 +43,7 @@
     "@tanstack/react-query-next-experimental": "^5.91.0",
     "@xyflow/react": "^12.10.0",
     "dotenv": "^17.2.3",
+    "es-hangul": "^2.3.8",
     "framer-motion": "^12.23.26",
     "ioredis": "^5.9.0",
     "mysql2": "^3.16.0",

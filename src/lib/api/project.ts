@@ -25,3 +25,12 @@ export function deleteProject(id: string) {
     body: JSON.stringify({ id }),
   });
 }
+
+export function updateProject(id: string, title: string, description?: string) {
+  return getAPIResponseData<{ id: string }>({
+    url: `/api/project/${id}`,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id, title, description }),
+  });
+}

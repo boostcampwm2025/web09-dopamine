@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import * as projectRepository from '@/lib/repositories/project.repository';
 import Card from '../_components/card/card';
 import CreateTopicButton from '../_components/create-topic-button/create-topic-button';
+import EditProjectButton from '../_components/edit-project-button/edit-project-button';
 import * as S from './page.styles';
 
 interface ProjectPageProps {
@@ -19,12 +20,27 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
     redirect('/project');
   }
 
-  const { title, description, topics } = projectData;
+  const { title, description, topics, created_at } = projectData;
+
+  const createdAt = created_at.toLocaleDateString('ko-KR', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
 
   return (
     <S.ProjectPageContainer>
-      {/* 프로젝트 제목 */}
       <S.ProjectTitleBox>
+        {/* 프로젝트 헤더 */}
+        <S.ProjectTitleHeader>
+          <S.DateSection>{createdAt}</S.DateSection>
+          <EditProjectButton
+            projectId={id}
+            currentTitle={title}
+            currentDescription={description ?? undefined}
+          />
+        </S.ProjectTitleHeader>
+        {/* 프로젝트 제목 */}
         <S.ProjectTitleWrapper>
           <Image
             src="/check-circle.svg"
@@ -37,14 +53,6 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
             <S.ProjectCreatedDate>{description}</S.ProjectCreatedDate>
           </S.ProjectTitleInfo>
         </S.ProjectTitleWrapper>
-        <S.EditIconWrapper>
-          <Image
-            src="/edit.svg"
-            alt="편집"
-            width={16}
-            height={16}
-          />
-        </S.EditIconWrapper>
       </S.ProjectTitleBox>
       {/* 토픽 리스트 */}
       <S.TopicSection>

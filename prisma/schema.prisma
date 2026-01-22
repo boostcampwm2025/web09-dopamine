@@ -157,14 +157,14 @@ model Issue {
   deletedAt DateTime?   @map("deleted_at")
 
   // Relations
-  topic          Topic?            @relation(fields: [topicId], references: [id], onDelete: Cascade)
-  issueMembers   IssueMember[]
-  connectionsAsA IssueConnection[] @relation("IssueA")
-  connectionsAsB IssueConnection[] @relation("IssueB")
-  categories     Category[]
-  ideas          Idea[]
-  reports        Report[]
-  issueNode      IssueNode?
+  topic                 Topic?            @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  issueMembers          IssueMember[]
+  connectionsAsSource   IssueConnection[] @relation("SourceIssue")
+  connectionsAsTarget   IssueConnection[] @relation("TargetIssue")
+  categories            Category[]
+  ideas                 Idea[]
+  reports               Report[]
+  issueNode             IssueNode?
 
   @@index([topicId])
   @@index([status])
@@ -207,21 +207,21 @@ model IssueNode {
 }
 
 model IssueConnection {
-  id           String    @id @default(uuid()) @db.Char(36)
-  issueAId     String    @map("issue_a_id") @db.Char(36)
-  issueBId     String    @map("issue_b_id") @db.Char(36)
-  sourceHandle String?   @map("source_handle") @db.VarChar(20)
-  targetHandle String?   @map("target_handle") @db.VarChar(20)
-  createdAt    DateTime  @default(now()) @map("created_at")
-  updatedAt    DateTime  @updatedAt @map("updated_at")
-  deletedAt    DateTime? @map("deleted_at")
+  id             String    @id @default(uuid()) @db.Char(36)
+  sourceIssueId  String    @map("source_issue_id") @db.Char(36)
+  targetIssueId  String    @map("target_issue_id") @db.Char(36)
+  sourceHandle   String?   @map("source_handle") @db.VarChar(20)
+  targetHandle   String?   @map("target_handle") @db.VarChar(20)
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+  deletedAt      DateTime? @map("deleted_at")
 
   // Relations
-  issueA Issue @relation("IssueA", fields: [issueAId], references: [id], onDelete: Cascade)
-  issueB Issue @relation("IssueB", fields: [issueBId], references: [id], onDelete: Cascade)
+  sourceIssue Issue @relation("SourceIssue", fields: [sourceIssueId], references: [id], onDelete: Cascade)
+  targetIssue Issue @relation("TargetIssue", fields: [targetIssueId], references: [id], onDelete: Cascade)
 
-  @@unique([issueAId, issueBId, deletedAt])
-  @@index([issueBId])
+  @@unique([sourceIssueId, targetIssueId, deletedAt])
+  @@index([targetIssueId])
   @@map("issue_connections")
 }
 
