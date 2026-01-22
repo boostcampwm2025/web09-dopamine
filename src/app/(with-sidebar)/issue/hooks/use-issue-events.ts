@@ -33,8 +33,7 @@ export function useIssueEvents({
   const { setIsAIStructuring } = useIssueStore((state) => state.actions);
   const { setOnlineMemberIds } = useIssueStore((state) => state.actions);
 
-  // userId를 useMemo로 캐싱하여 불필요한 재계산 방지
-  const userId = useMemo(() => getUserIdForIssue(issueId) ?? '', [issueId]);
+  const userId = getUserIdForIssue(issueId) ?? '';
 
   // 현재 사용자의 정보 조회
   const { data: currentUser } = useQuery({
