@@ -132,10 +132,68 @@ export const CreateText = styled.p`
   font-weight: ${theme.font.weight.bold};
 `;
 
-export const DeleteButton = styled.button`
+export const MenuWrapper = styled.div`
   position: absolute;
   top: 24px;
   right: 24px;
-  cursor: pointer;
   z-index: 10;
+`;
+
+export const Button = styled.button`
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  display: flex;
+`;
+
+export const MenuModal = styled.div`
+  position: absolute;
+  top: 24px;
+  right: 0;
+  min-width: 120px;
+  padding: 8px;
+  background-color: white;
+  border: 1px solid ${theme.colors.gray[200]};
+  border-radius: ${theme.radius.medium};
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.08);
+`;
+
+export const MenuItem = styled.button`
+  position: relative;
+  width: 100%;
+  padding: 8px 10px;
+  background: none;
+  border: none;
+  border-radius: ${theme.radius.small};
+  text-align: left;
+  cursor: pointer;
+  color: ${theme.colors.red[600]};
+
+  &:hover {
+    background-color: ${theme.colors.gray[50]};
+  }
+
+  &:hover > span {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+`;
+
+export const Tooltip = styled.span`
+  position: absolute;
+  right: 0;
+  top: 100%;
+  margin-top: 6px;
+  padding: 6px 8px;
+  background-color: ${theme.colors.gray[900]};
+  color: white;
+  border-radius: ${theme.radius.small};
+  font-size: ${theme.font.size.small};
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(-4px);
+  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
 `;
