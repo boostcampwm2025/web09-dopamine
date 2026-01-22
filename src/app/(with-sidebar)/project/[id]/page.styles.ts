@@ -64,7 +64,7 @@ export const ProjectCreatedDate = styled.div`
   color: ${theme.colors.gray[600]};
 `;
 
-export const SettingIconWrapper = styled.div`
+export const EditIconWrapper = styled.div`
   top: 12px;
   right: 12px;
   display: flex;
