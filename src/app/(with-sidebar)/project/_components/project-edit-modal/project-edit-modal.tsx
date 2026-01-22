@@ -7,7 +7,7 @@ import { useUpdateProjectMutation } from '@/app/(with-sidebar)/project/hooks/use
 import LoadingOverlay from '@/components/loading-overlay/loading-overlay';
 import { useModalStore } from '@/components/modal/use-modal-store';
 import { isProjectTitleTooLong } from '@/lib/utils/project-title';
-import { maxDescriptionLength, maxTitleLength } from '@/types/project';
+import { maxDescriptionLength, maxTitleLength } from '@/constants/project';
 import * as S from './project-edit-modal.styles';
 
 interface EditProjectModalProps {

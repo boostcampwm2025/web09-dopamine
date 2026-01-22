@@ -20,7 +20,7 @@ export default function EditProject({
 
   const handleEditClick = () => {
     openModal({
-      title: '프로젝트 이름 수정',
+      title: '프로젝트 수정',
       content: (
         <ProjectEditModal
           projectId={projectId}
