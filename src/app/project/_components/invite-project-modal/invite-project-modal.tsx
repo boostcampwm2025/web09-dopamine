@@ -67,7 +67,7 @@ export default function InviteProjectModal({ id, title }: InviteModalProps) {
 
   const handleCopy = async (code: string) => {
     // 1. 현재 도메인 + 프로젝트 경로 + 초대코드 조합
-    const fullUrl = `${window.location.origin}/project/${id}?code=${code}`;
+    const fullUrl = `${window.location.origin}/invite?code=${code}`;
 
     try {
       // 2. 클립보드에 쓰기

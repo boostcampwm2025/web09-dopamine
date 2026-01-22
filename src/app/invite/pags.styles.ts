@@ -20,3 +20,7 @@ export const InviteMain = styled.div`
     0 10px 15px -3px rgba(0, 0, 0, 0.1),
     0 4px 6px -4px rgba(0, 0, 0, 0.1);
 `;
+
+export const StrongText = styled.strong`
+  font-weight: ${theme.font.weight.semibold};
+`;
