@@ -142,3 +142,14 @@ export function selectIdea(issueId: string, selectedIdeaId: string) {
     body: JSON.stringify({ selectedIdeaId }),
   });
 }
+
+export function createIssueInTopic(topicId: string, title: string) {
+  return getAPIResponseData<{
+    issueId: string;
+  }>({
+    url: `/api/topics/${topicId}/issues`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ title }),
+  });
+}

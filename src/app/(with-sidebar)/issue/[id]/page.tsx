@@ -27,10 +27,10 @@ import {
 } from '../hooks';
 
 const IssuePage = () => {
-  const params = useParams<{ id: string }>();
+  const params = useParams<{ id: string; issueId?: string }>();
   const pathname = usePathname();
   const issueIdFromPath = pathname?.split('/issue/')[1]?.split('/')[0] ?? '';
-  const issueId = Array.isArray(params.id) ? params.id[0] : (params.id ?? issueIdFromPath);
+  const issueId = params.issueId ?? (Array.isArray(params.id) ? params.id[0] : (params.id ?? issueIdFromPath));
   const router = useRouter();
   const { openModal, isOpen } = useModalStore();
   const hasOpenedModal = useRef(false);
