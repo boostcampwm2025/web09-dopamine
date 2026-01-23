@@ -16,6 +16,7 @@ import IdeaCardFooter from './idea-card-footer';
 import IdeaCardHeader from './idea-card-header';
 import * as S from './idea-card.styles';
 import { useIdeaCard } from './use-idea-card';
+import { useCommentWindowStore } from '../../store/use-comment-window-store';
 
 interface IdeaCardProps {
   id: string;
@@ -105,9 +106,23 @@ export default function IdeaCard(props: IdeaCardProps) {
   const { data: idea } = useIdeaQuery(props.issueId, props.id, currentUserId);
 
   // 댓글 윈도우 상태 관리
-  const [isCommentOpen, setIsCommentOpen] = useState(false);
-  const [commentPosition, setCommentPosition] = useState<{ x: number; y: number } | null>(null);
   const commentButtonRef = useRef<HTMLButtonElement | null>(null);
+  const { activeCommentId, setActiveCommentId } = useCommentWindowStore();
+  const isCommentOpen = activeCommentId === props.id;
+
+  const handleOpenComment: MouseEventHandler<HTMLButtonElement> = (event) => {
+    event.stopPropagation();
+    commentButtonRef.current = event.currentTarget;
+
+    // 토글: 같은 카드의 댓글창이면 닫고, 다른 카드면 전환
+    if (activeCommentId === props.id) {
+      setActiveCommentId(null);
+    } else {
+      setActiveCommentId(props.id);
+    }
+  };
+
+  const [commentPosition, setCommentPosition] = useState<{ x: number; y: number } | null>(null);
   const cardRef = useRef<HTMLElement | null>(null);
   const { scale } = useCanvasContext();
   const normalizedScale = scale || 1;
@@ -121,18 +136,6 @@ export default function IdeaCard(props: IdeaCardProps) {
       x: buttonRect.right + 8,
       y: buttonRect.top,
     });
-  };
-
-  const handleOpenComment: MouseEventHandler<HTMLButtonElement> = (event) => {
-    event.stopPropagation();
-    commentButtonRef.current = event.currentTarget;
-    const nextOpen = !isCommentOpen;
-
-    if (nextOpen) {
-      updateCommentPosition();
-    }
-
-    setIsCommentOpen(nextOpen);
   };
 
   // 댓글창이 열려있을 때 아이디어 카드 위치 변화 감지
@@ -219,16 +222,16 @@ export default function IdeaCard(props: IdeaCardProps) {
   const cardStyle =
     !inCategory && props.position
       ? {
-          position: 'absolute' as const,
-          left: props.position.x,
-          top: props.position.y,
-          cursor: isDragging ? 'grabbing' : 'grab',
-          userSelect: 'none' as const,
-          zIndex: isDragging ? 1000 : zIndex,
-          // dnd-kit transform 적용 (Canvas scale과 호환됨!)
-          transform: CSS.Transform.toString(transform),
-          opacity: isDragging ? 0 : undefined,
-        }
+        position: 'absolute' as const,
+        left: props.position.x,
+        top: props.position.y,
+        cursor: isDragging ? 'grabbing' : 'grab',
+        userSelect: 'none' as const,
+        zIndex: isDragging ? 1000 : zIndex,
+        // dnd-kit transform 적용 (Canvas scale과 호환됨!)
+        transform: CSS.Transform.toString(transform),
+        opacity: isDragging ? 0 : undefined,
+      }
       : {};
 
   return (
@@ -247,8 +250,8 @@ export default function IdeaCard(props: IdeaCardProps) {
       {...(inCategory
         ? {}
         : Object.fromEntries(
-            Object.entries(listeners || {}).filter(([key]) => key !== 'onPointerDown'),
-          ))}
+          Object.entries(listeners || {}).filter(([key]) => key !== 'onPointerDown'),
+        ))}
       style={cardStyle}
     >
       <IdeaCardBadge
@@ -289,7 +292,7 @@ export default function IdeaCard(props: IdeaCardProps) {
             userId={currentUserId}
             initialPosition={commentPosition}
             scale={normalizedScale}
-            onClose={() => setIsCommentOpen(false)}
+            onClose={() => setActiveCommentId(null)}
           />
         </Portal>
       )}
