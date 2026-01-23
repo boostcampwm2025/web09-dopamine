@@ -86,6 +86,7 @@ export const Description = styled.p`
 export const ButtonGroup = styled.div`
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 0.75rem;
 `;
 

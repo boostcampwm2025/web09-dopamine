@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
 import HeaderButton from '@/app/(with-sidebar)/issue/_components/header/header-button';
+import { useInviteProjectModal } from '@/components/modal/invite-project-modal/use-invite-project-modal';
 import { useProjectQuery } from '../../hooks/use-project-query';
 import * as S from './header.styles';
 
@@ -14,6 +15,8 @@ const ProjectHeader = () => {
 
   const { data: session } = useSession();
   const { data: projectData } = useProjectQuery(projectId);
+
+  const { openInviteProjectModal } = useInviteProjectModal();
 
   const userName = session?.user?.name || '사용자';
   const userImage = session?.user?.image || '/profile.svg';
@@ -38,6 +41,7 @@ const ProjectHeader = () => {
           imageSrc="/people.svg"
           alt="팀원 초대"
           text="팀원 초대"
+          onClick={(e) => openInviteProjectModal(projectId, projectTitle, e)}
         />
         <S.Divider />
         <S.Profile>

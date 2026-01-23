@@ -1,9 +1,9 @@
 import styled from '@emotion/styled';
+import { InputTitle } from '@/app/project/_components/project-create-modal/project-create-modal.styles';
 import { theme } from '@/styles/theme';
-import { InputTitle } from '../project-create-modal/project-create-modal.styles';
 
 export * from '@/components/modal/issue-create-modal/issue-create-modal.styles';
-export * from '../project-create-modal/project-create-modal.styles';
+export * from '@/app/project/_components/project-create-modal/project-create-modal.styles';
 
 export const EmailInputTitle = styled(InputTitle)`
   display: flex;

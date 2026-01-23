@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useSession } from 'next-auth/react';
 import toast from 'react-hot-toast';
 import { useModalStore } from '@/components/modal/use-modal-store';
 import { useInvitationMutations } from '@/hooks/invitation';
@@ -11,6 +12,7 @@ interface InviteModalProps {
   title: string;
 }
 export default function InviteProjectModal({ id, title }: InviteModalProps) {
+  const { data: session } = useSession();
   const { createToken } = useInvitationMutations(id);
   const [tags, setTags] = useState<string[]>([]);
   const [code, setCode] = useState('');
@@ -38,6 +40,11 @@ export default function InviteProjectModal({ id, title }: InviteModalProps) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(trimmedEmail)) {
       toast.error('올바른 이메일 형식이 아닙니다.');
+      return;
+    }
+
+    if (session?.user.email === trimmedEmail) {
+      toast.error('현재 로그인 중인 계정입니다.');
       return;
     }
 
