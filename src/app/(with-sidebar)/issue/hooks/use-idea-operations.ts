@@ -2,12 +2,11 @@ import { useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useIdeaCardStackStore } from '@/app/(with-sidebar)/issue/store/use-idea-card-stack-store';
 import type { IdeaWithPosition, Position } from '@/app/(with-sidebar)/issue/types/idea';
-import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
-import { IssueMember } from '@/types/issue';
 import { useIdeaMutations } from './react-query/use-idea-mutation';
 import { useSelectedIdeaMutation } from './react-query/use-selected-idea-mutation';
 import { useIdeasWithTemp } from './use-ideas-with-temp';
 import { useIssueData } from './use-issue-data';
+import { useIssueIdentity } from './use-issue-identity';
 
 export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) {
   // 통합된 아이디어 목록 (서버 + temp)
@@ -26,10 +25,11 @@ export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) 
   const { createIdea, updateIdea, removeIdea } = useIdeaMutations(issueId);
 
   // 현재 사용자 정보 가져오기
-  const { members } = useIssueData(issueId);
-  const currentUserId = getUserIdForIssue(issueId);
-  const currentUser = members.find((m: IssueMember) => m.id === currentUserId);
-  const currentUserDisplayName = currentUser?.displayName || '나';
+  const { members, isQuickIssue } = useIssueData(issueId);
+  const { userId: currentUserId, displayName: currentUserDisplayName } = useIssueIdentity(issueId, {
+    isQuickIssue,
+    members,
+  });
 
   const { mutate: selectIdea } = useSelectedIdeaMutation(issueId);
 

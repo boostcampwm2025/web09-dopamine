@@ -1,12 +1,13 @@
+import { getServerSession } from 'next-auth';
 import { NextRequest } from 'next/server';
+import { IssueRole } from '@prisma/client';
+import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { issueMemberRepository } from '@/lib/repositories/issue-member.repository';
 import { createIssue } from '@/lib/repositories/issue.repository';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 
-export async function GET(
-  _req: NextRequest,
-  { params }: { params: Promise<{ topicId: string }> },
-) {
+export async function GET(_req: NextRequest, { params }: { params: Promise<{ topicId: string }> }) {
   const { topicId } = await params;
 
   try {
@@ -31,23 +32,29 @@ export async function GET(
   }
 }
 
-export async function POST(
-  req: NextRequest,
-  { params }: { params: Promise<{ topicId: string }> },
-) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ topicId: string }> }) {
   const { topicId } = await params;
   const { title } = await req.json();
+  const session = await getServerSession(authOptions);
+  const user = session?.user;
+
+  if (!user) {
+    return createErrorResponse('UNAUTHORIZED', 401);
+  }
 
   if (!title) {
     return createErrorResponse('TITLE_REQUIRED', 400);
   }
 
   try {
-    const issue = await prisma.$transaction(async (tx) => {
-      return await createIssue(tx, title, topicId);
+    const issueId = await prisma.$transaction(async (tx) => {
+      const issue = await createIssue(tx, title, topicId);
+      await issueMemberRepository.addIssueOwner(tx, issue.id, user.id, IssueRole.OWNER);
+
+      return issue.id;
     });
 
-    return createSuccessResponse({ issueId: issue.id }, 201);
+    return createSuccessResponse({ issueId: issueId }, 201);
   } catch (error) {
     console.error('토픽 이슈 생성 실패:', error);
     return createErrorResponse('ISSUE_CREATE_FAILED', 500);

@@ -6,12 +6,12 @@ import { useModalStore } from '@/components/modal/use-modal-store';
 import { MEMBER_ROLE } from '@/constants/issue';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
 import { getIssueMember } from '@/lib/api/issue';
-import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
 import { useIssueStore } from '../store/use-issue-store';
 import { selectedIdeaQueryKey } from './react-query/use-selected-idea-query';
 
 interface UseIssueEventsParams {
   issueId: string;
+  userId: string;
   enabled?: boolean;
 }
 
@@ -22,6 +22,7 @@ interface UseIssueEventsReturn {
 
 export function useIssueEvents({
   issueId,
+  userId,
   enabled = true,
 }: UseIssueEventsParams): UseIssueEventsReturn {
   const queryClient = useQueryClient();
@@ -32,8 +33,6 @@ export function useIssueEvents({
 
   const { setIsAIStructuring } = useIssueStore((state) => state.actions);
   const { setOnlineMemberIds } = useIssueStore((state) => state.actions);
-
-  const userId = getUserIdForIssue(issueId) ?? '';
 
   // 현재 사용자의 정보 조회
   const { data: currentUser } = useQuery({

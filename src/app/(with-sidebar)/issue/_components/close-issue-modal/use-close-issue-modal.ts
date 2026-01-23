@@ -4,7 +4,6 @@ import toast from 'react-hot-toast';
 import { useModalStore } from '@/components/modal/use-modal-store';
 import { ISSUE_STATUS } from '@/constants/issue';
 import { updateIssueStatus } from '@/lib/api/issue';
-import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
 import { useIdeasWithTemp, useIssueStatusMutations, useSelectedIdeaQuery } from '../../hooks';
 
 interface UseCloseIssueModalParams {
@@ -17,7 +16,6 @@ export function useCloseIssueModal({ issueId, isOwner }: UseCloseIssueModalParam
   const { data: selectedIdeaId } = useSelectedIdeaQuery(issueId);
   const { close } = useIssueStatusMutations(issueId);
   const { closeModal } = useModalStore();
-  const userId = getUserIdForIssue(issueId) ?? '';
   const router = useRouter();
 
   const [memo, setMemo] = useState('');
@@ -49,7 +47,7 @@ export function useCloseIssueModal({ issueId, isOwner }: UseCloseIssueModalParam
         console.error('Failed to broadcast memo update:', error);
       }
     },
-    [issueId, userId, isOwner],
+    [issueId, isOwner],
   );
 
   // 모달 닫기 브로드캐스팅
@@ -68,7 +66,7 @@ export function useCloseIssueModal({ issueId, isOwner }: UseCloseIssueModalParam
     } catch (error) {
       console.error('Failed to broadcast close modal:', error);
     }
-  }, [issueId, userId, isOwner]);
+  }, [issueId, isOwner]);
 
   // 메모 변경 시 debounce하여 브로드캐스팅
   useEffect(() => {

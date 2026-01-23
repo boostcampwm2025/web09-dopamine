@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { ChangeEvent } from 'react';
+import { useRouter } from 'next/navigation';
 import { getChoseong } from 'es-hangul';
 import { MEMBER_ROLE } from '@/constants/issue';
 import { useTopicId } from '@/hooks/use-topic-id';
@@ -94,6 +95,14 @@ export const useIssueSidebar = () => {
   // - 이슈 페이지: 정식 이슈인 경우만 표시 (퀵 이슈는 숨김)
   const showIssueList = isTopicPage || !isQuickIssue;
 
+  const router = useRouter();
+
+  const goToIssueMap = useCallback(() => {
+    if (topicId) {
+      router.push(`/topic/${topicId}`);
+    }
+  }, [topicId]);
+
   return {
     // 마운트 상태
     isMounted,
@@ -113,5 +122,8 @@ export const useIssueSidebar = () => {
     // 표시 여부
     showMemberList,
     showIssueList,
+
+    // 액션
+    goToIssueMap,
   };
 };

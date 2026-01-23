@@ -28,6 +28,7 @@ export default function IssueSidebar() {
     handleSearchChange,
     showMemberList,
     showIssueList,
+    goToIssueMap,
   } = useIssueSidebar();
 
   return (
@@ -39,7 +40,7 @@ export default function IssueSidebar() {
     >
       {isMounted && showIssueList && (
         <>
-          {!isTopicPage && <IssueGraphLink />}
+          {!isTopicPage && <IssueGraphLink onClick={goToIssueMap} />}
           <S.SidebarTitle>
             <span>ISSUE LIST</span>
             <NewIssueButton />

@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useSession } from 'next-auth/react';
 import { useParams, usePathname, useRouter } from 'next/navigation';
 import { DndContext, DragOverlay } from '@dnd-kit/core';
 import Canvas from '@/app/(with-sidebar)/issue/_components/canvas/canvas';
@@ -8,11 +9,12 @@ import CategoryCard from '@/app/(with-sidebar)/issue/_components/category/catego
 import FilterPanel from '@/app/(with-sidebar)/issue/_components/filter-panel/filter-panel';
 import IdeaCard from '@/app/(with-sidebar)/issue/_components/idea-card/idea-card';
 import { useCanvasStore } from '@/app/(with-sidebar)/issue/store/use-canvas-store';
+import { useProjectsQuery } from '@/app/project/hooks/use-project-query';
 import { ErrorPage } from '@/components/error/error';
 import LoadingOverlay from '@/components/loading-overlay/loading-overlay';
 import { useModalStore } from '@/components/modal/use-modal-store';
 import { ISSUE_STATUS, ISSUE_STATUS_DESCRIPTION } from '@/constants/issue';
-import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
+import { joinIssueAsLoggedInUser } from '@/lib/api/issue';
 import { getActiveDiscussionIdeaIds } from '@/lib/utils/active-discussion-idea';
 import IssueJoinModal from '../_components/issue-join-modal/issue-join-modal';
 import {
@@ -23,6 +25,7 @@ import {
   useIdeaStatus,
   useIssueData,
   useIssueEvents,
+  useIssueIdentity,
   useIssueQuery,
   useSelectedIdeaQuery,
 } from '../hooks';
@@ -38,7 +41,6 @@ const IssuePage = () => {
   const hasOpenedModal = useRef(false);
 
   const scale = useCanvasStore((state) => state.scale);
-  const userId = getUserIdForIssue(issueId) ?? '';
 
   const { data: selectedIdeaId } = useSelectedIdeaQuery(issueId);
 
@@ -48,21 +50,101 @@ const IssuePage = () => {
   >({});
 
   // 1. 이슈 데이터 초기화
-  const { isLoading } = useIssueQuery(issueId);
+  const { data: issue, isLoading } = useIssueQuery(issueId);
   const {
     isIssueError,
     status,
+    members,
+    isQuickIssue,
     isAIStructuring,
     isCreateIdeaActive,
     isVoteButtonVisible,
     isVoteDisabled,
   } = useIssueData(issueId);
 
+  const { data: session, status: sessionStatus } = useSession();
+  const { userId: currentUserId, issueUserId } = useIssueIdentity(issueId, { isQuickIssue });
+  const { data: projects = [], isLoading: isProjectsLoading } = useProjectsQuery(
+    !isQuickIssue && !!session?.user?.id,
+  );
+  const projectId = issue?.projectId ?? null;
+
+  const isProjectMember = useMemo(() => {
+    if (!projectId || !session?.user?.id) return false;
+    return projects.some((project) => project.id === projectId);
+  }, [projectId, session?.user?.id, projects]);
+
+  // 로그인 사용자가 이슈에 참여했는지 확인
+  const isLoggedInUserMember = useMemo(() => {
+    if (!session?.user?.id || !members) return false;
+    return members.some((member) => member.id === session.user.id);
+  }, [session?.user?.id, members]);
+
+  // 토픽 내 이슈 접근 권한 검증
+  useEffect(() => {
+    if (!issueId || isLoading || sessionStatus === 'loading') return;
+
+    // 토픽 내 이슈인데 로그인하지 않은 경우 → 홈으로 리다이렉트
+    if (isQuickIssue === false && !session?.user?.id) {
+      router.replace('/');
+      return;
+    }
+
+    if (isQuickIssue === false && projectId && !isProjectsLoading && !isProjectMember) {
+      router.replace('/');
+    }
+  }, [
+    issueId,
+    isQuickIssue,
+    session,
+    sessionStatus,
+    isLoading,
+    projectId,
+    isProjectsLoading,
+    isProjectMember,
+    router,
+  ]);
+
+  // 로그인 사용자 자동 참여
+  useEffect(() => {
+    const autoJoinLoggedInUser = async () => {
+      if (isQuickIssue) return;
+      if (!issueId || isLoading || sessionStatus === 'loading' || !session?.user?.id) return;
+      if (projectId && (isProjectsLoading || !isProjectMember)) return;
+
+      // 이미 참여한 경우 스킵
+      if (isLoggedInUserMember) return;
+
+      try {
+        await joinIssueAsLoggedInUser(issueId);
+      } catch (error) {
+        console.error('자동 참여 실패:', error);
+      }
+    };
+
+    autoJoinLoggedInUser();
+  }, [
+    issueId,
+    isLoading,
+    sessionStatus,
+    session?.user?.id,
+    isLoggedInUserMember,
+    isQuickIssue,
+    projectId,
+    isProjectsLoading,
+    isProjectMember,
+  ]);
+
   // userId 체크 및 모달 표시
   useEffect(() => {
-    if (!issueId || hasOpenedModal.current || isOpen) return;
+    if (!issueId || isLoading || hasOpenedModal.current || isOpen || sessionStatus === 'loading')
+      return;
 
-    if (!userId) {
+    // 빠른 이슈만 익명 참여 모달 표시
+    if (!isQuickIssue) return;
+
+    // 빠른 이슈 + localStorage에 userId 없음 -> 참여 모달
+    if (!issueUserId) {
       hasOpenedModal.current = true;
       openModal({
         title: '이슈 참여',
@@ -71,7 +153,7 @@ const IssuePage = () => {
         hasCloseButton: false,
       });
     }
-  }, [issueId, isOpen, openModal, userId]);
+  }, [issueId, isQuickIssue, isLoading, sessionStatus, isOpen, openModal, issueUserId]);
 
   // 이슈가 종료된 경우 summary 페이지로 리다이렉트
   useEffect(() => {
@@ -81,7 +163,9 @@ const IssuePage = () => {
   }, [status, issueId, router]);
 
   // SSE 연결
-  useIssueEvents({ issueId, enabled: !!userId });
+  // 빠른 이슈는 localStorage userId, 토픽 이슈는 로그인 userId 기준으로 연결
+  const shouldConnectSSE = !!currentUserId;
+  useIssueEvents({ issueId, userId: currentUserId, enabled: shouldConnectSSE });
 
   // 2. 아이디어 관련 작업
   const {
