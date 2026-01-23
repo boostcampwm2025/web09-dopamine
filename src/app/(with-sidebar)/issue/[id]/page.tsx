@@ -313,6 +313,7 @@ const IssuePage = () => {
                   onPositionChange={handleIdeaPositionChange}
                   onSave={(content) => handleSaveIdea(idea.id, content)}
                   onDelete={() => handleDeleteIdea(idea.id)}
+                  disableAnimation={!!draggingPositions[idea.id]}
                 />
               ))}
           </Canvas>

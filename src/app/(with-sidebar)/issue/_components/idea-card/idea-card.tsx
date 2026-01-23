@@ -6,6 +6,7 @@ import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import Portal from '@/components/portal/portal';
 import { useIdeaQuery, useIssueData, useIssueIdentity, useSelectedIdeaMutation } from '../../hooks';
+import { useCommentWindowStore } from '../../store/use-comment-window-store';
 import { useIdeaCardStackStore } from '../../store/use-idea-card-stack-store';
 import type { CardStatus, Position } from '../../types/idea';
 import { useCanvasContext } from '../canvas/canvas-context';
@@ -15,7 +16,6 @@ import IdeaCardFooter from './idea-card-footer';
 import IdeaCardHeader from './idea-card-header';
 import * as S from './idea-card.styles';
 import { useIdeaCard } from './use-idea-card';
-import { useCommentWindowStore } from '../../store/use-comment-window-store';
 
 interface IdeaCardProps {
   id: string;
@@ -38,6 +38,7 @@ interface IdeaCardProps {
   onDelete?: () => void;
   onClick?: () => void;
   onPositionChange?: (id: string, position: Position) => void;
+  disableAnimation?: boolean; // 드래그 중일 때는 애니메이션 비활성화
 }
 
 export type DragItemPayload = {
@@ -221,16 +222,18 @@ export default function IdeaCard(props: IdeaCardProps) {
   const cardStyle =
     !inCategory && props.position
       ? {
-        position: 'absolute' as const,
-        left: props.position.x,
-        top: props.position.y,
-        cursor: isDragging ? 'grabbing' : 'grab',
-        userSelect: 'none' as const,
-        zIndex: isDragging ? 1000 : zIndex,
-        // dnd-kit transform 적용 (Canvas scale과 호환됨!)
-        transform: CSS.Transform.toString(transform),
-        opacity: isDragging ? 0 : undefined,
-      }
+          position: 'absolute' as const,
+          left: props.position.x,
+          top: props.position.y,
+          cursor: isDragging ? 'grabbing' : 'grab',
+          userSelect: 'none' as const,
+          zIndex: isDragging ? 1000 : zIndex,
+          // dnd-kit transform 적용 (Canvas scale과 호환됨!)
+          transform: CSS.Transform.toString(transform),
+          opacity: isDragging ? 0 : undefined,
+          // 브로드캐스팅으로 다른 사용자 이동 시 애니메이션
+          transition: props.disableAnimation ? 'none' : 'left 0.4s ease-out, top 0.4s ease-out',
+        }
       : {};
 
   return (
@@ -249,8 +252,8 @@ export default function IdeaCard(props: IdeaCardProps) {
       {...(inCategory
         ? {}
         : Object.fromEntries(
-          Object.entries(listeners || {}).filter(([key]) => key !== 'onPointerDown'),
-        ))}
+            Object.entries(listeners || {}).filter(([key]) => key !== 'onPointerDown'),
+          ))}
       style={cardStyle}
     >
       <IdeaCardBadge
