@@ -1,7 +1,10 @@
+import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { MEMBER_ROLE } from '@/constants/issue';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
+import { authOptions } from '@/lib/auth';
 import { issueMemberRepository } from '@/lib/repositories/issue-member.repository';
+import { findIssueById } from '@/lib/repositories/issue.repository';
 import { broadcast } from '@/lib/sse/sse-service';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 import { getUserIdFromRequest } from '@/lib/utils/cookie';
@@ -13,7 +16,18 @@ export async function POST(
   const { id: issueId } = await params;
 
   // userId 추출
-  const userId = getUserIdFromRequest(req, issueId);
+  const issue = await findIssueById(issueId);
+  if (!issue) {
+    return createErrorResponse('ISSUE_NOT_FOUND', 404);
+  }
+
+  let userId;
+  if (issue.topicId) {
+    const session = await getServerSession(authOptions);
+    userId = session?.user?.id;
+  } else {
+    userId = getUserIdFromRequest(req, issueId);
+  }
 
   if (!userId) {
     return createErrorResponse('USER_ID_REQUIRED', 401);
