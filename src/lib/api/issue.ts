@@ -25,6 +25,7 @@ export function getIssue(issueId: string) {
     title: string;
     status: string;
     topicId?: string | null;
+    projectId?: string | null;
     createdAt: string;
     updatedAt: string;
   }>({
@@ -91,6 +92,17 @@ export function joinIssue(issueId: string, nickname: string) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ nickname }),
+  });
+}
+
+export function joinIssueAsLoggedInUser(issueId: string) {
+  return getAPIResponseData<{
+    userId: string;
+  }>({
+    url: `/api/issues/${issueId}/members`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({}),
   });
 }
 

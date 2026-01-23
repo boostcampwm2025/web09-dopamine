@@ -1,20 +1,13 @@
 'use client';
 
 import { Session } from 'next-auth';
-import { signIn } from 'next-auth/react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import Background from '@/components/background/background';
 import CreateIssueModal from '@/components/modal/issue-create-modal/issue-create-modal';
 import { useModalStore } from '@/components/modal/use-modal-store';
+import SocialLogin from '../social-login/social-login';
 import * as S from './home-page.styles';
-
-const SOCIAL_ICONS = [
-  { src: '/github.svg', alt: 'github', provider: 'github' },
-  { src: '/google.svg', alt: 'google', provider: 'google' },
-  { src: '/kakao.svg', alt: 'kakao', provider: 'kakao' },
-  { src: '/naver.svg', alt: 'naver', provider: 'naver' },
-];
 
 interface HomePageProps {
   session: Session | null;
@@ -40,17 +33,6 @@ export default function HomePage({ session }: HomePageProps) {
     }
   };
 
-  const handleSocialLogin = (provider: string) => {
-    if (
-      provider === 'google' ||
-      provider === 'github' ||
-      provider === 'kakao' ||
-      provider === 'naver'
-    ) {
-      signIn(provider, { callbackUrl: '/project' });
-    } 
-  };
-
   const renderProjectOrSocialLogin = () => {
     return (
       <>
@@ -62,19 +44,7 @@ export default function HomePage({ session }: HomePageProps) {
             프로젝트로 이동
           </S.StartButton>
         ) : (
-          <S.SocialLoginContainer>
-            {SOCIAL_ICONS.map((icon) => (
-              <Image
-                key={icon.alt}
-                src={icon.src}
-                alt={icon.alt}
-                width={50}
-                height={50}
-                style={{ cursor: 'pointer' }}
-                onClick={() => handleSocialLogin(icon.provider)}
-              />
-            ))}
-          </S.SocialLoginContainer>
+          <SocialLogin />
         )}
       </>
     );

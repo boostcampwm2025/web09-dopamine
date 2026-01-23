@@ -1,9 +1,13 @@
 import Image from 'next/image';
 import * as S from './issue-graph-link.styles';
 
-export default function IssueGraphLink() {
+interface IssueGraphLinkProps {
+  onClick: () => void;
+}
+
+export default function IssueGraphLink({ onClick }: IssueGraphLinkProps) {
   return (
-    <S.Wrapper>
+    <S.Wrapper onClick={onClick}>
       <S.StyledIssueGraphLink href="#">
         <Image
           src="/map.svg"
@@ -11,7 +15,7 @@ export default function IssueGraphLink() {
           width={16}
           height={16}
         />
-        이슈 그래프 보기
+        이슈 맵 보기
       </S.StyledIssueGraphLink>
     </S.Wrapper>
   );

@@ -5,8 +5,8 @@ import type { MouseEventHandler, PointerEventHandler } from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import Portal from '@/components/portal/portal';
-import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
-import { useIdeaQuery, useIssueData, useSelectedIdeaMutation } from '../../hooks';
+import { useIdeaQuery, useIssueData, useIssueIdentity, useSelectedIdeaMutation } from '../../hooks';
+import { useCommentWindowStore } from '../../store/use-comment-window-store';
 import { useIdeaCardStackStore } from '../../store/use-idea-card-stack-store';
 import type { CardStatus, Position } from '../../types/idea';
 import { useCanvasContext } from '../canvas/canvas-context';
@@ -58,12 +58,12 @@ export type DragItemPayload = {
 export default function IdeaCard(props: IdeaCardProps) {
   const issueId = props.issueId ?? '';
   const { mutate: selectIdea } = useSelectedIdeaMutation(issueId);
-  const { status: issueStatus } = useIssueData(props.issueId);
+  const { status: issueStatus, isQuickIssue } = useIssueData(props.issueId);
   const { bringToFront, getZIndex } = useIdeaCardStackStore(props.issueId);
   const zIndex = props.id ? getZIndex(props.id) : 0;
 
-  // 현재 로그인한 사용자가 이 아이디어의 작성자인지 확인
-  const currentUserId = getUserIdForIssue(props.issueId);
+  // 현재 사용자가 이 아이디어의 작성자인지 확인
+  const { userId: currentUserId } = useIssueIdentity(props.issueId, { isQuickIssue });
   const isCurrentUser = currentUserId === props.userId;
   const inCategory = !!props.categoryId;
   const listenersRef = useRef<{ onPointerDown?: PointerEventHandler } | null>(null);
@@ -106,9 +106,23 @@ export default function IdeaCard(props: IdeaCardProps) {
   const { data: idea } = useIdeaQuery(props.issueId, props.id, currentUserId);
 
   // 댓글 윈도우 상태 관리
-  const [isCommentOpen, setIsCommentOpen] = useState(false);
-  const [commentPosition, setCommentPosition] = useState<{ x: number; y: number } | null>(null);
   const commentButtonRef = useRef<HTMLButtonElement | null>(null);
+  const { activeCommentId, setActiveCommentId } = useCommentWindowStore();
+  const isCommentOpen = activeCommentId === props.id;
+
+  const handleOpenComment: MouseEventHandler<HTMLButtonElement> = (event) => {
+    event.stopPropagation();
+    commentButtonRef.current = event.currentTarget;
+
+    // 토글: 같은 카드의 댓글창이면 닫고, 다른 카드면 전환
+    if (activeCommentId === props.id) {
+      setActiveCommentId(null);
+    } else {
+      setActiveCommentId(props.id);
+    }
+  };
+
+  const [commentPosition, setCommentPosition] = useState<{ x: number; y: number } | null>(null);
   const cardRef = useRef<HTMLElement | null>(null);
   const { scale } = useCanvasContext();
   const normalizedScale = scale || 1;
@@ -122,18 +136,6 @@ export default function IdeaCard(props: IdeaCardProps) {
       x: buttonRect.right + 8,
       y: buttonRect.top,
     });
-  };
-
-  const handleOpenComment: MouseEventHandler<HTMLButtonElement> = (event) => {
-    event.stopPropagation();
-    commentButtonRef.current = event.currentTarget;
-    const nextOpen = !isCommentOpen;
-
-    if (nextOpen) {
-      updateCommentPosition();
-    }
-
-    setIsCommentOpen(nextOpen);
   };
 
   // 댓글창이 열려있을 때 아이디어 카드 위치 변화 감지
@@ -292,7 +294,7 @@ export default function IdeaCard(props: IdeaCardProps) {
             userId={currentUserId}
             initialPosition={commentPosition}
             scale={normalizedScale}
-            onClose={() => setIsCommentOpen(false)}
+            onClose={() => setActiveCommentId(null)}
           />
         </Portal>
       )}

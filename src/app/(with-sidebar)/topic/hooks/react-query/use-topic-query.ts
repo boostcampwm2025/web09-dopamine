@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { getTopicConnections, getTopicIssues, getTopicNodes } from '@/lib/api/issue-map';
+import { getTopic } from '@/lib/api/topic';
 import type { IssueConnection, IssueMapData, IssueNode } from '@/types/issue';
 
 // 초기 데이터는 서버 컴포넌트에서 주입하고, 필요 시 API로 갱신
@@ -36,4 +37,13 @@ export const useTopicQuery = (
     connections: connectionsQuery.data ?? [],
     isLoading: issuesQuery.isLoading || nodesQuery.isLoading || connectionsQuery.isLoading,
   };
+};
+
+// 토픽 상세 정보 조회
+export const useTopicDetailQuery = (topicId: string) => {
+  return useQuery({
+    queryKey: ['topics', topicId],
+    queryFn: () => getTopic(topicId),
+    staleTime: 1000 * 10,
+  });
 };

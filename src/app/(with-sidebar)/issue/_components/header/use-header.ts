@@ -6,12 +6,12 @@ import { useCanvasStore } from '@/app/(with-sidebar)/issue/store/use-canvas-stor
 import { useModalStore } from '@/components/modal/use-modal-store';
 import { ISSUE_STATUS, MEMBER_ROLE } from '@/constants/issue';
 import { getIssueMember } from '@/lib/api/issue';
-import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
 import { IssueStatus } from '@/types/issue';
 import {
   useAIStructuringMutation,
   useCategoryOperations,
   useIdeasWithTemp,
+  useIssueIdentity,
   useIssueQuery,
   useIssueStatusMutations,
 } from '../../hooks';
@@ -24,7 +24,7 @@ export function useHeader({ issueId }: UseHeaderParams) {
   const { data: issue } = useIssueQuery(issueId);
   const { nextStep } = useIssueStatusMutations(issueId);
 
-  const userId = getUserIdForIssue(issueId) ?? '';
+  const { userId } = useIssueIdentity(issueId);
 
   // 현재 사용자의 정보 조회
   const { data: currentUser } = useQuery({

@@ -5,10 +5,15 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ c
   const { code } = await searchParams;
 
   if (!code || typeof code !== 'string') {
-    throw new Error('초대 코드가 없는 잘못된 접근입니다.');
+    throw new Error('CODE_REQUIRED');
   }
 
   const invitationData = await InvitationService.getInvitationInfo(code);
 
-  return <InvitationContainer data={invitationData} />;
+  return (
+    <InvitationContainer
+      data={invitationData}
+      code={code}
+    />
+  );
 }
