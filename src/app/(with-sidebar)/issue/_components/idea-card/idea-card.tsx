@@ -38,6 +38,7 @@ interface IdeaCardProps {
   onDelete?: () => void;
   onClick?: () => void;
   onPositionChange?: (id: string, position: Position) => void;
+  disableAnimation?: boolean; // 드래그 중일 때는 애니메이션 비활성화
 }
 
 export type DragItemPayload = {
@@ -228,6 +229,8 @@ export default function IdeaCard(props: IdeaCardProps) {
           // dnd-kit transform 적용 (Canvas scale과 호환됨!)
           transform: CSS.Transform.toString(transform),
           opacity: isDragging ? 0 : undefined,
+          // 브로드캐스팅으로 다른 사용자 이동 시 애니메이션
+          transition: props.disableAnimation ? 'none' : 'left 0.4s ease-out, top 0.4s ease-out',
         }
       : {};
 
