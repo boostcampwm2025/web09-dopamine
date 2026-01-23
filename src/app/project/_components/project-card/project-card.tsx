@@ -9,8 +9,8 @@ import {
   useDeleteProjectMutation,
   useLeaveProjectMutation,
 } from '@/app/project/hooks/use-project-mutation';
+import { useInviteProjectModal } from '@/components/modal/invite-project-modal/use-invite-project-modal';
 import { useModalStore } from '@/components/modal/use-modal-store';
-import InviteProjectModal from '../invite-project-modal/invite-project-modal';
 import ProjectCreateModal from '../project-create-modal/project-create-modal';
 import * as S from './project-card.styles';
 
@@ -41,20 +41,7 @@ export function ProjectCard({
   const suppressNextClickRef = useRef(false);
 
   const isOwner = session?.user?.id === ownerId;
-
-  const handleInviteMember = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    openModal({
-      title: '멤버 초대하기',
-      content: (
-        <InviteProjectModal
-          id={id!}
-          title={title!}
-        />
-      ),
-      hasCloseButton: true,
-    });
-  };
+  const { openInviteProjectModal } = useInviteProjectModal();
 
   const handleCreateClick = () => {
     openModal({
@@ -199,7 +186,9 @@ export function ProjectCard({
             <S.MemberAvatar />
             <S.MemberAvatar />
           </S.MemberAvatars>
-          <S.AddMember onClick={(e) => handleInviteMember(e)}>+ 초대하기</S.AddMember>
+          <S.AddMember onClick={(e) => openInviteProjectModal(id!, title!, e)}>
+            + 초대하기
+          </S.AddMember>
         </S.CardBody>
       </S.CardFooter>
     </S.Card>

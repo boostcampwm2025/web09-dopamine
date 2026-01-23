@@ -28,7 +28,7 @@ export async function createIssue(tx: PrismaTransaction, title: string, topicId?
 }
 
 export async function findIssueById(issueId: string) {
-  return prisma.issue.findFirst({
+  const issue = await prisma.issue.findFirst({
     where: {
       id: issueId,
       deletedAt: null,
@@ -37,8 +37,24 @@ export async function findIssueById(issueId: string) {
       title: true,
       status: true,
       topicId: true,
+      topic: {
+        select: {
+          projectId: true,
+        },
+      },
     },
   });
+
+  if (!issue) {
+    return null;
+  }
+
+  return {
+    title: issue.title,
+    status: issue.status,
+    topicId: issue.topicId,
+    projectId: issue.topic?.projectId ?? null,
+  };
 }
 
 export async function updateIssueStatus(

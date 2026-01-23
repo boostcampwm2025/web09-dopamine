@@ -1,4 +1,3 @@
-import toast from 'react-hot-toast';
 import { CLIENT_ERROR_MESSAGES } from '@/constants/error-messages';
 import type { ApiResponse } from '@/types/api';
 

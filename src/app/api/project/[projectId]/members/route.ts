@@ -19,7 +19,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ project
     );
 
     return createSuccessResponse(result, 201);
-  } catch (error) {
-    return createErrorResponse('PROJECT_JOIN_FAILED', 400);
+  } catch (error: any) {
+    return createErrorResponse(error.message ?? 'PROJECT_JOIN_FAILED', 400);
   }
 }

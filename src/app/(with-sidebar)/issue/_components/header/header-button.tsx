@@ -11,7 +11,7 @@ interface HeaderButtonProps {
   alt?: string;
   color?: S.SolidColor;
   variant?: S.Variant;
-  onClick?: () => void;
+  onClick?: (e?: React.MouseEvent) => void;
   onMouseEnter?: MouseEventHandler<HTMLButtonElement>;
   onMouseLeave?: MouseEventHandler<HTMLButtonElement>;
 }

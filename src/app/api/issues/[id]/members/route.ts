@@ -1,6 +1,8 @@
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 import { IssueRole } from '@prisma/client';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
 import { prisma } from '@/lib/prisma';
 import { issueMemberRepository } from '@/lib/repositories/issue-member.repository';
@@ -50,11 +52,8 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> },
 ): Promise<NextResponse> {
   const { id: issueId } = await params;
+  const session = await getServerSession(authOptions);
   const { nickname } = await req.json();
-
-  if (!nickname) {
-    return createErrorResponse('NICKNAME_REQUIRED', 400);
-  }
 
   try {
     const issue = await findIssueById(issueId);
@@ -63,16 +62,45 @@ export async function POST(
       return createErrorResponse('ISSUE_NOT_FOUND', 404);
     }
 
-    const result = await prisma.$transaction(async (tx) => {
-      const user = await createAnonymousUser(tx, nickname);
-      await issueMemberRepository.addIssueOwner(tx, issueId, user.id, IssueRole.MEMBER);
+    let result: { userId: string };
 
-      return {
-        userId: user.id,
-      };
-    });
+    const isQuickIssue = !issue.topicId;
 
-    await setUserIdCookie(issueId, result.userId);
+    // 토픽 이슈인 경우에만 로그인 사용자로 참여
+    if (!isQuickIssue && session?.user?.id) {
+      // 이미 참여했는지 확인
+      const existingMember = await issueMemberRepository.findMemberByUserId(
+        issueId,
+        session.user.id,
+      );
+
+      if (existingMember) {
+        return createSuccessResponse({ userId: session.user.id }, 200);
+      }
+
+      // 로그인 사용자를 IssueMember에 추가
+      await prisma.$transaction(async (tx) => {
+        await issueMemberRepository.addIssueOwner(tx, issueId, session.user.id, IssueRole.MEMBER);
+      });
+
+      result = { userId: session.user.id };
+    } else {
+      // 빠른 이슈 또는 익명 사용자인 경우
+      if (!nickname) {
+        return createErrorResponse('NICKNAME_REQUIRED', 400);
+      }
+
+      result = await prisma.$transaction(async (tx) => {
+        const user = await createAnonymousUser(tx, nickname);
+        await issueMemberRepository.addIssueOwner(tx, issueId, user.id, IssueRole.MEMBER);
+
+        return {
+          userId: user.id,
+        };
+      });
+
+      await setUserIdCookie(issueId, result.userId);
+    }
 
     broadcast({
       issueId,

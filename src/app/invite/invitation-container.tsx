@@ -1,11 +1,37 @@
+'use client';
+
+import { useSession } from 'next-auth/react';
+import SocialLogin from '@/components/social-login/social-login';
+import { useInvitationMutations } from '@/hooks';
 import { InvitationInfoResponse } from '@/lib/api/invitation';
 import * as S from './pags.styles';
 
 interface InvitationContainerprops {
   data: InvitationInfoResponse;
+  code: string;
 }
 
-export function InvitationContainer({ data }: InvitationContainerprops) {
+export function InvitationContainer({ data, code }: InvitationContainerprops) {
+  const currentUrl = `/invite?code=${code}`;
+
+  const { data: session } = useSession();
+  const { joinProject } = useInvitationMutations(data.projectId);
+
+  const renderJoinButton = () => {
+    return (
+      <>
+        {session ? (
+          <S.Button onClick={() => joinProject.mutate(code)}>참여하기</S.Button>
+        ) : (
+          <S.MessageSection>
+            <S.Description>로그인 후 프로젝트에 참여하세요.</S.Description>
+            <SocialLogin callbackUrl={currentUrl} />
+          </S.MessageSection>
+        )}
+      </>
+    );
+  };
+
   return (
     <S.InviteContainer fullScreen={true}>
       <S.PostItWrapper>
@@ -25,11 +51,8 @@ export function InvitationContainer({ data }: InvitationContainerprops) {
             </S.Description>
           </S.MessageSection>
 
-          <S.ButtonGroup>
-            <S.Button>참여하기</S.Button>
-          </S.ButtonGroup>
+          <S.ButtonGroup>{renderJoinButton()}</S.ButtonGroup>
         </S.InviteMain>
-
         <S.Shadow />
       </S.PostItWrapper>
     </S.InviteContainer>

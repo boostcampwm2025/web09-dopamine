@@ -28,12 +28,6 @@ export const createInvitation = (projectId: string, emails: string[]) => {
   });
 };
 
-export const getInvitationInfo = (code: string | null) => {
-  return getAPIResponseData<InvitationInfoResponse>({
-    url: `/api/invitations?code=${code}`,
-    method: 'GET',
-  });
-};
 
 export const acceptInvitation = (projectId: string, token: string) => {
   return getAPIResponseData({
