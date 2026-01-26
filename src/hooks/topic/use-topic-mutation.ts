@@ -1,25 +1,12 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
-import getAPIResponseData from '@/lib/utils/api-response';
-
-interface CreateTopicData {
-  title: string;
-  projectId: string;
-}
+import { createTopic, type CreateTopicData } from '@/lib/api/topic';
 
 export const useCreateTopicMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: CreateTopicData) =>
-      getAPIResponseData<{ id: string; title: string }>({
-        url: '/api/topic',
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      }),
+    mutationFn: (data: CreateTopicData) => createTopic(data.title, data.projectId),
 
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['topics'] });
