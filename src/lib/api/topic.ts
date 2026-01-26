@@ -14,3 +14,19 @@ export function getTopic(topicId: string): Promise<Topic> {
     method: 'GET',
   });
 }
+
+export interface CreateTopicData {
+  title: string;
+  projectId: string;
+}
+
+export function createTopic(title: string, projectId: string) {
+  return getAPIResponseData<{ id: string; title: string }>({
+    url: '/api/topics',
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ title, projectId }),
+  });
+}

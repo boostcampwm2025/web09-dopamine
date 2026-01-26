@@ -50,18 +50,23 @@ describe('Issue Repository', () => {
   describe('findIssueById', () => {
     it('삭제되지 않은 이슈를 ID로 조회한다', async () => {
       // 준비
-      const mockIssue = {
-        id: 'issue-123',
+      const mockPrismaResult = {
         title: 'Test Issue',
         status: IssueStatus.SELECT,
         topicId: 'topic-123',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        deletedAt: null,
-        closedAt: null,
-      } as Issue;
+        topic: {
+          projectId: 'project-123',
+        },
+      };
 
-      mockedPrismaIssue.findFirst.mockResolvedValue(mockIssue as Issue);
+      const expectedResult = {
+        title: 'Test Issue',
+        status: IssueStatus.SELECT,
+        topicId: 'topic-123',
+        projectId: 'project-123',
+      };
+
+      mockedPrismaIssue.findFirst.mockResolvedValue(mockPrismaResult as any);
 
       // 실행
       const result = await findIssueById('issue-123');
@@ -72,8 +77,18 @@ describe('Issue Repository', () => {
           id: 'issue-123',
           deletedAt: null, // 삭제되지 않은 이슈만 조회
         },
+        select: {
+          title: true,
+          status: true,
+          topicId: true,
+          topic: {
+            select: {
+              projectId: true,
+            },
+          },
+        },
       });
-      expect(result).toEqual(mockIssue);
+      expect(result).toEqual(expectedResult);
     });
 
     /**

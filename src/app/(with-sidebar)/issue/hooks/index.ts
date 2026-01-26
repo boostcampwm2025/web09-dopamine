@@ -9,6 +9,3 @@ export * from './use-issue-data';
 export * from './use-issue-identity';
 export * from './use-issue-events';
 export * from './use-issue-id';
-
-// 서브 폴더
-export * from './react-query';

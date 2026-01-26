@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { IdeaWithPosition } from '@/app/(with-sidebar)/issue/types/idea';
-import { useIssueIdeaQuery } from './react-query/use-idea-query';
+import { useIssueIdeaQuery } from '@/hooks/issue';
 
 const TEMP_IDEA_STORAGE_KEY = (issueId: string) => `temp-idea-${issueId}`;
 

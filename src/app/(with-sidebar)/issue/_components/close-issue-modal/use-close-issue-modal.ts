@@ -3,8 +3,9 @@ import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { useModalStore } from '@/components/modal/use-modal-store';
 import { ISSUE_STATUS } from '@/constants/issue';
-import { updateIssueStatus } from '@/lib/api/issue';
-import { useIdeasWithTemp, useIssueStatusMutations, useSelectedIdeaQuery } from '../../hooks';
+import { useIssueStatusMutations, useSelectedIdeaQuery } from '@/hooks/issue';
+import { deleteCloseModal, updateCloseModalMemo, updateIssueStatus } from '@/lib/api/issue';
+import { useIdeasWithTemp } from '../../hooks';
 
 interface UseCloseIssueModalParams {
   issueId: string;
@@ -31,18 +32,7 @@ export function useCloseIssueModal({ issueId, isOwner }: UseCloseIssueModalParam
       if (!isOwner) return;
 
       try {
-        const response = await fetch(`/api/issues/${issueId}/close-modal`, {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ memo: memoValue }),
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error?.message || 'Failed to broadcast memo update');
-        }
+        await updateCloseModalMemo(issueId, memoValue);
       } catch (error) {
         console.error('Failed to broadcast memo update:', error);
       }
@@ -55,14 +45,7 @@ export function useCloseIssueModal({ issueId, isOwner }: UseCloseIssueModalParam
     if (!isOwner) return;
 
     try {
-      const response = await fetch(`/api/issues/${issueId}/close-modal`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error?.message || 'Failed to broadcast close modal');
-      }
+      await deleteCloseModal(issueId);
     } catch (error) {
       console.error('Failed to broadcast close modal:', error);
     }
@@ -164,5 +147,6 @@ export function useCloseIssueModal({ issueId, isOwner }: UseCloseIssueModalParam
     selectedIdea,
     isLoading,
     closeAndGoSummary,
+    handleClose,
   };
 }

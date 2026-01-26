@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
-import { useUpdateProjectMutation } from '@/app/(with-sidebar)/project/hooks/use-project-mutation';
-import { useCreateTopicMutation } from '@/app/(with-sidebar)/topic/hooks/use-topic-mutation';
+import { useUpdateProjectMutation } from '@/hooks/project';
+import { useCreateTopicMutation } from '@/hooks/topic';
 import { useModalStore } from '@/components/modal/use-modal-store';
 import { MAX_DESCRIPTION_LENGTH, MAX_TITLE_LENGTH } from '@/constants/project';
 import { isProjectTitleTooLong } from '@/lib/utils/project-title';
