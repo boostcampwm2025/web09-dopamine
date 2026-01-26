@@ -58,11 +58,6 @@ export default function ProjectCreateModal() {
             placeholder="이름을 입력하세요"
             autoFocus
             disabled={isPending}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !isPending && projectName.trim()) {
-                handleSubmit();
-              }
-            }}
           />
         </S.InputWrapper>
         <S.InputWrapper>
