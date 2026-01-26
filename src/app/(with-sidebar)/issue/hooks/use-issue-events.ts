@@ -6,7 +6,7 @@ import { useModalStore } from '@/components/modal/use-modal-store';
 import { MEMBER_ROLE } from '@/constants/issue';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
 import { selectedIdeaQueryKey } from '@/hooks/issue';
-import { getIssueMember } from '@/lib/api/issue';
+import { deleteCloseModal, getIssueMember } from '@/lib/api/issue';
 import { useIssueStore } from '../store/use-issue-store';
 
 interface UseIssueEventsParams {
@@ -223,9 +223,7 @@ export function useIssueEvents({
         onClose: async () => {
           // 모달 닫힘 시 다른 클라이언트에게 브로드캐스팅
           try {
-            await fetch(`/api/issues/${issueId}/close-modal`, {
-              method: 'DELETE',
-            });
+            await deleteCloseModal(issueId);
           } catch (error) {
             console.error('Failed to broadcast close modal:', error);
           }
