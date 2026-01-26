@@ -7,8 +7,14 @@ interface ConnectedClient {
   controller: ReadableStreamDefaultController;
 }
 
+interface TopicConnectedClient {
+  userId: string;
+  controller: ReadableStreamDefaultController;
+}
+
 export class SSEManager {
   private connections = new Map<string, Set<ConnectedClient>>();
+  private topicConnections = new Map<string, Set<TopicConnectedClient>>();
 
   // 연결 생성
   createStream({ issueId, userId, signal }: CreateStreamParams): ReadableStream {
@@ -132,6 +138,111 @@ export class SSEManager {
 
     const userIds = Array.from(clients).map((client) => client.userId);
     return Array.from(new Set(userIds));
+  }
+
+  // 토픽 연결 생성
+  createTopicStream({
+    topicId,
+    userId,
+    signal,
+  }: {
+    topicId: string;
+    userId: string;
+    signal: AbortSignal;
+  }): ReadableStream {
+    const encoder = new TextEncoder();
+
+    return new ReadableStream({
+      start: (controller) => {
+        // 이 토픽에 대한 연결 Set이 없으면 생성
+        if (!this.topicConnections.has(topicId)) {
+          this.topicConnections.set(topicId, new Set());
+        }
+
+        // 현재 컨트롤러를 연결 목록에 추가
+        this.topicConnections.get(topicId)!.add({ userId, controller });
+
+        console.log(`[SSE] 토픽 클라이언트 연결됨 - Topic: ${topicId}, User: ${userId}`);
+
+        // 연결 확인 메시지
+        const connectMessage = `data: ${JSON.stringify({
+          type: 'connected',
+          topicId,
+          timestamp: new Date().toISOString(),
+        })}\n\n`;
+
+        controller.enqueue(encoder.encode(connectMessage));
+
+        // 하트비트 (30초마다 연결 유지)
+        const heartbeatInterval = setInterval(() => {
+          try {
+            const heartbeat = `:heartbeat\n\n`;
+            controller.enqueue(encoder.encode(heartbeat));
+          } catch (error) {
+            console.error('[SSE] Topic Heartbeat error:', error);
+            clearInterval(heartbeatInterval);
+          }
+        }, 30000);
+
+        // 연결 종료 처리
+        signal.addEventListener('abort', () => {
+          console.log(`[SSE] 토픽 클라이언트 연결 종료됨 - Topic: ${topicId}, User: ${userId}`);
+          clearInterval(heartbeatInterval);
+
+          const topicClients = this.topicConnections.get(topicId);
+          if (topicClients) {
+            for (const client of topicClients) {
+              if (client.controller === controller) {
+                topicClients.delete(client);
+                break;
+              }
+            }
+            if (topicClients.size === 0) {
+              this.topicConnections.delete(topicId);
+            }
+          }
+
+          try {
+            controller.close();
+          } catch (error) {
+            // 이미 닫힌 경우 무시
+          }
+        });
+      },
+    });
+  }
+
+  // 토픽에 연결된 모든 클라이언트에게 브로드캐스트
+  broadcastToTopic({
+    topicId,
+    event,
+  }: {
+    topicId: string;
+    event: { type: string; data: any };
+  }): void {
+    const topicClients = this.topicConnections.get(topicId);
+
+    if (!topicClients || topicClients.size === 0) {
+      console.log(`[SSE] 토픽에 연결된 유저가 없습니다 Topic: ${topicId}`);
+      return;
+    }
+
+    const encoder = new TextEncoder();
+    const message = `event: ${event.type}\ndata: ${JSON.stringify(event.data)}\n\n`;
+    const encoded = encoder.encode(message);
+
+    console.log(
+      `[SSE] ${topicClients.size}개의 토픽 client에게 브로드캐스팅 - Topic: ${topicId}, Event: ${event.type}`,
+    );
+
+    topicClients.forEach((client) => {
+      try {
+        client.controller.enqueue(encoded);
+      } catch (error) {
+        console.error('[SSE] Failed to send topic message:', error);
+        topicClients.delete(client);
+      }
+    });
   }
 }
 
