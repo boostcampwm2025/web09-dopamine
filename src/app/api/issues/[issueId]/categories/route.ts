@@ -6,9 +6,9 @@ import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-help
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: Promise<{ issueId: string }> },
 ): Promise<NextResponse> {
-  const { id: issueId } = await params;
+  const { issueId } = await params;
 
   try {
     const categories = await categoryRepository.findByIssueId(issueId);
@@ -22,9 +22,9 @@ export async function GET(
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: Promise<{ issueId: string }> },
 ): Promise<NextResponse> {
-  const { id: issueId } = await params;
+  const { issueId } = await params;
   const { title, positionX, positionY, width, height } = await req.json();
 
   try {

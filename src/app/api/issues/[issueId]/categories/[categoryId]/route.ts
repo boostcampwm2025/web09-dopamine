@@ -6,9 +6,9 @@ import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-help
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string; categoryId: string }> },
+  { params }: { params: Promise<{ issueId: string; categoryId: string }> },
 ): Promise<NextResponse> {
-  const { id: issueId, categoryId } = await params;
+  const { issueId, categoryId } = await params;
   const { title, positionX, positionY, width, height } = await req.json();
 
   try {
@@ -43,9 +43,9 @@ export async function PATCH(
 
 export async function DELETE(
   _req: NextRequest,
-  { params }: { params: Promise<{ id: string; categoryId: string }> },
+  { params }: { params: Promise<{ issueId: string; categoryId: string }> },
 ): Promise<NextResponse> {
-  const { id: issueId, categoryId } = await params;
+  const { issueId, categoryId } = await params;
 
   try {
     await categoryRepository.softDelete(categoryId);

@@ -4,9 +4,9 @@ import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-help
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: Promise<{ issueId: string }> },
 ): Promise<NextResponse> {
-  const { id } = await params;
+  const { issueId: id } = await params;
 
   try {
     const issue = await findIssueById(id);

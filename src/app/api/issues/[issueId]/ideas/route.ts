@@ -8,9 +8,9 @@ import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-help
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: Promise<{ issueId: string }> },
 ): Promise<NextResponse> {
-  const { id } = await params;
+  const { issueId: id } = await params;
   const { searchParams } = new URL(req.url);
   const filter = searchParams.get('filter');
 
@@ -39,9 +39,9 @@ export async function GET(
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: Promise<{ issueId: string }> },
 ): Promise<NextResponse> {
-  const { id: issueId } = await params;
+  const { issueId } = await params;
   const { content, userId, positionX, positionY, categoryId } = await req.json();
 
   try {

@@ -8,10 +8,10 @@ import { getUserIdFromRequest } from '@/lib/utils/cookie';
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string; ideaId: string }> },
+  { params }: { params: Promise<{ issueId: string; ideaId: string }> },
 ) {
   try {
-    const { id: issueId, ideaId } = await params;
+    const { issueId, ideaId } = await params;
 
     const userId = getUserIdFromRequest(req, issueId);
 
@@ -60,9 +60,9 @@ export async function GET(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string; ideaId: string }> },
+  { params }: { params: Promise<{ issueId: string; ideaId: string }> },
 ): Promise<NextResponse> {
-  const { id: issueId, ideaId } = await params;
+  const { issueId, ideaId } = await params;
 
   if (!ideaId) {
     return createErrorResponse('IDEA_ID_REQUIRED', 400);
@@ -97,9 +97,9 @@ export async function DELETE(
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: Promise<{ issueId: string }> },
 ): Promise<NextResponse> {
-  const { id: issueId } = await params;
+  const { issueId } = await params;
   const { ideaId, positionX, positionY, categoryId } = await req.json();
 
   if (!ideaId) {

@@ -15,9 +15,9 @@ import { setUserIdCookie } from '@/lib/utils/cookie';
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: Promise<{ issueId: string }> },
 ): Promise<NextResponse> {
-  const { id } = await params;
+  const { issueId: id } = await params;
   const { searchParams } = new URL(req.url);
   const nickname = searchParams.get('nickname');
 
@@ -49,9 +49,9 @@ export async function GET(
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: Promise<{ issueId: string }> },
 ): Promise<NextResponse> {
-  const { id: issueId } = await params;
+  const { issueId } = await params;
   const session = await getServerSession(authOptions);
   const { nickname } = await req.json();
 

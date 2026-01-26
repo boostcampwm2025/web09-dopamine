@@ -9,8 +9,8 @@ import { validateAIFunctionCallResponse } from '@/lib/utils/ai-response-validato
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 import { broadcastError } from '@/lib/utils/broadcast-helpers';
 
-export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { id: issueId } = await params;
+export async function POST(req: NextRequest, { params }: { params: Promise<{ issueId: string }> }) {
+  const { issueId } = await params;
 
   try {
     broadcast({

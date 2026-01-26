@@ -8,13 +8,15 @@ import { ISSUE_STATUS, MEMBER_ROLE } from '@/constants/issue';
 import { getIssueMember } from '@/lib/api/issue';
 import { IssueStatus } from '@/types/issue';
 import {
-  useAIStructuringMutation,
   useCategoryOperations,
   useIdeasWithTemp,
   useIssueIdentity,
+} from '../../hooks';
+import {
+  useAIStructuringMutation,
   useIssueQuery,
   useIssueStatusMutations,
-} from '../../hooks';
+} from '@/hooks/issue';
 
 interface UseHeaderParams {
   issueId: string;

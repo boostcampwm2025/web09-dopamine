@@ -1,8 +1,7 @@
 import { useIssueStore } from '@/app/(with-sidebar)/issue/store/use-issue-store';
 import { ISSUE_STATUS } from '@/constants/issue';
 import { IssueStatus } from '@/types/issue';
-import { useIssueMemberQuery } from './react-query/use-issue-member-query';
-import { useIssueQuery } from './react-query/use-issue-query';
+import { useIssueMemberQuery, useIssueQuery } from '@/hooks/issue';
 
 export function useIssueData(issueId: string, enabled: boolean = true) {
   const { data: issue, isError: isIssueError } = useIssueQuery(issueId, enabled);

@@ -14,11 +14,11 @@ import { generateWordCloudData } from '@/lib/utils/word-cloud-processor';
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: Promise<{ issueId: string }> },
 ): Promise<NextResponse> {
   try {
     const { status, selectedIdeaId = null, memo = null } = await req.json();
-    const { id } = await params;
+    const { issueId: id } = await params;
 
     if (!Object.values(IssueStatus).includes(status)) {
       return createErrorResponse('INVALID_ISSUE_STATUS', 400);

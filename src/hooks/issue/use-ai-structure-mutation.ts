@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { categorizeIdeas } from '@/lib/api/issue';
-import { IdeaWithPosition } from '../../types/idea';
+import { IdeaWithPosition } from '@/app/(with-sidebar)/issue/types/idea';
 
 export function useAIStructuringMutation(issueId: string) {
   const queryClient = useQueryClient();

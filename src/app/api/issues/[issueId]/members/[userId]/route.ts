@@ -4,9 +4,9 @@ import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-help
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string; userId: string }> },
+  { params }: { params: Promise<{ issueId: string; userId: string }> },
 ): Promise<NextResponse> {
-  const { id: issueId, userId } = await params;
+  const { issueId, userId } = await params;
 
   try {
     const member = await issueMemberRepository.findMemberByUserId(issueId, userId);

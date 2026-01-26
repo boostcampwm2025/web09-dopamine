@@ -6,10 +6,10 @@ import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-help
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string; ideaId: string }> },
+  { params }: { params: Promise<{ issueId: string; ideaId: string }> },
 ) {
   try {
-    const { id: issueId, ideaId } = await params;
+    const { issueId, ideaId } = await params;
     const { userId, voteType } = await req.json();
 
     if (!userId || !voteType) {

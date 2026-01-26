@@ -10,7 +10,7 @@ import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-help
  */
 export async function GET(
   _req: NextRequest,
-  { params }: { params: Promise<{ id: string; ideaId: string }> },
+  { params }: { params: Promise<{ issueId: string; ideaId: string }> },
 ): Promise<NextResponse> {
   const { ideaId } = await params;
 
@@ -29,9 +29,9 @@ export async function GET(
  */
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string; ideaId: string }> },
+  { params }: { params: Promise<{ issueId: string; ideaId: string }> },
 ): Promise<NextResponse> {
-  const { id: issueId, ideaId } = await params;
+  const { issueId, ideaId } = await params;
   const { userId, content } = await req.json();
 
   if (!userId || !content) {

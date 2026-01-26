@@ -10,9 +10,9 @@ import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-help
  */
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string; ideaId: string; commentId: string }> },
+  { params }: { params: Promise<{ issueId: string; ideaId: string; commentId: string }> },
 ): Promise<NextResponse> {
-  const { id: issueId, ideaId, commentId } = await params;
+  const { issueId, ideaId, commentId } = await params;
   const { content } = await req.json();
 
   if (!content) {
@@ -51,9 +51,9 @@ export async function PATCH(
  */
 export async function DELETE(
   _req: NextRequest,
-  { params }: { params: Promise<{ id: string; ideaId: string; commentId: string }> },
+  { params }: { params: Promise<{ issueId: string; ideaId: string; commentId: string }> },
 ): Promise<NextResponse> {
-  const { id: issueId, ideaId, commentId } = await params;
+  const { issueId, ideaId, commentId } = await params;
 
   try {
     await commentRepository.softDelete(commentId);

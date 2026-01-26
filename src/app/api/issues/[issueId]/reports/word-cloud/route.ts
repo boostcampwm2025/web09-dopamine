@@ -6,9 +6,9 @@ import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-help
 /**
  * 워드클라우드 데이터 조회
  */
-export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ issueId: string }> }) {
   try {
-    const { id } = await params;
+    const { issueId: id } = await params;
 
     // 리포트 조회
     const report = await findReportByIssueId(id);

@@ -8,7 +8,7 @@ import toast from 'react-hot-toast';
 import {
   useDeleteProjectMutation,
   useLeaveProjectMutation,
-} from '@/app/project/hooks/use-project-mutation';
+} from '@/hooks/project';
 import { useInviteProjectModal } from '@/components/modal/invite-project-modal/use-invite-project-modal';
 import { useModalStore } from '@/components/modal/use-modal-store';
 import ProjectCreateModal from '../project-create-modal/project-create-modal';

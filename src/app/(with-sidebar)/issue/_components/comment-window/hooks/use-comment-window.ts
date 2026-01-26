@@ -3,8 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { KeyboardEvent } from 'react';
 import { useTooltipStore } from '@/components/tooltip/use-tooltip-store';
-import type { useCommentMutations } from './react-query/use-comment-mutations';
-import type { useCommentQuery } from './react-query/use-comment-query';
+import type { useCommentMutations } from '@/hooks/comment';
+import type { useCommentQuery } from '@/hooks/comment';
 
 interface UseCommentWindowOptions {
   initialPosition?: { x: number; y: number };

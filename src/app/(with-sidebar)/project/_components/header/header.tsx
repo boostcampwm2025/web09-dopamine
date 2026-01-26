@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
 import HeaderButton from '@/app/(with-sidebar)/issue/_components/header/header-button';
 import { useInviteProjectModal } from '@/components/modal/invite-project-modal/use-invite-project-modal';
-import { useProjectQuery } from '../../hooks/use-project-query';
+import { useProjectQuery } from '@/hooks/project';
 import * as S from './header.styles';
 
 const ProjectHeader = () => {

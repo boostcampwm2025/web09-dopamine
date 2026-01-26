@@ -9,7 +9,7 @@ import CategoryCard from '@/app/(with-sidebar)/issue/_components/category/catego
 import FilterPanel from '@/app/(with-sidebar)/issue/_components/filter-panel/filter-panel';
 import IdeaCard from '@/app/(with-sidebar)/issue/_components/idea-card/idea-card';
 import { useCanvasStore } from '@/app/(with-sidebar)/issue/store/use-canvas-store';
-import { useProjectsQuery } from '@/app/project/hooks/use-project-query';
+import { useProjectsQuery } from '@/hooks/project';
 import { ErrorPage } from '@/components/error/error';
 import LoadingOverlay from '@/components/loading-overlay/loading-overlay';
 import { useModalStore } from '@/components/modal/use-modal-store';
@@ -26,9 +26,8 @@ import {
   useIssueData,
   useIssueEvents,
   useIssueIdentity,
-  useIssueQuery,
-  useSelectedIdeaQuery,
 } from '../hooks';
+import { useIssueQuery, useSelectedIdeaQuery } from '@/hooks/issue';
 
 const IssuePage = () => {
   const params = useParams<{ id: string; issueId?: string }>();

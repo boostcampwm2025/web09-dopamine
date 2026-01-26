@@ -4,7 +4,8 @@ import { useRouter } from 'next/navigation';
 import { getChoseong } from 'es-hangul';
 import { MEMBER_ROLE } from '@/constants/issue';
 import { useTopicId } from '@/hooks/use-topic-id';
-import { useIssueData, useIssueId, useTopicIssuesQuery } from '../../hooks';
+import { useIssueData, useIssueId } from '../../hooks';
+import { useTopicIssuesQuery } from '@/hooks/issue';
 import { useIssueStore } from '../../store/use-issue-store';
 
 export const useIssueSidebar = () => {

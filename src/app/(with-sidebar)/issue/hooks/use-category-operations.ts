@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
-import { useCategoryMutations } from './react-query/use-category-mutation';
-import { useCategoryQuery } from './react-query/use-category-query';
+import { useCategoryMutations, useCategoryQuery } from '@/hooks/issue';
 import type { Position } from '@/app/(with-sidebar)/issue/types/idea';
 import type { IdeaWithPosition } from '@/app/(with-sidebar)/issue/types/idea';
 
