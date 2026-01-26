@@ -51,6 +51,42 @@ export const categorizeService = {
         ),
       );
 
+      // 미분류 아이디어 처리
+      const allIdeas = await tx.idea.findMany({
+        where: { issueId, deletedAt: null },
+        select: { id: true },
+      });
+
+      const uncategorizedIdeaIds = allIdeas
+        .filter((idea) => !ideaCategoryMap.has(idea.id))
+        .map((idea) => idea.id);
+
+      if (uncategorizedIdeaIds.length > 0) {
+        // "미분류" 카테고리 생성
+        const uncategorizedCategory = await tx.category.create({
+          data: {
+            issueId,
+            title: '기타',
+            positionX: 100 + createdCategories.length * 600,
+            positionY: 100,
+          },
+        });
+
+        // 미분류 아이디어들을 "미분류" 카테고리에 할당
+        await tx.idea.updateMany({
+          where: { id: { in: uncategorizedIdeaIds }, issueId },
+          data: { categoryId: uncategorizedCategory.id, positionX: null, positionY: null },
+        });
+
+        // ideaCategoryMap 업데이트
+        uncategorizedIdeaIds.forEach((ideaId) => {
+          ideaCategoryMap.set(ideaId, uncategorizedCategory.id);
+        });
+
+        // createdCategories에 추가
+        createdCategories.push(uncategorizedCategory);
+      }
+
       return {
         categories: createdCategories,
         ideaCategoryMap: Object.fromEntries(ideaCategoryMap),
