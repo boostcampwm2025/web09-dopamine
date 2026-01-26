@@ -1,7 +1,6 @@
 'use client';
 
 import { useRef } from 'react';
-import CommentLayer from '../comment-layer/comment-layer';
 import { CanvasContext } from './canvas-context';
 import CanvasZoomControls from './canvas-zoom-controls';
 import * as S from './canvas.styles';
@@ -10,6 +9,7 @@ import { useCanvasControls } from './use-canvas-controls';
 interface CanvasProps {
   children?: React.ReactNode;
   onDoubleClick?: (position: { x: number; y: number }) => void;
+  onClick?: () => void;
   showGrid?: boolean;
   showControls?: boolean;
   showMessage?: boolean;
@@ -22,6 +22,7 @@ interface CanvasProps {
 export default function Canvas({
   children,
   onDoubleClick,
+  onClick,
   showGrid = true,
   showControls = true,
   showMessage = true,
@@ -61,6 +62,7 @@ export default function Canvas({
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
         onDoubleClick={handleCanvasDoubleClick}
+        onClick={onClick}
         showGrid={showGrid}
         style={{
           cursor: isPanning ? 'grabbing' : 'default',
@@ -73,7 +75,6 @@ export default function Canvas({
           }}
         >
           <CanvasContext.Provider value={{ scale }}>{children}</CanvasContext.Provider>
-          
         </S.CanvasViewport>
       </S.CanvasContainer>
 
