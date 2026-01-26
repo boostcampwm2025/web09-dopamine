@@ -41,7 +41,7 @@ export default function Modal() {
         if (modalType !== 'close-issue') {
           closeModal();
         }
-      } else if (event.key === 'Enter' && onSubmit && !isPending) {
+      } else if (event.key === 'Enter' && !event.shiftKey && onSubmit && !isPending) {
         event.preventDefault();
         handleSubmit();
       }
