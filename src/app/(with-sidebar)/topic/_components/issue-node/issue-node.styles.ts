@@ -21,9 +21,10 @@ export const NodeContainer = styled.div<{ status: IssueStatus }>`
   ${({ status }) => {
     switch (status) {
       case ISSUE_STATUS.BRAINSTORMING:
+        return `outline: 2px solid ${theme.colors.yellow[400]}`;
       case ISSUE_STATUS.CATEGORIZE:
         return `
-          outline: 3px solid ${theme.colors.blue[400]};
+          outline: 2px solid ${theme.colors.blue[400]};
         `;
       case ISSUE_STATUS.VOTE:
       case ISSUE_STATUS.SELECT:
@@ -60,6 +61,10 @@ export const Badge = styled.div<{ status: IssueStatus }>`
   ${({ status }) => {
     switch (status) {
       case ISSUE_STATUS.BRAINSTORMING:
+        return `
+          background-color: ${theme.colors.yellow[100]};
+          color: ${theme.colors.yellow[600]};
+        `;
       case ISSUE_STATUS.CATEGORIZE:
         return `
           background-color: ${theme.colors.blue[100]};
