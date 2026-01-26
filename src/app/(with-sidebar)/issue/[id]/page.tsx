@@ -237,7 +237,6 @@ const IssuePage = () => {
 
   // 현재 댓글 창이 열린 아이디어의 아이디
   const activeCommentId = useCommentWindowStore((state) => state.activeCommentId);
-  const closeComment = useCommentWindowStore((state) => state.closeComment);
 
   // 에러 여부 확인
   const hasError = isIssueError || isIdeasError || isCategoryError;
@@ -262,7 +261,6 @@ const IssuePage = () => {
         ) : (
           <Canvas
             onDoubleClick={handleCreateIdea}
-            onClick={closeComment}
             bottomMessage={ISSUE_STATUS_DESCRIPTION[status]}
             enableAddIdea={status === ISSUE_STATUS.BRAINSTORMING}
           >
