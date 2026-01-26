@@ -9,16 +9,19 @@ import { broadcast } from '@/lib/sse/sse-service';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 import { getUserIdFromRequest } from '@/lib/utils/cookie';
 
-export async function POST(
+/**
+ * 방장 권한 인증/인가 헬퍼
+ * - Issue 조회
+ * - userId 추출 및 로그인 확인 (OAuth 세션 or 쿠키)
+ * - 방장 권한 확인
+ */
+async function authorizeOwner(
   req: NextRequest,
-  { params }: { params: Promise<{ issueId: string }> },
-): Promise<NextResponse> {
-  const { issueId } = await params;
-
-  // userId 추출
+  issueId: string,
+): Promise<{ error: NextResponse } | { issueId: string }> {
   const issue = await findIssueById(issueId);
   if (!issue) {
-    return createErrorResponse('ISSUE_NOT_FOUND', 404);
+    return { error: createErrorResponse('ISSUE_NOT_FOUND', 404) };
   }
 
   let userId;
@@ -30,17 +33,26 @@ export async function POST(
   }
 
   if (!userId) {
-    return createErrorResponse('USER_ID_REQUIRED', 401);
+    return { error: createErrorResponse('USER_ID_REQUIRED', 401) };
   }
 
-  // 방장 권한 확인
   const member = await issueMemberRepository.findMemberByUserId(issueId, userId);
-
   if (!member || member.role !== MEMBER_ROLE.OWNER) {
-    return createErrorResponse('OWNER_PERMISSION_REQUIRED', 403);
+    return { error: createErrorResponse('OWNER_PERMISSION_REQUIRED', 403) };
   }
 
-  // SSE 브로드캐스팅
+  return { issueId };
+}
+
+export async function POST(
+  req: NextRequest,
+  { params }: { params: Promise<{ issueId: string }> },
+): Promise<NextResponse> {
+  const { issueId } = await params;
+
+  const result = await authorizeOwner(req, issueId);
+  if ('error' in result) return result.error;
+
   broadcast({
     issueId,
     event: {
@@ -58,21 +70,9 @@ export async function DELETE(
 ): Promise<NextResponse> {
   const { issueId } = await params;
 
-  // userId 추출
-  const userId = getUserIdFromRequest(req, issueId);
+  const result = await authorizeOwner(req, issueId);
+  if ('error' in result) return result.error;
 
-  if (!userId) {
-    return createErrorResponse('USER_ID_REQUIRED', 401);
-  }
-
-  // 방장 권한 확인
-  const member = await issueMemberRepository.findMemberByUserId(issueId, userId);
-
-  if (!member || member.role !== MEMBER_ROLE.OWNER) {
-    return createErrorResponse('OWNER_PERMISSION_REQUIRED', 403);
-  }
-
-  // SSE 브로드캐스팅
   broadcast({
     issueId,
     event: {
@@ -91,21 +91,9 @@ export async function PATCH(
   const { issueId } = await params;
   const { memo } = await req.json();
 
-  // userId 추출
-  const userId = getUserIdFromRequest(req, issueId);
+  const result = await authorizeOwner(req, issueId);
+  if ('error' in result) return result.error;
 
-  if (!userId) {
-    return createErrorResponse('USER_ID_REQUIRED', 401);
-  }
-
-  // 방장 권한 확인
-  const member = await issueMemberRepository.findMemberByUserId(issueId, userId);
-
-  if (!member || member.role !== MEMBER_ROLE.OWNER) {
-    return createErrorResponse('OWNER_PERMISSION_REQUIRED', 403);
-  }
-
-  // SSE 브로드캐스팅
   broadcast({
     issueId,
     event: {

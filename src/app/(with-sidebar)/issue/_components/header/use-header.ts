@@ -1,9 +1,7 @@
 import React, { useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import CloseIssueModal from '@/app/(with-sidebar)/issue/_components/close-issue-modal/close-issue-modal';
 import { useCanvasStore } from '@/app/(with-sidebar)/issue/store/use-canvas-store';
-import { useModalStore } from '@/components/modal/use-modal-store';
 import { ISSUE_STATUS, MEMBER_ROLE } from '@/constants/issue';
 import { useAIStructuringMutation, useIssueQuery, useIssueStatusMutations } from '@/hooks/issue';
 import { getIssueMember } from '@/lib/api/issue';
@@ -31,7 +29,6 @@ export function useHeader({ issueId }: UseHeaderParams) {
 
   const isOwner = currentUser && currentUser.role === MEMBER_ROLE.OWNER;
   const { ideas, hasEditingIdea } = useIdeasWithTemp(issueId);
-  const { openModal } = useModalStore();
   const scale = useCanvasStore((state) => state.scale);
   const { categories, handleAddCategory } = useCategoryOperations(issueId, ideas, scale);
 

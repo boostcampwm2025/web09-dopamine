@@ -209,6 +209,7 @@ export function useIssueEvents({
       // 모든 사용자에게 모달 열기 (방장 여부는 모달 내부에서 확인)
       // ref를 사용하여 최신 isOwner 값을 참조
       const isOwnerValue = isOwnerRef.current;
+
       useModalStore.getState().openModal({
         title: '이슈 종료',
         content: React.createElement(CloseIssueModal, {
@@ -219,6 +220,16 @@ export function useIssueEvents({
         hasCloseButton: isOwnerValue,
         modalType: 'close-issue',
         submitButtonText: '이슈 종료',
+        onClose: async () => {
+          // 모달 닫힘 시 다른 클라이언트에게 브로드캐스팅
+          try {
+            await fetch(`/api/issues/${issueId}/close-modal`, {
+              method: 'DELETE',
+            });
+          } catch (error) {
+            console.error('Failed to broadcast close modal:', error);
+          }
+        },
       });
     });
 
