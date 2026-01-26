@@ -1,16 +1,13 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import type { MouseEventHandler, PointerEventHandler } from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
-import Portal from '@/components/portal/portal';
 import { useIdeaQuery, useIssueData, useIssueIdentity, useSelectedIdeaMutation } from '../../hooks';
 import { useCommentWindowStore } from '../../store/use-comment-window-store';
 import { useIdeaCardStackStore } from '../../store/use-idea-card-stack-store';
 import type { CardStatus, Position } from '../../types/idea';
-import { useCanvasContext } from '../canvas/canvas-context';
-import CommentWindow from '../comment-window/comment-window';
 import IdeaCardBadge from './idea-card-badge';
 import IdeaCardFooter from './idea-card-footer';
 import IdeaCardHeader from './idea-card-header';
@@ -107,75 +104,29 @@ export default function IdeaCard(props: IdeaCardProps) {
 
   // 댓글 윈도우 상태 관리
   const commentButtonRef = useRef<HTMLButtonElement | null>(null);
-  const { activeCommentId, setActiveCommentId } = useCommentWindowStore();
+  const activeCommentId = useCommentWindowStore((s) => s.activeCommentId);
+  const openComment = useCommentWindowStore((s) => s.openComment);
+  const closeComment = useCommentWindowStore((s) => s.closeComment);
   const isCommentOpen = activeCommentId === props.id;
 
   const handleOpenComment: MouseEventHandler<HTMLButtonElement> = (event) => {
     event.stopPropagation();
     commentButtonRef.current = event.currentTarget;
 
-    // 토글: 같은 카드의 댓글창이면 닫고, 다른 카드면 전환
-    if (activeCommentId === props.id) {
-      setActiveCommentId(null);
-    } else {
-      setActiveCommentId(props.id);
-    }
-  };
-
-  const [commentPosition, setCommentPosition] = useState<{ x: number; y: number } | null>(null);
-  const cardRef = useRef<HTMLElement | null>(null);
-  const { scale } = useCanvasContext();
-  const normalizedScale = scale || 1;
-
-  // 댓글 버튼 위치 업데이트 함수
-  const updateCommentPosition = () => {
     if (!commentButtonRef.current) return;
 
+    // 토글: 같은 카드의 댓글창이면 닫고, 다른 카드면 전환
+    if (activeCommentId === props.id) {
+      closeComment();
+      return;
+    }
+
     const buttonRect = commentButtonRef.current.getBoundingClientRect();
-    setCommentPosition({
-      x: buttonRect.right + 8,
-      y: buttonRect.top,
-    });
+
+    openComment(props.id, { x: buttonRect.right + 8, y: buttonRect.top });
   };
 
-  // 댓글창이 열려있을 때 아이디어 카드 위치 변화 감지
-  useEffect(() => {
-    if (!isCommentOpen || !commentButtonRef.current) return;
-
-    // 초기 위치 설정
-    updateCommentPosition();
-
-    // ResizeObserver로 뷰포트 크기 변화 감지
-    const resizeObserver = new ResizeObserver(() => {
-      updateCommentPosition();
-    });
-    resizeObserver.observe(document.body);
-
-    // 스크롤 이벤트 감지
-    const handleScroll = () => updateCommentPosition();
-    window.addEventListener('scroll', handleScroll, true);
-
-    // MutationObserver로 DOM 변화 감지 (카테고리 이동, 아이디어 이동 등)
-    const mutationObserver = new MutationObserver(() => {
-      updateCommentPosition();
-    });
-    mutationObserver.observe(document.body, {
-      childList: true,
-      subtree: true,
-      attributes: true,
-      attributeFilter: ['style', 'class'],
-    });
-
-    // 주기적으로 위치 체크 (드래그 중 등)
-    const intervalId = setInterval(updateCommentPosition, 50);
-
-    return () => {
-      resizeObserver.disconnect();
-      mutationObserver.disconnect();
-      window.removeEventListener('scroll', handleScroll, true);
-      clearInterval(intervalId);
-    };
-  }, [isCommentOpen]);
+  const cardRef = useRef<HTMLElement | null>(null);
 
   // setNodeRef와 cardRef를 함께 사용
   const combinedRef = (node: HTMLElement | null) => {
@@ -286,18 +237,6 @@ export default function IdeaCard(props: IdeaCardProps) {
         onAgree={handleAgree}
         onDisagree={handleDisagree}
       />
-      {isCommentOpen && commentPosition && (
-        <Portal>
-          <CommentWindow
-            issueId={props.issueId}
-            ideaId={props.id}
-            userId={currentUserId}
-            initialPosition={commentPosition}
-            scale={normalizedScale}
-            onClose={() => setActiveCommentId(null)}
-          />
-        </Portal>
-      )}
     </S.Card>
   );
 }
