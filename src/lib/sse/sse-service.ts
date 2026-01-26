@@ -5,6 +5,18 @@ import { BroadcastingEvent } from '@/types/sse';
 export function broadcast({ issueId, event }: BroadcastingEvent) {
   sseManager.broadcast({ issueId, event });
 }
+
+// 토픽 레벨 브로드캐스팅
+export function broadcastToTopic({
+  topicId,
+  event,
+}: {
+  topicId: string;
+  event: { type: string; data: any };
+}) {
+  sseManager.broadcastToTopic({ topicId, event });
+}
+
 // 특정 이슈에 대한 연결된 클라이언트 수 조회
 export function getConnectionCount(issueId: string): number {
   return sseManager.getConnectionCount(issueId);
