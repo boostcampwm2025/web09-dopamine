@@ -9,6 +9,7 @@ interface OpenModalPayload {
   closeOnOverlayClick?: boolean;
   hasCloseButton?: boolean;
   onClose?: () => void;
+  onSubmit?: () => void | Promise<void>;
   modalType?: ModalType;
 }
 
@@ -19,9 +20,14 @@ interface ModalState {
   closeOnOverlayClick: boolean;
   hasCloseButton?: boolean;
   onClose?: () => void;
+  onSubmit?: () => void | Promise<void>;
+  submitButtonText?: string;
+  hasFooter: boolean;
   modalType: ModalType;
   openModal: (payload: OpenModalPayload) => void;
   closeModal: () => void;
+  isPending: boolean;
+  setIsPending: (pending: boolean) => void;
 }
 
 export const useModalStore = create<ModalState>((set, get) => ({
@@ -31,7 +37,10 @@ export const useModalStore = create<ModalState>((set, get) => ({
   closeOnOverlayClick: true,
   hasCloseButton: true,
   onClose: undefined,
+  onSubmit: undefined,
+  hasFooter: true,
   modalType: 'default',
+  isPending: false,
 
   openModal: ({
     title,
@@ -39,6 +48,7 @@ export const useModalStore = create<ModalState>((set, get) => ({
     closeOnOverlayClick = true,
     hasCloseButton = true,
     onClose,
+    onSubmit,
     modalType = 'default',
   }) => {
     set({
@@ -48,7 +58,9 @@ export const useModalStore = create<ModalState>((set, get) => ({
       closeOnOverlayClick,
       hasCloseButton,
       onClose,
+      onSubmit,
       modalType,
+      isPending: false,
     });
   },
 
@@ -62,7 +74,15 @@ export const useModalStore = create<ModalState>((set, get) => ({
       closeOnOverlayClick: true,
       hasCloseButton: true,
       onClose: undefined,
+      onSubmit: undefined,
+      submitButtonText: '만들기',
+      hasFooter: true,
       modalType: 'default',
+      isPending: false,
     });
+  },
+
+  setIsPending: (pending: boolean) => {
+    set({ isPending: pending });
   },
 }));

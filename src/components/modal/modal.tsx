@@ -6,8 +6,31 @@ import * as S from './modal.styles';
 import { useModalStore } from './use-modal-store';
 
 export default function Modal() {
-  const { isOpen, title, content, closeOnOverlayClick, hasCloseButton, modalType, closeModal } =
-    useModalStore();
+  const {
+    isOpen,
+    title,
+    content,
+    closeOnOverlayClick,
+    hasCloseButton,
+    modalType,
+    closeModal,
+    isPending,
+    onSubmit,
+    setIsPending,
+  } = useModalStore();
+
+  const handleSubmit = async () => {
+    if (!onSubmit) return;
+
+    try {
+      setIsPending(true);
+      await onSubmit();
+    } catch (error) {
+      console.error('Modal submit error:', error);
+    } finally {
+      setIsPending(false);
+    }
+  };
 
   useEffect(() => {
     if (!isOpen) return;
@@ -55,6 +78,24 @@ export default function Modal() {
           </S.Header>
         ) : null}
         <S.Body>{content}</S.Body>
+        <S.Footer>
+          <S.CancelButton
+            type="button"
+            onClick={() => closeModal()}
+            disabled={isPending}
+          >
+            취소
+          </S.CancelButton>
+          {onSubmit && (
+            <S.SubmitButton
+              type="button"
+              onClick={handleSubmit}
+              disabled={isPending}
+            >
+              {isPending ? '처리 중...' : '완료'}
+            </S.SubmitButton>
+          )}
+        </S.Footer>
       </S.Dialog>
     </S.Overlay>,
     document.body,
