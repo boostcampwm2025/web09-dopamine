@@ -29,6 +29,7 @@ import {
   useIssueQuery,
   useSelectedIdeaQuery,
 } from '../hooks';
+import { useCommentWindowStore } from '../store/use-comment-window-store';
 
 const IssuePage = () => {
   const params = useParams<{ id: string; issueId?: string }>();
@@ -234,6 +235,9 @@ const IssuePage = () => {
   // 댓글이 많은 아이디어 계산
   const activeDiscussionIdeaIds = useMemo(() => getActiveDiscussionIdeaIds(ideas), [ideas]);
 
+  // 현재 댓글 창이 열린 아이디어의 아이디
+  const activeCommentId = useCommentWindowStore((state) => state.activeCommentId);
+
   // 에러 여부 확인
   const hasError = isIssueError || isIdeasError || isCategoryError;
 
@@ -263,12 +267,15 @@ const IssuePage = () => {
             {/* 카테고리들 - 내부에 아이디어 카드들을 children으로 전달 */}
             {categories.map((category) => {
               const categoryIdeas = ideas.filter((idea) => idea.categoryId === category.id);
+              // 이 카테고리 안에 댓글창이 열린 아이디어가 있는지 확인
+              const hasActiveComment = categoryIdeas.some((idea) => idea.id === activeCommentId);
 
               return (
                 <CategoryCard
                   key={category.id}
                   {...category}
                   issueId={issueId}
+                  hasActiveComment={hasActiveComment}
                   onPositionChange={handleCategoryPositionChange}
                   checkCollision={checkCategoryOverlap}
                   onRemove={() => handleDeleteCategory(category.id)}
@@ -332,6 +339,7 @@ const IssuePage = () => {
                       style={{
                         transform: `scale(${scale})`,
                         transformOrigin: '0 0', // 왼쪽 위 기준으로 scale
+                        position: 'relative',
                       }}
                     >
                       <IdeaCard

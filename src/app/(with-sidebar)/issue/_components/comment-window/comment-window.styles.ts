@@ -1,10 +1,10 @@
 import styled from '@emotion/styled';
 import { theme } from '@/styles/theme';
 
-export const Window = styled.section<{ x?: number; y?: number; }>`
+export const Window = styled.section`
   position: absolute;
-  left: ${({ x }) => (x !== undefined ? `${x}px` : '0px')};
-  top: ${({ y }) => (y !== undefined ? `${y}px` : '0px')};
+  bottom: -340px;
+  right: -400px;
   transform-origin: top left;
   width: 420px;
   height: 500px;

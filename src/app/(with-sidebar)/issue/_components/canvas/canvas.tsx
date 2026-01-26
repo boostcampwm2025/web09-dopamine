@@ -75,7 +75,7 @@ export default function Canvas({
           }}
         >
           <CanvasContext.Provider value={{ scale, viewportRef }}>{children}</CanvasContext.Provider>
-          <CommentLayer />
+          {/* <CommentLayer /> */}
         </S.CanvasViewport>
       </S.CanvasContainer>
 

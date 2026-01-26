@@ -14,6 +14,7 @@ interface CategoryCardProps {
   position: Position;
   isMuted?: boolean;
   children?: React.ReactNode;
+  hasActiveComment?: boolean;
   onRemove?: () => void;
   onPositionChange?: (id: string, position: Position) => void;
   onDrag?: (id: string, position: Position, delta: { dx: number; dy: number }) => void;
@@ -30,6 +31,7 @@ export default function CategoryCard({
   position,
   isMuted = false,
   children,
+  hasActiveComment = false,
   onRemove,
   onPositionChange,
   onDrag,
@@ -39,7 +41,7 @@ export default function CategoryCard({
 }: CategoryCardProps) {
   const { scale } = useCanvasContext();
 
-  const { setDroppableRef, cardStyle, draggable } = useCategoryDnd({
+  const { setDroppableRef, dndCardStyle, draggable } = useCategoryDnd({
     id,
     position,
     scale,
@@ -63,6 +65,11 @@ export default function CategoryCard({
     issueId,
     title,
   });
+
+  const cardStyle = {
+    ...dndCardStyle,
+    zIndex: hasActiveComment ? 9999 : (dndCardStyle.zIndex ?? 0),
+  };
 
   return (
     <StyledCategoryCard

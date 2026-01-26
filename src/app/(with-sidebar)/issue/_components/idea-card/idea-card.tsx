@@ -9,6 +9,7 @@ import { useCommentWindowStore } from '../../store/use-comment-window-store';
 import { useIdeaCardStackStore } from '../../store/use-idea-card-stack-store';
 import type { CardStatus, Position } from '../../types/idea';
 import { useCanvasContext } from '../canvas/canvas-context';
+import CommentWindow from '../comment-window/comment-window';
 import IdeaCardBadge from './idea-card-badge';
 import IdeaCardFooter from './idea-card-footer';
 import IdeaCardHeader from './idea-card-header';
@@ -147,41 +148,29 @@ export default function IdeaCard(props: IdeaCardProps) {
   );
 
   // 카드 위치를 스토어에 동기화
-  useEffect(() => {
-    if (!cardRef.current || !viewportRef?.current) return;
-
-    // 1. 화면상 절대 위치 측정 (Screen Coordinate)
-    const cardRect = cardRef.current.getBoundingClientRect();
-    const viewportRect = viewportRef.current.getBoundingClientRect();
-
-    // 2. 상대 좌표 계산 (Delta)
-    // 공식: (카드절대위치 - 기준점절대위치) / 스케일
-    // 뷰포트가 Pan(이동) 되어 있어도, viewportRect도 같이 이동했으므로 빼면 상쇄
-    const relativeX = (cardRect.left - viewportRect.left) / normalizedScale;
-    const relativeY = (cardRect.top - viewportRect.top) / normalizedScale;
-
-    const width = cardRect.width / normalizedScale;
-    const height = cardRect.height / normalizedScale;
-
-    updateCardPosition(props.id, {
-      x: relativeX,
-      y: relativeY,
-      width,
-      height,
-    });
-  }, [props.id, props.position, updateCardPosition]);
-
-  // 드래그 중 위치 업데이트
   //   useEffect(() => {
-  //     if (isDragging && transform && props.position && cardRef.current) {
-  //       updateCardPosition(props.id, {
-  //         x: props.position.x + (transform.x || 0),
-  //         y: props.position.y + (transform.y || 0),
-  //         width: cardRef.current.offsetWidth,
-  //         height: cardRef.current.offsetHeight,
-  //       });
-  //     }
-  //   }, [isDragging, transform, props.position, props.id, updateCardPosition]);
+  //     if (!cardRef.current || !viewportRef?.current) return;
+
+  //     // 1. 화면상 절대 위치 측정 (Screen Coordinate)
+  //     const cardRect = cardRef.current.getBoundingClientRect();
+  //     const viewportRect = viewportRef.current.getBoundingClientRect();
+
+  //     // 2. 상대 좌표 계산 (Delta)
+  //     // 공식: (카드절대위치 - 기준점절대위치) / 스케일
+  //     // 뷰포트가 Pan(이동) 되어 있어도, viewportRect도 같이 이동했으므로 빼면 상쇄
+  //     const relativeX = (cardRect.left - viewportRect.left) / normalizedScale;
+  //     const relativeY = (cardRect.top - viewportRect.top) / normalizedScale;
+
+  //     const width = cardRect.width / normalizedScale;
+  //     const height = cardRect.height / normalizedScale;
+
+  //     updateCardPosition(props.id, {
+  //       x: relativeX,
+  //       y: relativeY,
+  //       width,
+  //       height,
+  //     });
+  //   }, [props.id, props.position, updateCardPosition]);
 
   useEffect(() => {
     listenersRef.current = listeners || null;
@@ -275,6 +264,13 @@ export default function IdeaCard(props: IdeaCardProps) {
         onAgree={handleAgree}
         onDisagree={handleDisagree}
       />
+      {isCommentOpen && (
+        <CommentWindow
+          issueId={issueId}
+          ideaId={props.id}
+          userId={currentUserId}
+        />
+      )}
     </S.Card>
   );
 }
