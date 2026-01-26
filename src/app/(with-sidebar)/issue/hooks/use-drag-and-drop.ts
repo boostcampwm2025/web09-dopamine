@@ -1,7 +1,6 @@
 ﻿import { useState } from 'react';
 import { DragEndEvent, DragStartEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import type { IdeaWithPosition, Position } from '@/app/(with-sidebar)/issue/types/idea';
-import { useCommentWindowStore } from '../store/use-comment-window-store';
 
 interface UseDragAndDropProps {
   ideas: IdeaWithPosition[];
@@ -18,9 +17,6 @@ export function useDragAndDrop({
 }: UseDragAndDropProps) {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [overlayEditValue, setOverlayEditValue] = useState<string | null>(null);
-
-  const { activeCommentId } = useCommentWindowStore();
-  const openComment = useCommentWindowStore((s) => s.openComment);
 
   // dnd-kit sensors 설정
   const sensors = useSensors(
