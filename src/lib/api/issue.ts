@@ -165,3 +165,28 @@ export function createIssueInTopic(topicId: string, title: string) {
     body: JSON.stringify({ title }),
   });
 }
+
+
+/* =========================
+ * Close Modal
+ * ========================= */
+
+export function updateCloseModalMemo(issueId: string, memo: string) {
+  return getAPIResponseData<{
+    success: boolean;
+  }>({
+    url: `/api/issues/${issueId}/close-modal`,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ memo }),
+  });
+}
+
+export function deleteCloseModal(issueId: string) {
+  return getAPIResponseData<{
+    success: boolean;
+  }>({
+    url: `/api/issues/${issueId}/close-modal`,
+    method: 'DELETE',
+  });
+}
