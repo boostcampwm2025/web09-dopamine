@@ -1,13 +1,13 @@
 import { NextRequest } from 'next/server';
 import * as projectRepository from '@/lib/repositories/project.repository';
-import { getAuthenticatedUserId } from '@/lib/utils/api-auth';
+import { getUserIdFromHeader } from '@/lib/utils/api-auth';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 
-export async function GET() {
-  const { userId: ownerId, error } = await getAuthenticatedUserId();
+export async function GET(req: NextRequest) {
+  const ownerId = getUserIdFromHeader(req);
 
-  if (error) {
-    return error;
+  if (!ownerId) {
+    return createErrorResponse('UNAUTHORIZED', 401);
   }
 
   try {
@@ -23,10 +23,10 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const { userId: ownerId, error } = await getAuthenticatedUserId();
+  const ownerId = getUserIdFromHeader(req);
 
-  if (error) {
-    return error;
+  if (!ownerId) {
+    return createErrorResponse('UNAUTHORIZED', 401);
   }
 
   const { title, description } = await req.json();
@@ -45,10 +45,10 @@ export async function POST(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  const { userId: ownerId, error } = await getAuthenticatedUserId();
+  const ownerId = getUserIdFromHeader(req);
 
-  if (error) {
-    return error;
+  if (!ownerId) {
+    return createErrorResponse('UNAUTHORIZED', 401);
   }
 
   const { id } = await req.json();

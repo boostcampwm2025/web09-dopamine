@@ -1,21 +1,20 @@
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import { LeaveService } from '@/lib/services/leave.service';
+import { getUserIdFromHeader } from '@/lib/utils/api-auth';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 
 export async function DELETE(
-  _req: Request,
+  req: Request,
   { params }: { params: Promise<{ projectId: string; memberId: string }> },
 ) {
-  const session = await getServerSession(authOptions);
+  const userId = getUserIdFromHeader(req);
 
-  if (!session?.user?.id) {
+  if (!userId) {
     return createErrorResponse('UNAUTHORIZED', 401);
   }
 
   try {
     const { projectId } = await params;
-    const result = await LeaveService.leaveProject(projectId, session.user.id);
+    const result = await LeaveService.leaveProject(projectId, userId);
 
     return createSuccessResponse(result, 200);
   } catch (error) {

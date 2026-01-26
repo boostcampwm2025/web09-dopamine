@@ -1,7 +1,6 @@
-import { getServerSession } from 'next-auth';
 import { NextRequest } from 'next/server';
-import { authOptions } from '@/lib/auth';
 import * as projectRepository from '@/lib/repositories/project.repository';
+import { getUserIdFromHeader } from '@/lib/utils/api-auth';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 
 export async function GET(
@@ -9,9 +8,9 @@ export async function GET(
   { params }: { params: Promise<{ projectId: string }> },
 ) {
   // 인증 확인
-  const session = await getServerSession(authOptions);
+  const userId = getUserIdFromHeader(req);
 
-  if (!session || !session.user) {
+  if (!userId) {
     return createErrorResponse('UNAUTHORIZED', 401);
   }
 
@@ -36,9 +35,9 @@ export async function PATCH(
   { params }: { params: Promise<{ projectId: string }> },
 ) {
   // 인증 확인
-  const session = await getServerSession(authOptions);
+  const userId = getUserIdFromHeader(req);
 
-  if (!session || !session.user) {
+  if (!userId) {
     return createErrorResponse('UNAUTHORIZED', 401);
   }
 

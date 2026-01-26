@@ -1,13 +1,12 @@
-import { getServerSession } from 'next-auth';
 import { NextRequest } from 'next/server';
-import { authOptions } from '@/lib/auth';
 import * as topicRepository from '@/lib/repositories/topic.repository';
+import { getUserIdFromHeader } from '@/lib/utils/api-auth';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const userId = getUserIdFromHeader(req);
 
-  if (!session || !session.user) {
+  if (!userId) {
     return createErrorResponse('UNAUTHORIZED', 401);
   }
 
