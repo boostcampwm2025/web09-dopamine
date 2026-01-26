@@ -13,6 +13,7 @@ interface UseIssueEventsParams {
   issueId: string;
   userId: string;
   enabled?: boolean;
+  topicId?: string | null;
 }
 
 interface UseIssueEventsReturn {
@@ -24,6 +25,7 @@ export function useIssueEvents({
   issueId,
   userId,
   enabled = true,
+  topicId,
 }: UseIssueEventsParams): UseIssueEventsReturn {
   const queryClient = useQueryClient();
   const [isConnected, setIsConnected] = useState(false);
@@ -177,8 +179,14 @@ export function useIssueEvents({
     });
 
     // 이슈 상태 이벤트 핸들러
-    eventSource.addEventListener(SSE_EVENT_TYPES.ISSUE_STATUS_CHANGED, () => {
+    eventSource.addEventListener(SSE_EVENT_TYPES.ISSUE_STATUS_CHANGED, (event) => {
+      const data = JSON.parse((event as MessageEvent).data);
       queryClient.invalidateQueries({ queryKey: ['issues', issueId] });
+      // 사이드바 이슈 목록도 갱신
+      const targetTopicId = data.topicId || topicId;
+      if (targetTopicId) {
+        queryClient.invalidateQueries({ queryKey: ['topics', targetTopicId, 'issues'] });
+      }
     });
 
     // 멤버 이벤트 핸들러
@@ -241,13 +249,12 @@ export function useIssueEvents({
       );
     });
 
-    // Cleanup
     return () => {
       eventSource.close();
       eventSourceRef.current = null;
       setIsAIStructuring(false);
     };
-  }, [issueId, enabled, selectedIdeaKey, userId, setIsAIStructuring]);
+  }, [issueId, enabled, selectedIdeaKey, userId, setIsAIStructuring, topicId]);
 
   return { isConnected, error };
 }
