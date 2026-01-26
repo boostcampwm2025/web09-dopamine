@@ -19,7 +19,7 @@ export function useDragAndDrop({
   const [activeId, setActiveId] = useState<string | null>(null);
   const [overlayEditValue, setOverlayEditValue] = useState<string | null>(null);
 
-  const { activeCommentId, commentPosition } = useCommentWindowStore();
+  const { activeCommentId } = useCommentWindowStore();
   const openComment = useCommentWindowStore((s) => s.openComment);
 
   // dnd-kit sensors 설정
@@ -63,11 +63,6 @@ export function useDragAndDrop({
         x: idea.position.x + delta.x / scale,
         y: idea.position.y + delta.y / scale,
       });
-    }
-
-    if (activeCommentId && active.id === activeCommentId && commentPosition) {
-      // 댓글창 위치 업데이트
-      openComment(activeCommentId);
     }
   };
 
