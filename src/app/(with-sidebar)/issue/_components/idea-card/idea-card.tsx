@@ -110,10 +110,10 @@ export default function IdeaCard(props: IdeaCardProps) {
   const closeComment = useCommentWindowStore((s) => s.closeComment);
   const isCommentOpen = activeCommentId === props.id;
 
-  const handleOpenComment: MouseEventHandler<HTMLButtonElement> = (event) => {
+  const handleToggleComment: MouseEventHandler<HTMLButtonElement> = (event) => {
     event.stopPropagation();
 
-    // 같은 카드의 댓글창이면 닫음
+    // 토글: 같은 카드의 댓글창이면 닫고, 다른 카드면 전환
     if (activeCommentId === props.id) {
       closeComment();
       return;
@@ -224,7 +224,7 @@ export default function IdeaCard(props: IdeaCardProps) {
         handleKeyDownEdit={handleKeyDownEdit}
         submitEdit={submitEdit}
         onDelete={handleDeleteClick}
-        onCommentClick={handleOpenComment}
+        onCommentClick={handleToggleComment}
       />
       <IdeaCardFooter
         isVoteButtonVisible={props.isVoteButtonVisible}
