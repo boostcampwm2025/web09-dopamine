@@ -10,6 +10,7 @@ import TopicConnectionLine from '../issue-connection/issue-connection-line';
 import { IssueHoverProvider } from '../issue-hover-context';
 import TopicNode from '../issue-node/issue-node';
 import { useTopicCanvas } from './use-topic-canvas';
+import { useTopicEvents } from '../../hooks/use-topic-events';
 
 interface TopicCanvasProps {
   topicId: string;
@@ -33,6 +34,9 @@ const defaultEdgeOptions = {
 };
 
 function TopicCanvas({ topicId, issues, nodes: issueNodes, connections }: TopicCanvasProps) {
+  // 토픽 실시간 이벤트 수신
+  useTopicEvents({ topicId });
+
   const {
     nodes,
     edges,
