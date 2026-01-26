@@ -4,16 +4,18 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useParams, usePathname, useRouter } from 'next/navigation';
 import { DndContext, DragOverlay } from '@dnd-kit/core';
+import toast from 'react-hot-toast';
 import Canvas from '@/app/(with-sidebar)/issue/_components/canvas/canvas';
 import CategoryCard from '@/app/(with-sidebar)/issue/_components/category/category-card';
 import FilterPanel from '@/app/(with-sidebar)/issue/_components/filter-panel/filter-panel';
 import IdeaCard from '@/app/(with-sidebar)/issue/_components/idea-card/idea-card';
 import { useCanvasStore } from '@/app/(with-sidebar)/issue/store/use-canvas-store';
-import { useProjectsQuery } from '@/hooks/project';
 import { ErrorPage } from '@/components/error/error';
 import LoadingOverlay from '@/components/loading-overlay/loading-overlay';
 import { useModalStore } from '@/components/modal/use-modal-store';
 import { ISSUE_STATUS, ISSUE_STATUS_DESCRIPTION } from '@/constants/issue';
+import { useIssueQuery, useSelectedIdeaQuery } from '@/hooks/issue';
+import { useProjectsQuery } from '@/hooks/project';
 import { joinIssueAsLoggedInUser } from '@/lib/api/issue';
 import { getActiveDiscussionIdeaIds } from '@/lib/utils/active-discussion-idea';
 import IssueJoinModal from '../_components/issue-join-modal/issue-join-modal';
@@ -27,7 +29,6 @@ import {
   useIssueEvents,
   useIssueIdentity,
 } from '../hooks';
-import { useIssueQuery, useSelectedIdeaQuery } from '@/hooks/issue';
 
 const IssuePage = () => {
   const params = useParams<{ id: string; issueId?: string }>();
@@ -86,11 +87,13 @@ const IssuePage = () => {
     // 토픽 내 이슈인데 로그인하지 않은 경우 → 홈으로 리다이렉트
     if (isQuickIssue === false && !session?.user?.id) {
       router.replace('/');
+      toast.error('권한이 없는 이슈입니다.');
       return;
     }
 
     if (isQuickIssue === false && projectId && !isProjectsLoading && !isProjectMember) {
       router.replace('/');
+      toast.error('권한이 없는 이슈입니다.');
     }
   }, [
     issueId,
