@@ -28,7 +28,7 @@ export function deleteProject(id: string) {
 
 export function updateProject(id: string, title: string, description?: string) {
   return getAPIResponseData<{ id: string }>({
-    url: `/api/project/${id}`,
+    url: `/api/projects/${id}`,
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ id, title, description }),

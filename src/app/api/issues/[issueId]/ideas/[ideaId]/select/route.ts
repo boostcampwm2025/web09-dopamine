@@ -4,18 +4,16 @@ import { prisma } from '@/lib/prisma';
 import { broadcast } from '@/lib/sse/sse-service';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 
-export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function POST(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string; ideaId: string }> },
+) {
   try {
-    const { id: issueId } = await params;
-    const { selectedIdeaId } = await req.json();
-
-    if (!selectedIdeaId) {
-      return createErrorResponse('SELECTED_IDEA_ID_REQUIRED', 400);
-    }
+    const { id: issueId, ideaId } = await params;
 
     const idea = await prisma.idea.findFirst({
       where: {
-        id: selectedIdeaId,
+        id: ideaId,
         issueId,
         deletedAt: null,
       },
@@ -30,7 +28,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       issueId,
       event: {
         type: SSE_EVENT_TYPES.IDEA_SELECTED,
-        data: { ideaId: selectedIdeaId },
+        data: { ideaId },
       },
     });
 

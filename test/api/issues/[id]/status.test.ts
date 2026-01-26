@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { IssueStatus } from '@prisma/client';
-import { PATCH } from '@/app/api/issues/[id]/status/route';
+import { PATCH } from '@/app/api/issues/[issueId]/status/route';
 import { prisma } from '@/lib/prisma';
 import { findIssueById, updateIssueStatus } from '@/lib/repositories/issue.repository';
 import { createReport, findReportByIssueId } from '@/lib/repositories/report.repository';

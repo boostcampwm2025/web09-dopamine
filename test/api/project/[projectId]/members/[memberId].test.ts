@@ -1,5 +1,5 @@
 import { getServerSession } from 'next-auth';
-import { DELETE } from '@/app/api/project/[projectId]/members/[memberId]/route';
+import { DELETE } from '@/app/api/projects/[projectId]/members/[memberId]/route';
 import { LeaveService } from '@/lib/services/leave.service';
 
 jest.mock('next-auth', () => ({

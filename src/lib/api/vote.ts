@@ -20,7 +20,7 @@ export const postVote = async ({
   voteType,
 }: VoteRequest): Promise<VoteResponse> => {
   return getAPIResponseData<VoteResponse>({
-    url: `/api/issues/${issueId}/idea/${ideaId}/vote`,
+    url: `/api/issues/${issueId}/ideas/${ideaId}/vote`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
