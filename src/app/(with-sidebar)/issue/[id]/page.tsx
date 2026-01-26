@@ -92,6 +92,7 @@ const IssuePage = () => {
 
     if (isQuickIssue === false && projectId && !isProjectsLoading && !isProjectMember) {
       router.replace('/');
+      toast.error('권한이 없는 이슈입니다.');
     }
   }, [
     issueId,
