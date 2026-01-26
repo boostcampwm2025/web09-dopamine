@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import type { MouseEventHandler, PointerEventHandler } from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
@@ -8,6 +8,7 @@ import { useIdeaQuery, useIssueData, useIssueIdentity, useSelectedIdeaMutation }
 import { useCommentWindowStore } from '../../store/use-comment-window-store';
 import { useIdeaCardStackStore } from '../../store/use-idea-card-stack-store';
 import type { CardStatus, Position } from '../../types/idea';
+import { useCanvasContext } from '../canvas/canvas-context';
 import IdeaCardBadge from './idea-card-badge';
 import IdeaCardFooter from './idea-card-footer';
 import IdeaCardHeader from './idea-card-header';
@@ -103,35 +104,24 @@ export default function IdeaCard(props: IdeaCardProps) {
   const { data: idea } = useIdeaQuery(props.issueId, props.id, currentUserId);
 
   // 댓글 윈도우 상태 관리
-  const commentButtonRef = useRef<HTMLButtonElement | null>(null);
   const activeCommentId = useCommentWindowStore((s) => s.activeCommentId);
   const openComment = useCommentWindowStore((s) => s.openComment);
   const closeComment = useCommentWindowStore((s) => s.closeComment);
+  const updateCardPosition = useCommentWindowStore((s) => s.updateCardPosition);
   const isCommentOpen = activeCommentId === props.id;
+  const { scale, viewportRef } = useCanvasContext();
+  const normalizedScale = scale || 1;
 
   const handleOpenComment: MouseEventHandler<HTMLButtonElement> = (event) => {
     event.stopPropagation();
-    commentButtonRef.current = event.currentTarget;
 
-    if (!commentButtonRef.current) return;
-
-    // 토글: 같은 카드의 댓글창이면 닫고, 다른 카드면 전환
+    // 같은 카드의 댓글창이면 닫음
     if (activeCommentId === props.id) {
       closeComment();
       return;
     }
 
-    const buttonRect = commentButtonRef.current.getBoundingClientRect();
-
-    openComment(props.id, { x: buttonRect.right + 8, y: buttonRect.top });
-  };
-
-  const cardRef = useRef<HTMLElement | null>(null);
-
-  // setNodeRef와 cardRef를 함께 사용
-  const combinedRef = (node: HTMLElement | null) => {
-    setNodeRef(node);
-    cardRef.current = node;
+    openComment(props.id);
   };
 
   // 드래그 로직
@@ -144,6 +134,54 @@ export default function IdeaCard(props: IdeaCardProps) {
       editValue: editValue,
     },
   });
+
+  const cardRef = useRef<HTMLElement | null>(null);
+
+  // setNodeRef와 cardRef를 함께 사용
+  const combinedRef = useCallback(
+    (node: HTMLElement | null) => {
+      setNodeRef(node);
+      cardRef.current = node;
+    },
+    [setNodeRef],
+  );
+
+  // 카드 위치를 스토어에 동기화
+  useEffect(() => {
+    if (!cardRef.current || !viewportRef?.current) return;
+
+    // 1. 화면상 절대 위치 측정 (Screen Coordinate)
+    const cardRect = cardRef.current.getBoundingClientRect();
+    const viewportRect = viewportRef.current.getBoundingClientRect();
+
+    // 2. 상대 좌표 계산 (Delta)
+    // 공식: (카드절대위치 - 기준점절대위치) / 스케일
+    // 뷰포트가 Pan(이동) 되어 있어도, viewportRect도 같이 이동했으므로 빼면 상쇄
+    const relativeX = (cardRect.left - viewportRect.left) / normalizedScale;
+    const relativeY = (cardRect.top - viewportRect.top) / normalizedScale;
+
+    const width = cardRect.width / normalizedScale;
+    const height = cardRect.height / normalizedScale;
+
+    updateCardPosition(props.id, {
+      x: relativeX,
+      y: relativeY,
+      width,
+      height,
+    });
+  }, [props.id, props.position, updateCardPosition]);
+
+  // 드래그 중 위치 업데이트
+  //   useEffect(() => {
+  //     if (isDragging && transform && props.position && cardRef.current) {
+  //       updateCardPosition(props.id, {
+  //         x: props.position.x + (transform.x || 0),
+  //         y: props.position.y + (transform.y || 0),
+  //         width: cardRef.current.offsetWidth,
+  //         height: cardRef.current.offsetHeight,
+  //       });
+  //     }
+  //   }, [isDragging, transform, props.position, props.id, updateCardPosition]);
 
   useEffect(() => {
     listenersRef.current = listeners || null;

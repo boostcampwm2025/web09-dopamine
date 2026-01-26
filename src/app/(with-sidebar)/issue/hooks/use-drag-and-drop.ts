@@ -66,12 +66,8 @@ export function useDragAndDrop({
     }
 
     if (activeCommentId && active.id === activeCommentId && commentPosition) {
-      // 줌 스케일 고려해서 이동 거리 계산
-      const newX = commentPosition.x + delta.x / scale;
-      const newY = commentPosition.y + delta.y / scale;
-
       // 댓글창 위치 업데이트
-      openComment(activeCommentId, { x: newX, y: newY });
+      openComment(activeCommentId);
     }
   };
 

@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCommentWindowStore } from '../../store/use-comment-window-store';
 import CommentList from './comment-list';
 import { CommentWindowContext } from './comment-window-context';
 import * as S from './comment-window.styles';
@@ -13,7 +14,7 @@ export interface CommentWindowProps {
   issueId: string;
   ideaId: string;
   userId: string;
-  initialPosition: { x: number; y: number } | null;
+  initialPosition?: { x: number; y: number } | null;
   scale?: number;
   onClose?: () => void;
 }
@@ -50,6 +51,8 @@ export default function CommentWindow({
     updateMutation,
     deleteMutation,
   });
+
+  const commentPosition = useCommentWindowStore((s) => s.commentPosition);
 
   const { inputValue, setInputValue, handleSubmit, handleInputKeyDown } = useCommentWindow({
     initialPosition,
@@ -203,8 +206,8 @@ export default function CommentWindow({
 
   return (
     <S.Window
-      x={initialPosition?.x}
-      y={initialPosition?.y}
+      x={commentPosition?.x}
+      y={commentPosition?.y}
       //   scale={scale}
       role="dialog"
       aria-label="댓글"
