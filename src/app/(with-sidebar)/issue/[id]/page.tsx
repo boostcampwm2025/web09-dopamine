@@ -164,7 +164,12 @@ const IssuePage = () => {
   // SSE 연결
   // 빠른 이슈는 localStorage userId, 토픽 이슈는 로그인 userId 기준으로 연결
   const shouldConnectSSE = !!currentUserId;
-  useIssueEvents({ issueId, userId: currentUserId, enabled: shouldConnectSSE });
+  useIssueEvents({
+    issueId,
+    userId: currentUserId,
+    enabled: shouldConnectSSE,
+    topicId: issue?.topicId,
+  });
 
   // 2. 아이디어 관련 작업
   const {
