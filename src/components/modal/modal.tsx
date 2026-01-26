@@ -79,13 +79,15 @@ export default function Modal() {
         ) : null}
         <S.Body>{content}</S.Body>
         <S.Footer>
-          <S.CancelButton
-            type="button"
-            onClick={() => closeModal()}
-            disabled={isPending}
-          >
-            취소
-          </S.CancelButton>
+          {hasCloseButton && (
+            <S.CancelButton
+              type="button"
+              onClick={() => closeModal()}
+              disabled={isPending}
+            >
+              취소
+            </S.CancelButton>
+          )}
           {onSubmit && (
             <S.SubmitButton
               type="button"
