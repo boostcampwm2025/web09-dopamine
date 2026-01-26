@@ -108,10 +108,7 @@ export default function IdeaCard(props: IdeaCardProps) {
   const activeCommentId = useCommentWindowStore((s) => s.activeCommentId);
   const openComment = useCommentWindowStore((s) => s.openComment);
   const closeComment = useCommentWindowStore((s) => s.closeComment);
-  const updateCardPosition = useCommentWindowStore((s) => s.updateCardPosition);
   const isCommentOpen = activeCommentId === props.id;
-  const { scale, viewportRef } = useCanvasContext();
-  const normalizedScale = scale || 1;
 
   const handleOpenComment: MouseEventHandler<HTMLButtonElement> = (event) => {
     event.stopPropagation();
@@ -146,31 +143,6 @@ export default function IdeaCard(props: IdeaCardProps) {
     },
     [setNodeRef],
   );
-
-  // 카드 위치를 스토어에 동기화
-  //   useEffect(() => {
-  //     if (!cardRef.current || !viewportRef?.current) return;
-
-  //     // 1. 화면상 절대 위치 측정 (Screen Coordinate)
-  //     const cardRect = cardRef.current.getBoundingClientRect();
-  //     const viewportRect = viewportRef.current.getBoundingClientRect();
-
-  //     // 2. 상대 좌표 계산 (Delta)
-  //     // 공식: (카드절대위치 - 기준점절대위치) / 스케일
-  //     // 뷰포트가 Pan(이동) 되어 있어도, viewportRect도 같이 이동했으므로 빼면 상쇄
-  //     const relativeX = (cardRect.left - viewportRect.left) / normalizedScale;
-  //     const relativeY = (cardRect.top - viewportRect.top) / normalizedScale;
-
-  //     const width = cardRect.width / normalizedScale;
-  //     const height = cardRect.height / normalizedScale;
-
-  //     updateCardPosition(props.id, {
-  //       x: relativeX,
-  //       y: relativeY,
-  //       width,
-  //       height,
-  //     });
-  //   }, [props.id, props.position, updateCardPosition]);
 
   useEffect(() => {
     listenersRef.current = listeners || null;
@@ -269,6 +241,7 @@ export default function IdeaCard(props: IdeaCardProps) {
           issueId={issueId}
           ideaId={props.id}
           userId={currentUserId}
+          onClose={closeComment}
         />
       )}
     </S.Card>
