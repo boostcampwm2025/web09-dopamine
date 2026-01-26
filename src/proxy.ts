@@ -9,12 +9,7 @@ export async function proxy(request: NextRequest) {
     return NextResponse.json({ message: 'UNAUTHORIZED' }, { status: 401 });
   }
 
-  const userId =
-    typeof token.sub === 'string'
-      ? token.sub
-      : typeof (token as { id?: unknown }).id === 'string'
-        ? (token as { id: string }).id
-        : null;
+  const userId = getUserId(token);
 
   if (!userId) {
     return NextResponse.json({ message: 'UNAUTHORIZED' }, { status: 401 });
@@ -28,6 +23,17 @@ export async function proxy(request: NextRequest) {
       headers: requestHeaders,
     },
   });
+}
+
+function getUserId(token: unknown): string | null {
+  if (!token || typeof token !== 'object') return null;
+
+  const { sub, id } = token as Record<string, unknown>;
+
+  if (typeof sub === 'string') return sub;
+  if (typeof id === 'string') return id;
+
+  return null;
 }
 
 export const config = {
