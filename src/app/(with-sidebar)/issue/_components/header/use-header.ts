@@ -5,18 +5,10 @@ import CloseIssueModal from '@/app/(with-sidebar)/issue/_components/close-issue-
 import { useCanvasStore } from '@/app/(with-sidebar)/issue/store/use-canvas-store';
 import { useModalStore } from '@/components/modal/use-modal-store';
 import { ISSUE_STATUS, MEMBER_ROLE } from '@/constants/issue';
+import { useAIStructuringMutation, useIssueQuery, useIssueStatusMutations } from '@/hooks/issue';
 import { getIssueMember } from '@/lib/api/issue';
 import { IssueStatus } from '@/types/issue';
-import {
-  useCategoryOperations,
-  useIdeasWithTemp,
-  useIssueIdentity,
-} from '../../hooks';
-import {
-  useAIStructuringMutation,
-  useIssueQuery,
-  useIssueStatusMutations,
-} from '@/hooks/issue';
+import { useCategoryOperations, useIdeasWithTemp, useIssueIdentity } from '../../hooks';
 
 interface UseHeaderParams {
   issueId: string;
@@ -54,7 +46,7 @@ export function useHeader({ issueId }: UseHeaderParams) {
     }
 
     try {
-      // API 호출하여 SSE 브로드캐스팅
+      // API 호출하여 SSE 브로드캐스팅 (모든 사용자에게 모달 열림)
       const response = await fetch(`/api/issues/${issueId}/close-modal`, {
         method: 'POST',
       });
@@ -63,19 +55,13 @@ export function useHeader({ issueId }: UseHeaderParams) {
         const errorData = await response.json();
         throw new Error(errorData.error?.message || 'Failed to broadcast close modal');
       }
+      // SSE 이벤트로 모든 사용자(방장 포함)에게 모달이 열림
     } catch (error) {
       console.error('Failed to open close modal:', error);
       toast.error('모달 열기에 실패했습니다.');
       return;
     }
-
-    // 방장 본인에게도 모달 열기
-    openModal({
-      title: '이슈 종료',
-      content: React.createElement(CloseIssueModal, { issueId, isOwner }),
-      modalType: 'close-issue',
-    });
-  }, [issueId, isOwner, openModal]);
+  }, [issueId, isOwner]);
 
   // 단계 검증
   const validateStep = useCallback(() => {

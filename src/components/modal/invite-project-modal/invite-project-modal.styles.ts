@@ -5,7 +5,6 @@ import { theme } from '@/styles/theme';
 export * from '@/components/modal/issue-create-modal/issue-create-modal.styles';
 export * from '@/app/project/_components/project-create-modal/project-create-modal.styles';
 
-// InfoContainer 간격 조정
 export const InfoContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -27,7 +26,6 @@ export const TagList = styled.ul`
   display: flex;
   flex-flow: row wrap;
   gap: 8px;
-  /* min-height: 32px; */
 `;
 
 export const TagListItem = styled.li`

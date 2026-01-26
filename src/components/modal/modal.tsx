@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import * as S from './modal.styles';
 import { useModalStore } from './use-modal-store';
@@ -20,18 +20,25 @@ export default function Modal() {
     setIsPending,
   } = useModalStore();
 
+  // 최신 onSubmit을 항상 참조하기 위해 ref 사용
+  const onSubmitRef = useRef(onSubmit);
+
+  useEffect(() => {
+    onSubmitRef.current = onSubmit;
+  }, [onSubmit]);
+
   const handleSubmit = useCallback(async () => {
-    if (!onSubmit) return;
+    if (!onSubmitRef.current) return;
 
     try {
       setIsPending(true);
-      await onSubmit();
+      await onSubmitRef.current();
     } catch (error) {
       console.error('Modal submit error:', error);
     } finally {
       setIsPending(false);
     }
-  }, [onSubmit, setIsPending]);
+  }, [setIsPending]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -94,11 +101,11 @@ export default function Modal() {
               취소
             </S.CancelButton>
           )}
-          {onSubmit && (
+          {(onSubmit || submitButtonText) && (
             <S.SubmitButton
               type="button"
               onClick={handleSubmit}
-              disabled={isPending}
+              disabled={!onSubmit || isPending}
             >
               {isPending ? '처리 중...' : submitButtonText || '완료'}
             </S.SubmitButton>
