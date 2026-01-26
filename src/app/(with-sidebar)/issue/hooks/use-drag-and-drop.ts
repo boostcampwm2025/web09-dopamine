@@ -1,6 +1,7 @@
 ﻿import { useState } from 'react';
 import { DragEndEvent, DragStartEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import type { IdeaWithPosition, Position } from '@/app/(with-sidebar)/issue/types/idea';
+import { useCommentWindowStore } from '../store/use-comment-window-store';
 
 interface UseDragAndDropProps {
   ideas: IdeaWithPosition[];
@@ -17,6 +18,9 @@ export function useDragAndDrop({
 }: UseDragAndDropProps) {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [overlayEditValue, setOverlayEditValue] = useState<string | null>(null);
+
+  const { activeCommentId, commentPosition } = useCommentWindowStore();
+  const openComment = useCommentWindowStore((s) => s.openComment);
 
   // dnd-kit sensors 설정
   const sensors = useSensors(
@@ -59,6 +63,15 @@ export function useDragAndDrop({
         x: idea.position.x + delta.x / scale,
         y: idea.position.y + delta.y / scale,
       });
+    }
+
+    if (activeCommentId && active.id === activeCommentId && commentPosition) {
+      // 줌 스케일 고려해서 이동 거리 계산
+      const newX = commentPosition.x + delta.x / scale;
+      const newY = commentPosition.y + delta.y / scale;
+
+      // 댓글창 위치 업데이트
+      openComment(activeCommentId, { x: newX, y: newY });
     }
   };
 
