@@ -46,9 +46,9 @@ async function authorizeOwner(
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: Promise<{ issueId: string }> },
 ): Promise<NextResponse> {
-  const { id: issueId } = await params;
+  const { issueId } = await params;
 
   const result = await authorizeOwner(req, issueId);
   if ('error' in result) return result.error;
