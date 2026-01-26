@@ -7,7 +7,7 @@ import type { useCommentMutations } from './react-query/use-comment-mutations';
 import type { useCommentQuery } from './react-query/use-comment-query';
 
 interface UseCommentWindowOptions {
-  initialPosition?: { x: number; y: number };
+  initialPosition: { x: number; y: number } | null;
   issueId: string;
   ideaId: string;
   userId: string;

@@ -13,7 +13,7 @@ export interface CommentWindowProps {
   issueId: string;
   ideaId: string;
   userId: string;
-  initialPosition?: { x: number; y: number };
+  initialPosition: { x: number; y: number } | null;
   scale?: number;
   onClose?: () => void;
 }
@@ -205,7 +205,7 @@ export default function CommentWindow({
     <S.Window
       x={initialPosition?.x}
       y={initialPosition?.y}
-      scale={scale}
+      //   scale={scale}
       role="dialog"
       aria-label="댓글"
       onClick={handleWindowClick}
