@@ -31,6 +31,7 @@ export default function Canvas({
   enableAddIdea = false,
 }: CanvasProps) {
   const canvasRef = useRef<HTMLDivElement>(null);
+  const viewportRef = useRef<HTMLDivElement>(null);
 
   const {
     scale,
@@ -67,12 +68,13 @@ export default function Canvas({
         }}
       >
         <S.CanvasViewport
+          ref={viewportRef}
           boundContent={boundContent}
           style={{
             transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
           }}
         >
-          <CanvasContext.Provider value={{ scale }}>{children}</CanvasContext.Provider>
+          <CanvasContext.Provider value={{ scale, viewportRef }}>{children}</CanvasContext.Provider>
           <CommentLayer />
         </S.CanvasViewport>
       </S.CanvasContainer>
