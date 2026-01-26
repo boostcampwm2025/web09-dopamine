@@ -7,7 +7,6 @@ import type { useCommentMutations } from '@/hooks/comment';
 import type { useCommentQuery } from '@/hooks/comment';
 
 interface UseCommentWindowOptions {
-  initialPosition?: { x: number; y: number } | null;
   issueId: string;
   ideaId: string;
   userId: string;
@@ -56,25 +55,15 @@ export function getCommentErrorMessage({
 }
 
 export function useCommentWindow({
-  initialPosition,
   issueId,
   ideaId,
   userId,
   createMutation,
 }: UseCommentWindowOptions) {
-  const defaultPositionRef = useRef({ x: 120, y: 120 });
-  const resolvedInitialPosition = initialPosition ?? defaultPositionRef.current;
 
-  const [position, setPosition] = useState(resolvedInitialPosition);
   const [inputValue, setInputValue] = useState('');
   const openTooltip = useTooltipStore((state) => state.openTooltip);
   const closeTooltip = useTooltipStore((state) => state.closeTooltip);
-
-  // 외부에서 전달된 초기 위치 값이 변경될 때 상태 동기화
-  useEffect(() => {
-    if (!initialPosition) return;
-    setPosition(initialPosition);
-  }, [initialPosition?.x, initialPosition?.y]);
 
   /**
    * [생성 로직] 새로운 댓글을 등록합니다. 중복 제출을 방지하고 성공 시 목록을 갱신합니다.
@@ -122,7 +111,6 @@ export function useCommentWindow({
   );
 
   return {
-    position,
     inputValue,
     setInputValue,
     handleSubmit,
