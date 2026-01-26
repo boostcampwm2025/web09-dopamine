@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useModalStore } from '@/components/modal/use-modal-store';
-import { useIssueMemberMutations, useNicknameMutations } from '../../hooks';
+import { useIssueMemberMutations, useNicknameMutations } from '@/hooks/issue';
 
 export interface IssueJoinModalProps {
   issueId: string;

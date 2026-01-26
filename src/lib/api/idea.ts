@@ -32,7 +32,7 @@ export function getIdea(issueId: string, ideaId: string, userId?: string): Promi
   };
 
   return getAPIResponseData<Idea>({
-    url: `/api/issues/${issueId}/idea/${ideaId}`,
+    url: `/api/issues/${issueId}/ideas/${ideaId}`,
     method: 'GET',
     headers,
   });
@@ -45,7 +45,7 @@ export function updateIdea(
   payload: UpdateIdeaPayload,
 ): Promise<Idea> {
   return getAPIResponseData<Idea>({
-    url: `/api/issues/${issueId}/idea/${ideaId}`,
+    url: `/api/issues/${issueId}/ideas/${ideaId}`,
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ ideaId, ...payload }),
@@ -55,7 +55,7 @@ export function updateIdea(
 // 아이디어 삭제
 export function deleteIdea(issueId: string, ideaId: string): Promise<void> {
   return getAPIResponseData<void>({
-    url: `/api/issues/${issueId}/idea/${ideaId}`,
+    url: `/api/issues/${issueId}/ideas/${ideaId}`,
     method: 'DELETE',
   });
 }

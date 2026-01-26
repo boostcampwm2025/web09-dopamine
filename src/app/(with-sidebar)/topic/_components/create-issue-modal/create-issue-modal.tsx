@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import * as S from '@/app/(with-sidebar)/issue/_components/issue-join-modal/issue-join-modal.styles';
-import { useCreateIssueInTopicMutation } from '@/app/(with-sidebar)/issue/hooks';
+import { useCreateIssueInTopicMutation } from '@/hooks/issue';
 import { useModalStore } from '@/components/modal/use-modal-store';
 import { useTopicId } from '@/hooks/use-topic-id';
 

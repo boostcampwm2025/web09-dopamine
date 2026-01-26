@@ -4,16 +4,18 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useParams, usePathname, useRouter } from 'next/navigation';
 import { DndContext, DragOverlay } from '@dnd-kit/core';
+import toast from 'react-hot-toast';
 import Canvas from '@/app/(with-sidebar)/issue/_components/canvas/canvas';
 import CategoryCard from '@/app/(with-sidebar)/issue/_components/category/category-card';
 import FilterPanel from '@/app/(with-sidebar)/issue/_components/filter-panel/filter-panel';
 import IdeaCard from '@/app/(with-sidebar)/issue/_components/idea-card/idea-card';
 import { useCanvasStore } from '@/app/(with-sidebar)/issue/store/use-canvas-store';
-import { useProjectsQuery } from '@/app/project/hooks/use-project-query';
 import { ErrorPage } from '@/components/error/error';
 import LoadingOverlay from '@/components/loading-overlay/loading-overlay';
 import { useModalStore } from '@/components/modal/use-modal-store';
 import { ISSUE_STATUS, ISSUE_STATUS_DESCRIPTION } from '@/constants/issue';
+import { useIssueQuery, useSelectedIdeaQuery } from '@/hooks/issue';
+import { useProjectsQuery } from '@/hooks/project';
 import { joinIssueAsLoggedInUser } from '@/lib/api/issue';
 import { getActiveDiscussionIdeaIds } from '@/lib/utils/active-discussion-idea';
 import IssueJoinModal from '../_components/issue-join-modal/issue-join-modal';
@@ -26,10 +28,7 @@ import {
   useIssueData,
   useIssueEvents,
   useIssueIdentity,
-  useIssueQuery,
-  useSelectedIdeaQuery,
 } from '../hooks';
-import toast from 'react-hot-toast';
 
 const IssuePage = () => {
   const params = useParams<{ id: string; issueId?: string }>();

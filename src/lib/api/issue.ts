@@ -120,7 +120,7 @@ export function generateNickname(issueId: string) {
   return getAPIResponseData<{
     nickname: string;
   }>({
-    url: `/api/issues/${issueId}/members-nickname`,
+    url: `/api/issues/${issueId}/members/nickname`,
     method: 'POST',
   });
 }
@@ -148,10 +148,8 @@ export function selectIdea(issueId: string, selectedIdeaId: string) {
   return getAPIResponseData<{
     ok: boolean;
   }>({
-    url: `/api/issues/${issueId}/selected-idea`,
+    url: `/api/issues/${issueId}/ideas/${selectedIdeaId}/select`,
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ selectedIdeaId }),
   });
 }
 
@@ -163,5 +161,30 @@ export function createIssueInTopic(topicId: string, title: string) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ title }),
+  });
+}
+
+
+/* =========================
+ * Close Modal
+ * ========================= */
+
+export function updateCloseModalMemo(issueId: string, memo: string) {
+  return getAPIResponseData<{
+    success: boolean;
+  }>({
+    url: `/api/issues/${issueId}/close-modal`,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ memo }),
+  });
+}
+
+export function deleteCloseModal(issueId: string) {
+  return getAPIResponseData<{
+    success: boolean;
+  }>({
+    url: `/api/issues/${issueId}/close-modal`,
+    method: 'DELETE',
   });
 }

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
-import { useCreateProjectMutation } from '@/app/project/hooks/use-project-mutation';
+import { useCreateProjectMutation } from '@/hooks/project';
 import { useModalStore } from '@/components/modal/use-modal-store';
 import * as S from './project-create-modal.styles';
 

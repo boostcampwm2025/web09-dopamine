@@ -2,7 +2,7 @@
 
 import { signOut } from 'next-auth/react';
 import { ProjectCard } from '@/app/project/_components/project-card/project-card';
-import { useProjectsQuery } from '@/app/project/hooks/use-project-query';
+import { useProjectsQuery } from '@/hooks/project';
 import { ApiError } from '@/lib/utils/api-response';
 import * as S from './project-list.styles';
 

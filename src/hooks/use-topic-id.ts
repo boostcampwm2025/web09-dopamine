@@ -1,5 +1,5 @@
 import { useParams, usePathname } from 'next/navigation';
-import { useIssueQuery } from '@/app/(with-sidebar)/issue/hooks';
+import { useIssueQuery } from '@/hooks/issue';
 
 // 토픽 ID 가져오기
 export const useTopicId = () => {
