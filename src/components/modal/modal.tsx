@@ -20,15 +20,30 @@ export default function Modal() {
     setIsPending,
   } = useModalStore();
 
-  // 최신 onSubmit을 항상 참조하기 위해 ref 사용
+  // 최신 값들을 ref로 저장하여 이벤트 리스너 재등록 방지
   const onSubmitRef = useRef(onSubmit);
+  const isPendingRef = useRef(isPending);
+  const modalTypeRef = useRef(modalType);
+  const closeModalRef = useRef(closeModal);
 
   useEffect(() => {
     onSubmitRef.current = onSubmit;
   }, [onSubmit]);
 
+  useEffect(() => {
+    isPendingRef.current = isPending;
+  }, [isPending]);
+
+  useEffect(() => {
+    modalTypeRef.current = modalType;
+  }, [modalType]);
+
+  useEffect(() => {
+    closeModalRef.current = closeModal;
+  }, [closeModal]);
+
   const handleSubmit = useCallback(async () => {
-    if (!onSubmitRef.current) return;
+    if (!onSubmitRef.current || isPendingRef.current) return;
 
     try {
       setIsPending(true);
@@ -46,11 +61,13 @@ export default function Modal() {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         // 종료 모달의 경우 CloseIssueModal에서 처리
-        if (modalType !== 'close-issue') {
-          closeModal();
+        if (modalTypeRef.current !== 'close-issue') {
+          closeModalRef.current();
         }
-      } else if (event.key === 'Enter' && !event.shiftKey && onSubmit && !isPending) {
-        if (modalType !== 'invite') {
+      } else if (event.key === 'Enter' && !event.shiftKey) {
+        if (event.isComposing) return;
+        if (!onSubmitRef.current || isPendingRef.current) return;
+        if (modalTypeRef.current !== 'invite') {
           event.preventDefault();
           handleSubmit();
         }
@@ -65,7 +82,7 @@ export default function Modal() {
       document.body.style.overflow = previousOverflow;
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isOpen, closeModal, modalType, onSubmit, isPending, handleSubmit]);
+  }, [isOpen, handleSubmit]);
 
   if (!isOpen || !content) return null;
 
