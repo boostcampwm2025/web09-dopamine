@@ -72,6 +72,16 @@ export function useHeader({ issueId }: UseHeaderParams) {
       title: '이슈 종료',
       content: React.createElement(CloseIssueModal, { issueId, isOwner }),
       modalType: 'close-issue',
+      onClose: async () => {
+        // 모달 닫힘 시 다른 클라이언트에게 브로드캐스팅
+        try {
+          await fetch(`/api/issues/${issueId}/close-modal`, {
+            method: 'DELETE',
+          });
+        } catch (error) {
+          console.error('Failed to broadcast close modal:', error);
+        }
+      },
     });
   }, [issueId, isOwner, openModal]);
 

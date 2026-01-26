@@ -164,5 +164,6 @@ export function useCloseIssueModal({ issueId, isOwner }: UseCloseIssueModalParam
     selectedIdea,
     isLoading,
     closeAndGoSummary,
+    handleClose,
   };
 }
