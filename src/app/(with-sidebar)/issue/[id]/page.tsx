@@ -341,7 +341,6 @@ const IssuePage = () => {
                       style={{
                         transform: `scale(${scale})`,
                         transformOrigin: '0 0', // 왼쪽 위 기준으로 scale
-                        position: 'relative',
                       }}
                     >
                       <IdeaCard

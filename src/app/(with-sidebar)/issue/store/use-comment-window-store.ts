@@ -7,7 +7,7 @@ interface commentWindowState {
   closeComment: () => void;
 }
 
-export const useCommentWindowStore = create<commentWindowState>((set, get) => ({
+export const useCommentWindowStore = create<commentWindowState>((set) => ({
   activeCommentId: null,
 
   openComment: (id) => set({ activeCommentId: id }),
