@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
-import { prisma } from '@/lib/prisma';
+import { authOptions } from '@/lib/auth';
 import { ideaRepository } from '@/lib/repositories/idea.repository';
 import { broadcast } from '@/lib/sse/sse-service';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
@@ -13,38 +14,22 @@ export async function GET(
   try {
     const { issueId, ideaId } = await params;
 
-    const userId = getUserIdFromRequest(req, issueId);
+    // 1. 세션에서 userId 확인 (OAuth 로그인 사용자)
+    const session = await getServerSession(authOptions);
+    let userId: string | null = session?.user?.id ?? null;
 
-    const idea = await prisma.idea.findUnique({
-      where: {
-        id: ideaId,
-      },
-      include: {
-        user: {
-          select: {
-            id: true,
-          },
-        },
-        comments: {
-          where: {
-            deletedAt: null,
-          },
-          select: {
-            id: true,
-            content: true,
-            createdAt: true,
-          },
-        },
-      },
-    });
+    // 2. 세션이 없으면 쿠키에서 확인 (익명 사용자 - 빠른 이슈)
+    if (!userId) {
+      userId = getUserIdFromRequest(req, issueId) ?? null;
+    }
+
+    const idea = await ideaRepository.findById(ideaId);
 
     if (!idea) {
       return createErrorResponse('IDEA_NOT_FOUND', 404);
     }
 
-    const myVote = userId
-      ? await prisma.vote.findFirst({ where: { ideaId: ideaId, userId, deletedAt: null } })
-      : null;
+    const myVote = userId ? await ideaRepository.findMyVote(ideaId, userId) : null;
 
     return createSuccessResponse({
       ...idea,
