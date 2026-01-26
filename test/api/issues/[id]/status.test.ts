@@ -1,16 +1,24 @@
-import { NextRequest } from 'next/server';
 import { IssueStatus } from '@prisma/client';
 import { PATCH } from '@/app/api/issues/[issueId]/status/route';
 import { prisma } from '@/lib/prisma';
 import { findIssueById, updateIssueStatus } from '@/lib/repositories/issue.repository';
 import { createReport, findReportByIssueId } from '@/lib/repositories/report.repository';
+import {
+  createMockRequest,
+  createMockParams,
+  expectErrorResponse,
+  expectSuccessResponse,
+  setupPrismaTransactionMock,
+} from '@test/utils/api-test-helpers';
 
 // 레파지토리 모킹
 jest.mock('@/lib/repositories/issue.repository');
 jest.mock('@/lib/repositories/report.repository');
+jest.mock('@/lib/repositories/word-cloud.repository');
+jest.mock('@/lib/sse/sse-service');
 jest.mock('@/lib/prisma', () => ({
   prisma: {
-    $transaction: jest.fn(), // 트랜잭션도 mock으로 대체
+    $transaction: jest.fn(),
   },
 }));
 
@@ -25,96 +33,62 @@ const mockedPrismaTransaction = prisma.$transaction as jest.MockedFunction<
   typeof prisma.$transaction
 >;
 
-describe('PATCH /api/issues/[id]/status', () => {
+describe('PATCH /api/issues/[issueId]/status', () => {
   const mockIssueId = 'test-issue-id';
   const mockIssue = {
-    id: mockIssueId,
     title: 'Test Issue',
     status: IssueStatus.SELECT,
     topicId: 'test-topic-id',
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    deletedAt: null,
-    closedAt: null,
+    projectId: 'test-project-id',
   };
 
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  const createMockRequest = (body: any) => {
-    return {
-      json: jest.fn().mockResolvedValue(body), // req.json() 호출 시 body를 반환하도록 설정
-    } as unknown as NextRequest;
-  };
-
-  const createMockParams = (id: string) => {
-    return {
-      params: Promise.resolve({ id }),
-    };
-  };
-
   describe('유효성 검증', () => {
     it('유효하지 않은 상태값을 받으면 400 에러를 반환한다', async () => {
       const req = createMockRequest({ status: 'INVALID_STATUS' });
-      const params = createMockParams(mockIssueId);
+      const params = createMockParams({ issueId: mockIssueId });
 
       const response = await PATCH(req, params);
-      const data = await response.json();
-
-      expect(response.status).toBe(400); // HTTP 상태 코드가 400인지 확인
-      expect(data.message).toBe('유효하지 않은 이슈 상태입니다.'); // 에러 메시지 확인
+      await expectErrorResponse(response, 400, 'INVALID_ISSUE_STATUS');
     });
 
     it('존재하지 않는 이슈 ID를 받으면 404 에러를 반환한다', async () => {
       const req = createMockRequest({ status: IssueStatus.CLOSE });
-      const context = createMockParams(mockIssueId);
+      const params = createMockParams({ issueId: mockIssueId });
 
-      // Mock 설정: findIssueById가 null을 반환하도록 설정 (이슈를 찾지 못한 상황)
       mockedFindIssueById.mockResolvedValue(null);
 
-      // 2. 실행: API 호출
-      const response = await PATCH(req, context);
-      const data = await response.json();
-
-      // 3. 검증: 결과 확인
-      expect(response.status).toBe(404); // 404 에러 반환 확인
-      expect(data.message).toBe('존재하지 않는 이슈입니다.'); // 에러 메시지 확인
-      expect(mockedFindIssueById).toHaveBeenCalledWith(mockIssueId); // findIssueById가 올바른 인자로 호출되었는지 확인
+      const response = await PATCH(req, params);
+      await expectErrorResponse(response, 404, 'ISSUE_NOT_FOUND');
+      expect(mockedFindIssueById).toHaveBeenCalledWith(mockIssueId);
     });
   });
 
   describe('일반 상태 변경', () => {
     it('CLOSE 이외로 상태 변경 시 리포트를 생성하지 않는다', async () => {
       const req = createMockRequest({ status: IssueStatus.VOTE });
-      const context = createMockParams(mockIssueId);
+      const params = createMockParams({ issueId: mockIssueId });
 
       mockedFindIssueById.mockResolvedValue(mockIssue);
 
-      // Mock 설정: 트랜잭션이 실행되도록 구현
-      mockedPrismaTransaction.mockImplementation(async (callback: any) => {
-        const mockTx = {}; // 가짜 트랜잭션 객체
-
-        // updateIssueStatus가 성공적으로 실행되었다고 가정
+      setupPrismaTransactionMock(mockedPrismaTransaction, (mockTx) => {
         mockedUpdateIssueStatus.mockResolvedValue({
           id: mockIssueId,
-          status: IssueStatus.CLOSE,
+          status: IssueStatus.VOTE,
         });
-
-        // 트랜잭션 콜백 함수 실행
-        return callback(mockTx);
+        return mockTx;
       });
 
-      const response = await PATCH(req, context);
-      const data = await response.json();
+      const response = await PATCH(req, params);
+      const data = await expectSuccessResponse(response, 200);
 
-      expect(response.status).toBe(200); // 성공 응답
-      expect(data.id).toBe(mockIssueId); // 이슈 ID 확인
-      expect(data.status).toBe(IssueStatus.CLOSE); // 상태 변경 확인
-
-      // 리포트 관련 함수들이 호출되지 않았는지 확인
-      expect(mockedFindReportByIssueId).not.toHaveBeenCalled(); // 리포트 조회 안 함
-      expect(mockedCreateReport).not.toHaveBeenCalled(); // 리포트 생성 안 함
+      expect(data.id).toBe(mockIssueId);
+      expect(data.status).toBe(IssueStatus.VOTE);
+      expect(mockedFindReportByIssueId).not.toHaveBeenCalled();
+      expect(mockedCreateReport).not.toHaveBeenCalled();
     });
   });
 
@@ -127,11 +101,10 @@ describe('PATCH /api/issues/[id]/status', () => {
         selectedIdeaId,
         memo,
       });
-      const context = createMockParams(mockIssueId);
+      const params = createMockParams({ issueId: mockIssueId });
 
       mockedFindIssueById.mockResolvedValue(mockIssue);
-      mockedPrismaTransaction.mockImplementation(async (callback: any) => {
-        const mockTx = {};
+      setupPrismaTransactionMock(mockedPrismaTransaction, (mockTx) => {
         mockedUpdateIssueStatus.mockResolvedValue({
           id: mockIssueId,
           status: IssueStatus.CLOSE,
@@ -146,13 +119,12 @@ describe('PATCH /api/issues/[id]/status', () => {
           updatedAt: new Date(),
           deletedAt: null,
         });
-        return callback(mockTx);
+        return mockTx;
       });
 
-      const response = await PATCH(req, context);
-      const data = await response.json();
+      const response = await PATCH(req, params);
+      const data = await expectSuccessResponse(response, 200);
 
-      expect(response.status).toBe(200);
       expect(data.status).toBe(IssueStatus.CLOSE);
       expect(mockedUpdateIssueStatus).toHaveBeenCalledWith(
         mockIssueId,
@@ -170,7 +142,7 @@ describe('PATCH /api/issues/[id]/status', () => {
 
     it('이미 리포트가 있을 때 새 리포트를 생성하지 않는다', async () => {
       const req = createMockRequest({ status: IssueStatus.CLOSE });
-      const context = createMockParams(mockIssueId);
+      const params = createMockParams({ issueId: mockIssueId });
 
       const existingReport = {
         id: 'existing-report',
@@ -183,20 +155,18 @@ describe('PATCH /api/issues/[id]/status', () => {
       };
 
       mockedFindIssueById.mockResolvedValue(mockIssue);
-      mockedPrismaTransaction.mockImplementation(async (callback: any) => {
-        const mockTx = {};
+      setupPrismaTransactionMock(mockedPrismaTransaction, (mockTx) => {
         mockedUpdateIssueStatus.mockResolvedValue({
           id: mockIssueId,
           status: IssueStatus.CLOSE,
         });
         mockedFindReportByIssueId.mockResolvedValue(existingReport);
-        return callback(mockTx);
+        return mockTx;
       });
 
-      const response = await PATCH(req, context);
-      const data = await response.json();
+      const response = await PATCH(req, params);
+      const data = await expectSuccessResponse(response, 200);
 
-      expect(response.status).toBe(200);
       expect(data.status).toBe(IssueStatus.CLOSE);
       expect(mockedFindReportByIssueId).toHaveBeenCalledWith(mockIssueId, expect.any(Object));
       expect(mockedCreateReport).not.toHaveBeenCalled();
@@ -204,11 +174,10 @@ describe('PATCH /api/issues/[id]/status', () => {
 
     it('리포트 생성 시 selectedIdeaId와 memo가 null일 수 있다', async () => {
       const req = createMockRequest({ status: IssueStatus.CLOSE });
-      const context = createMockParams(mockIssueId);
+      const params = createMockParams({ issueId: mockIssueId });
 
       mockedFindIssueById.mockResolvedValue(mockIssue);
-      mockedPrismaTransaction.mockImplementation(async (callback: any) => {
-        const mockTx = {};
+      setupPrismaTransactionMock(mockedPrismaTransaction, (mockTx) => {
         mockedUpdateIssueStatus.mockResolvedValue({
           id: mockIssueId,
           status: IssueStatus.CLOSE,
@@ -223,12 +192,12 @@ describe('PATCH /api/issues/[id]/status', () => {
           updatedAt: new Date(),
           deletedAt: null,
         });
-        return callback(mockTx);
+        return mockTx;
       });
 
-      const response = await PATCH(req, context);
+      const response = await PATCH(req, params);
+      await expectSuccessResponse(response, 200);
 
-      expect(response.status).toBe(200);
       expect(mockedCreateReport).toHaveBeenCalledWith(mockIssueId, null, null, expect.any(Object));
     });
   });
@@ -240,11 +209,10 @@ describe('PATCH /api/issues/[id]/status', () => {
         selectedIdeaId: 'idea-123',
         memo: 'Test memo',
       });
-      const context = createMockParams(mockIssueId);
+      const params = createMockParams({ issueId: mockIssueId });
 
       mockedFindIssueById.mockResolvedValue(mockIssue);
-      mockedPrismaTransaction.mockImplementation(async (callback: any) => {
-        const mockTx = {};
+      setupPrismaTransactionMock(mockedPrismaTransaction, (mockTx) => {
         mockedUpdateIssueStatus.mockResolvedValue({
           id: mockIssueId,
           status: IssueStatus.CLOSE,
@@ -259,12 +227,12 @@ describe('PATCH /api/issues/[id]/status', () => {
           updatedAt: new Date(),
           deletedAt: null,
         });
-        return callback(mockTx);
+        return mockTx;
       });
 
-      const response = await PATCH(req, context);
+      const response = await PATCH(req, params);
 
-      expect(response.status).toBe(200);
+      await expectSuccessResponse(response, 200);
       expect(mockedPrismaTransaction).toHaveBeenCalledTimes(1);
       expect(mockedPrismaTransaction).toHaveBeenCalledWith(expect.any(Function));
     });
@@ -273,15 +241,12 @@ describe('PATCH /api/issues/[id]/status', () => {
   describe('에러 처리', () => {
     it('예상치 못한 에러 발생 시 500 에러를 반환한다', async () => {
       const req = createMockRequest({ status: IssueStatus.CLOSE });
-      const context = createMockParams(mockIssueId);
+      const params = createMockParams({ issueId: mockIssueId });
 
       mockedFindIssueById.mockRejectedValue(new Error('Database error'));
 
-      const response = await PATCH(req, context);
-      const data = await response.json();
-
-      expect(response.status).toBe(500);
-      expect(data.message).toBe('이슈 상태 변경에 실패했습니다.');
+      const response = await PATCH(req, params);
+      await expectErrorResponse(response, 500, 'ISSUE_STATUS_UPDATE_FAILED');
     });
   });
 });
