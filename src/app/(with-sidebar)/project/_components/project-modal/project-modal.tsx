@@ -84,6 +84,7 @@ export default function ProjectModal(props: ProjectModalProps) {
         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTopicName(e.target.value)}
         placeholder="이름을 입력하세요"
         onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+          if (e.nativeEvent.isComposing) return;
           if (e.key === 'Enter' && !isPending) {
             handleCreate();
           }
