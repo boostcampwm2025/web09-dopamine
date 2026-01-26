@@ -1,13 +1,11 @@
 import styled from '@emotion/styled';
 import { theme } from '@/styles/theme';
 
-export const Window = styled.section<{ x?: number; y?: number; scale?: number }>`
-  position: fixed;
+export const Window = styled.section<{ x?: number; y?: number; }>`
+  position: absolute;
   left: ${({ x }) => (x !== undefined ? `${x}px` : '0px')};
   top: ${({ y }) => (y !== undefined ? `${y}px` : '0px')};
-  transform: ${({ scale = 1 }) => `scale(${scale})`};
   transform-origin: top left;
-  z-index: 9999;
   width: 420px;
   height: 500px;
   min-width: 260px;
@@ -20,6 +18,7 @@ export const Window = styled.section<{ x?: number; y?: number; scale?: number }>
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  pointer-events: auto;
 `;
 
 export const Header = styled.header`
