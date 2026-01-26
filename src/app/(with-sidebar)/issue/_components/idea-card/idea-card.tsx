@@ -235,7 +235,7 @@ export default function IdeaCard(props: IdeaCardProps) {
         onAgree={handleAgree}
         onDisagree={handleDisagree}
       />
-      {isCommentOpen && (
+      {isCommentOpen && !isDragging && (
         <CommentWindow
           issueId={issueId}
           ideaId={props.id}
