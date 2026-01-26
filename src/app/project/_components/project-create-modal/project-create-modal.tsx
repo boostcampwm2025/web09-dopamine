@@ -11,7 +11,7 @@ export default function ProjectCreateModal() {
   const router = useRouter();
   const [projectName, setProjectName] = useState('');
   const [description, setDescription] = useState('');
-  const { setIsPending, isOpen } = useModalStore();
+  const { setIsPending, isOpen, closeModal } = useModalStore();
   const { mutate, isPending } = useCreateProjectMutation();
 
   useEffect(() => {
@@ -29,7 +29,7 @@ export default function ProjectCreateModal() {
       {
         onSuccess: (newProject) => {
           toast.success('프로젝트가 생성되었습니다!');
-          useModalStore.getState().closeModal();
+          closeModal();
           router.push(`/project/${newProject.id}`);
         },
         onError: (error: any) => {
