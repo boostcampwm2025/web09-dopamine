@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import * as S from './modal.styles';
 import { useModalStore } from './use-modal-store';
@@ -19,7 +19,7 @@ export default function Modal() {
     setIsPending,
   } = useModalStore();
 
-  const handleSubmit = async () => {
+  const handleSubmit = useCallback(async () => {
     if (!onSubmit) return;
 
     try {
@@ -30,7 +30,7 @@ export default function Modal() {
     } finally {
       setIsPending(false);
     }
-  };
+  }, [onSubmit, setIsPending]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -41,6 +41,9 @@ export default function Modal() {
         if (modalType !== 'close-issue') {
           closeModal();
         }
+      } else if (event.key === 'Enter' && onSubmit && !isPending) {
+        event.preventDefault();
+        handleSubmit();
       }
     };
 
@@ -52,7 +55,7 @@ export default function Modal() {
       document.body.style.overflow = previousOverflow;
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isOpen, closeModal, modalType]);
+  }, [isOpen, closeModal, modalType, onSubmit, isPending, handleSubmit]);
 
   if (!isOpen || !content) return null;
 
