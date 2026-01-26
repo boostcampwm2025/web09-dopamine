@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { create } from 'zustand';
 
-export type ModalType = 'close-issue' | 'default';
+export type ModalType = 'close-issue' | 'invite' | 'default';
 
 interface OpenModalPayload {
   title?: string;
@@ -10,6 +10,7 @@ interface OpenModalPayload {
   hasCloseButton?: boolean;
   onClose?: () => void;
   onSubmit?: () => void | Promise<void>;
+  submitButtonText?: string;
   modalType?: ModalType;
 }
 
@@ -49,6 +50,7 @@ export const useModalStore = create<ModalState>((set, get) => ({
     hasCloseButton = true,
     onClose,
     onSubmit,
+    submitButtonText = '완료',
     modalType = 'default',
   }) => {
     set({
@@ -59,6 +61,7 @@ export const useModalStore = create<ModalState>((set, get) => ({
       hasCloseButton,
       onClose,
       onSubmit,
+      submitButtonText,
       modalType,
       isPending: false,
     });

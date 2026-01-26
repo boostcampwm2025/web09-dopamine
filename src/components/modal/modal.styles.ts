@@ -50,7 +50,7 @@ export const Footer = styled.div`
 
 export const CancelButton = styled.button`
   height: 40px;
-  width: 70px;
+  min-width: 70px;
   padding: 0 18px;
   border: 1px solid ${theme.colors.gray[400]};
   border-radius: ${theme.radius.medium};
@@ -65,7 +65,7 @@ export const CancelButton = styled.button`
 
 export const SubmitButton = styled.button`
   height: 40px;
-  width: 70px;
+  min-width: 70px;
   padding: 0 18px;
   border: none;
   border-radius: ${theme.radius.medium};

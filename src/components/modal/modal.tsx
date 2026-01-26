@@ -16,6 +16,7 @@ export default function Modal() {
     closeModal,
     isPending,
     onSubmit,
+    submitButtonText,
     setIsPending,
   } = useModalStore();
 
@@ -42,8 +43,10 @@ export default function Modal() {
           closeModal();
         }
       } else if (event.key === 'Enter' && !event.shiftKey && onSubmit && !isPending) {
-        event.preventDefault();
-        handleSubmit();
+        if (modalType !== 'invite') {
+          event.preventDefault();
+          handleSubmit();
+        }
       }
     };
 
@@ -97,7 +100,7 @@ export default function Modal() {
               onClick={handleSubmit}
               disabled={isPending}
             >
-              {isPending ? '처리 중...' : '완료'}
+              {isPending ? '처리 중...' : submitButtonText || '완료'}
             </S.SubmitButton>
           )}
         </S.Footer>
