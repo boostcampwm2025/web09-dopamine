@@ -30,11 +30,6 @@ export default function IssueJoinModal({ issueId }: IssueJoinModalProps) {
             value={nickname}
             onChange={(e) => setNickname(e.target.value)}
             placeholder="예) 생각하는 단무지"
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !isLoading) {
-                handleJoin();
-              }
-            }}
             disabled={isLoading}
             autoFocus
           />
