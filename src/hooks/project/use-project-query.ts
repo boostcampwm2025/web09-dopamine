@@ -16,7 +16,7 @@ export const useProjectQuery = (projectId: string) => {
     queryKey: ['project', projectId],
     queryFn: () =>
       getAPIResponseData<ProjectwithTopic>({
-        url: `/api/project/${projectId}`,
+        url: `/api/projects/${projectId}`,
         method: 'GET',
       }),
     enabled: !!projectId,

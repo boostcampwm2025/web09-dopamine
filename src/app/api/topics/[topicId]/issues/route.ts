@@ -34,11 +34,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ top
 export async function POST(req: NextRequest, { params }: { params: Promise<{ topicId: string }> }) {
   const { topicId } = await params;
   const { title } = await req.json();
-  const userId = getUserIdFromHeader(req);
-
-  if (!userId) {
-    return createErrorResponse('UNAUTHORIZED', 401);
-  }
+  const userId = getUserIdFromHeader(req)!;
 
   if (!title) {
     return createErrorResponse('TITLE_REQUIRED', 400);

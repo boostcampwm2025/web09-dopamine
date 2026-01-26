@@ -5,10 +5,7 @@ import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-help
 
 export async function POST(req: Request, { params }: { params: Promise<{ projectId: string }> }) {
   try {
-    const userId = getUserIdFromHeader(req);
-    if (!userId) {
-      return createErrorResponse('UNAUTHORIZED_USER', 401);
-    }
+    const userId = getUserIdFromHeader(req)!;
 
     const user = await prisma.user.findUnique({
       where: { id: userId },

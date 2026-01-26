@@ -6,11 +6,7 @@ export async function DELETE(
   req: Request,
   { params }: { params: Promise<{ projectId: string; memberId: string }> },
 ) {
-  const userId = getUserIdFromHeader(req);
-
-  if (!userId) {
-    return createErrorResponse('UNAUTHORIZED', 401);
-  }
+  const userId = getUserIdFromHeader(req)!;
 
   try {
     const { projectId } = await params;

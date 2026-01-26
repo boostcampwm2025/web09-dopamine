@@ -1,7 +1,7 @@
 import { getToken } from 'next-auth/jwt';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   // matcher에서 필요한 API만 걸러서 실행됨
   const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
 
@@ -31,5 +31,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/api/projects/:path*', '/api/topics/:path*'],
+  matcher: ['/api/projects', '/api/projects/:path*', '/api/topics', '/api/topics/:path*'],
 };

@@ -6,10 +6,6 @@ import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-help
 export async function GET(req: NextRequest) {
   const ownerId = getUserIdFromHeader(req);
 
-  if (!ownerId) {
-    return createErrorResponse('UNAUTHORIZED', 401);
-  }
-
   try {
     // 내 소유의 프로젝트와 게트스로 참여중인 프로젝트를 모두 불려옴
     const myOwnProjects = await projectRepository.getProjectsByOwnerId(ownerId!);
@@ -24,10 +20,6 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const ownerId = getUserIdFromHeader(req);
-
-  if (!ownerId) {
-    return createErrorResponse('UNAUTHORIZED', 401);
-  }
 
   const { title, description } = await req.json();
 
@@ -46,10 +38,6 @@ export async function POST(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   const ownerId = getUserIdFromHeader(req);
-
-  if (!ownerId) {
-    return createErrorResponse('UNAUTHORIZED', 401);
-  }
 
   const { id } = await req.json();
 
