@@ -19,6 +19,7 @@ export const Window = styled.section`
   flex-direction: column;
   overflow: hidden;
   pointer-events: auto;
+  z-index: 9999;
 `;
 
 export const Header = styled.header`
