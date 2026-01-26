@@ -120,7 +120,7 @@ export function generateNickname(issueId: string) {
   return getAPIResponseData<{
     nickname: string;
   }>({
-    url: `/api/issues/${issueId}/members-nickname`,
+    url: `/api/issues/${issueId}/members/nickname`,
     method: 'POST',
   });
 }
@@ -148,10 +148,8 @@ export function selectIdea(issueId: string, selectedIdeaId: string) {
   return getAPIResponseData<{
     ok: boolean;
   }>({
-    url: `/api/issues/${issueId}/selected-idea`,
+    url: `/api/issues/${issueId}/ideas/${selectedIdeaId}/select`,
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ selectedIdeaId }),
   });
 }
 

@@ -52,6 +52,13 @@ describe('Comment Repository 테스트', () => {
           id: true,
           content: true,
           createdAt: true,
+          user: {
+            select: {
+              id: true,
+              name: true,
+              displayName: true,
+            },
+          },
         },
       });
       expect(result).toEqual(mockComments);
@@ -79,6 +86,13 @@ describe('Comment Repository 테스트', () => {
           id: true,
           content: true,
           createdAt: true,
+          user: {
+            select: {
+              id: true,
+              name: true,
+              displayName: true,
+            },
+          },
         },
       });
       expect(result).toEqual(mockCreatedComment);

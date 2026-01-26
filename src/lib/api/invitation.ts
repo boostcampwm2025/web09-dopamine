@@ -21,17 +21,16 @@ export interface InvitationInfoResponse {
 
 export const createInvitation = (projectId: string, emails: string[]) => {
   return getAPIResponseData<CreateInvitationResponse>({
-    url: `/api/project/${projectId}/invitations`,
+    url: `/api/projects/${projectId}/invitations`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ emails }),
   });
 };
 
-
 export const acceptInvitation = (projectId: string, token: string) => {
   return getAPIResponseData({
-    url: `/api/project/${projectId}/members`,
+    url: `/api/projects/${projectId}/members`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ token }),

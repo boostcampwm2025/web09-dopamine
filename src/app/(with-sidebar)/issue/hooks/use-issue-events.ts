@@ -7,7 +7,7 @@ import { MEMBER_ROLE } from '@/constants/issue';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
 import { getIssueMember } from '@/lib/api/issue';
 import { useIssueStore } from '../store/use-issue-store';
-import { selectedIdeaQueryKey } from './react-query/use-selected-idea-query';
+import { selectedIdeaQueryKey } from '@/hooks/issue';
 
 interface UseIssueEventsParams {
   issueId: string;

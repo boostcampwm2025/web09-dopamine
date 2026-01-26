@@ -3,12 +3,9 @@ import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { useModalStore } from '@/components/modal/use-modal-store';
 import { ISSUE_STATUS } from '@/constants/issue';
-import {
-  updateCloseModalMemo,
-  deleteCloseModal,
-  updateIssueStatus,
-} from '@/lib/api/issue';
-import { useIdeasWithTemp, useIssueStatusMutations, useSelectedIdeaQuery } from '../../hooks';
+import { useIssueStatusMutations, useSelectedIdeaQuery } from '@/hooks/issue';
+import { deleteCloseModal, updateCloseModalMemo, updateIssueStatus } from '@/lib/api/issue';
+import { useIdeasWithTemp } from '../../hooks';
 
 interface UseCloseIssueModalParams {
   issueId: string;

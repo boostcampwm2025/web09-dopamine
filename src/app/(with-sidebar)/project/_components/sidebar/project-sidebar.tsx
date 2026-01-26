@@ -5,7 +5,7 @@ import MemberSidebarItem from '@/components/sidebar/member-sidebar-item';
 import Sidebar from '@/components/sidebar/sidebar';
 import SidebarItem from '@/components/sidebar/sidebar-item';
 import * as S from '@/components/sidebar/sidebar.styles';
-import { useProjectQuery } from '../../hooks/use-project-query';
+import { useProjectQuery } from '@/hooks/project';
 import * as ProjectS from './projcet-sidebar.styles';
 
 const ProjectSidebar = () => {

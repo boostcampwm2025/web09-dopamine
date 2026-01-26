@@ -19,7 +19,7 @@ export type Comment = {
  */
 export async function fetchComments(id: string, ideaId: string): Promise<Comment[]> {
   return getAPIResponseData<Comment[]>({
-    url: `/api/issues/${id}/ideas/${ideaId}/comment`,
+    url: `/api/issues/${id}/ideas/${ideaId}/comments`,
     method: 'GET',
   });
 }
@@ -36,7 +36,7 @@ export async function createComment(
   payload: { userId: string; content: string },
 ) {
   return getAPIResponseData<Comment>({
-    url: `/api/issues/${id}/ideas/${ideaId}/comment`,
+    url: `/api/issues/${id}/ideas/${ideaId}/comments`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
@@ -57,7 +57,7 @@ export async function updateComment(
   payload: { content: string },
 ) {
   return getAPIResponseData<Comment>({
-    url: `/api/issues/${issueId}/ideas/${ideaId}/comment/${commentId}`,
+    url: `/api/issues/${issueId}/ideas/${ideaId}/comments/${commentId}`,
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
@@ -72,7 +72,7 @@ export async function updateComment(
  */
 export async function deleteComment(issueId: string, ideaId: string, commentId: string) {
   return getAPIResponseData<void>({
-    url: `/api/issues/${issueId}/ideas/${ideaId}/comment/${commentId}`,
+    url: `/api/issues/${issueId}/ideas/${ideaId}/comments/${commentId}`,
     method: 'DELETE',
   });
 }
