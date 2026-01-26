@@ -23,7 +23,6 @@ interface ModalState {
   onClose?: () => void;
   onSubmit?: () => void | Promise<void>;
   submitButtonText?: string;
-  hasFooter: boolean;
   modalType: ModalType;
   openModal: (payload: OpenModalPayload) => void;
   closeModal: () => void;
@@ -39,7 +38,6 @@ export const useModalStore = create<ModalState>((set, get) => ({
   hasCloseButton: true,
   onClose: undefined,
   onSubmit: undefined,
-  hasFooter: true,
   modalType: 'default',
   isPending: false,
 
@@ -79,7 +77,6 @@ export const useModalStore = create<ModalState>((set, get) => ({
       onClose: undefined,
       onSubmit: undefined,
       submitButtonText: '만들기',
-      hasFooter: true,
       modalType: 'default',
       isPending: false,
     });
