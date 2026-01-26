@@ -8,8 +8,7 @@ import { useIdeaQuery, useIssueData, useIssueIdentity, useSelectedIdeaMutation }
 import { useCommentWindowStore } from '../../store/use-comment-window-store';
 import { useIdeaCardStackStore } from '../../store/use-idea-card-stack-store';
 import type { CardStatus, Position } from '../../types/idea';
-import { useCanvasContext } from '../canvas/canvas-context';
-import CommentWindow from '../comment-window/comment-window';
+import CommentWindow from '../comment/comment-window';
 import IdeaCardBadge from './idea-card-badge';
 import IdeaCardFooter from './idea-card-footer';
 import IdeaCardHeader from './idea-card-header';

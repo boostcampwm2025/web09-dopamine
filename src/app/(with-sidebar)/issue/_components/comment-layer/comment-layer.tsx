@@ -3,7 +3,7 @@
 import { useDndContext } from '@dnd-kit/core';
 import { useIssueId, useIssueIdentity } from '../../hooks';
 import { useCommentWindowStore } from '../../store/use-comment-window-store';
-import CommentWindow from '../comment-window/comment-window';
+import CommentWindow from '../comment/comment-window';
 import * as S from './comment-layer.styles';
 
 export default function CommentLayer() {
