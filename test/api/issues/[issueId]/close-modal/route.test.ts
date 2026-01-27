@@ -135,6 +135,8 @@ describe('DELETE /api/issues/[issueId]/close-modal', () => {
   });
 
   it('userId가 없으면 401 에러를 반환한다', async () => {
+    const mockIssue = { title: 'Test Issue', topicId: null, status: 'SELECT', projectId: null };
+    mockedFindIssueById.mockResolvedValue(mockIssue as any);
     mockedGetUserIdFromRequest.mockReturnValue(undefined);
 
     const req = createMockGetRequest();
@@ -145,11 +147,13 @@ describe('DELETE /api/issues/[issueId]/close-modal', () => {
   });
 
   it('방장이 성공적으로 모달을 닫는다', async () => {
+    const mockIssue = { title: 'Test Issue', topicId: null, status: 'SELECT', projectId: null };
     const mockMember = {
       role: MEMBER_ROLE.OWNER,
       user: { id: userId, displayName: 'Test User' },
     };
 
+    mockedFindIssueById.mockResolvedValue(mockIssue as any);
     mockedGetUserIdFromRequest.mockReturnValue(userId);
     mockedFindMemberByUserId.mockResolvedValue(mockMember as any);
 
@@ -172,6 +176,8 @@ describe('PATCH /api/issues/[issueId]/close-modal', () => {
   });
 
   it('userId가 없으면 401 에러를 반환한다', async () => {
+    const mockIssue = { title: 'Test Issue', topicId: null, status: 'SELECT', projectId: null };
+    mockedFindIssueById.mockResolvedValue(mockIssue as any);
     mockedGetUserIdFromRequest.mockReturnValue(undefined);
 
     const req = createMockRequest({ memo: 'Test memo' });
@@ -182,11 +188,13 @@ describe('PATCH /api/issues/[issueId]/close-modal', () => {
   });
 
   it('방장이 성공적으로 메모를 업데이트한다', async () => {
+    const mockIssue = { title: 'Test Issue', topicId: null, status: 'SELECT', projectId: null };
     const mockMember = {
       role: MEMBER_ROLE.OWNER,
       user: { id: userId, displayName: 'Test User' },
     };
 
+    mockedFindIssueById.mockResolvedValue(mockIssue as any);
     mockedGetUserIdFromRequest.mockReturnValue(userId);
     mockedFindMemberByUserId.mockResolvedValue(mockMember as any);
 
