@@ -1,10 +1,12 @@
-import { useSession } from 'next-auth/react';
+import { User } from 'next-auth';
 import TextField from '@/app/mypage/_components/text-field/text-field';
 import * as S from './profile-info.styles';
 
-export default function ProfileInfo() {
-  const { data: session } = useSession();
-  const user = session?.user;
+interface ProfileInfoProps {
+  user?: User;
+}
+
+export default function ProfileInfo({ user }: ProfileInfoProps) {
 
   return (
     <S.FormContainer>

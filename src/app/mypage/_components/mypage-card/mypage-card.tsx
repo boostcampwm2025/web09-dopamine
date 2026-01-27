@@ -35,8 +35,8 @@ export default function MypageCard() {
         <S.Email>@{user?.email?.split('@')[0] || 'username'}</S.Email>
       </S.InfoSection>
       <S.ContentSection>
-        <ProfileInfo />
-        <LoginInfo />
+        <ProfileInfo user={user} />
+        <LoginInfo user={user} />
         <S.Divider />
         <AccountActions />
       </S.ContentSection>

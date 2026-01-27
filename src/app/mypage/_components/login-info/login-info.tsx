@@ -1,10 +1,12 @@
-import { useSession } from 'next-auth/react';
+import { User } from 'next-auth';
 import { getProviderInfo } from '@/lib/utils/provider-info';
 import * as S from './login-info.styles';
 
-export default function LoginInfo() {
-  const { data: session } = useSession();
-  const user = session?.user;
+interface LoginInfoProps {
+  user?: User;
+}
+
+export default function LoginInfo({ user }: LoginInfoProps) {
   const { name, icon, color } = getProviderInfo(user?.email, user?.image);
 
   return (
