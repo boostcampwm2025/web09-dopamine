@@ -1,6 +1,5 @@
 'use client';
 
-import { useParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import * as S from './project-header.styles';
