@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { getProjects, getProject } from '@/lib/api/project';
+import { getProject, getProjects } from '@/lib/api/project';
 
 export const useProjectsQuery = (enabled: boolean = true) => {
   return useQuery({

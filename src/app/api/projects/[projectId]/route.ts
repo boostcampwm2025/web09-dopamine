@@ -1,6 +1,4 @@
-import { getServerSession } from 'next-auth';
 import { NextRequest } from 'next/server';
-import { authOptions } from '@/lib/auth';
 import * as projectRepository from '@/lib/repositories/project.repository';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 
@@ -8,13 +6,6 @@ export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ projectId: string }> },
 ) {
-  // 인증 확인
-  const session = await getServerSession(authOptions);
-
-  if (!session || !session.user) {
-    return createErrorResponse('UNAUTHORIZED', 401);
-  }
-
   const { projectId } = await params;
 
   try {
@@ -35,13 +26,6 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ projectId: string }> },
 ) {
-  // 인증 확인
-  const session = await getServerSession(authOptions);
-
-  if (!session || !session.user) {
-    return createErrorResponse('UNAUTHORIZED', 401);
-  }
-
   const { projectId } = await params;
   const { title, description } = await req.json();
 
