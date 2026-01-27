@@ -88,4 +88,18 @@ export const commentRepository = {
       data: { deletedAt: new Date() },
     });
   },
+
+  /**
+   * 특정 아이디어의 댓글 개수를 조회합니다.
+   * @param ideaId - 아이디어 식별자
+   * @returns 댓글 개수
+   */
+  async countByIdeaId(ideaId: string) {
+    return prisma.comment.count({
+      where: {
+        ideaId,
+        deletedAt: null,
+      },
+    });
+  },
 };

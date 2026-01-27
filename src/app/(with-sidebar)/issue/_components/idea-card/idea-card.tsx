@@ -211,6 +211,8 @@ export default function IdeaCard(props: IdeaCardProps) {
         isHotIdea={props.isHotIdea}
       />
       <IdeaCardHeader
+        id={props.id}
+        issueId={props.issueId}
         isEditing={isEditing}
         editValue={editValue}
         displayContent={displayContent}
