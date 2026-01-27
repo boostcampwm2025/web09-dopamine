@@ -1,7 +1,5 @@
 'use client';
 
-import { useStaticClick } from '../../hooks';
-import { useCommentWindowStore } from '../../store/use-comment-window-store';
 import type { Position } from '../../types/idea';
 import { useCanvasContext } from '../canvas/canvas-context';
 import CategoryCardHeader from './category-card-header';
