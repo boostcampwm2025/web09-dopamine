@@ -16,12 +16,7 @@ export const compareIdeasByVote = (a: Votable, b: Votable): number => {
   const totalA = a.agreeCount + a.disagreeCount;
   const totalB = b.agreeCount + b.disagreeCount;
 
-  if (totalA !== totalB) {
-    return totalB - totalA;
-  }
-
-  // 3. 찬성 수
-  return b.agreeCount - a.agreeCount;
+  return totalB - totalA;
 };
 
 export const assignRank = <T>(

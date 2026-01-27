@@ -284,7 +284,7 @@ describe('Report Service', () => {
       expect(result?.rankings.byCategory).toHaveLength(0);
     });
 
-    it('아이디어 랭킹을 정렬 규칙(1.차이 -> 2.합계 -> 3.찬성)에 따라 정렬한다', async () => {
+    it('아이디어 랭킹을 정렬 규칙(1.차이 -> 2.합계)에 따라 정렬한다', async () => {
       // 준비
       const mockReport: ReportWithDetails = {
         ...createMockReportBase(mockIssueId),
