@@ -7,79 +7,90 @@ interface ConnectedClient {
   controller: ReadableStreamDefaultController;
 }
 
-interface TopicConnectedClient {
-  userId: string;
-  controller: ReadableStreamDefaultController;
-}
-
 export class SSEManager {
   private connections = new Map<string, Set<ConnectedClient>>();
-  private topicConnections = new Map<string, Set<TopicConnectedClient>>();
+  private topicConnections = new Map<string, Set<ConnectedClient>>();
 
-  // 연결 생성
-  createStream({ issueId, userId, signal }: CreateStreamParams): ReadableStream {
+  /**
+   * 공통 스트림 생성 메서드
+   */
+  private createSSEStream({
+    key,
+    keyName,
+    userId,
+    signal,
+    map,
+    label,
+    onConnect,
+    onDisconnect,
+  }: {
+    key: string;
+    keyName: 'issueId' | 'topicId';
+    userId: string;
+    signal: AbortSignal;
+    map: Map<string, Set<ConnectedClient>>;
+    label: string;
+    onConnect?: () => void;
+    onDisconnect?: () => void;
+  }): ReadableStream {
     const encoder = new TextEncoder();
 
     return new ReadableStream({
       start: (controller) => {
-        // 이 이슈에 대한 연결 Set이 없으면 생성(최초 이슈 생성 및 최초 연결 시)
-        if (!this.connections.has(issueId)) {
-          this.connections.set(issueId, new Set());
+        // 연결 Set이 없으면 생성
+        if (!map.has(key)) {
+          map.set(key, new Set());
         }
 
         // 현재 컨트롤러를 연결 목록에 추가
-        this.connections.get(issueId)!.add({ userId, controller }); // SET에 넣기
+        map.get(key)!.add({ userId, controller });
 
-        // 임시 로깅
-        console.log(`[SSE] 클라이언트 연결됨 - Issue: ${issueId}, User: ${userId}`);
+        console.log(`[SSE] ${label} 클라이언트 연결됨 - ${keyName}: ${key}, User: ${userId}`);
 
         // 연결 확인 메시지
         const connectMessage = `data: ${JSON.stringify({
           type: 'connected',
-          issueId,
+          [keyName]: key,
           timestamp: new Date().toISOString(),
-        })}\n\n`; // SSE 표준 포멧
+        })}\n\n`;
 
         // 스트림 버퍼로 인큐
         controller.enqueue(encoder.encode(connectMessage));
 
-        broadcastMemberPresence(issueId);
+        // 추가 연결 동작 (ex. Presence 알림)
+        if (onConnect) onConnect();
 
         // 하트비트 (30초마다 연결 유지)
-        // 프록시가 연결을 끊지 않도록 방지
         const heartbeatInterval = setInterval(() => {
           try {
             // 앞에 ":"를 붙이면 클라이언트에서는 주석으로 보고 무시함
             const heartbeat = `:heartbeat\n\n`;
             controller.enqueue(encoder.encode(heartbeat));
           } catch (error) {
-            console.error('[SSE] Heartbeat error:', error);
+            console.error(`[SSE] ${label} Heartbeat error:`, error);
             clearInterval(heartbeatInterval);
           }
         }, 30000);
 
         // 연결 종료 처리
         signal.addEventListener('abort', () => {
-          console.log(`[SSE] 클라이언트 연결 종료됨 - Issue: ${issueId}, User: ${userId}`);
+          console.log(`[SSE] ${label} 클라이언트 연결 종료됨 - ${keyName}: ${key}, User: ${userId}`);
           clearInterval(heartbeatInterval);
 
-          // 연결 목록에서 제거
-          const issueConnections = this.connections.get(issueId);
-          if (issueConnections) {
-            for (const client of issueConnections) {
-              // 현재 끊어진 컨트롤러와 일치하는 객체를 찾음
+          const clients = map.get(key);
+          if (clients) {
+            for (const client of clients) {
               if (client.controller === controller) {
-                issueConnections.delete(client); // 그 객체 자체를 삭제
-                break; // 찾았으면 루프 종료
+                clients.delete(client);
+                break;
               }
             }
-            // 이 이슈에 연결된 클라이언트가 없으면 Map에서 제거
-            if (issueConnections.size === 0) {
-              this.connections.delete(issueId);
+            if (clients.size === 0) {
+              map.delete(key);
             }
           }
 
-          broadcastMemberPresence(issueId);
+          if (onDisconnect) onDisconnect();
 
           try {
             controller.close();
@@ -91,11 +102,17 @@ export class SSEManager {
     });
   }
 
-  broadcast({ issueId, event }: BroadcastingEvent): void {
-    const issueConnections = this.connections.get(issueId);
-
-    if (!issueConnections || issueConnections.size === 0) {
-      console.log(`[SSE] 이슈에 연결된 유저가 없습니다 Issue: ${issueId}`);
+  /**
+   * 공통 브로드캐스트 메서드
+   */
+  private broadcastToClients(
+    clients: Set<ConnectedClient> | undefined,
+    id: string,
+    event: BroadcastingEvent['event'],
+    label: string,
+  ): void {
+    if (!clients || clients.size === 0) {
+      console.log(`[SSE] ${label}에 연결된 유저가 없습니다 ID: ${id}`);
       return;
     }
 
@@ -104,17 +121,69 @@ export class SSEManager {
     const encoded = encoder.encode(message);
 
     console.log(
-      `[SSE] ${issueConnections.size}개의 client에게 브로드캐스팅 - Issue: ${issueId}, Event: ${event.type}`,
+      `[SSE] ${clients.size}개의 ${label} client에게 브로드캐스팅 - ID: ${id}, Event: ${event.type}`,
     );
 
-    issueConnections.forEach((client) => {
+    clients.forEach((client) => {
       try {
         client.controller.enqueue(encoded);
       } catch (error) {
-        console.error('[SSE] Failed to send message:', error);
-        issueConnections.delete(client);
+        console.error(`[SSE] Failed to send ${label} message:`, error);
+        clients.delete(client);
       }
     });
+  }
+
+  // 이슈 연결 생성
+  createStream({ issueId, userId, signal }: CreateStreamParams): ReadableStream {
+    return this.createSSEStream({
+      key: issueId,
+      keyName: 'issueId',
+      userId,
+      signal,
+      map: this.connections,
+      label: '이슈',
+      onConnect: () => broadcastMemberPresence(issueId),
+      onDisconnect: () => broadcastMemberPresence(issueId),
+    });
+  }
+
+  // 이슈 브로드캐스트
+  broadcastToIssue({ issueId, event }: BroadcastingEvent): void {
+    const clients = this.connections.get(issueId);
+    this.broadcastToClients(clients, issueId, event, '이슈');
+  }
+
+  // 토픽 연결 생성
+  createTopicStream({
+    topicId,
+    userId,
+    signal,
+  }: {
+    topicId: string;
+    userId: string;
+    signal: AbortSignal;
+  }): ReadableStream {
+    return this.createSSEStream({
+      key: topicId,
+      keyName: 'topicId',
+      userId,
+      signal,
+      map: this.topicConnections,
+      label: '토픽',
+    });
+  }
+
+  // 토픽 브로드캐스트
+  broadcastToTopic({
+    topicId,
+    event,
+  }: {
+    topicId: string;
+    event: BroadcastingEvent['event'];
+  }): void {
+    const clients = this.topicConnections.get(topicId);
+    this.broadcastToClients(clients, topicId, event, '토픽');
   }
 
   getConnectionCount(issueId: string): number {
@@ -138,111 +207,6 @@ export class SSEManager {
 
     const userIds = Array.from(clients).map((client) => client.userId);
     return Array.from(new Set(userIds));
-  }
-
-  // 토픽 연결 생성
-  createTopicStream({
-    topicId,
-    userId,
-    signal,
-  }: {
-    topicId: string;
-    userId: string;
-    signal: AbortSignal;
-  }): ReadableStream {
-    const encoder = new TextEncoder();
-
-    return new ReadableStream({
-      start: (controller) => {
-        // 이 토픽에 대한 연결 Set이 없으면 생성
-        if (!this.topicConnections.has(topicId)) {
-          this.topicConnections.set(topicId, new Set());
-        }
-
-        // 현재 컨트롤러를 연결 목록에 추가
-        this.topicConnections.get(topicId)!.add({ userId, controller });
-
-        console.log(`[SSE] 토픽 클라이언트 연결됨 - Topic: ${topicId}, User: ${userId}`);
-
-        // 연결 확인 메시지
-        const connectMessage = `data: ${JSON.stringify({
-          type: 'connected',
-          topicId,
-          timestamp: new Date().toISOString(),
-        })}\n\n`;
-
-        controller.enqueue(encoder.encode(connectMessage));
-
-        // 하트비트 (30초마다 연결 유지)
-        const heartbeatInterval = setInterval(() => {
-          try {
-            const heartbeat = `:heartbeat\n\n`;
-            controller.enqueue(encoder.encode(heartbeat));
-          } catch (error) {
-            console.error('[SSE] Topic Heartbeat error:', error);
-            clearInterval(heartbeatInterval);
-          }
-        }, 30000);
-
-        // 연결 종료 처리
-        signal.addEventListener('abort', () => {
-          console.log(`[SSE] 토픽 클라이언트 연결 종료됨 - Topic: ${topicId}, User: ${userId}`);
-          clearInterval(heartbeatInterval);
-
-          const topicClients = this.topicConnections.get(topicId);
-          if (topicClients) {
-            for (const client of topicClients) {
-              if (client.controller === controller) {
-                topicClients.delete(client);
-                break;
-              }
-            }
-            if (topicClients.size === 0) {
-              this.topicConnections.delete(topicId);
-            }
-          }
-
-          try {
-            controller.close();
-          } catch (error) {
-            // 이미 닫힌 경우 무시
-          }
-        });
-      },
-    });
-  }
-
-  // 토픽에 연결된 모든 클라이언트에게 브로드캐스트
-  broadcastToTopic({
-    topicId,
-    event,
-  }: {
-    topicId: string;
-    event: { type: string; data: any };
-  }): void {
-    const topicClients = this.topicConnections.get(topicId);
-
-    if (!topicClients || topicClients.size === 0) {
-      console.log(`[SSE] 토픽에 연결된 유저가 없습니다 Topic: ${topicId}`);
-      return;
-    }
-
-    const encoder = new TextEncoder();
-    const message = `event: ${event.type}\ndata: ${JSON.stringify(event.data)}\n\n`;
-    const encoded = encoder.encode(message);
-
-    console.log(
-      `[SSE] ${topicClients.size}개의 토픽 client에게 브로드캐스팅 - Topic: ${topicId}, Event: ${event.type}`,
-    );
-
-    topicClients.forEach((client) => {
-      try {
-        client.controller.enqueue(encoded);
-      } catch (error) {
-        console.error('[SSE] Failed to send topic message:', error);
-        topicClients.delete(client);
-      }
-    });
   }
 }
 
