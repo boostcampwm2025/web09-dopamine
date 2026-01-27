@@ -44,12 +44,45 @@ export const categorizeService = {
 
       await Promise.all(
         Array.from(ideaCategoryMap.entries()).map(([ideaId, categoryId]) =>
-          tx.idea.updateMany({
-            where: { id: ideaId, issueId },
-            data: { categoryId, positionX: null, positionY: null },
-          }),
+          ideaRepository.updateManyCategoriesByIds([ideaId], issueId, categoryId, tx),
         ),
       );
+
+      // 미분류 아이디어 처리
+      const allIdeas = await ideaRepository.findManyByIssueId(issueId, tx);
+
+      const uncategorizedIdeaIds = allIdeas
+        .filter((idea) => !ideaCategoryMap.has(idea.id))
+        .map((idea) => idea.id);
+
+      if (uncategorizedIdeaIds.length > 0) {
+        // "미분류" 카테고리 생성
+        const uncategorizedCategory = await categoryRepository.create(
+          {
+            issueId,
+            title: '기타',
+            positionX: 100 + createdCategories.length * 600,
+            positionY: 100,
+          },
+          tx,
+        );
+
+        // 미분류 아이디어들을 "미분류" 카테고리에 할당
+        await ideaRepository.updateManyCategoriesByIds(
+          uncategorizedIdeaIds,
+          issueId,
+          uncategorizedCategory.id,
+          tx,
+        );
+
+        // ideaCategoryMap 업데이트
+        uncategorizedIdeaIds.forEach((ideaId) => {
+          ideaCategoryMap.set(ideaId, uncategorizedCategory.id);
+        });
+
+        // createdCategories에 추가
+        createdCategories.push(uncategorizedCategory);
+      }
 
       return {
         categories: createdCategories,

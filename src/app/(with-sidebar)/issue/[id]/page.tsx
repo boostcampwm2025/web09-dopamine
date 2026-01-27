@@ -88,13 +88,13 @@ const IssuePage = () => {
     // 토픽 내 이슈인데 로그인하지 않은 경우 → 홈으로 리다이렉트
     if (isQuickIssue === false && !session?.user?.id) {
       router.replace('/');
-      toast.error('권한이 없는 이슈입니다.');
+      toast.error('로그인이 필요한 서비스입니다.');
       return;
     }
 
     if (isQuickIssue === false && projectId && !isProjectsLoading && !isProjectMember) {
       router.replace('/');
-      toast.error('권한이 없는 이슈입니다.');
+      toast.error('로그인이 필요한 서비스입니다.');
     }
   }, [
     issueId,
@@ -283,6 +283,7 @@ const IssuePage = () => {
                   {...category}
                   issueId={issueId}
                   hasActiveComment={hasActiveComment}
+                  isMuted={category.title === '기타'}
                   onPositionChange={handleCategoryPositionChange}
                   checkCollision={checkCategoryOverlap}
                   onRemove={() => handleDeleteCategory(category.id)}
@@ -338,31 +339,31 @@ const IssuePage = () => {
           <DragOverlay dropAnimation={null}>
             {activeId
               ? (() => {
-                  const activeIdea = ideas.find((idea) => idea.id === activeId);
-                  if (!activeIdea) return null;
+                const activeIdea = ideas.find((idea) => idea.id === activeId);
+                if (!activeIdea) return null;
 
-                  return (
-                    <div
-                      style={{
-                        transform: `scale(${scale})`,
-                        transformOrigin: '0 0', // 왼쪽 위 기준으로 scale
-                      }}
-                    >
-                      <IdeaCard
-                        {...activeIdea}
-                        issueId={issueId}
-                        content={overlayEditValue ?? activeIdea.content}
-                        position={null}
-                        isSelected={activeIdea.id === selectedIdeaId}
-                        author={activeIdea.author}
-                        userId={activeIdea.userId}
-                        status={getIdeaStatus(activeIdea.id)}
-                        isVoteButtonVisible={isVoteButtonVisible}
-                        isVoteDisabled={isVoteDisabled}
-                      />
-                    </div>
-                  );
-                })()
+                return (
+                  <div
+                    style={{
+                      transform: `scale(${scale})`,
+                      transformOrigin: '0 0', // 왼쪽 위 기준으로 scale
+                    }}
+                  >
+                    <IdeaCard
+                      {...activeIdea}
+                      issueId={issueId}
+                      content={overlayEditValue ?? activeIdea.content}
+                      position={null}
+                      isSelected={activeIdea.id === selectedIdeaId}
+                      author={activeIdea.author}
+                      userId={activeIdea.userId}
+                      status={getIdeaStatus(activeIdea.id)}
+                      isVoteButtonVisible={isVoteButtonVisible}
+                      isVoteDisabled={isVoteDisabled}
+                    />
+                  </div>
+                );
+              })()
               : null}
           </DragOverlay>
         )}
