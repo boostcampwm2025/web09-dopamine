@@ -151,11 +151,11 @@ describe('Project Repository 테스트', () => {
       description: '설명',
       ownerId: 'owner-1',
       createdAt: now,
-      owner: { id: 'owner-1', name: '오너', image: 'owner.png' },
+      owner: { id: 'owner-1', name: '오너', displayName: '오너', image: 'owner.png' },
       projectMembers: [
-        { user: { id: 'member-1', name: '멤버', image: 'member.png' } },
-        { user: { id: 'owner-1', name: '오너', image: 'owner.png' } },
-        { user: { id: 'member-1', name: '멤버', image: 'member.png' } },
+        { user: { id: 'member-1', displayName: '멤버', image: 'member.png' } },
+        { user: { id: 'owner-1', displayName: '오너', image: 'owner.png' } },
+        { user: { id: 'member-1', displayName: '멤버', image: 'member.png' } },
       ],
       topics: [
         {
@@ -194,8 +194,8 @@ describe('Project Repository 테스트', () => {
       createdAt: now,
       owner: { id: 'owner-1', name: '오너', image: 'owner.png' },
       projectMembers: [
-        { user: { id: 'owner-1', name: '오너', image: 'owner.png' } },
-        { user: { id: 'member-1', name: '멤버', image: 'member.png' } },
+        { user: { id: 'owner-1', displayName: '오너', image: 'owner.png' } },
+        { user: { id: 'member-1', displayName: '멤버', image: 'member.png' } },
       ],
       topics: [],
     } as any);
@@ -220,8 +220,8 @@ describe('Project Repository 테스트', () => {
       createdAt: now,
       owner: { id: 'owner-1', name: '오너', image: 'owner.png' },
       projectMembers: [
-        { user: { id: 'member-1', name: '멤버1', image: 'member1.png' } },
-        { user: { id: 'member-2', name: '멤버2', image: 'member2.png' } },
+        { user: { id: 'member-1', displayName: '멤버1', image: 'member1.png' } },
+        { user: { id: 'member-2', displayName: '멤버2', image: 'member2.png' } },
       ],
       topics: [],
     } as any);
