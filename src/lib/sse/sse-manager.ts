@@ -131,20 +131,6 @@ export class SSEManager {
     );
 
     clients.forEach((client) => {
-      // 댓글 관련 이벤트의 경우, 해당 아이디어의 댓글창을 보고 있는 유저에게만 전달 (타입 가드 처리)
-      const eventData = event.data as any;
-      if (
-        (event.type === SSE_EVENT_TYPES.COMMENT_CREATED ||
-          event.type === SSE_EVENT_TYPES.COMMENT_UPDATED ||
-          event.type === SSE_EVENT_TYPES.COMMENT_DELETED) &&
-        eventData?.ideaId
-      ) {
-        // 클라이언트가 현재 보고 있는 아이디어와 일치할 때만 전송
-        if (client.activeIdeaId !== eventData.ideaId) {
-          return;
-        }
-      }
-
       try {
         client.controller.enqueue(encoded);
       } catch (error) {
