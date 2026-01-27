@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { ChangeEvent } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { getChoseong } from 'es-hangul';
 import { MEMBER_ROLE } from '@/constants/issue';
 import { useTopicId } from '@/hooks/use-topic-id';
@@ -18,6 +18,8 @@ export const useIssueSidebar = () => {
 
   // 토픽 ID 및 페이지 타입 가져오기
   const { topicId, isTopicPage } = useTopicId();
+  const pathname = usePathname();
+  const isSummaryPage = pathname?.endsWith('/summary');
 
   const issueId = useIssueId();
   // 토픽 페이지에서는 이슈 데이터 가져오지 않음
@@ -39,18 +41,20 @@ export const useIssueSidebar = () => {
         return a.role === MEMBER_ROLE.OWNER ? -1 : 1;
       }
 
-      // 2. 온라인 상태별 정렬
-      const isAOnline = onlineMemberIds.includes(a.id);
-      const isBOnline = onlineMemberIds.includes(b.id);
+      // 2. 온라인 상태별 정렬 (요약 페이지에서는 제외)
+      if (!isSummaryPage) {
+        const isAOnline = onlineMemberIds.includes(a.id);
+        const isBOnline = onlineMemberIds.includes(b.id);
 
-      if (isAOnline !== isBOnline) {
-        return Number(isBOnline) - Number(isAOnline);
+        if (isAOnline !== isBOnline) {
+          return Number(isBOnline) - Number(isAOnline);
+        }
       }
 
       // 3. 이름순 정렬
       return a.displayName.localeCompare(b.displayName);
     });
-  }, [members, onlineMemberIds]);
+  }, [members, onlineMemberIds, isSummaryPage]);
 
   // 멤버 검색 필터링: 일반 문자열 검색 + 한글 초성 검색 지원
   const filteredMembers = useMemo(() => {
@@ -123,6 +127,7 @@ export const useIssueSidebar = () => {
     // 표시 여부
     showMemberList,
     showIssueList,
+    isSummaryPage,
 
     // 액션
     goToIssueMap,

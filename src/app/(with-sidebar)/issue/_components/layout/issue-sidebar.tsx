@@ -28,6 +28,7 @@ export default function IssueSidebar() {
     handleSearchChange,
     showMemberList,
     showIssueList,
+    isSummaryPage,
     goToIssueMap,
   } = useIssueSidebar();
 
@@ -48,21 +49,21 @@ export default function IssueSidebar() {
           <S.SidebarList>
             {topicId
               ? topicIssues.map((issue) => (
-                  <SidebarItem
-                    key={issue.id}
-                    title={issue.title}
-                    href={`/issue/${issue.id}`}
-                    status={issue.status as any}
-                  />
-                ))
+                <SidebarItem
+                  key={issue.id}
+                  title={issue.title}
+                  href={`/issue/${issue.id}`}
+                  status={issue.status as any}
+                />
+              ))
               : ISSUE_LIST.map((issue) => (
-                  <SidebarItem
-                    key={issue.title}
-                    title={issue.title}
-                    href={issue.href}
-                    status={issue.status}
-                  />
-                ))}
+                <SidebarItem
+                  key={issue.title}
+                  title={issue.title}
+                  href={issue.href}
+                  status={issue.status}
+                />
+              ))}
           </S.SidebarList>
         </>
       )}
@@ -71,13 +72,15 @@ export default function IssueSidebar() {
         <>
           <S.SidebarTitle>
             MEMBER LIST
-            <span>
-              ({onlineMemberIds.length}/{sortedMembers.length})
-            </span>
+            {!isSummaryPage && (
+              <span>
+                ({onlineMemberIds.length}/{sortedMembers.length})
+              </span>
+            )}
           </S.SidebarTitle>
           <S.SidebarList>
             {filteredMembers.map((user) => {
-              const isOnline = onlineMemberIds.includes(user.id);
+              const isOnline = isSummaryPage ? undefined : onlineMemberIds.includes(user.id);
               return (
                 <MemberSidebarItem
                   key={user.id}
