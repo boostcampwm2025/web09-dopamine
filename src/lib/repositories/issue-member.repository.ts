@@ -35,10 +35,10 @@ export const issueMemberRepository = {
       },
       select: {
         role: true,
+        nickname: true,
         user: {
           select: {
             id: true,
-            displayName: true,
           },
         },
       },

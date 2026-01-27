@@ -1,5 +1,4 @@
 import { getServerSession } from 'next-auth';
-import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 import { IssueRole } from '@prisma/client';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
@@ -35,7 +34,7 @@ export async function GET(
 
     const response = members.map((member) => ({
       id: member.user.id,
-      displayName: member.user.displayName,
+      displayName: member.nickname,
       role: member.role,
       isConnected: true, // 지금은 기본값, 나중에 SSE 붙이면 여기서 합치면 됨
     }));

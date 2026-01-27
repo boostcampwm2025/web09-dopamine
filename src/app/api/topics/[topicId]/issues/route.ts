@@ -1,5 +1,7 @@
+import { getServerSession } from 'next-auth';
 import { NextRequest } from 'next/server';
 import { IssueRole } from '@prisma/client';
+import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { issueMemberRepository } from '@/lib/repositories/issue-member.repository';
 import { createIssue } from '@/lib/repositories/issue.repository';
@@ -35,6 +37,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ top
   const { topicId } = await params;
   const { title } = await req.json();
   const userId = getUserIdFromHeader(req)!;
+  const session = await getServerSession(authOptions);
 
   if (!title) {
     return createErrorResponse('TITLE_REQUIRED', 400);
@@ -43,7 +46,13 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ top
   try {
     const issueId = await prisma.$transaction(async (tx) => {
       const issue = await createIssue(tx, title, topicId);
-      await issueMemberRepository.addIssueOwner(tx, issue.id, userId, IssueRole.OWNER);
+
+      await issueMemberRepository.addIssueMember(tx, {
+        issueId: issue.id,
+        userId,
+        nickname: session?.user?.name || '익명',
+        role: IssueRole.OWNER,
+      });
 
       return issue.id;
     });
