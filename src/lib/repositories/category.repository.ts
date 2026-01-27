@@ -45,15 +45,18 @@ export const categoryRepository = {
     );
   },
 
-  async create(data: {
-    issueId: string;
-    title: string;
-    positionX?: number;
-    positionY?: number;
-    width?: number;
-    height?: number;
-  }) {
-    return prisma.category.create({
+  async create(
+    data: {
+      issueId: string;
+      title: string;
+      positionX?: number;
+      positionY?: number;
+      width?: number;
+      height?: number;
+    },
+    tx: Prisma.TransactionClient = prisma,
+  ) {
+    return tx.category.create({
       data: {
         issueId: data.issueId,
         title: data.title,
