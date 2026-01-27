@@ -27,7 +27,7 @@ export default function LoginInfo() {
 
       <S.LoginCard>
         <S.LoginInfoWrapper>
-          <S.ProviderIcon>{icon}</S.ProviderIcon>
+          <S.ProviderIcon style={{ color }}>{icon}</S.ProviderIcon>
           <S.ProviderText>{name}로 로그인 중</S.ProviderText>
         </S.LoginInfoWrapper>
         <S.StatusBadge>CONNECTED</S.StatusBadge>
