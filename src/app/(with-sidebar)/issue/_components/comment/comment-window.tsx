@@ -198,6 +198,7 @@ export default function CommentWindow({ issueId, ideaId, userId, onClose }: Comm
       onPointerDown={handleWindowPointerDown}
       onWheel={handleWindowWheel}
       onWheelCapture={handleWindowWheelCapture}
+      data-no-canvas-close="true"
     >
       <S.Header>
         <S.Title>댓글</S.Title>

@@ -62,6 +62,7 @@ export default function IdeaCardHeader({
           <S.IconButton
             aria-label="comment"
             onClick={onCommentClick}
+            data-no-canvas-close="true"
           >
             <Image
               src="/comment.svg"

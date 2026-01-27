@@ -9,7 +9,7 @@ import { useCanvasControls } from './use-canvas-controls';
 interface CanvasProps {
   children?: React.ReactNode;
   onDoubleClick?: (position: { x: number; y: number }) => void;
-  onClick?: () => void;
+  onCanvasClick?: () => void;
   showGrid?: boolean;
   showControls?: boolean;
   showMessage?: boolean;
@@ -22,7 +22,7 @@ interface CanvasProps {
 export default function Canvas({
   children,
   onDoubleClick,
-  onClick,
+  onCanvasClick,
   showGrid = true,
   showControls = true,
   showMessage = true,
@@ -50,6 +50,7 @@ export default function Canvas({
     canvasRef,
     onDoubleClick,
     isAddIdeaEnabled: enableAddIdea,
+    onCanvasClick,
   });
 
   return (
@@ -62,7 +63,6 @@ export default function Canvas({
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
         onDoubleClick={handleCanvasDoubleClick}
-        onClick={onClick}
         showGrid={showGrid}
         style={{
           cursor: isPanning ? 'grabbing' : 'default',

@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useCanvasStore } from '../../store/use-canvas-store';
 
 const DEFAULT_OFFSET = { x: 0, y: 0 };
@@ -7,16 +7,22 @@ interface UseCanvasControlsOptions {
   canvasRef: React.RefObject<HTMLDivElement | null>;
   onDoubleClick?: (position: { x: number; y: number }) => void;
   isAddIdeaEnabled: boolean;
+  onCanvasClick?: () => void;
 }
 
 export function useCanvasControls({
   canvasRef,
   onDoubleClick,
   isAddIdeaEnabled,
+  onCanvasClick,
 }: UseCanvasControlsOptions) {
   const { scale, offset, setScale, setOffset, reset } = useCanvasStore();
   const [isPanning, setIsPanning] = useState(false);
   const [panStart, setPanStart] = useState(DEFAULT_OFFSET);
+
+  // 드래그 판별을 위한 Ref
+  const clickStartRef = useRef({ x: 0, y: 0 });
+  const isBackgroundClickRef = useRef(false);
 
   const handleWheel = useCallback(
     (e: React.WheelEvent) => {
@@ -37,6 +43,14 @@ export function useCanvasControls({
 
   const handleMouseDown = useCallback(
     (e: React.MouseEvent) => {
+      clickStartRef.current = { x: e.clientX, y: e.clientY };
+      const target = e.target as HTMLElement;
+      if (target.closest('[data-no-canvas-close="true"]')) {
+        isBackgroundClickRef.current = false;
+      } else {
+        isBackgroundClickRef.current = true;
+      }
+
       if (e.button === 1 || (e.button === 0 && e.shiftKey)) {
         e.preventDefault();
         setIsPanning(true);
@@ -58,9 +72,21 @@ export function useCanvasControls({
     [isPanning, panStart, setOffset],
   );
 
-  const handleMouseUp = useCallback(() => {
-    setIsPanning(false);
-  }, []);
+  const handleMouseUp = useCallback(
+    (e: React.MouseEvent) => {
+      setIsPanning(false);
+
+      if (isBackgroundClickRef.current) {
+        const moveX = Math.abs(e.clientX - clickStartRef.current.x);
+        const moveY = Math.abs(e.clientY - clickStartRef.current.y);
+
+        if (moveX < 5 && moveY < 5) {
+          onCanvasClick?.();
+        }
+      }
+    },
+    [onCanvasClick],
+  );
 
   const handleZoomIn = useCallback(() => {
     setScale(Math.min(scale + 0.1, 3));

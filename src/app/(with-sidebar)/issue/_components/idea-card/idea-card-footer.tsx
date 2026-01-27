@@ -39,6 +39,7 @@ export default function IdeaCardFooter({
         active={myVote === VOTE_TYPE.AGREE}
         onClick={onAgree}
         disabled={isVoteDisabled}
+        data-no-canvas-close="true"
       >
         찬성 {agreeCount}
       </S.VoteButton>
@@ -48,6 +49,7 @@ export default function IdeaCardFooter({
         active={myVote === VOTE_TYPE.DISAGREE}
         onClick={onDisagree}
         disabled={isVoteDisabled}
+        data-no-canvas-close="true"
       >
         반대 {disagreeCount}
       </S.VoteButton>
