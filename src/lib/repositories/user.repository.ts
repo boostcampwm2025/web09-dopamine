@@ -22,3 +22,13 @@ export async function findUserById(userId: string, tx?: PrismaTransaction) {
     select: { email: true },
   });
 }
+
+export async function deleteUser(userId: string, tx?: PrismaTransaction) {
+  const client: PrismaClientOrTx = tx ?? prisma;
+
+  return client.user.delete({
+    where: {
+      id: userId,
+    },
+  });
+}
