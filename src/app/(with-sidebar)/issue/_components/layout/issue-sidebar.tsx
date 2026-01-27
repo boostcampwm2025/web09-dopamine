@@ -7,7 +7,7 @@ import IssueGraphLink from './issue-graph-link';
 import NewIssueButton from './new-issue-button';
 import { useIssueSidebar } from './use-issue-sidebar';
 
-const ISSUE_LIST = [
+export const ISSUE_LIST = [
   { title: 'new issue', href: '#', status: ISSUE_STATUS.BRAINSTORMING },
   { title: 'categorize', href: '#', status: ISSUE_STATUS.CATEGORIZE },
   { title: 'voting issue', href: '#', status: ISSUE_STATUS.VOTE },
@@ -21,6 +21,8 @@ export default function IssueSidebar() {
     topicId,
     isTopicPage,
     topicIssues,
+    filteredIssues,
+    filteredStaticIssues,
     filteredMembers,
     onlineMemberIds,
     sortedMembers,
@@ -48,7 +50,7 @@ export default function IssueSidebar() {
           </S.SidebarTitle>
           <S.SidebarList>
             {topicId
-              ? topicIssues.map((issue) => (
+              ? filteredIssues.map((issue) => (
                 <SidebarItem
                   key={issue.id}
                   title={issue.title}
@@ -56,7 +58,7 @@ export default function IssueSidebar() {
                   status={issue.status as any}
                 />
               ))
-              : ISSUE_LIST.map((issue) => (
+              : filteredStaticIssues.map((issue) => (
                 <SidebarItem
                   key={issue.title}
                   title={issue.title}

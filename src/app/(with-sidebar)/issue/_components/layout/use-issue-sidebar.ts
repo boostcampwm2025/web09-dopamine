@@ -7,6 +7,16 @@ import { useTopicId } from '@/hooks/use-topic-id';
 import { useIssueData, useIssueId } from '../../hooks';
 import { useTopicIssuesQuery } from '@/hooks/issue';
 import { useIssueStore } from '../../store/use-issue-store';
+import { ISSUE_LIST } from './issue-sidebar';
+
+/**
+ * 일반 문자열 및 초성 검색 매칭 여부를 확인하는 유틸리티
+ */
+const matchSearch = (text: string, normalizedTerm: string, searchChoseong: string) => {
+  if (text.toLowerCase().includes(normalizedTerm)) return true;
+  if (!searchChoseong) return false;
+  return getChoseong(text).includes(searchChoseong);
+};
 
 export const useIssueSidebar = () => {
   // 클라이언트 마운트 감지
@@ -52,29 +62,47 @@ export const useIssueSidebar = () => {
       }
 
       // 3. 이름순 정렬
-      return a.displayName.localeCompare(b.displayName);
+      const nameA = a.displayName || '익명';
+      const nameB = b.displayName || '익명';
+      return nameA.localeCompare(nameB);
     });
   }, [members, onlineMemberIds, isSummaryPage]);
 
-  // 멤버 검색 필터링: 일반 문자열 검색 + 한글 초성 검색 지원
-  const filteredMembers = useMemo(() => {
+  // 공통 검색 파라미터 계산
+  const searchParams = useMemo(() => {
     const trimmed = searchTerm.trim();
+    return {
+      trimmed,
+      normalized: trimmed.toLowerCase(),
+      searchChoseong: getChoseong(trimmed),
+    };
+  }, [searchTerm]);
+
+  // 멤버 검색 필터링
+  const filteredMembers = useMemo(() => {
+    const { trimmed, normalized, searchChoseong } = searchParams;
     if (!trimmed) return sortedMembers;
 
-    const normalized = trimmed.toLowerCase();
-    const searchChoseong = getChoseong(trimmed);
+    return sortedMembers.filter((member) =>
+      matchSearch(member.displayName || '익명', normalized, searchChoseong),
+    );
+  }, [searchParams, sortedMembers]);
 
-    return sortedMembers.filter((member) => {
-      const name = member.displayName;
+  // 이슈 검색 필터링
+  const filteredIssues = useMemo(() => {
+    const { trimmed, normalized, searchChoseong } = searchParams;
+    if (!trimmed) return topicIssues;
 
-      // 일반 문자열 포함 여부 확인
-      if (name.toLowerCase().includes(normalized)) return true;
+    return topicIssues.filter((issue) => matchSearch(issue.title || '', normalized, searchChoseong));
+  }, [searchParams, topicIssues]);
 
-      // 초성 검색 비교
-      if (!searchChoseong) return false;
-      return getChoseong(name).includes(searchChoseong);
-    });
-  }, [searchTerm, sortedMembers]);
+  // 정적 이슈 리스트 필터링
+  const filteredStaticIssues = useMemo(() => {
+    const { trimmed, normalized, searchChoseong } = searchParams;
+    if (!trimmed) return ISSUE_LIST;
+
+    return ISSUE_LIST.filter((issue) => matchSearch(issue.title || '', normalized, searchChoseong));
+  }, [searchParams]);
 
   // 검색어 입력 핸들러
   const handleSearchChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
@@ -116,6 +144,8 @@ export const useIssueSidebar = () => {
     topicId,
     isTopicPage,
     topicIssues,
+    filteredIssues,
+    filteredStaticIssues,
     filteredMembers,
     onlineMemberIds,
     sortedMembers,
