@@ -3,7 +3,7 @@ import { BroadcastingEvent } from '@/types/sse';
 
 // 브로드 캐스팅
 export function broadcast({ issueId, event }: BroadcastingEvent) {
-  sseManager.broadcast({ issueId, event });
+  sseManager.broadcastToIssue({ issueId, event });
 }
 
 // 토픽 레벨 브로드캐스팅
@@ -12,7 +12,7 @@ export function broadcastToTopic({
   event,
 }: {
   topicId: string;
-  event: { type: string; data: any };
+  event: BroadcastingEvent['event'];
 }) {
   sseManager.broadcastToTopic({ topicId, event });
 }
