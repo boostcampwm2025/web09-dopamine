@@ -23,6 +23,7 @@ describe('Vote Repository 테스트', () => {
 
     expect(mockTx.vote.findFirst).toHaveBeenCalledWith({
       where: { ideaId: 'idea-1', userId: 'user-1', deletedAt: null },
+      select: { id: true, type: true },
     });
   });
 
@@ -48,6 +49,7 @@ describe('Vote Repository 테스트', () => {
     expect(mockTx.vote.update).toHaveBeenCalledWith({
       where: { id: 'vote-1' },
       data: { type: VoteType.DISAGREE },
+      select: { id: true, type: true },
     });
   });
 
