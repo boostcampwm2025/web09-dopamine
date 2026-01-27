@@ -338,7 +338,7 @@ describe('Report Service', () => {
       expect(lastTwoIds).toContain('idea-C');
     });
 
-    // [신규] 동점자 등수 처리(Rank) 로직 검증
+    // 동점자 등수 처리(Rank) 로직 검증
     it('동점자에게는 같은 등수를 부여하고, 다음 등수는 건너뛴다 (1224 방식)', async () => {
       // 준비
       const mockReport: ReportWithDetails = {
