@@ -284,23 +284,32 @@ describe('Report Service', () => {
       expect(result?.rankings.byCategory).toHaveLength(0);
     });
 
-    it('아이디어 랭킹을 투표 점수(찬성 - 반대) 순으로 정렬한다', async () => {
+    it('아이디어 랭킹을 정렬 규칙(1.차이 -> 2.합계 -> 3.찬성)에 따라 정렬한다', async () => {
       // 준비
       const mockReport: ReportWithDetails = {
         ...createMockReportBase(mockIssueId),
         issue: createMockIssue(mockIssueId, {
           ideas: [
-            createMockIdea('idea-1', 'Low score idea', {
-              disagreeCount: 1,
-              user: createMockUser('user-1', 'User 1'),
-            }),
-            createMockIdea('idea-2', 'High score idea', {
+            // Idea A: 차이 2 (3-1), 합계 4, 찬성 3 => 3등
+            createMockIdea('idea-A', 'Score 2, Total 4', {
               agreeCount: 3,
-              user: createMockUser('user-2', 'User 2'),
+              disagreeCount: 1,
             }),
-            createMockIdea('idea-3', 'Medium score idea', {
-              agreeCount: 1,
-              user: createMockUser('user-3', 'User 3'),
+            // Idea B: 차이 2 (4-2), 합계 6, 찬성 4 => 1등 (합계가 높음)
+            createMockIdea('idea-B', 'Score 2, Total 6', {
+              agreeCount: 4,
+              disagreeCount: 2,
+            }),
+            // Idea C: 차이 2 (3-1), 합계 4, 찬성 3 => Idea A와 동점 (공동 3등)
+            // 테스트를 위해 A와 완벽히 같은 조건
+            createMockIdea('idea-C', 'Score 2, Total 4', {
+              agreeCount: 3,
+              disagreeCount: 1,
+            }),
+            // Idea D: 차이 3 (3-0) => 0순위 (점수 자체가 높음) -> 실제 1등
+            createMockIdea('idea-D', 'Score 3', {
+              agreeCount: 3,
+              disagreeCount: 0,
             }),
           ],
         }),
@@ -311,14 +320,56 @@ describe('Report Service', () => {
 
       // 실행
       const result = await getReportSummaryByIssueId(mockIssueId);
+      const rankings = result?.rankings.all || [];
 
       // 검증
-      expect(result?.rankings.all).toHaveLength(3);
-      expect(result?.rankings.all[0].id).toBe('idea-2'); // 3 - 0 = 3점
-      expect(result?.rankings.all[0].agreeCount).toBe(3);
-      expect(result?.rankings.all[0].disagreeCount).toBe(0);
-      expect(result?.rankings.all[1].id).toBe('idea-3'); // 1 - 0 = 1점
-      expect(result?.rankings.all[2].id).toBe('idea-1'); // 0 - 1 = -1점
+      expect(rankings).toHaveLength(4);
+
+      // 1위: Idea D (점수 차이 3점으로 가장 높음)
+      expect(rankings[0].id).toBe('idea-D');
+
+      // 2위: Idea B (점수 차이는 2점으로 A,C와 같으나, 투표 합계가 6으로 가장 많음)
+      expect(rankings[1].id).toBe('idea-B');
+
+      // 3, 4위: Idea A와 Idea C (모든 조건이 같음, 순서는 인덱스나 생성 순서에 따름)
+      // A와 C가 3번째, 4번째에 위치하는지만 확인
+      const lastTwoIds = [rankings[2].id, rankings[3].id];
+      expect(lastTwoIds).toContain('idea-A');
+      expect(lastTwoIds).toContain('idea-C');
+    });
+
+    // [신규] 동점자 등수 처리(Rank) 로직 검증
+    it('동점자에게는 같은 등수를 부여하고, 다음 등수는 건너뛴다 (1224 방식)', async () => {
+      // 준비
+      const mockReport: ReportWithDetails = {
+        ...createMockReportBase(mockIssueId),
+        issue: createMockIssue(mockIssueId, {
+          ideas: [
+            // 공동 1등 (10 - 0 = 10점)
+            createMockIdea('idea-1', 'Winner 1', { agreeCount: 10, disagreeCount: 0 }),
+            // 공동 1등 (10 - 0 = 10점)
+            createMockIdea('idea-2', 'Winner 2', { agreeCount: 10, disagreeCount: 0 }),
+            // 3등 (5 - 0 = 5점) -> 2등이 아니라 3등이어야 함
+            createMockIdea('idea-3', 'Second Place', { agreeCount: 5, disagreeCount: 0 }),
+          ],
+        }),
+        selectedIdea: null,
+      };
+
+      mockedFindReportWithDetailsById.mockResolvedValue(mockReport);
+
+      // 실행
+      const result = await getReportSummaryByIssueId(mockIssueId);
+      const rankings = result?.rankings.all;
+
+      // 검증
+      expect(rankings).toBeDefined();
+      if (!rankings) return;
+
+      // 등수 확인
+      expect(rankings[0].rank).toBe(1); // 첫 번째 사람 1등
+      expect(rankings[1].rank).toBe(1); // 두 번째 사람도 1등 (동점)
+      expect(rankings[2].rank).toBe(3); // 세 번째 사람은 3등 (2등 건너뜀)
     });
 
     it('선택된 아이디어가 없는 경우 null을 반환한다', async () => {
