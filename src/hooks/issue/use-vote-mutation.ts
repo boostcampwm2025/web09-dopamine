@@ -74,10 +74,5 @@ export const useVoteMutation = (issueId: string, ideaId: string) => {
         queryClient.setQueryData(ideasListQueryKey, context.previousIdeas);
       }
     },
-
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ideaQueryKey });
-      queryClient.invalidateQueries({ queryKey: ideasListQueryKey });
-    },
   });
 };

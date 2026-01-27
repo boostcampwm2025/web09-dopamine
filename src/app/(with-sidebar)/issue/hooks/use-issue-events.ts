@@ -160,8 +160,6 @@ export function useIssueEvents({
           };
           return newData;
         });
-        // 개별 아이디어 쿼리도 무효화
-        queryClient.invalidateQueries({ queryKey: ['issues', issueId, 'ideas', data.ideaId] });
       }
     });
 
