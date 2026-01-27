@@ -34,17 +34,25 @@ export const categorizeService = {
       );
 
       const ideaCategoryMap = new Map<string, string>();
+      const categoryToIdeaIds = new Map<string, string[]>();
       categoryPayloads.forEach((category, index) => {
         const categoryId = createdCategories[index]?.id;
         if (!categoryId) return;
         category.ideaIds.forEach((ideaId) => {
           ideaCategoryMap.set(ideaId, categoryId);
+          // 카테고리별 아이디어를 묶어 updateMany 호출 횟수를 줄인다.
+          const ideaIds = categoryToIdeaIds.get(categoryId);
+          if (ideaIds) {
+            ideaIds.push(ideaId);
+          } else {
+            categoryToIdeaIds.set(categoryId, [ideaId]);
+          }
         });
       });
 
       await Promise.all(
-        Array.from(ideaCategoryMap.entries()).map(([ideaId, categoryId]) =>
-          ideaRepository.updateManyCategoriesByIds([ideaId], issueId, categoryId, tx),
+        Array.from(categoryToIdeaIds.entries()).map(([categoryId, ideaIds]) =>
+          ideaRepository.updateManyCategoriesByIds(ideaIds, issueId, categoryId, tx),
         ),
       );
 
