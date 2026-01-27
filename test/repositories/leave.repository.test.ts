@@ -40,6 +40,22 @@ describe('LeaveRepository (탈퇴 레포지토리)', () => {
       });
       expect(result).toEqual({ ownerId: 'owner-1' });
     });
+
+    it('트랜잭션이 전달되면 해당 클라이언트를 사용한다', async () => {
+      // 역할: 상위 트랜잭션 컨텍스트에서 읽기 일관성이 보장되도록 한다.
+      const mockTx = {
+        project: {
+          findFirst: jest.fn().mockResolvedValue({ ownerId: 'owner-1' }),
+        },
+      } as any;
+
+      await LeaveRepository.getProjectOwnerId(projectId, mockTx);
+
+      expect(mockTx.project.findFirst).toHaveBeenCalledWith({
+        where: { id: projectId, deletedAt: null },
+        select: { ownerId: true },
+      });
+    });
   });
 
   describe('leaveProject (프로젝트 탈퇴 처리)', () => {
@@ -57,6 +73,23 @@ describe('LeaveRepository (탈퇴 레포지토리)', () => {
         data: {
           deletedAt: expect.any(Date), // 현재 시각으로 업데이트
         },
+      });
+      expect(result).toBe(1);
+    });
+
+    it('트랜잭션이 전달되면 해당 클라이언트로 탈퇴를 처리한다', async () => {
+      // 역할: 탈퇴 처리와 다른 작업을 같은 트랜잭션으로 묶을 수 있도록 보장한다.
+      const mockTx = {
+        projectMember: {
+          updateMany: jest.fn().mockResolvedValue({ count: 1 }),
+        },
+      } as any;
+
+      const result = await LeaveRepository.leaveProject(projectId, userId, mockTx);
+
+      expect(mockTx.projectMember.updateMany).toHaveBeenCalledWith({
+        where: { projectId, userId, deletedAt: null },
+        data: { deletedAt: expect.any(Date) },
       });
       expect(result).toBe(1);
     });
