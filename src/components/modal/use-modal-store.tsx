@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { create } from 'zustand';
 
-export type ModalType = 'close-issue' | 'default';
+export type ModalType = 'close-issue' | 'invite' | 'default';
 
 interface OpenModalPayload {
   title?: string;
@@ -9,6 +9,8 @@ interface OpenModalPayload {
   closeOnOverlayClick?: boolean;
   hasCloseButton?: boolean;
   onClose?: () => void;
+  onSubmit?: () => void | Promise<void>;
+  submitButtonText?: string;
   modalType?: ModalType;
 }
 
@@ -19,9 +21,13 @@ interface ModalState {
   closeOnOverlayClick: boolean;
   hasCloseButton?: boolean;
   onClose?: () => void;
+  onSubmit?: () => void | Promise<void>;
+  submitButtonText?: string;
   modalType: ModalType;
   openModal: (payload: OpenModalPayload) => void;
   closeModal: () => void;
+  isPending: boolean;
+  setIsPending: (pending: boolean) => void;
 }
 
 export const useModalStore = create<ModalState>((set, get) => ({
@@ -31,7 +37,9 @@ export const useModalStore = create<ModalState>((set, get) => ({
   closeOnOverlayClick: true,
   hasCloseButton: true,
   onClose: undefined,
+  onSubmit: undefined,
   modalType: 'default',
+  isPending: false,
 
   openModal: ({
     title,
@@ -39,6 +47,8 @@ export const useModalStore = create<ModalState>((set, get) => ({
     closeOnOverlayClick = true,
     hasCloseButton = true,
     onClose,
+    onSubmit,
+    submitButtonText = '완료',
     modalType = 'default',
   }) => {
     set({
@@ -48,7 +58,10 @@ export const useModalStore = create<ModalState>((set, get) => ({
       closeOnOverlayClick,
       hasCloseButton,
       onClose,
+      onSubmit,
+      submitButtonText,
       modalType,
+      isPending: false,
     });
   },
 
@@ -62,7 +75,14 @@ export const useModalStore = create<ModalState>((set, get) => ({
       closeOnOverlayClick: true,
       hasCloseButton: true,
       onClose: undefined,
+      onSubmit: undefined,
+      submitButtonText: '만들기',
       modalType: 'default',
+      isPending: false,
     });
+  },
+
+  setIsPending: (pending: boolean) => {
+    set({ isPending: pending });
   },
 }));

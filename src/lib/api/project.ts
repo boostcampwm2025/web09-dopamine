@@ -1,9 +1,16 @@
 import getAPIResponseData from '@/lib/utils/api-response';
-import { CreateProjectResponse, ProjectListItem } from '@/types/project';
+import { CreateProjectResponse, ProjectListItem, ProjectwithTopic } from '@/types/project';
 
 export function getProjects() {
   return getAPIResponseData<Array<ProjectListItem>>({
     url: '/api/projects',
+    method: 'GET',
+  });
+}
+
+export function getProject(projectId: string) {
+  return getAPIResponseData<ProjectwithTopic>({
+    url: `/api/projects/${projectId}`,
     method: 'GET',
   });
 }
