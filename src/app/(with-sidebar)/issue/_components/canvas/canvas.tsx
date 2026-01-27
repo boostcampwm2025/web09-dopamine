@@ -9,7 +9,7 @@ import { useCanvasControls } from './use-canvas-controls';
 interface CanvasProps {
   children?: React.ReactNode;
   onDoubleClick?: (position: { x: number; y: number }) => void;
-  onCanvasClick?: () => void;
+  onCanvasClick: () => void;
   showGrid?: boolean;
   showControls?: boolean;
   showMessage?: boolean;

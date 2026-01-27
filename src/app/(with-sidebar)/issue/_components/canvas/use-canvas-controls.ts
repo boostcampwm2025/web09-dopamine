@@ -1,4 +1,5 @@
 import { useCallback, useRef, useState } from 'react';
+import { useStaticClick } from '../../hooks';
 import { useCanvasStore } from '../../store/use-canvas-store';
 
 const DEFAULT_OFFSET = { x: 0, y: 0 };
@@ -7,7 +8,7 @@ interface UseCanvasControlsOptions {
   canvasRef: React.RefObject<HTMLDivElement | null>;
   onDoubleClick?: (position: { x: number; y: number }) => void;
   isAddIdeaEnabled: boolean;
-  onCanvasClick?: () => void;
+  onCanvasClick: (e: React.MouseEvent) => void;
 }
 
 export function useCanvasControls({
@@ -21,8 +22,8 @@ export function useCanvasControls({
   const [panStart, setPanStart] = useState(DEFAULT_OFFSET);
 
   // 드래그 판별을 위한 Ref
-  const clickStartRef = useRef({ x: 0, y: 0 });
   const isBackgroundClickRef = useRef(false);
+  const { handlePointerDown, handleClick } = useStaticClick(onCanvasClick);
 
   const handleWheel = useCallback(
     (e: React.WheelEvent) => {
@@ -43,8 +44,9 @@ export function useCanvasControls({
 
   const handleMouseDown = useCallback(
     (e: React.MouseEvent) => {
-      clickStartRef.current = { x: e.clientX, y: e.clientY };
+      handlePointerDown(e);
       const target = e.target as HTMLElement;
+      // 클릭해도 comment 닫히지 않는 요소들 체크
       if (target.closest('[data-no-canvas-close="true"]')) {
         isBackgroundClickRef.current = false;
       } else {
@@ -77,15 +79,10 @@ export function useCanvasControls({
       setIsPanning(false);
 
       if (isBackgroundClickRef.current) {
-        const moveX = Math.abs(e.clientX - clickStartRef.current.x);
-        const moveY = Math.abs(e.clientY - clickStartRef.current.y);
-
-        if (moveX < 5 && moveY < 5) {
-          onCanvasClick?.();
-        }
+        handleClick(e);
       }
     },
-    [onCanvasClick],
+    [handleClick],
   );
 
   const handleZoomIn = useCallback(() => {
