@@ -22,6 +22,10 @@ const ProjectHeader = () => {
   const userImage = session?.user?.image || '/profile.svg';
   const projectTitle = projectData?.title || '로딩 중...';
 
+  const handleProfileClick = () => {
+    router.push('/mypage');
+  };
+
   return (
     <S.HeaderContainer>
       <S.LeftSection>
@@ -44,14 +48,14 @@ const ProjectHeader = () => {
           onClick={(e) => openInviteProjectModal(projectId, projectTitle, e)}
         />
         <S.Divider />
-        <S.Profile>
+        <S.Profile onClick={handleProfileClick}>
           {userName}
           <Image
             src={userImage}
             alt="프로필"
             width={38}
             height={38}
-            style={{ borderRadius: '50%' }}
+            style={{ borderRadius: '50%'}}
           />
         </S.Profile>
       </S.RightSection>
