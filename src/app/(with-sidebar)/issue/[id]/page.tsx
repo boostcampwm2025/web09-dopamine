@@ -87,13 +87,13 @@ const IssuePage = () => {
     // 토픽 내 이슈인데 로그인하지 않은 경우 → 홈으로 리다이렉트
     if (isQuickIssue === false && !session?.user?.id) {
       router.replace('/');
-      toast.error('권한이 없는 이슈입니다.');
+      toast.error('로그인이 필요한 서비스입니다.');
       return;
     }
 
     if (isQuickIssue === false && projectId && !isProjectsLoading && !isProjectMember) {
       router.replace('/');
-      toast.error('권한이 없는 이슈입니다.');
+      toast.error('로그인이 필요한 서비스입니다.');
     }
   }, [
     issueId,
