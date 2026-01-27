@@ -142,8 +142,25 @@ export function useIssueEvents({
     // 투표 이벤트 핸들러
     eventSource.addEventListener(SSE_EVENT_TYPES.VOTE_CHANGED, (event) => {
       const data = JSON.parse((event as MessageEvent).data);
-      // 특정 아이디어의 투표만 갱신
       if (data.ideaId) {
+        // 목록 쿼리 캐시 직접 업데이트 (즉시 반영)
+        queryClient.setQueryData(['issues', issueId, 'ideas'], (oldData: any) => {
+          if (!oldData || !Array.isArray(oldData)) return oldData;
+
+          const index = oldData.findIndex((idea: any) => idea.id === data.ideaId);
+          if (index === -1) return oldData;
+
+          // 해당 인덱스만 업데이트
+          const newData = [...oldData];
+          newData[index] = {
+            ...newData[index],
+            agreeCount: data.agreeCount,
+            disagreeCount: data.disagreeCount,
+            // myVote는 현재 사용자의 투표이므로 다른 사용자의 투표 이벤트에서는 변경하지 않음
+          };
+          return newData;
+        });
+        // 개별 아이디어 쿼리도 무효화
         queryClient.invalidateQueries({ queryKey: ['issues', issueId, 'ideas', data.ideaId] });
       }
     });
