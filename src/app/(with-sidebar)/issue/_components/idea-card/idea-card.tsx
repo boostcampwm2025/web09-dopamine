@@ -172,18 +172,18 @@ export default function IdeaCard(props: IdeaCardProps) {
   const cardStyle =
     !inCategory && props.position
       ? {
-          position: 'absolute' as const,
-          left: props.position.x,
-          top: props.position.y,
-          cursor: isDragging ? 'grabbing' : 'grab',
-          userSelect: 'none' as const,
-          zIndex: isDragging ? 1000 : zIndex,
-          // dnd-kit transform 적용 (Canvas scale과 호환됨!)
-          transform: CSS.Transform.toString(transform),
-          opacity: isDragging ? 0 : undefined,
-          // 브로드캐스팅으로 다른 사용자 이동 시 애니메이션
-          transition: props.disableAnimation ? 'none' : 'left 0.4s ease-out, top 0.4s ease-out',
-        }
+        position: 'absolute' as const,
+        left: props.position.x,
+        top: props.position.y,
+        cursor: isDragging ? 'grabbing' : 'grab',
+        userSelect: 'none' as const,
+        zIndex: isDragging ? 1000 : zIndex,
+        // dnd-kit transform 적용 (Canvas scale과 호환됨!)
+        transform: CSS.Transform.toString(transform),
+        opacity: isDragging ? 0 : undefined,
+        // 브로드캐스팅으로 다른 사용자 이동 시 애니메이션
+        transition: props.disableAnimation ? 'none' : 'left 0.4s ease-out, top 0.4s ease-out',
+      }
       : {};
 
   return (
@@ -202,8 +202,8 @@ export default function IdeaCard(props: IdeaCardProps) {
       {...(inCategory
         ? {}
         : Object.fromEntries(
-            Object.entries(listeners || {}).filter(([key]) => key !== 'onPointerDown'),
-          ))}
+          Object.entries(listeners || {}).filter(([key]) => key !== 'onPointerDown'),
+        ))}
       style={cardStyle}
     >
       <IdeaCardBadge
@@ -211,6 +211,8 @@ export default function IdeaCard(props: IdeaCardProps) {
         isHotIdea={props.isHotIdea}
       />
       <IdeaCardHeader
+        id={props.id}
+        issueId={props.issueId}
         isEditing={isEditing}
         editValue={editValue}
         displayContent={displayContent}
@@ -218,7 +220,6 @@ export default function IdeaCard(props: IdeaCardProps) {
         isCurrentUser={isCurrentUser}
         author={props.author}
         issueStatus={issueStatus}
-        commentCount={idea?.comments?.length ?? 0}
         textareaRef={textareaRef}
         setEditValue={setEditValue}
         handleKeyDownEdit={handleKeyDownEdit}
