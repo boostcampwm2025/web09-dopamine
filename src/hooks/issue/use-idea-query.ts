@@ -22,12 +22,13 @@ export const useIssueIdeaQuery = (issueId: string) => {
       const fetchedIdeas = await fetchIdeas(issueId);
 
       // DB 데이터를 IdeaWithPosition 형태로 변환
-      const ideasWithPosition: IdeaWithPosition[] = fetchedIdeas.map((idea) => ({
+      const ideasWithPosition: IdeaWithPosition[] = fetchedIdeas.map((idea: any) => ({
         ...idea,
-        author: idea.user?.displayName || idea.user?.name || '익명',
+        author: idea.nickname || '익명',
         position:
           idea.positionX && idea.positionY ? { x: idea.positionX, y: idea.positionY } : null,
         editable: false,
+        categoryId: idea.categoryId || idea.category?.id || null,
       }));
 
       return ideasWithPosition;

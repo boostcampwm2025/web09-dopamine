@@ -1,10 +1,15 @@
+import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import type { FilterType } from '@/app/(with-sidebar)/issue/hooks';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
+import { authOptions } from '@/lib/auth';
 import { ideaRepository } from '@/lib/repositories/idea.repository';
+import { findIssueById } from '@/lib/repositories/issue.repository';
 import { ideaFilterService } from '@/lib/services/idea-filter.service';
 import { broadcast } from '@/lib/sse/sse-service';
+import { getUserIdFromHeader } from '@/lib/utils/api-auth';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
+import { getUserIdFromRequest } from '@/lib/utils/cookie';
 
 export async function GET(
   req: NextRequest,
@@ -13,9 +18,21 @@ export async function GET(
   const { issueId: id } = await params;
   const { searchParams } = new URL(req.url);
   const filter = searchParams.get('filter');
+  const session = await getServerSession(authOptions);
 
   try {
-    const ideas = await ideaRepository.findByIssueId(id);
+    const issue = await findIssueById(id);
+    if (!issue) {
+      return createErrorResponse('ISSUE_NOT_FOUND', 404);
+    }
+
+    // 빠른 이슈인 경우 쿠키에서 userId 가져오기, 토픽 이슈인 경우 세션에서 가져오기
+    const isQuickIssue = !issue.topicId;
+    const userId = isQuickIssue
+      ? getUserIdFromRequest(req, id) || undefined
+      : session?.user?.id || getUserIdFromHeader(req) || undefined;
+
+    const ideas = await ideaRepository.findByIssueId(id, userId);
 
     if (filter && filter !== 'none') {
       const filteredIds = ideaFilterService.getFilteredIdeaIds(

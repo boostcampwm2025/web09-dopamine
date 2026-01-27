@@ -1,42 +1,79 @@
-﻿import { Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 
 export const ideaRepository = {
-  async findByIssueId(issueId: string) {
-    return prisma.idea.findMany({
+  async findByIssueId(issueId: string, userId?: string | null) {
+    const ideas = await prisma.idea.findMany({
       where: {
         issueId,
         deletedAt: null,
       },
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            displayName: true,
-            image: true,
-          },
-        },
+      select: {
+        id: true,
+        content: true,
+        userId: true,
+        agreeCount: true,
+        disagreeCount: true,
+        positionX: true,
+        positionY: true,
+        createdAt: true,
+
         category: {
           select: {
             id: true,
             title: true,
           },
         },
-        votes: {
-          where: { deletedAt: null },
-        },
+
         comments: {
           where: { deletedAt: null },
+          select: { id: true },
+        },
+
+        votes: {
+          where: {
+            ...(userId ? { userId } : {}),
+            deletedAt: null,
+          },
           select: {
-            id: true,
-            content: true,
-            createdAt: true,
+            type: true, // AGREE | DISAGREE
           },
         },
       },
       orderBy: { createdAt: 'desc' },
     });
+
+    const members = await prisma.issueMember.findMany({
+      where: {
+        issueId,
+        deletedAt: null,
+      },
+      select: {
+        userId: true,
+        nickname: true,
+      },
+    });
+
+    const nicknameMap = new Map(members.map((member) => [member.userId, member.nickname]));
+
+    return ideas.map((idea) => ({
+      id: idea.id,
+      content: idea.content,
+      userId: idea.userId,
+      categoryId: idea.category?.id || null,
+
+      nickname: nicknameMap.get(idea.userId) ?? '알 수 없음',
+
+      agreeCount: idea.agreeCount,
+      disagreeCount: idea.disagreeCount,
+      commentCount: idea.comments.length,
+      positionX: idea.positionX,
+      positionY: idea.positionY,
+
+      myVote: idea.votes.length > 0 ? idea.votes[0].type : null,
+
+      createdAt: idea.createdAt,
+    }));
   },
 
   async findIdAndContentByIssueId(issueId: string) {
