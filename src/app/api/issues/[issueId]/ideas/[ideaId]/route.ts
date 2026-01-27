@@ -42,6 +42,18 @@ export async function GET(
       return createErrorResponse('IDEA_NOT_FOUND', 404);
     }
 
+    // IssueMember 정보 가져오기
+    const issueMember = await prisma.issueMember.findFirst({
+      where: {
+        issueId,
+        userId: idea.userId,
+        deletedAt: null,
+      },
+      select: {
+        nickname: true,
+      },
+    });
+
     const myVote = userId
       ? await prisma.vote.findFirst({ where: { ideaId: ideaId, userId, deletedAt: null } })
       : null;
@@ -51,6 +63,7 @@ export async function GET(
       agreeCount: idea.agreeCount,
       disagreeCount: idea.disagreeCount,
       myVote: myVote?.type ?? null,
+      issueMember: issueMember ? { nickname: issueMember.nickname } : null,
     });
   } catch (error) {
     console.error('아이디어 상세 조회 실패:', error);

@@ -16,8 +16,8 @@ export async function GET(
     }
 
     return createSuccessResponse({
-      id: member.user.id,
-      displayName: member.user.displayName,
+      id: member.userId,
+      displayName: member.nickname,
       role: member.role,
     });
   } catch (error) {

@@ -34,13 +34,9 @@ export const issueMemberRepository = {
         deletedAt: null,
       },
       select: {
+        userId: true,
         role: true,
         nickname: true,
-        user: {
-          select: {
-            id: true,
-          },
-        },
       },
     });
   },
@@ -68,13 +64,9 @@ export const issueMemberRepository = {
         deletedAt: null,
       },
       select: {
+        userId: true,
+        nickname: true,
         role: true,
-        user: {
-          select: {
-            id: true,
-            displayName: true,
-          },
-        },
       },
     });
   },
