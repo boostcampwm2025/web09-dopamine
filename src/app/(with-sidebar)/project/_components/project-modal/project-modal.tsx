@@ -1,119 +1,133 @@
 'use client';
 
-import React from 'react';
-import * as S from '@/app/(with-sidebar)/project/_components/project-modal/project-modal.styles';
+import { useCallback, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 import LoadingOverlay from '@/components/loading-overlay/loading-overlay';
-import useProjectModal, { ProjectModalProps } from './hooks/use-project-modal';
+import { useModalStore } from '@/components/modal/use-modal-store';
+import { MAX_DESCRIPTION_LENGTH, MAX_TITLE_LENGTH } from '@/constants/project';
+import { useUpdateProjectMutation } from '@/hooks/project';
+import { isProjectTitleTooLong } from '@/lib/utils/project-title';
+import * as S from './project-modal.styles';
 
-export default function ProjectModal(props: ProjectModalProps) {
-  const {
-    MAX_TITLE_LENGTH,
-    MAX_DESCRIPTION_LENGTH,
-    isProject,
-    projectProps,
-    topicName,
-    setTopicName,
+interface ProjectModalProps {
+  projectId: string;
+  currentTitle?: string;
+  currentDescription?: string;
+}
+
+export default function ProjectModal({
+  projectId,
+  currentTitle,
+  currentDescription,
+}: ProjectModalProps) {
+  const router = useRouter();
+  const { setIsPending, isOpen, closeModal } = useModalStore();
+  const [title, setTitle] = useState(currentTitle || '');
+  const [description, setDescription] = useState(currentDescription || '');
+  const { mutate: updateProject, isPending: isUpdating } = useUpdateProjectMutation();
+
+  useEffect(() => {
+    setIsPending(isUpdating);
+  }, [isUpdating, setIsPending]);
+
+  const handleSubmit = useCallback(async () => {
+    const nextTitle = title.trim() || currentTitle?.trim() || '';
+    const nextDescription = description.trim() || currentDescription?.trim();
+
+    if (!nextTitle) {
+      toast.error('프로젝트 제목을 입력해주세요.');
+      return;
+    }
+
+    if (isProjectTitleTooLong(nextTitle)) {
+      toast.error(`프로젝트 제목은 ${MAX_TITLE_LENGTH}자 이하로 입력해주세요.`);
+      return;
+    }
+
+    updateProject(
+      {
+        id: projectId,
+        title: nextTitle,
+        description: nextDescription || undefined,
+      },
+      {
+        onSuccess: () => {
+          closeModal();
+          router.refresh();
+        },
+      },
+    );
+  }, [
     title,
-    setTitle,
     description,
-    setDescription,
-    titleLength,
-    isTitleOverLimit,
-    isTitleLessLimit,
-    descriptionLength,
-    isDescriptionOverLimit,
-    isDescriptionLessLimit,
-    isPending,
-    isUpdating,
-    submitHandler,
-    pendingState,
-    submitLabel,
-    handleCreate,
-  } = useProjectModal(props);
-  const variant = isProject ? 'project' : 'topic';
+    currentTitle,
+    currentDescription,
+    projectId,
+    updateProject,
+    closeModal,
+    router,
+  ]);
 
-  const renderProjectFields = () => (
-    <>
-      <S.InputWrapper>
-        <S.InputTitle>프로젝트 제목</S.InputTitle>
-        <S.InputRow>
-          <S.Input
-            $variant="project"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder={projectProps?.currentTitle ?? '프로젝트 제목을 입력해주세요.'}
-          />
-          <S.CharCount $isOverLimit={isTitleOverLimit}>
-            {titleLength}/{MAX_TITLE_LENGTH}
-          </S.CharCount>
-        </S.InputRow>
-        {(isTitleOverLimit || isTitleLessLimit) && (
-          <S.InputDescription>
-            * 프로젝트 제목은 1~{MAX_TITLE_LENGTH}자 이내로 입력해주세요.
-          </S.InputDescription>
-        )}
-      </S.InputWrapper>
-      <S.InputWrapper>
-        <S.InputTitle>프로젝트 설명</S.InputTitle>
-        <S.InputRow>
-          <S.Textarea
-            $variant="project"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder={projectProps?.currentDescription ?? '프로젝트 설명을 입력해주세요.'}
-          />
-          <S.CharCount $isOverLimit={isDescriptionOverLimit}>
-            {descriptionLength}/{MAX_DESCRIPTION_LENGTH}
-          </S.CharCount>
-        </S.InputRow>
-        {(isDescriptionOverLimit || isDescriptionLessLimit) && (
-          <S.InputDescription>
-            * 프로젝트 설명은 1~{MAX_DESCRIPTION_LENGTH}자 이내로 입력해주세요.
-          </S.InputDescription>
-        )}
-      </S.InputWrapper>
-    </>
-  );
+  useEffect(() => {
+    if (isOpen) {
+      useModalStore.setState({
+        onSubmit: handleSubmit,
+      });
+    }
+  }, [isOpen, handleSubmit]);
 
-  const renderTopicFields = () => (
-    <S.InputWrapper>
-      <S.InputTitle>토픽 이름</S.InputTitle>
-      <S.Input
-        $variant="topic"
-        value={topicName}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTopicName(e.target.value)}
-        placeholder="이름을 입력하세요"
-        onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-          if (e.nativeEvent.isComposing) return;
-          if (e.key === 'Enter' && !isPending) {
-            handleCreate();
-          }
-        }}
-        autoFocus
-        disabled={isPending}
-      />
-    </S.InputWrapper>
-  );
+  const titleLength = title?.length || 0;
+  const isTitleOverLimit = titleLength > MAX_TITLE_LENGTH;
+  const isTitleLessLimit = titleLength < 1;
+  const descriptionLength = description?.length || 0;
+  const isDescriptionOverLimit = descriptionLength > MAX_DESCRIPTION_LENGTH;
 
   return (
     <>
-      <S.Container $variant={variant}>
-        <S.InfoContainer $variant={variant}>
-          {isProject ? renderProjectFields() : renderTopicFields()}
+      <S.Container $variant="project">
+        <S.InfoContainer $variant="project">
+          <S.InputWrapper>
+            <S.InputTitle>프로젝트 제목</S.InputTitle>
+            <S.InputRow>
+              <S.Input
+                $variant="project"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder={currentTitle ?? '프로젝트 제목을 입력해주세요.'}
+              />
+              <S.CharCount $isOverLimit={isTitleOverLimit}>
+                {titleLength}/{MAX_TITLE_LENGTH}
+              </S.CharCount>
+            </S.InputRow>
+            {(isTitleOverLimit || isTitleLessLimit) && (
+              <S.InputDescription>
+                * 프로젝트 제목은 1~{MAX_TITLE_LENGTH}자 이내로 입력해주세요.
+              </S.InputDescription>
+            )}
+          </S.InputWrapper>
+          <S.InputWrapper>
+            <S.InputTitle>프로젝트 설명</S.InputTitle>
+            <S.InputRow>
+              <S.Textarea
+                $variant="project"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder={currentDescription ?? '프로젝트 설명을 입력해주세요.'}
+              />
+              <S.CharCount $isOverLimit={isDescriptionOverLimit}>
+                {descriptionLength}/{MAX_DESCRIPTION_LENGTH}
+              </S.CharCount>
+            </S.InputRow>
+            {isDescriptionOverLimit && (
+              <S.InputDescription>
+                * 프로젝트 설명은 {MAX_DESCRIPTION_LENGTH}자 이내로 입력해주세요.
+              </S.InputDescription>
+            )}
+          </S.InputWrapper>
         </S.InfoContainer>
-
-        <S.Footer>
-          <S.SubmitButton
-            $variant={variant}
-            type="button"
-            onClick={submitHandler}
-            disabled={!isProject && pendingState}
-          >
-            {submitLabel}
-          </S.SubmitButton>
-        </S.Footer>
       </S.Container>
-      {isProject && isUpdating && <LoadingOverlay message="변경사항을 저장중입니다." />}
+      {isUpdating && <LoadingOverlay message="변경사항을 저장중입니다." />}
     </>
   );
 }

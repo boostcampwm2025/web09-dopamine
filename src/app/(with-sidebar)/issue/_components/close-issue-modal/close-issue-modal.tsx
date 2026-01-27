@@ -1,5 +1,7 @@
 'use client';
 
+import { useCallback, useEffect, useRef } from 'react';
+import { useModalStore } from '@/components/modal/use-modal-store';
 import * as S from './close-issue-modal.styles';
 import { useCloseIssueModal } from './use-close-issue-modal';
 
@@ -13,6 +15,27 @@ export default function CloseIssueModal({ issueId, isOwner = false }: CloseIssue
     issueId,
     isOwner,
   });
+  const { setIsPending, isOpen } = useModalStore();
+  const closeAndGoSummaryRef = useRef<(() => Promise<void>) | undefined>(undefined);
+
+  useEffect(() => {
+    setIsPending(isLoading);
+  }, [isLoading, setIsPending]);
+
+  useEffect(() => {
+    closeAndGoSummaryRef.current = closeAndGoSummary;
+  }, [closeAndGoSummary]);
+
+  const handleSubmit = useCallback(async () => {
+    await closeAndGoSummaryRef.current?.();
+  }, []);
+
+  useEffect(() => {
+    useModalStore.setState({
+      onSubmit: handleSubmit,
+      submitButtonText: '이슈 종료',
+    });
+  }, [handleSubmit]);
 
   return (
     <S.Container>
@@ -40,16 +63,6 @@ export default function CloseIssueModal({ issueId, isOwner = false }: CloseIssue
           />
         </S.MemoInputWrapper>
       </div>
-
-      <S.Footer>
-        <S.SubmitButton
-          type="button"
-          onClick={closeAndGoSummary}
-          disabled={isLoading || !isOwner}
-        >
-          {isLoading ? '종료 중...' : '종료'}
-        </S.SubmitButton>
-      </S.Footer>
     </S.Container>
   );
 }

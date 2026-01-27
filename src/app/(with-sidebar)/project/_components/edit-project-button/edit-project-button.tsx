@@ -23,7 +23,6 @@ export default function EditProject({
       title: '프로젝트 수정',
       content: (
         <ProjectModal
-          variant="project"
           projectId={projectId}
           currentTitle={currentTitle}
           currentDescription={currentDescription}

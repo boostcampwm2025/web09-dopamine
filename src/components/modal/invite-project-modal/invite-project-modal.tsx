@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import toast from 'react-hot-toast';
 import { useModalStore } from '@/components/modal/use-modal-store';
@@ -17,7 +17,12 @@ export default function InviteProjectModal({ id, title }: InviteModalProps) {
   const [tags, setTags] = useState<string[]>([]);
   const [code, setCode] = useState('');
   const [inputValue, setInputValue] = useState('');
-  const { closeModal } = useModalStore();
+  const { setIsPending, isOpen } = useModalStore();
+  const handleInviteRef = useRef<(() => Promise<void>) | undefined>(undefined);
+
+  useEffect(() => {
+    setIsPending(createToken.isPending);
+  }, [createToken.isPending, setIsPending]);
 
   const resetCode = () => {
     if (code) setCode('');
@@ -72,7 +77,7 @@ export default function InviteProjectModal({ id, title }: InviteModalProps) {
     resetCode();
   };
 
-  const handleCopy = async (code: string) => {
+  const handleCopy = useCallback(async (code: string) => {
     // 1. 현재 도메인 + 프로젝트 경로 + 초대코드 조합
     const fullUrl = `${window.location.origin}/invite?code=${code}`;
 
@@ -84,9 +89,9 @@ export default function InviteProjectModal({ id, title }: InviteModalProps) {
       console.error('복사 실패:', err);
       toast.error('초대 링크를 클립보드에 복사할 수 없습니다.');
     }
-  };
+  }, []);
 
-  const handleInvite = async () => {
+  const handleInvite = useCallback(async () => {
     if (inputValue.trim()) {
       toast.error('입력 중인 이메일이 있습니다.');
       return;
@@ -104,11 +109,25 @@ export default function InviteProjectModal({ id, title }: InviteModalProps) {
         handleCopy(token);
       },
     });
-  };
+  }, [inputValue, tags, createToken, handleCopy]);
 
-  const handleCancel = () => {
-    closeModal();
-  };
+  useEffect(() => {
+    handleInviteRef.current = handleInvite;
+  }, [handleInvite]);
+
+  useEffect(() => {
+    if (isOpen) {
+      // code가 있으면 버튼 비활성화 (onSubmit 제거)
+      useModalStore.setState({
+        onSubmit: code
+          ? undefined
+          : async () => {
+              await handleInviteRef.current?.();
+            },
+        submitButtonText: '초대 링크 생성',
+      });
+    }
+  }, [isOpen, code]);
 
   return (
     <S.Container>
@@ -152,31 +171,21 @@ export default function InviteProjectModal({ id, title }: InviteModalProps) {
             );
           })}
         </S.TagList>
-      </S.InfoContainer>
-
-      <S.Footer>
         {code && (
-          <S.CopyLinkButton
-            type="button"
-            onClick={() => handleCopy(code)}
-          >
-            초대 링크 다시 복사하기
-          </S.CopyLinkButton>
+          <>
+            <S.Divider />
+            <S.SuccessSection>
+              <S.SuccessMessage>✓ 초대 링크가 생성되었습니다</S.SuccessMessage>
+              <S.CopyLinkButton
+                type="button"
+                onClick={() => handleCopy(code)}
+              >
+                링크 다시 복사하기
+              </S.CopyLinkButton>
+            </S.SuccessSection>
+          </>
         )}
-        <S.CancelButton
-          type="button"
-          onClick={handleCancel}
-        >
-          취소
-        </S.CancelButton>
-        <S.SubmitButton
-          type="button"
-          onClick={handleInvite}
-          disabled={!!code || createToken.isPending}
-        >
-          {createToken.isPending ? '링크 생성 중..' : '초대 링크 생성'}
-        </S.SubmitButton>
-      </S.Footer>
+      </S.InfoContainer>
     </S.Container>
   );
 }
