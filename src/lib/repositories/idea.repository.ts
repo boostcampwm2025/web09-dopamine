@@ -26,14 +26,6 @@ export const ideaRepository = {
         votes: {
           where: { deletedAt: null },
         },
-        comments: {
-          where: { deletedAt: null },
-          select: {
-            id: true,
-            content: true,
-            createdAt: true,
-          },
-        },
       },
       orderBy: { createdAt: 'desc' },
     });

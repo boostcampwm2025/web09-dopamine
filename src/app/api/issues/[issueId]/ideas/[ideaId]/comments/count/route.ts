@@ -3,12 +3,12 @@ import { commentRepository } from '@/lib/repositories/comment.repository';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 
 /**
- * [GET] 특정 아이디어 댓글 개수 조회 API
+ * [GET] 특정 아이디어의 댓글 개수 조회 API
  * 경로: /api/issues/[issueId]/ideas/[ideaId]/comments/count
  */
 export async function GET(
   _req: NextRequest,
-  { params }: { params: Promise<{ issueId: string; ideaId: string }> },
+  { params }: { params: Promise<{ ideaId: string }> },
 ): Promise<NextResponse> {
   const { ideaId } = await params;
 
