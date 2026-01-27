@@ -93,11 +93,6 @@ export const useIdeaMutations = (issueId: string) => {
         queryClient.setQueryData(['issues', issueId, 'ideas'], context.previousIdeas);
       }
     },
-    // 성공하든, 실패하든 무조건 실행
-    // 낙관적 업데이트 적용시 서버 상태를 한 번 더 확인
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['issues', issueId, 'ideas'] });
-    },
   });
 
   // 아이디어 삭제
