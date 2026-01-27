@@ -12,8 +12,8 @@ type ReportIdea = ReportWithDetails['issue']['ideas'][number];
 const mapIdeaToRankedIdea = (idea: ReportIdea): RankedIdeaDto => ({
   id: idea.id,
   content: idea.content,
-  agreeVoteCount: idea.votes.filter((vote) => vote.type === 'AGREE').length,
-  disagreeVoteCount: idea.votes.filter((vote) => vote.type === 'DISAGREE').length,
+  agreeCount: idea.agreeCount,
+  disagreeCount: idea.disagreeCount,
   commentCount: idea.comments.length,
   category: idea.category as CategoryDto | null,
   user: idea.user,
@@ -28,15 +28,16 @@ export async function getReportSummaryByIssueId(issueId: string): Promise<Report
 
   // 투표 결과에 들어갈 내용
   const totalParticipants = report.issue.issueMembers.length;
-  const totalVotes = report.issue.ideas.reduce((sum, idea) => sum + idea.votes.length, 0);
+  const totalVotes = report.issue.ideas.reduce(
+    (sum, idea) => sum + idea.agreeCount + idea.disagreeCount,
+    0,
+  );
   const maxCommentCount = Math.max(...report.issue.ideas.map((idea) => idea.comments.length), 0);
 
   // 아이디어 랭킹 계산
   const rankedIdeas: RankedIdeaDto[] = report.issue.ideas
     .map(mapIdeaToRankedIdea)
-    .sort(
-      (a, b) => b.agreeVoteCount - b.disagreeVoteCount - (a.agreeVoteCount - a.disagreeVoteCount),
-    ); // 내림차순 정렬
+    .sort((a, b) => b.agreeCount - b.disagreeCount - (a.agreeCount - a.disagreeCount)); // 내림차순 정렬
 
   // 카테고리별로 아이디어 그룹핑
   const categoryMap = report.issue.ideas.reduce(
@@ -61,7 +62,7 @@ export async function getReportSummaryByIssueId(issueId: string): Promise<Report
   const categorizedIdeas: CategoryRanking[] = Object.values(categoryMap).map((category) => ({
     ...category,
     ideas: category.ideas.sort(
-      (a, b) => b.agreeVoteCount - b.disagreeVoteCount - (a.agreeVoteCount - a.disagreeVoteCount),
+      (a, b) => b.agreeCount - b.disagreeCount - (a.agreeCount - a.disagreeCount),
     ),
   }));
 

@@ -21,7 +21,8 @@ export interface ReportWithDetails {
     ideas: Array<{
       id: string;
       content: string;
-      votes: Array<{ id: string; type: string }>;
+      agreeCount: number;
+      disagreeCount: number;
       comments: Array<{ id: string; content: string }>;
       // 아이디어 카테고리
       category: {
@@ -98,8 +99,8 @@ export interface CategoryRanking {
 export interface RankedIdeaDto {
   id: string;
   content: string;
-  agreeVoteCount: number;
-  disagreeVoteCount: number;
+  agreeCount: number;
+  disagreeCount: number;
   commentCount: number;
   category: CategoryDto | null;
   user: UserDto;

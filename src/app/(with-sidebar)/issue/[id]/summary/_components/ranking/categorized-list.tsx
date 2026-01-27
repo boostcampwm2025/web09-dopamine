@@ -102,13 +102,11 @@ export default function CategorizedList({ categorizedRankings }: CategorizedList
                     <S.VoteInfoSection>
                       <S.VoteInfo type={VOTE_TYPE.AGREE}>
                         <S.VoteLabel>찬성</S.VoteLabel>
-                        <S.VoteCount type={VOTE_TYPE.AGREE}>{item.agreeVoteCount}</S.VoteCount>
+                        <S.VoteCount type={VOTE_TYPE.AGREE}>{item.agreeCount}</S.VoteCount>
                       </S.VoteInfo>
                       <S.VoteInfo type={VOTE_TYPE.DISAGREE}>
                         <S.VoteLabel>반대</S.VoteLabel>
-                        <S.VoteCount type={VOTE_TYPE.DISAGREE}>
-                          {item.disagreeVoteCount}
-                        </S.VoteCount>
+                        <S.VoteCount type={VOTE_TYPE.DISAGREE}>{item.disagreeCount}</S.VoteCount>
                       </S.VoteInfo>
                     </S.VoteInfoSection>
                   </S.ItemWrapper>
