@@ -57,11 +57,8 @@ export const categorizeService = {
       );
 
       // 미분류 아이디어 처리
-      const allIdeas = await ideaRepository.findManyByIssueId(issueId, tx);
-
-      const uncategorizedIdeaIds = allIdeas
-        .filter((idea) => !ideaCategoryMap.has(idea.id))
-        .map((idea) => idea.id);
+      const uncategorizedIdeas = await ideaRepository.findUncategorizedByIssueId(issueId, tx);
+      const uncategorizedIdeaIds = uncategorizedIdeas.map((idea) => idea.id);
 
       if (uncategorizedIdeaIds.length > 0) {
         // "미분류" 카테고리 생성
