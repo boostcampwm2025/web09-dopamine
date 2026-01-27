@@ -176,9 +176,7 @@ export function useIssueEvents({
       // 특정 아이디어의 댓글과 아이디어 정보 갱신 (댓글 개수 업데이트)
       if (data.ideaId) {
         queryClient.invalidateQueries({ queryKey: ['comments', issueId, data.ideaId] });
-        queryClient.invalidateQueries({
-          queryKey: ['comments', issueId, data.ideaId, 'count'],
-        });
+        queryClient.invalidateQueries({ queryKey: ['issues', issueId, 'ideas'] });
       }
     });
 
@@ -194,9 +192,7 @@ export function useIssueEvents({
       // 특정 아이디어의 댓글과 아이디어 정보 갱신 (댓글 개수 업데이트)
       if (data.ideaId) {
         queryClient.invalidateQueries({ queryKey: ['comments', issueId, data.ideaId] });
-        queryClient.invalidateQueries({
-          queryKey: ['comments', issueId, data.ideaId, 'count'],
-        });
+        queryClient.invalidateQueries({ queryKey: ['issues', issueId, 'ideas'] });
       }
     });
 

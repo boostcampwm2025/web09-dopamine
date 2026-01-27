@@ -26,6 +26,13 @@ export const ideaRepository = {
         votes: {
           where: { deletedAt: null },
         },
+        _count: {
+          select: {
+            comments: {
+              where: { deletedAt: null },
+            },
+          },
+        }
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -145,6 +152,26 @@ export const ideaRepository = {
     return tx.idea.updateMany({
       where: { id: { in: ideaIds }, issueId },
       data: { categoryId, positionX: null, positionY: null },
+    });
+  },
+
+  async findById(ideaId: string) {
+    return prisma.idea.findUnique({
+      where: { id: ideaId },
+      include: {
+        user: {
+          select: {
+            id: true,
+          },
+        },
+        _count: {
+          select: {
+            comments: {
+              where: { deletedAt: null },
+            },
+          },
+        },
+      },
     });
   },
 };

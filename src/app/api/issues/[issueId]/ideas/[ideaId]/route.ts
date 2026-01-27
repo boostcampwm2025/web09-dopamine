@@ -15,28 +15,7 @@ export async function GET(
 
     const userId = getUserIdFromRequest(req, issueId);
 
-    const idea = await prisma.idea.findUnique({
-      where: {
-        id: ideaId,
-      },
-      include: {
-        user: {
-          select: {
-            id: true,
-          },
-        },
-        comments: {
-          where: {
-            deletedAt: null,
-          },
-          select: {
-            id: true,
-            content: true,
-            createdAt: true,
-          },
-        },
-      },
-    });
+    const idea = await ideaRepository.findById(ideaId);
 
     if (!idea) {
       return createErrorResponse('IDEA_NOT_FOUND', 404);
@@ -48,8 +27,7 @@ export async function GET(
 
     return createSuccessResponse({
       ...idea,
-      agreeCount: idea.agreeCount,
-      disagreeCount: idea.disagreeCount,
+      commentCount: idea._count?.comments ?? 0,
       myVote: myVote?.type ?? null,
     });
   } catch (error) {

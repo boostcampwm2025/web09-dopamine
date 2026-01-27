@@ -211,8 +211,6 @@ export default function IdeaCard(props: IdeaCardProps) {
         isHotIdea={props.isHotIdea}
       />
       <IdeaCardHeader
-        id={props.id}
-        issueId={props.issueId}
         isEditing={isEditing}
         editValue={editValue}
         displayContent={displayContent}
@@ -220,6 +218,7 @@ export default function IdeaCard(props: IdeaCardProps) {
         isCurrentUser={isCurrentUser}
         author={props.author}
         issueStatus={issueStatus}
+        commentCount={(idea as any)?.commentCount ?? 0}
         textareaRef={textareaRef}
         setEditValue={setEditValue}
         handleKeyDownEdit={handleKeyDownEdit}

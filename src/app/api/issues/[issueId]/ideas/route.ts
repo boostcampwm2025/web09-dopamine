@@ -16,10 +16,14 @@ export async function GET(
 
   try {
     const ideas = await ideaRepository.findByIssueId(id);
+    const ideasWithCount = ideas.map((idea: any) => ({
+      ...idea,
+      commentCount: idea._count?.comments ?? 0,
+    }));
 
     if (filter && filter !== 'none') {
       const filteredIds = ideaFilterService.getFilteredIdeaIds(
-        ideas.map((idea) => ({
+        ideasWithCount.map((idea) => ({
           id: idea.id,
           agreeCount: idea.agreeCount ?? 0,
           disagreeCount: idea.disagreeCount ?? 0,
@@ -30,7 +34,7 @@ export async function GET(
       return createSuccessResponse({ filteredIds: Array.from(filteredIds) });
     }
 
-    return createSuccessResponse(ideas);
+    return createSuccessResponse(ideasWithCount);
   } catch (error) {
     console.error('아이디어 조회 실패:', error);
     return createErrorResponse('IDEA_FETCH_FAILED', 500);
