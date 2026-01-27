@@ -23,6 +23,7 @@ export const useInviteProjectModal = () => {
         />
       ),
       hasCloseButton: true,
+      modalType: 'invite',
     });
   };
 

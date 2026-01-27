@@ -171,4 +171,23 @@ export const ideaRepository = {
       },
     });
   },
+
+  async findManyByIssueId(issueId: string, tx: Prisma.TransactionClient = prisma) {
+    return tx.idea.findMany({
+      where: { issueId, deletedAt: null },
+      select: { id: true },
+    });
+  },
+
+  async updateManyCategoriesByIds(
+    ideaIds: string[],
+    issueId: string,
+    categoryId: string,
+    tx: Prisma.TransactionClient = prisma,
+  ) {
+    return tx.idea.updateMany({
+      where: { id: { in: ideaIds }, issueId },
+      data: { categoryId, positionX: null, positionY: null },
+    });
+  },
 };

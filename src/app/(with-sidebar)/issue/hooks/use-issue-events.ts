@@ -5,14 +5,15 @@ import CloseIssueModal from '@/app/(with-sidebar)/issue/_components/close-issue-
 import { useModalStore } from '@/components/modal/use-modal-store';
 import { MEMBER_ROLE } from '@/constants/issue';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
-import { getIssueMember } from '@/lib/api/issue';
-import { useIssueStore } from '../store/use-issue-store';
 import { selectedIdeaQueryKey } from '@/hooks/issue';
+import { deleteCloseModal, getIssueMember } from '@/lib/api/issue';
+import { useIssueStore } from '../store/use-issue-store';
 
 interface UseIssueEventsParams {
   issueId: string;
   userId: string;
   enabled?: boolean;
+  topicId?: string | null;
 }
 
 interface UseIssueEventsReturn {
@@ -24,6 +25,7 @@ export function useIssueEvents({
   issueId,
   userId,
   enabled = true,
+  topicId,
 }: UseIssueEventsParams): UseIssueEventsReturn {
   const queryClient = useQueryClient();
   const [isConnected, setIsConnected] = useState(false);
@@ -177,8 +179,14 @@ export function useIssueEvents({
     });
 
     // 이슈 상태 이벤트 핸들러
-    eventSource.addEventListener(SSE_EVENT_TYPES.ISSUE_STATUS_CHANGED, () => {
+    eventSource.addEventListener(SSE_EVENT_TYPES.ISSUE_STATUS_CHANGED, (event) => {
+      const data = JSON.parse((event as MessageEvent).data);
       queryClient.invalidateQueries({ queryKey: ['issues', issueId] });
+      // 사이드바 이슈 목록도 갱신
+      const targetTopicId = data.topicId || topicId;
+      if (targetTopicId) {
+        queryClient.invalidateQueries({ queryKey: ['topics', targetTopicId, 'issues'] });
+      }
     });
 
     // 멤버 이벤트 핸들러
@@ -208,15 +216,26 @@ export function useIssueEvents({
     eventSource.addEventListener(SSE_EVENT_TYPES.CLOSE_MODAL_OPENED, () => {
       // 모든 사용자에게 모달 열기 (방장 여부는 모달 내부에서 확인)
       // ref를 사용하여 최신 isOwner 값을 참조
+      const isOwnerValue = isOwnerRef.current;
+
       useModalStore.getState().openModal({
         title: '이슈 종료',
         content: React.createElement(CloseIssueModal, {
           issueId,
-          isOwner: isOwnerRef.current,
+          isOwner: isOwnerValue,
         }),
-        closeOnOverlayClick: false,
-        hasCloseButton: false,
+        closeOnOverlayClick: isOwnerValue,
+        hasCloseButton: isOwnerValue,
         modalType: 'close-issue',
+        submitButtonText: '이슈 종료',
+        onClose: async () => {
+          // 모달 닫힘 시 다른 클라이언트에게 브로드캐스팅
+          try {
+            await deleteCloseModal(issueId);
+          } catch (error) {
+            console.error('Failed to broadcast close modal:', error);
+          }
+        },
       });
     });
 
@@ -241,13 +260,12 @@ export function useIssueEvents({
       );
     });
 
-    // Cleanup
     return () => {
       eventSource.close();
       eventSourceRef.current = null;
       setIsAIStructuring(false);
     };
-  }, [issueId, enabled, selectedIdeaKey, userId, setIsAIStructuring]);
+  }, [issueId, enabled, selectedIdeaKey, userId, setIsAIStructuring, topicId]);
 
   return { isConnected, error };
 }

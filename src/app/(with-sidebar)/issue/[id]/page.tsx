@@ -29,6 +29,7 @@ import {
   useIssueEvents,
   useIssueIdentity,
 } from '../hooks';
+import { useCommentWindowStore } from '../store/use-comment-window-store';
 
 const IssuePage = () => {
   const params = useParams<{ id: string; issueId?: string }>();
@@ -87,13 +88,13 @@ const IssuePage = () => {
     // 토픽 내 이슈인데 로그인하지 않은 경우 → 홈으로 리다이렉트
     if (isQuickIssue === false && !session?.user?.id) {
       router.replace('/');
-      toast.error('권한이 없는 이슈입니다.');
+      toast.error('로그인이 필요한 서비스입니다.');
       return;
     }
 
     if (isQuickIssue === false && projectId && !isProjectsLoading && !isProjectMember) {
       router.replace('/');
-      toast.error('권한이 없는 이슈입니다.');
+      toast.error('로그인이 필요한 서비스입니다.');
     }
   }, [
     issueId,
@@ -167,7 +168,12 @@ const IssuePage = () => {
   // SSE 연결
   // 빠른 이슈는 localStorage userId, 토픽 이슈는 로그인 userId 기준으로 연결
   const shouldConnectSSE = !!currentUserId;
-  useIssueEvents({ issueId, userId: currentUserId, enabled: shouldConnectSSE });
+  useIssueEvents({
+    issueId,
+    userId: currentUserId,
+    enabled: shouldConnectSSE,
+    topicId: issue?.topicId,
+  });
 
   // 2. 아이디어 관련 작업
   const {
@@ -236,6 +242,9 @@ const IssuePage = () => {
   // 댓글이 많은 아이디어 계산
   const activeDiscussionIdeaIds = useMemo(() => getActiveDiscussionIdeaIds(ideas), [ideas]);
 
+  // 현재 댓글 창이 열린 아이디어의 아이디
+  const activeCommentId = useCommentWindowStore((state) => state.activeCommentId);
+
   // 에러 여부 확인
   const hasError = isIssueError || isIdeasError || isCategoryError;
 
@@ -265,12 +274,16 @@ const IssuePage = () => {
             {/* 카테고리들 - 내부에 아이디어 카드들을 children으로 전달 */}
             {categories.map((category) => {
               const categoryIdeas = ideas.filter((idea) => idea.categoryId === category.id);
+              // 이 카테고리 안에 댓글창이 열린 아이디어가 있는지 확인
+              const hasActiveComment = categoryIdeas.some((idea) => idea.id === activeCommentId);
 
               return (
                 <CategoryCard
                   key={category.id}
                   {...category}
                   issueId={issueId}
+                  hasActiveComment={hasActiveComment}
+                  isMuted={category.title === '기타'}
                   onPositionChange={handleCategoryPositionChange}
                   checkCollision={checkCategoryOverlap}
                   onRemove={() => handleDeleteCategory(category.id)}
@@ -326,31 +339,31 @@ const IssuePage = () => {
           <DragOverlay dropAnimation={null}>
             {activeId
               ? (() => {
-                  const activeIdea = ideas.find((idea) => idea.id === activeId);
-                  if (!activeIdea) return null;
+                const activeIdea = ideas.find((idea) => idea.id === activeId);
+                if (!activeIdea) return null;
 
-                  return (
-                    <div
-                      style={{
-                        transform: `scale(${scale})`,
-                        transformOrigin: '0 0', // 왼쪽 위 기준으로 scale
-                      }}
-                    >
-                      <IdeaCard
-                        {...activeIdea}
-                        issueId={issueId}
-                        content={overlayEditValue ?? activeIdea.content}
-                        position={null}
-                        isSelected={activeIdea.id === selectedIdeaId}
-                        author={activeIdea.author}
-                        userId={activeIdea.userId}
-                        status={getIdeaStatus(activeIdea.id)}
-                        isVoteButtonVisible={isVoteButtonVisible}
-                        isVoteDisabled={isVoteDisabled}
-                      />
-                    </div>
-                  );
-                })()
+                return (
+                  <div
+                    style={{
+                      transform: `scale(${scale})`,
+                      transformOrigin: '0 0', // 왼쪽 위 기준으로 scale
+                    }}
+                  >
+                    <IdeaCard
+                      {...activeIdea}
+                      issueId={issueId}
+                      content={overlayEditValue ?? activeIdea.content}
+                      position={null}
+                      isSelected={activeIdea.id === selectedIdeaId}
+                      author={activeIdea.author}
+                      userId={activeIdea.userId}
+                      status={getIdeaStatus(activeIdea.id)}
+                      isVoteButtonVisible={isVoteButtonVisible}
+                      isVoteDisabled={isVoteDisabled}
+                    />
+                  </div>
+                );
+              })()
               : null}
           </DragOverlay>
         )}

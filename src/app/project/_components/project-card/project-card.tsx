@@ -5,12 +5,9 @@ import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
-import {
-  useDeleteProjectMutation,
-  useLeaveProjectMutation,
-} from '@/hooks/project';
 import { useInviteProjectModal } from '@/components/modal/invite-project-modal/use-invite-project-modal';
 import { useModalStore } from '@/components/modal/use-modal-store';
+import { useDeleteProjectMutation, useLeaveProjectMutation } from '@/hooks/project';
 import ProjectCreateModal from '../project-create-modal/project-create-modal';
 import * as S from './project-card.styles';
 

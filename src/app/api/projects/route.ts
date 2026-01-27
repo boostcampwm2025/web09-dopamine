@@ -1,14 +1,10 @@
 import { NextRequest } from 'next/server';
 import * as projectRepository from '@/lib/repositories/project.repository';
-import { getAuthenticatedUserId } from '@/lib/utils/api-auth';
+import { getUserIdFromHeader } from '@/lib/utils/api-auth';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 
-export async function GET() {
-  const { userId: ownerId, error } = await getAuthenticatedUserId();
-
-  if (error) {
-    return error;
-  }
+export async function GET(req: NextRequest) {
+  const ownerId = getUserIdFromHeader(req);
 
   try {
     // 내 소유의 프로젝트와 게트스로 참여중인 프로젝트를 모두 불려옴
@@ -23,11 +19,7 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const { userId: ownerId, error } = await getAuthenticatedUserId();
-
-  if (error) {
-    return error;
-  }
+  const ownerId = getUserIdFromHeader(req);
 
   const { title, description } = await req.json();
 
@@ -45,11 +37,7 @@ export async function POST(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  const { userId: ownerId, error } = await getAuthenticatedUserId();
-
-  if (error) {
-    return error;
-  }
+  const ownerId = getUserIdFromHeader(req);
 
   const { id } = await req.json();
 

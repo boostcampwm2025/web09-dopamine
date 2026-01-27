@@ -8,7 +8,7 @@ import {
   createWordClouds,
   findIssueTextSourcesForWordCloud,
 } from '@/lib/repositories/word-cloud.repository';
-import { broadcast } from '@/lib/sse/sse-service';
+import { broadcast, broadcastToTopic } from '@/lib/sse/sse-service';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 import { generateWordCloudData } from '@/lib/utils/word-cloud-processor';
 
@@ -74,9 +74,20 @@ export async function PATCH(
       issueId: id,
       event: {
         type: SSE_EVENT_TYPES.ISSUE_STATUS_CHANGED,
-        data: { status: updatedIssue.status, issueId: id },
+        data: { status: updatedIssue.status, issueId: id, topicId: issue?.topicId },
       },
     });
+
+    // 토픽에도 브로드캐스트 (토픽 화면에서 이슈 상태 실시간 반영)
+    if (issue?.topicId) {
+      broadcastToTopic({
+        topicId: issue.topicId,
+        event: {
+          type: SSE_EVENT_TYPES.ISSUE_STATUS_CHANGED,
+          data: { status: updatedIssue.status, issueId: id, topicId: issue.topicId },
+        },
+      });
+    }
 
     return createSuccessResponse(updatedIssue);
   } catch (error) {
