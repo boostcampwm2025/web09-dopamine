@@ -20,10 +20,6 @@ export const useCategoryMutations = (issueId: string) => {
     onError: (_err) => {
       toast.error(_err.message);
     },
-
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey });
-    },
   });
 
   const update = useMutation({
@@ -38,10 +34,6 @@ export const useCategoryMutations = (issueId: string) => {
     onError: (err) => {
       toast.error(err.message);
     },
-
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey });
-    },
   });
 
   const remove = useMutation({
@@ -49,10 +41,6 @@ export const useCategoryMutations = (issueId: string) => {
 
     onError: (err) => {
       toast.error(err.message);
-    },
-
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey });
     },
   });
 

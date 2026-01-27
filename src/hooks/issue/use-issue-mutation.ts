@@ -58,10 +58,6 @@ export const useIssueStatusMutations = (issueId: string) => {
         toast.error(err.message);
       }
     },
-
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey });
-    },
   });
 
   const close = useMutation({
