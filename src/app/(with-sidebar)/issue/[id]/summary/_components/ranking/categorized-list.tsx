@@ -84,10 +84,10 @@ export default function CategorizedList({ categorizedRankings }: CategorizedList
                     <S.Title>{categoryTitle}</S.Title>
                   </S.HeaderLeft>
                 </S.Header>
-                {visibleIdeas.map((item, ideaIndex) => (
+                {visibleIdeas.map((item) => (
                   <S.ItemWrapper key={item.id}>
                     <S.ItemLeft>
-                      <S.RankBadge highlighted={ideaIndex === 0}>{ideaIndex + 1}</S.RankBadge>
+                      <S.RankBadge highlighted={item.rank === 1}>{item.rank}</S.RankBadge>
                       <S.ItemContent
                         title={item.content}
                         role="button"

@@ -31,14 +31,14 @@ export default function NormalList({ normalRankings }: NormalListProps) {
 
   return (
     <>
-      {visibleItems.map((item, index) => (
+      {visibleItems.map((item) => (
         <S.Item
           key={item.id}
-          highlighted={index === 0}
-          isTop={index === 0}
+          highlighted={item.rank === 1}
+          isTop={item.rank === 1}
         >
           <S.ItemLeft>
-            <S.RankBadge highlighted={index === 0}>{index + 1}</S.RankBadge>
+            <S.RankBadge highlighted={item.rank === 1}>{item.rank}</S.RankBadge>
             <S.Content>
               <S.Title
                 title={item.content}

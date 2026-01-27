@@ -105,6 +105,7 @@ export interface RankedIdeaDto {
   commentCount: number;
   category: CategoryDto | null;
   user: UserDto;
+  rank?: number;
 }
 
 // 사용자 정보

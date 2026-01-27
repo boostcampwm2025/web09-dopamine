@@ -6,7 +6,7 @@ import {
   ReportResponse,
   ReportWithDetails,
 } from '@/types/report';
-import { compareIdeasByVote } from '../utils/sort-ideas';
+import { assignRank, compareIdeasByVote } from '../utils/sort-ideas';
 
 type ReportIdea = ReportWithDetails['issue']['ideas'][number];
 
@@ -40,6 +40,8 @@ export async function getReportSummaryByIssueId(issueId: string): Promise<Report
     .map(mapIdeaToRankedIdea)
     .sort(compareIdeasByVote);
 
+  const assignedRankedIdeas = assignRank(rankedIdeas, compareIdeasByVote);
+
   // 카테고리별로 아이디어 그룹핑
   const categoryMap = report.issue.ideas.reduce(
     (acc, idea) => {
@@ -60,10 +62,14 @@ export async function getReportSummaryByIssueId(issueId: string): Promise<Report
   );
 
   // 각 카테고리의 아이디어를 정렬하고 배열로 변환
-  const categorizedIdeas: CategoryRanking[] = Object.values(categoryMap).map((category) => ({
-    ...category,
-    ideas: category.ideas.sort(compareIdeasByVote),
-  }));
+  const categorizedIdeas: CategoryRanking[] = Object.values(categoryMap).map((category) => {
+    const sortedCategoryIdeas = category.ideas.sort(compareIdeasByVote);
+
+    return {
+      ...category,
+      ideas: assignRank(sortedCategoryIdeas, compareIdeasByVote),
+    };
+  });
 
   return {
     id: report.id,
@@ -83,7 +89,7 @@ export async function getReportSummaryByIssueId(issueId: string): Promise<Report
       maxCommentCount,
     },
     rankings: {
-      all: rankedIdeas,
+      all: assignedRankedIdeas,
       byCategory: categorizedIdeas,
     },
   };
