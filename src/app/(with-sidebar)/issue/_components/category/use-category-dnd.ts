@@ -48,7 +48,7 @@ export function useCategoryDnd({
       })
     : null;
 
-  const cardStyle = draggable
+  const dndCardStyle = draggable
     ? {
         position: 'absolute' as const,
         left: draggable.position.x,
@@ -66,7 +66,7 @@ export function useCategoryDnd({
 
   return {
     setDroppableRef,
-    cardStyle,
+    dndCardStyle,
     draggable,
   };
 }

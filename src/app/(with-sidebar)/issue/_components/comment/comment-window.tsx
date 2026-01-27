@@ -1,10 +1,10 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCommentMutations, useCommentQuery } from '@/hooks/comment';
 import CommentList from './comment-list';
 import { CommentWindowContext } from './comment-window-context';
 import * as S from './comment-window.styles';
-import { useCommentMutations, useCommentQuery } from '@/hooks/comment';
 import { useCommentList } from './hooks/use-comment-list';
 import { getCommentErrorMessage, useCommentWindow } from './hooks/use-comment-window';
 
@@ -12,19 +12,10 @@ export interface CommentWindowProps {
   issueId: string;
   ideaId: string;
   userId: string;
-  initialPosition?: { x: number; y: number };
-  scale?: number;
   onClose?: () => void;
 }
 
-export default function CommentWindow({
-  issueId,
-  ideaId,
-  userId,
-  initialPosition,
-  scale = 1,
-  onClose,
-}: CommentWindowProps) {
+export default function CommentWindow({ issueId, ideaId, userId, onClose }: CommentWindowProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -51,7 +42,6 @@ export default function CommentWindow({
   });
 
   const { inputValue, setInputValue, handleSubmit, handleInputKeyDown } = useCommentWindow({
-    initialPosition,
     issueId,
     ideaId,
     userId,
@@ -202,9 +192,6 @@ export default function CommentWindow({
 
   return (
     <S.Window
-      x={initialPosition?.x}
-      y={initialPosition?.y}
-      scale={scale}
       role="dialog"
       aria-label="댓글"
       onClick={handleWindowClick}
