@@ -18,7 +18,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ project
     const result = await InvitationService.acceptInvitation(token, user.email, userId);
 
     return createSuccessResponse(result, 201);
-  } catch (error: any) {
-    return createErrorResponse(error.message ?? 'PROJECT_JOIN_FAILED', 400);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'PROJECT_JOIN_FAILED';
+    return createErrorResponse(errorMessage, 400);
   }
 }
