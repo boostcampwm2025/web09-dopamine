@@ -1,9 +1,9 @@
+import { getServerSession } from 'next-auth';
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 import { IssueRole } from '@prisma/client';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
+import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { issueMemberRepository } from '@/lib/repositories/issue-member.repository';
 import { findIssueById } from '@/lib/repositories/issue.repository';
@@ -80,7 +80,12 @@ export async function POST(
 
       // 로그인 사용자를 IssueMember에 추가
       await prisma.$transaction(async (tx) => {
-        await issueMemberRepository.addIssueOwner(tx, issueId, session.user.id, IssueRole.MEMBER);
+        await issueMemberRepository.addIssueMember(tx, {
+          issueId,
+          userId: session.user.id,
+          nickname: session.user.name || '익명',
+          role: IssueRole.MEMBER,
+        });
       });
 
       result = { userId: session.user.id };
@@ -92,7 +97,12 @@ export async function POST(
 
       result = await prisma.$transaction(async (tx) => {
         const user = await createAnonymousUser(tx, nickname);
-        await issueMemberRepository.addIssueOwner(tx, issueId, user.id, IssueRole.MEMBER);
+        await issueMemberRepository.addIssueMember(tx, {
+          issueId,
+          userId: user.id,
+          nickname,
+          role: IssueRole.MEMBER,
+        });
 
         return {
           userId: user.id,
