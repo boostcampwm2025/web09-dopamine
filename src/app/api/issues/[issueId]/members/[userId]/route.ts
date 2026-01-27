@@ -17,7 +17,7 @@ export async function GET(
 
     return createSuccessResponse({
       id: member.user.id,
-      displayName: member.user.displayName,
+      displayName: member.user.displayName || member.user.name || '익명',
       role: member.role,
     });
   } catch (error) {
