@@ -3,16 +3,25 @@ import { PrismaTransaction } from '@/types/prisma';
 import { prisma } from '../prisma';
 
 export const issueMemberRepository = {
-  async addIssueOwner(
+  async addIssueMember(
     tx: PrismaTransaction,
-    issueId: string,
-    userId: string,
-    role: IssueRole = IssueRole.OWNER,
+    {
+      issueId,
+      userId,
+      nickname,
+      role = IssueRole.MEMBER,
+    }: {
+      issueId: string;
+      userId: string;
+      nickname: string;
+      role?: IssueRole;
+    },
   ) {
     return tx.issueMember.create({
       data: {
         issueId,
         userId,
+        nickname,
         role,
       },
     });
