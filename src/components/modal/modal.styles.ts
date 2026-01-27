@@ -41,6 +41,49 @@ export const Body = styled.div`
   white-space: pre-wrap;
 `;
 
+export const Footer = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 12px;
+`;
+
+export const CancelButton = styled.button`
+  height: 40px;
+  min-width: 70px;
+  padding: 0 18px;
+  border: 1px solid ${theme.colors.gray[400]};
+  border-radius: ${theme.radius.medium};
+  color: ${theme.colors.gray[700]};
+  font-weight: ${theme.font.weight.bold};
+  cursor: pointer;
+
+  &:hover {
+    background: ${theme.colors.gray[100]};
+  }
+`;
+
+export const SubmitButton = styled.button`
+  height: 40px;
+  min-width: 70px;
+  padding: 0 18px;
+  border: none;
+  border-radius: ${theme.radius.medium};
+  background: ${theme.colors.green[600]};
+  color: ${theme.colors.white};
+  font-weight: 600;
+  cursor: pointer;
+
+  &:not(:disabled):hover {
+    background: ${theme.colors.green[700]};
+  }
+
+  &:disabled {
+    background-color: ${theme.colors.gray[300]};
+    cursor: not-allowed;
+  }
+`;
+
 export const CloseButton = styled.button`
   border: none;
   background: transparent;

@@ -80,7 +80,7 @@ export default function IssueSidebar() {
               const isOnline = onlineMemberIds.includes(user.id);
               return (
                 <MemberSidebarItem
-                  key={user.displayName}
+                  key={user.id}
                   id={user.id}
                   name={user.displayName}
                   role={user.role}

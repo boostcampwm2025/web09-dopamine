@@ -1,7 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { getProjects } from '@/lib/api/project';
-import getAPIResponseData from '@/lib/utils/api-response';
-import { ProjectwithTopic } from '@/types/project';
+import { getProjects, getProject } from '@/lib/api/project';
 
 export const useProjectsQuery = (enabled: boolean = true) => {
   return useQuery({
@@ -14,11 +12,7 @@ export const useProjectsQuery = (enabled: boolean = true) => {
 export const useProjectQuery = (projectId: string) => {
   return useQuery({
     queryKey: ['project', projectId],
-    queryFn: () =>
-      getAPIResponseData<ProjectwithTopic>({
-        url: `/api/project/${projectId}`,
-        method: 'GET',
-      }),
+    queryFn: () => getProject(projectId),
     enabled: !!projectId,
     staleTime: 1000 * 10,
   });
