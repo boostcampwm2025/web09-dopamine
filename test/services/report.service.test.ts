@@ -26,29 +26,29 @@ const createMockUser = (
   name: string,
   options: {
     displayName?: string | null;
-    avatarUrl?: string | null;
+    image?: string | null;
   } = {},
 ) => ({
   id,
   name,
   displayName: options.displayName ?? name,
-  avatarUrl: options.avatarUrl ?? null,
+  image: options.image ?? null,
 });
 
 const createMockIdea = (
   id: string,
   content: string,
   options: {
-    agreeVotes?: number;
-    disagreeVotes?: number;
+    agreeCount?: number;
+    disagreeCount?: number;
     comments?: number;
     category?: { id: string; title: string } | null;
     user?: ReturnType<typeof createMockUser>;
   } = {},
 ) => {
   const {
-    agreeVotes = 0,
-    disagreeVotes = 0,
+    agreeCount = 0,
+    disagreeCount = 0,
     comments = 0,
     category = null,
     user = createMockUser('user-1', 'User 1'),
@@ -57,17 +57,12 @@ const createMockIdea = (
   return {
     id,
     content,
-    votes: [
-      ...Array.from({ length: agreeVotes }, (_, i) => ({
-        id: `vote-${id}-agree-${i}`,
-        type: 'AGREE' as const,
-      })),
-      ...Array.from({ length: disagreeVotes }, (_, i) => ({
-        id: `vote-${id}-disagree-${i}`,
-        type: 'DISAGREE' as const,
-      })),
-    ],
-    comments: Array.from({ length: comments }, (_, i) => ({ id: `comment-${id}-${i}` })),
+    agreeCount,
+    disagreeCount,
+    comments: Array.from({ length: comments }, (_, i) => ({
+      id: `comment-${id}-${i}`,
+      content: `Comment content ${i}`,
+    })),
     category,
     user,
   };
@@ -118,17 +113,17 @@ describe('Report Service', () => {
       // 준비
       const category1 = { id: 'cat-1', title: 'Category 1' };
       const idea1 = createMockIdea('idea-1', 'First idea', {
-        agreeVotes: 2,
-        disagreeVotes: 1,
+        agreeCount: 2,
+        disagreeCount: 1,
         comments: 2,
         category: category1,
         user: createMockUser('user-1', 'John Doe', {
           displayName: 'John',
-          avatarUrl: 'https://example.com/avatar.jpg',
+          image: 'https://example.com/avatar.jpg',
         }),
       });
       const idea2 = createMockIdea('idea-2', 'Second idea', {
-        agreeVotes: 1,
+        agreeCount: 1,
         comments: 1,
         category: category1,
         user: createMockUser('user-2', 'Jane Doe'),
@@ -145,7 +140,8 @@ describe('Report Service', () => {
         selectedIdea: {
           id: idea1.id,
           content: idea1.content,
-          votes: idea1.votes,
+          agreeCount: idea1.agreeCount,
+          disagreeCount: idea1.disagreeCount,
           comments: idea1.comments,
           category: idea1.category,
         },
@@ -180,8 +176,8 @@ describe('Report Service', () => {
       // rankings.all 검증 (투표 점수 순으로 정렬)
       expect(result?.rankings.all).toHaveLength(2);
       expect(result?.rankings.all[0].id).toBe('idea-1'); // 2 agree - 1 disagree = 1점
-      expect(result?.rankings.all[0].agreeVoteCount).toBe(2);
-      expect(result?.rankings.all[0].disagreeVoteCount).toBe(1);
+      expect(result?.rankings.all[0].agreeCount).toBe(2);
+      expect(result?.rankings.all[0].disagreeCount).toBe(1);
       expect(result?.rankings.all[1].id).toBe('idea-2'); // 1 agree - 0 disagree = 1점
     });
 
@@ -196,12 +192,12 @@ describe('Report Service', () => {
           members: 1,
           ideas: [
             createMockIdea('idea-1', 'Category 1 idea', {
-              agreeVotes: 1,
+              agreeCount: 1,
               category: cat1,
               user: createMockUser('user-1', 'User 1'),
             }),
             createMockIdea('idea-2', 'Category 2 idea', {
-              agreeVotes: 1,
+              agreeCount: 1,
               category: cat2,
               user: createMockUser('user-2', 'User 2'),
             }),
@@ -295,15 +291,15 @@ describe('Report Service', () => {
         issue: createMockIssue(mockIssueId, {
           ideas: [
             createMockIdea('idea-1', 'Low score idea', {
-              disagreeVotes: 1,
+              disagreeCount: 1,
               user: createMockUser('user-1', 'User 1'),
             }),
             createMockIdea('idea-2', 'High score idea', {
-              agreeVotes: 3,
+              agreeCount: 3,
               user: createMockUser('user-2', 'User 2'),
             }),
             createMockIdea('idea-3', 'Medium score idea', {
-              agreeVotes: 1,
+              agreeCount: 1,
               user: createMockUser('user-3', 'User 3'),
             }),
           ],
@@ -319,8 +315,8 @@ describe('Report Service', () => {
       // 검증
       expect(result?.rankings.all).toHaveLength(3);
       expect(result?.rankings.all[0].id).toBe('idea-2'); // 3 - 0 = 3점
-      expect(result?.rankings.all[0].agreeVoteCount).toBe(3);
-      expect(result?.rankings.all[0].disagreeVoteCount).toBe(0);
+      expect(result?.rankings.all[0].agreeCount).toBe(3);
+      expect(result?.rankings.all[0].disagreeCount).toBe(0);
       expect(result?.rankings.all[1].id).toBe('idea-3'); // 1 - 0 = 1점
       expect(result?.rankings.all[2].id).toBe('idea-1'); // 0 - 1 = -1점
     });
