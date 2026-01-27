@@ -1,6 +1,6 @@
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { IssueRole } from '@prisma/client';
+import { IssueRole, Prisma } from '@prisma/client';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
@@ -120,8 +120,13 @@ export async function POST(
     });
 
     return createSuccessResponse(result, 201);
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('이슈 참여 실패:', error);
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === 'P2002') {
+        return createErrorResponse('NICKNAME_DUPLICATE', 409);
+      }
+    }
     return createErrorResponse('MEMBER_JOIN_FAILED', 500);
   }
 }
