@@ -1,5 +1,7 @@
 'use client';
 
+import { useStaticClick } from '../../hooks';
+import { useCommentWindowStore } from '../../store/use-comment-window-store';
 import type { Position } from '../../types/idea';
 import { useCanvasContext } from '../canvas/canvas-context';
 import CategoryCardHeader from './category-card-header';
@@ -60,6 +62,8 @@ export default function CategoryCard({
     setDraftTitle,
     submitEditedTitle,
     cancelEditingTitle,
+    handlePointerDown,
+    handleClick,
   } = useCategoryCard({
     id,
     issueId,
@@ -89,7 +93,11 @@ export default function CategoryCard({
         onSubmitTitle={submitEditedTitle}
         onCancelEdit={cancelEditingTitle}
         onRemove={onRemove}
-        onMouseDown={draggable?.handleMouseDown}
+        onMouseDown={(e) => {
+          draggable?.handleMouseDown(e);
+          handlePointerDown(e);
+        }}
+        onClick={handleClick}
       />
       {children && <ChildrenWrapper>{children}</ChildrenWrapper>}
     </StyledCategoryCard>
