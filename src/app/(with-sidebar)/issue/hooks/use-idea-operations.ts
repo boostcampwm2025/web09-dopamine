@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useIdeaCardStackStore } from '@/app/(with-sidebar)/issue/store/use-idea-card-stack-store';
 import type { IdeaWithPosition, Position } from '@/app/(with-sidebar)/issue/types/idea';
+import { ISSUE_STATUS } from '@/constants/issue';
 import { useIdeaMutations, useSelectedIdeaMutation } from '@/hooks/issue';
 import { useIdeasWithTemp } from './use-ideas-with-temp';
 import { useIssueData } from './use-issue-data';
@@ -24,7 +25,7 @@ export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) 
   const { createIdea, updateIdea, removeIdea } = useIdeaMutations(issueId);
 
   // 현재 사용자 정보 가져오기
-  const { members, isQuickIssue } = useIssueData(issueId);
+  const { members, isQuickIssue, status } = useIssueData(issueId);
   const { userId: currentUserId, displayName: currentUserDisplayName } = useIssueIdentity(issueId, {
     isQuickIssue,
     members,
@@ -116,6 +117,16 @@ export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) 
   const handleMoveIdeaToCategory = (ideaId: string, targetCategoryId: string | null) => {
     // temp 아이디어는 이 단계에서 존재하지 않는 것이 정상
     if (ideaId.startsWith('temp-')) return;
+
+    // 카테고리화 이후 단계(VOTE, SELECT, CLOSE)에서는 카테고리 간 이동 불가
+    if (
+      status === ISSUE_STATUS.VOTE ||
+      status === ISSUE_STATUS.SELECT ||
+      status === ISSUE_STATUS.CLOSE
+    ) {
+      toast.error('카테고리화 이후에는 아이디어를 이동할 수 없습니다.');
+      return;
+    }
 
     const idea = ideas.find((i) => i.id === ideaId);
     if (!idea) return;
