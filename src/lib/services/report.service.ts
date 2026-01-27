@@ -72,7 +72,7 @@ export async function getReportSummaryByIssueId(issueId: string): Promise<Report
       ? {
           id: report.selectedIdea.id,
           content: report.selectedIdea.content,
-          voteCount: report.selectedIdea.votes.length,
+          voteCount: report.selectedIdea.agreeCount + report.selectedIdea.disagreeCount,
           commentCount: report.selectedIdea.comments.length,
           category: report.selectedIdea.category as CategoryDto | null,
         }

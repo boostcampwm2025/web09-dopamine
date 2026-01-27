@@ -42,7 +42,8 @@ export interface ReportWithDetails {
   selectedIdea: {
     id: string;
     content: string;
-    votes: Array<{ id: string; type: string }>;
+    agreeCount: number;
+    disagreeCount: number;
     comments: Array<{ id: string }>;
     category: {
       id: string;
