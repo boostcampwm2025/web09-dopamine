@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
 import { commentRepository } from '@/lib/repositories/comment.repository';
@@ -34,10 +35,10 @@ export async function PATCH(
     });
 
     return createSuccessResponse(comment);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('댓글 수정 중 오류 발생:', error);
 
-    if (error.code === 'P2025') {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
       return createErrorResponse('COMMENT_NOT_FOUND', 404);
     }
 
@@ -70,10 +71,10 @@ export async function DELETE(
     });
 
     return createSuccessResponse(null, 200);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('댓글 삭제 중 오류 발생:', error);
 
-    if (error.code === 'P2025') {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
       return createErrorResponse('COMMENT_NOT_FOUND', 404);
     }
 
