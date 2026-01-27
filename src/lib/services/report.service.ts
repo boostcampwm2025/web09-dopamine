@@ -6,6 +6,7 @@ import {
   ReportResponse,
   ReportWithDetails,
 } from '@/types/report';
+import { compareIdeasByVote } from '../utils/sort-ideas';
 
 type ReportIdea = ReportWithDetails['issue']['ideas'][number];
 
@@ -37,7 +38,7 @@ export async function getReportSummaryByIssueId(issueId: string): Promise<Report
   // 아이디어 랭킹 계산
   const rankedIdeas: RankedIdeaDto[] = report.issue.ideas
     .map(mapIdeaToRankedIdea)
-    .sort((a, b) => b.agreeCount - b.disagreeCount - (a.agreeCount - a.disagreeCount)); // 내림차순 정렬
+    .sort(compareIdeasByVote);
 
   // 카테고리별로 아이디어 그룹핑
   const categoryMap = report.issue.ideas.reduce(
@@ -61,9 +62,7 @@ export async function getReportSummaryByIssueId(issueId: string): Promise<Report
   // 각 카테고리의 아이디어를 정렬하고 배열로 변환
   const categorizedIdeas: CategoryRanking[] = Object.values(categoryMap).map((category) => ({
     ...category,
-    ideas: category.ideas.sort(
-      (a, b) => b.agreeCount - b.disagreeCount - (a.agreeCount - a.disagreeCount),
-    ),
+    ideas: category.ideas.sort(compareIdeasByVote),
   }));
 
   return {
