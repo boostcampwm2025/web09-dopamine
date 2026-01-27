@@ -2,10 +2,14 @@ import { create } from 'zustand';
 
 interface commentWindowState {
   activeCommentId: string | null;
-  setActiveCommentId: (id: string | null) => void;
+
+  openComment: (id: string) => void;
+  closeComment: () => void;
 }
 
 export const useCommentWindowStore = create<commentWindowState>((set) => ({
   activeCommentId: null,
-  setActiveCommentId: (id) => set({ activeCommentId: id }),
+
+  openComment: (id) => set({ activeCommentId: id }),
+  closeComment: () => set({ activeCommentId: null }),
 }));

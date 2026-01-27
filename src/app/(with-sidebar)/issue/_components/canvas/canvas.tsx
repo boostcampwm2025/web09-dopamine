@@ -3,12 +3,13 @@
 import { useRef } from 'react';
 import { CanvasContext } from './canvas-context';
 import CanvasZoomControls from './canvas-zoom-controls';
-import { AddIdeaButton, BottomMessage, CanvasContainer, CanvasViewport } from './canvas.styles';
+import * as S from './canvas.styles';
 import { useCanvasControls } from './use-canvas-controls';
 
 interface CanvasProps {
   children?: React.ReactNode;
   onDoubleClick?: (position: { x: number; y: number }) => void;
+  onClick?: () => void;
   showGrid?: boolean;
   showControls?: boolean;
   showMessage?: boolean;
@@ -21,6 +22,7 @@ interface CanvasProps {
 export default function Canvas({
   children,
   onDoubleClick,
+  onClick,
   showGrid = true,
   showControls = true,
   showMessage = true,
@@ -52,7 +54,7 @@ export default function Canvas({
 
   return (
     <>
-      <CanvasContainer
+      <S.CanvasContainer
         ref={canvasRef}
         onWheel={handleWheel}
         onMouseDown={handleMouseDown}
@@ -60,20 +62,21 @@ export default function Canvas({
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
         onDoubleClick={handleCanvasDoubleClick}
+        onClick={onClick}
         showGrid={showGrid}
         style={{
           cursor: isPanning ? 'grabbing' : 'default',
         }}
       >
-        <CanvasViewport
+        <S.CanvasViewport
           boundContent={boundContent}
           style={{
             transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
           }}
         >
           <CanvasContext.Provider value={{ scale }}>{children}</CanvasContext.Provider>
-        </CanvasViewport>
-      </CanvasContainer>
+        </S.CanvasViewport>
+      </S.CanvasContainer>
 
       {showControls && (
         <CanvasZoomControls
@@ -84,9 +87,9 @@ export default function Canvas({
         />
       )}
       {showAddButton && enableAddIdea && (
-        <AddIdeaButton onClick={handleAddIdeaButtonClick}>아이디어 추가</AddIdeaButton>
+        <S.AddIdeaButton onClick={handleAddIdeaButtonClick}>아이디어 추가</S.AddIdeaButton>
       )}
-      {showMessage && <BottomMessage>{bottomMessage}</BottomMessage>}
+      {showMessage && <S.BottomMessage>{bottomMessage}</S.BottomMessage>}
     </>
   );
 }

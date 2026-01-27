@@ -2,7 +2,7 @@
 
 import { useModalStore } from '@/components/modal/use-modal-store';
 import HeaderButton from '../../../issue/_components/header/header-button';
-import ProjectModal from '../project-modal/project-modal';
+import TopicModal from '../topic-modal/topic-modal';
 
 export default function CreateTopicButton() {
   const { openModal } = useModalStore();
@@ -10,7 +10,7 @@ export default function CreateTopicButton() {
   const handleClick = () => {
     openModal({
       title: '새 토픽 만들기',
-      content: <ProjectModal variant="topic" />,
+      content: <TopicModal />,
       hasCloseButton: true,
     });
   };
