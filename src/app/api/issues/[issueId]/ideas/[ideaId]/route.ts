@@ -6,6 +6,7 @@ import { ideaRepository } from '@/lib/repositories/idea.repository';
 import { broadcast } from '@/lib/sse/sse-service';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 import { getUserIdFromRequest } from '@/lib/utils/cookie';
+import { getAuthenticatedUserId } from '@/lib/utils/auth-helpers';
 
 export async function GET(
   req: NextRequest,
@@ -14,14 +15,7 @@ export async function GET(
   try {
     const { issueId, ideaId } = await params;
 
-    // 1. 세션에서 userId 확인 (OAuth 로그인 사용자)
-    const session = await getServerSession(authOptions);
-    let userId: string | null = session?.user?.id ?? null;
-
-    // 2. 세션이 없으면 쿠키에서 확인 (익명 사용자 - 빠른 이슈)
-    if (!userId) {
-      userId = getUserIdFromRequest(req, issueId) ?? null;
-    }
+    const userId = await getAuthenticatedUserId(req, issueId);
 
     const idea = await ideaRepository.findById(ideaId);
 

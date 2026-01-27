@@ -8,6 +8,7 @@ import { ideaFilterService } from '@/lib/services/idea-filter.service';
 import { broadcast } from '@/lib/sse/sse-service';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 import { getUserIdFromRequest } from '@/lib/utils/cookie';
+import { getAuthenticatedUserId } from '@/lib/utils/auth-helpers';
 
 export async function GET(
   req: NextRequest,
@@ -17,14 +18,7 @@ export async function GET(
   const { searchParams } = new URL(req.url);
   const filter = searchParams.get('filter');
 
-  // 1. 세션에서 userId 확인 (OAuth 로그인 사용자)
-  const session = await getServerSession(authOptions);
-  let userId: string | null = session?.user?.id ?? null;
-
-  // 2. 세션이 없으면 쿠키에서 확인 (익명 사용자 - 빠른 이슈)
-  if (!userId) {
-    userId = getUserIdFromRequest(req, id) ?? null;
-  }
+  const userId = await getAuthenticatedUserId(req, id);
 
   try {
     const ideas = await ideaRepository.findByIssueId(id);
