@@ -3,7 +3,7 @@ import { IssueRole } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { issueMemberRepository } from '@/lib/repositories/issue-member.repository';
 import { createIssue } from '@/lib/repositories/issue.repository';
-import { getUserIdFromHeader } from '@/lib/utils/api-auth';
+import { getAuthenticatedUserId } from '@/lib/utils/api-auth';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ topicId: string }> }) {
@@ -34,7 +34,11 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ top
 export async function POST(req: NextRequest, { params }: { params: Promise<{ topicId: string }> }) {
   const { topicId } = await params;
   const { title } = await req.json();
-  const userId = getUserIdFromHeader(req)!;
+  const { userId, error } = await getAuthenticatedUserId(req);
+
+  if (!userId) {
+    return error ?? createErrorResponse('UNAUTHORIZED', 401);
+  }
 
   if (!title) {
     return createErrorResponse('TITLE_REQUIRED', 400);
