@@ -50,11 +50,13 @@ export const commentRepository = {
       id: comment.id,
       content: comment.content,
       createdAt: comment.createdAt,
-      user: {
-        id: comment.user.id,
-        name: comment.user.name,
-        nickname: memberMap.get(comment.userId) || null,
-      },
+      user: comment.user
+        ? {
+            id: comment.user.id,
+            name: comment.user.name,
+            nickname: comment.userId ? memberMap.get(comment.userId) ?? null : null,
+          }
+        : null,
     }));
   },
 
@@ -100,11 +102,13 @@ export const commentRepository = {
       id: comment.id,
       content: comment.content,
       createdAt: comment.createdAt,
-      user: {
-        id: comment.user.id,
-        name: comment.user.name,
-        nickname: issueMember?.nickname || null,
-      },
+      user: comment.user
+        ? {
+            id: comment.user.id,
+            name: comment.user.name,
+            nickname: issueMember?.nickname || null,
+          }
+        : null,
     };
   },
 
