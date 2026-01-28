@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+import { css, keyframes } from '@emotion/react';
 import { ISSUE_STATUS } from '@/constants/issue';
 import { theme } from '@/styles/theme';
 import { IssueStatus } from '@/types/issue';
@@ -116,4 +117,58 @@ export const Title = styled.div<{ status?: IssueStatus }>`
         color: ${theme.colors.gray[900]};`;
     }
   }}
+`;
+
+const shimmer = keyframes`
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: 200px 0;
+  }
+`;
+
+const skeletonBackground = css`
+  background: linear-gradient(
+    90deg,
+    ${theme.colors.gray[50]} 0%,
+    ${theme.colors.gray[100]} 50%,
+    ${theme.colors.gray[50]} 100%
+  );
+  background-size: 400px 100%;
+  animation: ${shimmer} 1.4s ease-in-out infinite;
+`;
+
+export const SkeletonNode = styled.div`
+  border: 1px dashed ${theme.colors.gray[200]};
+  background-color: rgba(0, 0, 0, 0.02);
+  border-radius: ${theme.radius.large};
+  width: 250px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.06);
+`;
+
+export const SkeletonBadge = styled.div`
+  align-self: flex-end;
+  width: 64px;
+  height: 20px;
+  border-radius: ${theme.radius.large};
+  ${skeletonBackground}
+`;
+
+export const SkeletonTitle = styled.div`
+  width: 70%;
+  height: 18px;
+  border-radius: 8px;
+  ${skeletonBackground}
+`;
+
+export const SkeletonLine = styled.div`
+  width: 40%;
+  height: 14px;
+  border-radius: 8px;
+  ${skeletonBackground}
 `;
