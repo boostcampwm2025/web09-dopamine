@@ -339,7 +339,7 @@ describe('Report Service', () => {
     });
 
     // 동점자 등수 처리(Rank) 로직 검증
-    it('동점자에게는 같은 등수를 부여하고, 다음 등수는 건너뛴다 (1224 방식)', async () => {
+    it('동점자에게는 같은 등수를 부여하고, 다음 등수는 +1 한다 (1223 방식)', async () => {
       // 준비
       const mockReport: ReportWithDetails = {
         ...createMockReportBase(mockIssueId),
@@ -349,7 +349,7 @@ describe('Report Service', () => {
             createMockIdea('idea-1', 'Winner 1', { agreeCount: 10, disagreeCount: 0 }),
             // 공동 1등 (10 - 0 = 10점)
             createMockIdea('idea-2', 'Winner 2', { agreeCount: 10, disagreeCount: 0 }),
-            // 3등 (5 - 0 = 5점) -> 2등이 아니라 3등이어야 함
+            // 2등 (5 - 0 = 5점)
             createMockIdea('idea-3', 'Second Place', { agreeCount: 5, disagreeCount: 0 }),
           ],
         }),
@@ -369,7 +369,7 @@ describe('Report Service', () => {
       // 등수 확인
       expect(rankings[0].rank).toBe(1); // 첫 번째 사람 1등
       expect(rankings[1].rank).toBe(1); // 두 번째 사람도 1등 (동점)
-      expect(rankings[2].rank).toBe(3); // 세 번째 사람은 3등 (2등 건너뜀)
+      expect(rankings[2].rank).toBe(2); // 세 번째 사람은 2등
     });
 
     it('선택된 아이디어가 없는 경우 null을 반환한다', async () => {

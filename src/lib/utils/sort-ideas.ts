@@ -30,8 +30,8 @@ export const assignRank = <T>(
     const isTie = index > 0 && compareFn(sortedList[index - 1], item) === 0;
 
     if (!isTie) {
-      // 동점이 아니면 현재 순서(index + 1)가 등수가 됨 (1224 방식)
-      currentRank = index + 1;
+      // 동점이 아니면 현재 다음 등수(currentRank++)가 등수가 됨 (1223 방식)
+      currentRank++;
     }
 
     // 기존 아이템에 rank 속성을 합쳐서 반환
