@@ -1,12 +1,16 @@
 import { LeaveService } from '@/lib/services/leave.service';
-import { getUserIdFromHeader } from '@/lib/utils/api-auth';
+import { getAuthenticatedUserId } from '@/lib/utils/api-auth';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 
 export async function DELETE(
   req: Request,
   { params }: { params: Promise<{ projectId: string; memberId: string }> },
 ) {
-  const userId = getUserIdFromHeader(req)!;
+  const { userId, error } = await getAuthenticatedUserId(req);
+
+  if (!userId) {
+    return error ?? createErrorResponse('UNAUTHORIZED', 401);
+  }
 
   try {
     const { projectId } = await params;
