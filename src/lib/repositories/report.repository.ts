@@ -65,10 +65,8 @@ export async function findReportWithDetailsById(
             select: {
               id: true,
               content: true,
-              votes: {
-                where: { deletedAt: null },
-                select: { id: true, type: true },
-              },
+              agreeCount: true,
+              disagreeCount: true,
               comments: {
                 where: { deletedAt: null },
                 select: { id: true, content: true },
@@ -98,10 +96,8 @@ export async function findReportWithDetailsById(
         select: {
           id: true,
           content: true,
-          votes: {
-            where: { deletedAt: null },
-            select: { id: true, type: true },
-          },
+          agreeCount: true,
+          disagreeCount: true,
           comments: {
             where: { deletedAt: null },
             select: { id: true },
