@@ -56,6 +56,7 @@ export async function findReportWithDetailsById(
             select: {
               id: true,
               userId: true,
+              nickname: true,
               deletedAt: true,
             },
           },
@@ -83,7 +84,6 @@ export async function findReportWithDetailsById(
                 select: {
                   id: true,
                   name: true,
-                  displayName: true,
                   image: true,
                 },
               },

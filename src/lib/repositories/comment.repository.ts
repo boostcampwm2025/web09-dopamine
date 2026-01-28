@@ -7,10 +7,11 @@ export const commentRepository = {
   /**
    * 특정 아이디어에 속한 삭제되지 않은 모든 댓글을 조회합니다.
    * @param ideaId - 조회할 아이디어의 ID
+   * @param issueId - 이슈 ID (IssueMember nickname 조회용)
    * @returns 생성일 기준 오름차순으로 정렬된 댓글 목록
    */
-  async findByIdeaId(ideaId: string) {
-    return prisma.comment.findMany({
+  async findByIdeaId(ideaId: string, issueId: string) {
+    const comments = await prisma.comment.findMany({
       where: {
         ideaId,
         deletedAt: null, // 삭제되지 않은 댓글만 조회 (Soft Delete 필터링)
@@ -20,24 +21,50 @@ export const commentRepository = {
         id: true,
         content: true,
         createdAt: true,
+        userId: true,
         user: {
           select: {
             id: true,
             name: true,
-            displayName: true,
           },
         },
       },
     });
+
+    // IssueMember 정보 가져오기
+    const issueMembers = await prisma.issueMember.findMany({
+      where: {
+        issueId,
+        deletedAt: null,
+      },
+      select: {
+        userId: true,
+        nickname: true,
+      },
+    });
+
+    const memberMap = new Map(issueMembers.map((m) => [m.userId, m.nickname]));
+
+    // 각 댓글에 IssueMember nickname 추가
+    return comments.map((comment) => ({
+      id: comment.id,
+      content: comment.content,
+      createdAt: comment.createdAt,
+      user: {
+        id: comment.user.id,
+        name: comment.user.name,
+        nickname: memberMap.get(comment.userId) || null,
+      },
+    }));
   },
 
   /**
    * 새로운 댓글을 생성합니다.
-   * @param data - 아이디어 ID, 유저 ID, 댓글 내용을 포함하는 데이터 객체
+   * @param data - 아이디어 ID, 유저 ID, 댓글 내용, 이슈 ID를 포함하는 데이터 객체
    * @returns 생성된 댓글의 주요 정보 (ID, 내용, 생성일)
    */
-  async create(data: { ideaId: string; userId: string; content: string }) {
-    return prisma.comment.create({
+  async create(data: { ideaId: string; userId: string; content: string; issueId: string }) {
+    const comment = await prisma.comment.create({
       data: {
         ideaId: data.ideaId,
         userId: data.userId,
@@ -47,15 +74,38 @@ export const commentRepository = {
         id: true,
         content: true,
         createdAt: true,
+        userId: true,
         user: {
           select: {
             id: true,
             name: true,
-            displayName: true,
           },
         },
       },
     });
+
+    // IssueMember nickname 가져오기
+    const issueMember = await prisma.issueMember.findFirst({
+      where: {
+        issueId: data.issueId,
+        userId: data.userId,
+        deletedAt: null,
+      },
+      select: {
+        nickname: true,
+      },
+    });
+
+    return {
+      id: comment.id,
+      content: comment.content,
+      createdAt: comment.createdAt,
+      user: {
+        id: comment.user.id,
+        name: comment.user.name,
+        nickname: issueMember?.nickname || null,
+      },
+    };
   },
 
   /**

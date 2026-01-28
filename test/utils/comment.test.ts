@@ -15,14 +15,14 @@ describe('getCommentMeta', () => {
     mockedFormatRelativeTime.mockReturnValue('1분 전');
   });
 
-  it('displayName이 있으면 displayName을 우선 사용한다', () => {
-    // displayName이 name보다 우선인지 확인
+  it('nickname이 있으면 nickname을 우선 사용한다', () => {
+    // nickname이 name보다 우선인지 확인
     const result = getCommentMeta({
       createdAt: new Date(),
-      user: { displayName: '표시 이름', name: '기본 이름' },
+      user: { nickname: '닉네임', name: '기본 이름' },
     } as any);
 
-    expect(result).toBe('표시 이름 · 1분 전');
+    expect(result).toBe('닉네임 · 1분 전');
   });
 
   it('displayName이 없으면 name을 사용한다', () => {

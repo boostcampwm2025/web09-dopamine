@@ -12,10 +12,10 @@ export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ issueId: string; ideaId: string }> },
 ): Promise<NextResponse> {
-  const { ideaId } = await params;
+  const { issueId, ideaId } = await params;
 
   try {
-    const comments = await commentRepository.findByIdeaId(ideaId);
+    const comments = await commentRepository.findByIdeaId(ideaId, issueId);
     return createSuccessResponse(comments);
   } catch (error) {
     console.error('댓글 조회 중 오류 발생:', error);
@@ -43,6 +43,7 @@ export async function POST(
       ideaId,
       userId,
       content,
+      issueId,
     });
 
     broadcast({

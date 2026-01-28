@@ -24,8 +24,8 @@ const mockedCreateIssue = createIssue as jest.MockedFunction<typeof createIssue>
 const mockedCreateAnonymousUser = createAnonymousUser as jest.MockedFunction<
   typeof createAnonymousUser
 >;
-const mockedAddIssueOwner = issueMemberRepository.addIssueOwner as jest.MockedFunction<
-  typeof issueMemberRepository.addIssueOwner
+const mockedAddIssueMember = issueMemberRepository.addIssueMember as jest.MockedFunction<
+  typeof issueMemberRepository.addIssueMember
 >;
 const mockedPrismaTransaction = prisma.$transaction as jest.MockedFunction<
   typeof prisma.$transaction
@@ -64,7 +64,7 @@ describe('POST /api/issues (빠른 이슈 생성)', () => {
     setupPrismaTransactionMock(mockedPrismaTransaction, (mockTx) => {
       mockedCreateAnonymousUser.mockResolvedValue(mockUser as any);
       mockedCreateIssue.mockResolvedValue(mockIssue as any);
-      mockedAddIssueOwner.mockResolvedValue(undefined);
+      mockedAddIssueMember.mockResolvedValue(undefined);
       return mockTx;
     });
 

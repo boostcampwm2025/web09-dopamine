@@ -16,8 +16,8 @@ export async function GET(
     }
 
     return createSuccessResponse({
-      id: member.user.id,
-      displayName: member.user.displayName || member.user.name || '익명',
+      id: member.userId,
+      nickname: member.nickname,
       role: member.role,
     });
   } catch (error) {
