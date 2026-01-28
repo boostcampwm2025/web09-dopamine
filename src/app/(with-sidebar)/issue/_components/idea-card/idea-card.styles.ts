@@ -132,7 +132,7 @@ export const Card = styled.article<{
   max-width: 30em;
 
   z-index: ${({ isCommentOpen, isHotIdea, theme }) =>
-    isCommentOpen ? theme.zIndex.important : isHotIdea ? theme.zIndex.selected : theme.zIndex.base};
+    isCommentOpen ? theme.zIndex.important : isHotIdea ? theme.zIndex.selected : 1};
 
   /* 등장 애니메이션 */
   @keyframes ideaCardAppear {
