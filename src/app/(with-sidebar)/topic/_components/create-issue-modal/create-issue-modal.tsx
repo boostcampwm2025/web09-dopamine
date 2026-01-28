@@ -5,8 +5,7 @@ import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import * as S from '@/app/(with-sidebar)/issue/_components/issue-join-modal/issue-join-modal.styles';
 import { useModalStore } from '@/components/modal/use-modal-store';
-import { useCreateIssueInTopicMutation } from '@/hooks/issue';
-import { useTopicId } from '@/hooks/use-topic-id';
+import { useCreateIssueInTopicMutation, useTopicId } from '@/hooks';
 
 export default function CreateIssueModal() {
   const router = useRouter();

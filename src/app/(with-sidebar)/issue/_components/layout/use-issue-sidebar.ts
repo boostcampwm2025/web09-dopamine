@@ -3,9 +3,8 @@ import type { ChangeEvent } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { getChoseong } from 'es-hangul';
 import { MEMBER_ROLE } from '@/constants/issue';
-import { useTopicId } from '@/hooks/use-topic-id';
+import { useTopicId, useTopicIssuesQuery } from '@/hooks';
 import { useIssueData, useIssueId } from '../../hooks';
-import { useTopicIssuesQuery } from '@/hooks/issue';
 import { useIssueStore } from '../../store/use-issue-store';
 import { ISSUE_LIST } from './issue-sidebar';
 
@@ -93,7 +92,9 @@ export const useIssueSidebar = () => {
     const { trimmed, normalized, searchChoseong } = searchParams;
     if (!trimmed) return topicIssues;
 
-    return topicIssues.filter((issue) => matchSearch(issue.title || '', normalized, searchChoseong));
+    return topicIssues.filter((issue) =>
+      matchSearch(issue.title || '', normalized, searchChoseong),
+    );
   }, [searchParams, topicIssues]);
 
   // 정적 이슈 리스트 필터링
