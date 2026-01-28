@@ -3,7 +3,7 @@
  */
 import { renderHook, act } from '@testing-library/react';
 import { useQueryClient } from '@tanstack/react-query';
-import { useTopicEvents } from '@/app/(with-sidebar)/topic/hooks/use-topic-events';
+import { useTopicEvents } from '@/hooks/topic/use-topic-events';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
 
 // useQueryClient 모킹
