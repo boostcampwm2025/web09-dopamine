@@ -1,13 +1,13 @@
 import { getServerSession } from 'next-auth';
-import { POST } from '@/app/api/topics/route';
-import * as topicRepository from '@/lib/repositories/topic.repository';
 import {
   createMockRequest,
   createMockSession,
-  setupAuthMock,
   expectErrorResponse,
   expectSuccessResponse,
+  setupAuthMock,
 } from '@test/utils/api-test-helpers';
+import { POST } from '@/app/api/topics/route';
+import * as topicRepository from '@/lib/repositories/topic.repository';
 
 jest.mock('next-auth', () => ({
   getServerSession: jest.fn(),
@@ -27,9 +27,7 @@ describe('POST /api/topics', () => {
     jest.clearAllMocks();
   });
 
-  // 주의: 현재 topics/route.ts에는 인증 체크가 없습니다.
-  // 인증이 필요한 경우 실제 코드에 인증 체크를 추가해야 합니다.
-  it.skip('인증되지 않은 사용자는 401 에러를 받는다', async () => {
+  it('인증되지 않은 사용자는 401 에러를 받는다', async () => {
     setupAuthMock(mockedGetServerSession, null);
 
     const req = createMockRequest({ title: 'New Topic', projectId: 'project-1' });
