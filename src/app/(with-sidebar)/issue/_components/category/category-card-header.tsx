@@ -22,6 +22,7 @@ interface CategoryCardHeaderProps {
   onCancelEdit: () => void;
   onRemove?: () => void;
   onMouseDown?: (event: React.MouseEvent) => void;
+  onClick?: (e: React.MouseEvent) => void;
 }
 
 export default function CategoryCardHeader({
@@ -35,11 +36,13 @@ export default function CategoryCardHeader({
   onCancelEdit,
   onRemove,
   onMouseDown,
+  onClick,
 }: CategoryCardHeaderProps) {
   return (
     <Header
       isMuted={isMuted}
       onMouseDown={onMouseDown}
+      onClick={onClick}
     >
       <HeaderLeft>
         <Dot isMuted={isMuted} />

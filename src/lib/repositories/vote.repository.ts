@@ -5,6 +5,7 @@ export const voteRepository = {
   findActiveVote(ideaId: string, userId: string, tx: Prisma.TransactionClient) {
     return tx.vote.findFirst({
       where: { ideaId, userId, deletedAt: null },
+      select: { id: true, type: true },
     });
   },
 
@@ -15,7 +16,7 @@ export const voteRepository = {
 
   // 투표 타입 변경
   updateVoteType(voteId: string, type: VoteType, tx: Prisma.TransactionClient) {
-    return tx.vote.update({ where: { id: voteId }, data: { type } });
+    return tx.vote.update({ where: { id: voteId }, data: { type }, select: { id: true, type: true } });
   },
 
   // 투표 삭제 (Soft Delete)

@@ -84,10 +84,10 @@ export default function CategorizedList({ categorizedRankings }: CategorizedList
                     <S.Title>{categoryTitle}</S.Title>
                   </S.HeaderLeft>
                 </S.Header>
-                {visibleIdeas.map((item, ideaIndex) => (
+                {visibleIdeas.map((item) => (
                   <S.ItemWrapper key={item.id}>
                     <S.ItemLeft>
-                      <S.RankBadge highlighted={ideaIndex === 0}>{ideaIndex + 1}</S.RankBadge>
+                      <S.RankBadge highlighted={item.rank === 1}>{item.rank}</S.RankBadge>
                       <S.ItemContent
                         title={item.content}
                         role="button"
@@ -102,13 +102,11 @@ export default function CategorizedList({ categorizedRankings }: CategorizedList
                     <S.VoteInfoSection>
                       <S.VoteInfo type={VOTE_TYPE.AGREE}>
                         <S.VoteLabel>찬성</S.VoteLabel>
-                        <S.VoteCount type={VOTE_TYPE.AGREE}>{item.agreeVoteCount}</S.VoteCount>
+                        <S.VoteCount type={VOTE_TYPE.AGREE}>{item.agreeCount}</S.VoteCount>
                       </S.VoteInfo>
                       <S.VoteInfo type={VOTE_TYPE.DISAGREE}>
                         <S.VoteLabel>반대</S.VoteLabel>
-                        <S.VoteCount type={VOTE_TYPE.DISAGREE}>
-                          {item.disagreeVoteCount}
-                        </S.VoteCount>
+                        <S.VoteCount type={VOTE_TYPE.DISAGREE}>{item.disagreeCount}</S.VoteCount>
                       </S.VoteInfo>
                     </S.VoteInfoSection>
                   </S.ItemWrapper>

@@ -4,9 +4,12 @@ import type { KeyboardEventHandler, MouseEventHandler, RefObject } from 'react';
 import Image from 'next/image';
 import { ISSUE_STATUS } from '@/constants/issue';
 import type { IssueStatus } from '@/types/issue';
+import { useCommentCountQuery } from '@/hooks/comment/use-comment-query';
 import * as S from './idea-card.styles';
 
 interface IdeaCardHeaderProps {
+  id: string;
+  issueId: string;
   isEditing: boolean;
   editValue: string;
   displayContent: string;
@@ -24,6 +27,8 @@ interface IdeaCardHeaderProps {
 }
 
 export default function IdeaCardHeader({
+  id,
+  issueId,
   isEditing,
   editValue,
   displayContent,
@@ -31,7 +36,7 @@ export default function IdeaCardHeader({
   isCurrentUser,
   author,
   issueStatus,
-  commentCount = 0,
+  commentCount: initialCommentCount = 0,
   textareaRef,
   setEditValue,
   handleKeyDownEdit,
@@ -39,6 +44,8 @@ export default function IdeaCardHeader({
   onDelete,
   onCommentClick,
 }: IdeaCardHeaderProps) {
+  const { commentCountQuery } = useCommentCountQuery(issueId, id);
+  const commentCount = commentCountQuery.data ?? initialCommentCount;
   return (
     <S.Header>
       {isEditing ? (
@@ -62,6 +69,7 @@ export default function IdeaCardHeader({
           <S.IconButton
             aria-label="comment"
             onClick={onCommentClick}
+            data-no-canvas-close="true"
           >
             <Image
               src="/comment.svg"

@@ -1,4 +1,5 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
+import { useStaticClick } from '../../hooks';
 import { useCanvasStore } from '../../store/use-canvas-store';
 
 const DEFAULT_OFFSET = { x: 0, y: 0 };
@@ -7,16 +8,22 @@ interface UseCanvasControlsOptions {
   canvasRef: React.RefObject<HTMLDivElement | null>;
   onDoubleClick?: (position: { x: number; y: number }) => void;
   isAddIdeaEnabled: boolean;
+  onCanvasClick: (e: React.MouseEvent) => void;
 }
 
 export function useCanvasControls({
   canvasRef,
   onDoubleClick,
   isAddIdeaEnabled,
+  onCanvasClick,
 }: UseCanvasControlsOptions) {
   const { scale, offset, setScale, setOffset, reset } = useCanvasStore();
   const [isPanning, setIsPanning] = useState(false);
   const [panStart, setPanStart] = useState(DEFAULT_OFFSET);
+
+  // 드래그 판별을 위한 Ref
+  const isBackgroundClickRef = useRef(false);
+  const { handlePointerDown, handleClick } = useStaticClick(onCanvasClick);
 
   const handleWheel = useCallback(
     (e: React.WheelEvent) => {
@@ -37,6 +44,15 @@ export function useCanvasControls({
 
   const handleMouseDown = useCallback(
     (e: React.MouseEvent) => {
+      handlePointerDown(e);
+      const target = e.target as HTMLElement;
+      // 클릭해도 comment 닫히지 않는 요소들 체크
+      if (target.closest('[data-no-canvas-close="true"]')) {
+        isBackgroundClickRef.current = false;
+      } else {
+        isBackgroundClickRef.current = true;
+      }
+
       if (e.button === 1 || (e.button === 0 && e.shiftKey)) {
         e.preventDefault();
         setIsPanning(true);
@@ -58,9 +74,16 @@ export function useCanvasControls({
     [isPanning, panStart, setOffset],
   );
 
-  const handleMouseUp = useCallback(() => {
-    setIsPanning(false);
-  }, []);
+  const handleMouseUp = useCallback(
+    (e: React.MouseEvent) => {
+      setIsPanning(false);
+
+      if (isBackgroundClickRef.current) {
+        handleClick(e);
+      }
+    },
+    [handleClick],
+  );
 
   const handleZoomIn = useCallback(() => {
     setScale(Math.min(scale + 0.1, 3));

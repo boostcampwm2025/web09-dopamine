@@ -95,7 +95,7 @@ export const AddMember = styled.button`
   color: ${theme.colors.green[600]};
   background: none;
   border: none;
-  padding: 0;
+  padding: 4px;
   cursor: pointer;
 
   text-align: left;
@@ -142,9 +142,13 @@ export const MenuWrapper = styled.div`
 export const Button = styled.button`
   cursor: pointer;
   background: none;
-  border: none;
-  padding: 0;
+  border-radius: ${theme.radius.small};
+  padding: 4px;
   display: flex;
+
+  &:hover {
+    background-color: ${theme.colors.gray[100]};
+  }
 `;
 
 export const MenuModal = styled.div`

@@ -47,7 +47,10 @@ export const issueMemberRepository = {
         issueId,
         deletedAt: null,
         user: {
-          displayName: nickname,
+          OR: [
+            { displayName: nickname },
+            { name: nickname },
+          ],
         },
       },
       select: {

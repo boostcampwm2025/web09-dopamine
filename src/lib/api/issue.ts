@@ -188,3 +188,21 @@ export function deleteCloseModal(issueId: string) {
     method: 'DELETE',
   });
 }
+
+/* =========================
+ * SSE / Active Idea
+ * ========================= */
+
+/**
+ * 활성 아이디어(댓글창) 상태 보고
+ */
+export function reportActiveIdea(issueId: string, connectionId: string, ideaId: string | null) {
+  return getAPIResponseData<{
+    success: boolean;
+  }>({
+    url: `/api/issues/${issueId}/events/active-idea`,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ connectionId, ideaId }),
+  });
+}

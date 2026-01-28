@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
-import { prisma } from '@/lib/prisma';
 import { ideaRepository } from '@/lib/repositories/idea.repository';
+import { issueMemberRepository } from '@/lib/repositories/issue-member.repository';
 import { broadcast } from '@/lib/sse/sse-service';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
-import { getUserIdFromRequest } from '@/lib/utils/cookie';
+import { getAuthenticatedUserId } from '@/lib/utils/auth-helpers';
 
 export async function GET(
   req: NextRequest,
@@ -13,55 +13,22 @@ export async function GET(
   try {
     const { issueId, ideaId } = await params;
 
-    const userId = getUserIdFromRequest(req, issueId);
+    const userId = await getAuthenticatedUserId(req, issueId);
 
-    const idea = await prisma.idea.findUnique({
-      where: {
-        id: ideaId,
-      },
-      include: {
-        user: {
-          select: {
-            id: true,
-          },
-        },
-        comments: {
-          where: {
-            deletedAt: null,
-          },
-          select: {
-            id: true,
-            content: true,
-            createdAt: true,
-          },
-        },
-      },
-    });
+    const idea = await ideaRepository.findById(ideaId);
 
     if (!idea) {
       return createErrorResponse('IDEA_NOT_FOUND', 404);
     }
 
     // IssueMember 정보 가져오기
-    const issueMember = await prisma.issueMember.findFirst({
-      where: {
-        issueId,
-        userId: idea.userId,
-        deletedAt: null,
-      },
-      select: {
-        nickname: true,
-      },
-    });
+    const issueMember = await issueMemberRepository.findMemberByUserId(issueId, idea.userId);
 
-    const myVote = userId
-      ? await prisma.vote.findFirst({ where: { ideaId: ideaId, userId, deletedAt: null } })
-      : null;
+    const myVote = userId ? await ideaRepository.findMyVote(ideaId, userId) : null;
 
     return createSuccessResponse({
       ...idea,
-      agreeCount: idea.agreeCount,
-      disagreeCount: idea.disagreeCount,
+      commentCount: idea._count?.comments ?? 0,
       myVote: myVote?.type ?? null,
       issueMember: issueMember ? { nickname: issueMember.nickname } : null,
     });

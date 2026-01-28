@@ -60,6 +60,8 @@ export default function CategoryCard({
     setDraftTitle,
     submitEditedTitle,
     cancelEditingTitle,
+    handlePointerDown,
+    handleClick,
   } = useCategoryCard({
     id,
     issueId,
@@ -89,7 +91,11 @@ export default function CategoryCard({
         onSubmitTitle={submitEditedTitle}
         onCancelEdit={cancelEditingTitle}
         onRemove={onRemove}
-        onMouseDown={draggable?.handleMouseDown}
+        onMouseDown={(e) => {
+          draggable?.handleMouseDown(e);
+          handlePointerDown(e);
+        }}
+        onClick={handleClick}
       />
       {children && <ChildrenWrapper>{children}</ChildrenWrapper>}
     </StyledCategoryCard>
