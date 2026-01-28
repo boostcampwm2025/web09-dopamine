@@ -20,6 +20,9 @@ const config = {
   // 커버리지 대상 파일(타입 정의, 스토리북 제외)
   // collectCoverageFrom: ['src/**/*.{ts,tsx}', '!src/**/*.d.ts'],
 
+  // 테스트 파일 실행 전에 먼저 실행
+  setupFilesAfterEnv: ['<rootDir>/test/setup.tsx'],
+
   // 일단 tsx는 제외
   collectCoverageFrom: ['src/**/*.{ts}', '!src/**/*.d.ts'],
 
