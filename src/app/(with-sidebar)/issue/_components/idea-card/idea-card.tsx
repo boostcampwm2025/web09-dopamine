@@ -28,7 +28,7 @@ interface IdeaCardProps {
   isVoteDisabled?: boolean;
   agreeCount?: number;
   disagreeCount?: number;
-  myVote?: 'AGREE' | 'DISAGREE';
+  myVote?: 'AGREE' | 'DISAGREE' | null;
   commentCount?: number;
   editable?: boolean;
   status?: CardStatus;
