@@ -15,7 +15,13 @@ export const useCategoryMutations = (issueId: string) => {
   const queryKey = ['issues', issueId, 'categories'];
 
   const create = useMutation({
-    mutationFn: (payload: CategoryPayload) => createCategory(issueId, payload),
+    mutationFn: async (payload: CategoryPayload) => {
+      const categories = queryClient.getQueryData<any[]>(queryKey);
+      if (categories?.some((c) => c.title === payload.title)) {
+        throw new Error('이미 존재하는 카테고리 이름입니다.');
+      }
+      return createCategory(issueId, payload);
+    },
 
     onError: (_err) => {
       toast.error(_err.message);

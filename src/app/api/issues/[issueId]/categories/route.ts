@@ -28,6 +28,12 @@ export async function POST(
   const { title, positionX, positionY, width, height } = await req.json();
 
   try {
+    // 카테고리 중복 확인
+    const existingCategory = await categoryRepository.findByTitle(issueId, title);
+    if (existingCategory) {
+      return createErrorResponse('CATEGORY_ALREADY_EXISTS', 400);
+    }
+
     const category = await categoryRepository.create({
       issueId,
       title,
