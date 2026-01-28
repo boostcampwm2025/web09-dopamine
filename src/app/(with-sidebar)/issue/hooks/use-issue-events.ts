@@ -1,12 +1,12 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import CloseIssueModal from '@/app/(with-sidebar)/issue/_components/close-issue-modal/close-issue-modal';
 import { useModalStore } from '@/components/modal/use-modal-store';
 import { MEMBER_ROLE } from '@/constants/issue';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
-import { selectedIdeaQueryKey } from '@/hooks/issue';
-import { deleteCloseModal, getIssueMember, reportActiveIdea } from '@/lib/api/issue';
+import { selectedIdeaQueryKey, useIssueMemberQuery } from '@/hooks/issue';
+import { deleteCloseModal, reportActiveIdea } from '@/lib/api/issue';
 import { useCommentWindowStore } from '../store/use-comment-window-store';
 import { useIssueStore } from '../store/use-issue-store';
 import { useSseConnectionStore } from '../store/use-sse-connection-store';
@@ -40,14 +40,9 @@ export function useIssueEvents({
   const { setOnlineMemberIds } = useIssueStore((state) => state.actions);
   const setConnectionId = useSseConnectionStore((state) => state.setConnectionId);
 
-  // 현재 사용자의 정보 조회
-  const { data: currentUser } = useQuery({
-    queryKey: ['issues', issueId, 'members', userId],
-    queryFn: () => getIssueMember(issueId, userId),
-    enabled: !!userId && enabled,
-  });
-
-  const isOwner = currentUser && currentUser.role === MEMBER_ROLE.OWNER;
+  const { data: members = [] } = useIssueMemberQuery(issueId, enabled);
+  const currentMember = members.find((member) => member.id === userId);
+  const isOwner = currentMember?.role === MEMBER_ROLE.OWNER;
   const isOwnerRef = useRef(isOwner);
 
   // isOwner 값이 변경될 때마다 ref 업데이트
@@ -83,7 +78,7 @@ export function useIssueEvents({
 
       // 재연결 시 전체 데이터 갱신
       // 최초 연결시에도 실행되지만... 큰 문제 없을 듯
-      queryClient.invalidateQueries({ queryKey: ['issues', issueId] });
+      queryClient.invalidateQueries({ queryKey: ['issues', issueId], exact: true });
     };
 
     // 에러 발생

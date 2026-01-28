@@ -1,12 +1,15 @@
 import { useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { useQuery } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { useCanvasStore } from '@/app/(with-sidebar)/issue/store/use-canvas-store';
 import { ISSUE_STATUS, MEMBER_ROLE } from '@/constants/issue';
-import { useAIStructuringMutation, useIssueQuery, useIssueStatusMutations } from '@/hooks/issue';
+import {
+  useAIStructuringMutation,
+  useIssueMemberQuery,
+  useIssueQuery,
+  useIssueStatusMutations,
+} from '@/hooks/issue';
 import { useTopicId } from '@/hooks/use-topic-id';
-import { getIssueMember } from '@/lib/api/issue';
 import { IssueStatus } from '@/types/issue';
 import { useCategoryOperations, useIdeasWithTemp, useIssueIdentity } from '../../hooks';
 
@@ -23,16 +26,12 @@ export function useHeader({ issueId }: UseHeaderParams) {
 
   const { userId } = useIssueIdentity(issueId);
 
-  // 현재 사용자의 정보 조회
-  const { data: currentUser } = useQuery({
-    queryKey: ['issues', issueId, 'members', userId],
-    queryFn: () => getIssueMember(issueId, userId),
-    enabled: !!userId,
-  });
+  const { data: members = [] } = useIssueMemberQuery(issueId, !!userId);
+  const currentMember = members.find((member) => member.id === userId);
 
   const { handleAIStructure } = useAIStructuringMutation(issueId);
 
-  const isOwner = currentUser && currentUser.role === MEMBER_ROLE.OWNER;
+  const isOwner = currentMember?.role === MEMBER_ROLE.OWNER;
   const { ideas, hasEditingIdea } = useIdeasWithTemp(issueId);
   const scale = useCanvasStore((state) => state.scale);
   const { categories, handleAddCategory } = useCategoryOperations(issueId, ideas, scale);
