@@ -117,7 +117,7 @@ export const getProjectWithTopics = async (projectId: string) => {
           user: {
             select: {
               id: true,
-              name: true,
+              displayName: true,
               image: true,
             },
           },
@@ -159,7 +159,7 @@ export const getProjectWithTopics = async (projectId: string) => {
     if (pm.user) {
       memberMap.set(pm.user.id, {
         id: pm.user.id,
-        name: pm.user.name,
+        name: pm.user.displayName,
         image: pm.user.image,
         role: pm.user.id === project.ownerId ? 'OWNER' : 'MEMBER',
       });

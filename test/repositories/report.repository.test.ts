@@ -1,5 +1,9 @@
 import { prisma } from '@/lib/prisma';
-import { createReport, findReportByIssueId } from '@/lib/repositories/report.repository';
+import {
+  createReport,
+  findReportByIssueId,
+  findReportWithDetailsById,
+} from '@/lib/repositories/report.repository';
 import { PrismaTransaction } from '@/types/prisma';
 
 jest.mock('@/lib/prisma', () => ({
@@ -232,6 +236,106 @@ describe('Report Repository', () => {
       });
       expect(result.selectedIdeaId).toBe(selectedIdeaId);
       expect(result.memo).toBeNull();
+    });
+  });
+
+  describe('findReportWithDetailsById', () => {
+    const mockIssueId = 'issue-123';
+
+    it('리포트 상세 조회 시 필요한 모든 연관 데이터를 포함한다', async () => {
+      // 역할: 리포트 상세 화면에 필요한 조인 데이터가 누락되지 않도록 include 구성을 보장한다.
+      const mockReport = { id: 'report-1' } as any;
+      mockedPrismaReport.findFirst.mockResolvedValue(mockReport);
+
+      const result = await findReportWithDetailsById(mockIssueId);
+
+      expect(mockedPrismaReport.findFirst).toHaveBeenCalledWith({
+        where: {
+          issueId: mockIssueId,
+          deletedAt: null,
+        },
+        include: {
+          issue: {
+            select: {
+              id: true,
+              title: true,
+              issueMembers: {
+                where: { deletedAt: null },
+                select: {
+                  id: true,
+                  userId: true,
+                  deletedAt: true,
+                },
+              },
+              ideas: {
+                where: { deletedAt: null },
+                select: {
+                  id: true,
+                  content: true,
+                  votes: {
+                    where: { deletedAt: null },
+                    select: { id: true, type: true },
+                  },
+                  comments: {
+                    where: { deletedAt: null },
+                    select: { id: true, content: true },
+                  },
+                  category: {
+                    select: {
+                      id: true,
+                      title: true,
+                    },
+                  },
+                  user: {
+                    select: {
+                      id: true,
+                      name: true,
+                      displayName: true,
+                      image: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+          selectedIdea: {
+            select: {
+              id: true,
+              content: true,
+              votes: {
+                where: { deletedAt: null },
+                select: { id: true, type: true },
+              },
+              comments: {
+                where: { deletedAt: null },
+                select: { id: true },
+              },
+              category: {
+                select: {
+                  id: true,
+                  title: true,
+                },
+              },
+            },
+          },
+        },
+      });
+      expect(result).toEqual(mockReport);
+    });
+
+    it('트랜잭션이 전달되면 해당 클라이언트로 상세 조회한다', async () => {
+      // 역할: 상위 트랜잭션 컨텍스트에서 일관된 읽기를 보장한다.
+      const mockReport = { id: 'report-1' } as any;
+      const mockTx = {
+        report: {
+          findFirst: jest.fn().mockResolvedValue(mockReport),
+        },
+      } as unknown as PrismaTransaction;
+
+      const result = await findReportWithDetailsById(mockIssueId, mockTx);
+
+      expect(mockTx.report.findFirst).toHaveBeenCalled();
+      expect(result).toEqual(mockReport);
     });
   });
 });
