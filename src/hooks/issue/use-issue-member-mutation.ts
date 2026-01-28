@@ -47,9 +47,10 @@ export const useNicknameMutations = (issueId: string) => {
     try {
       const result = await mutateAsync(nickname);
       return result;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('닉네임 중복 확인 에러:', error);
-      toast.error(error.message);
+      const errorMessage = error instanceof Error ? error.message : '닉네임 중복 확인 중 오류가 발생했습니다.';
+      toast.error(errorMessage);
       throw error;
     }
   };

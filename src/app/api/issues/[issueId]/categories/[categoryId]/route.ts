@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
 import { categoryRepository } from '@/lib/repositories/category.repository';
@@ -29,11 +30,11 @@ export async function PATCH(
     });
 
     return createSuccessResponse(category);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('카테고리 수정 실패:', error);
 
     // Prisma에서 레코드를 찾을 수 없는 경우
-    if (error.code === 'P2025') {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
       return createErrorResponse('CATEGORY_NOT_FOUND', 404);
     }
 
@@ -59,11 +60,11 @@ export async function DELETE(
     });
 
     return createSuccessResponse(null);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('카테고리 삭제 실패:', error);
 
     // Prisma에서 레코드를 찾을 수 없는 경우
-    if (error.code === 'P2025') {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
       return createErrorResponse('CATEGORY_NOT_FOUND', 404);
     }
 
