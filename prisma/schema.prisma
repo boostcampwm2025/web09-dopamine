@@ -217,7 +217,7 @@ model IssueMember {
   user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([issueId, nickname]) // 닉네임 중복 방지
-  @@unique([issueId, deletedAt, userId]) // 유저 중복 방지
+  @@unique([issueId, userId]) // 유저 중복 방지
   @@index([userId])
   @@index([issueId])
   @@map("issue_members")
