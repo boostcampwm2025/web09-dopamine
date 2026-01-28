@@ -1,8 +1,15 @@
 import { NextRequest } from 'next/server';
 import * as topicRepository from '@/lib/repositories/topic.repository';
+import { getAuthenticatedUserId } from '@/lib/utils/api-auth';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 
 export async function POST(req: NextRequest) {
+  const { userId, error } = await getAuthenticatedUserId(req);
+
+  if (!userId) {
+    return error ?? createErrorResponse('UNAUTHORIZED', 401);
+  }
+
   const { title, projectId } = await req.json();
 
   if (!title) {
