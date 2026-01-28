@@ -52,12 +52,13 @@ export const ideaRepository = {
     const memberMap = new Map(issueMembers.map((m) => [m.userId, m.nickname]));
 
     // 각 아이디어에 IssueMember nickname 추가
-    return ideas.map((idea) => ({
-      ...idea,
-      issueMember: memberMap.get(idea.userId)
-        ? { nickname: memberMap.get(idea.userId)! }
-        : null,
-    }));
+    return ideas.map((idea) => {
+      const nickname = idea.userId ? memberMap.get(idea.userId) ?? null : null;
+      return {
+        ...idea,
+        issueMember: nickname ? { nickname } : null,
+      };
+    });
   },
 
   async findIdAndContentByIssueId(issueId: string) {
@@ -204,16 +205,18 @@ export const ideaRepository = {
     });
 
     // IssueMember nickname 추가
-    const issueMember = await prisma.issueMember.findFirst({
-      where: {
-        issueId: updatedIdea.issueId,
-        userId: updatedIdea.userId,
-        deletedAt: null,
-      },
-      select: {
-        nickname: true,
-      },
-    });
+    const issueMember = updatedIdea.userId
+      ? await prisma.issueMember.findFirst({
+          where: {
+            issueId: updatedIdea.issueId,
+            userId: updatedIdea.userId,
+            deletedAt: null,
+          },
+          select: {
+            nickname: true,
+          },
+        })
+      : null;
 
     return {
       ...updatedIdea,
