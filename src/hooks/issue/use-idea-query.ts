@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import type { IdeaWithPosition } from '@/app/(with-sidebar)/issue/types/idea';
+import type { SimpleIdea } from '@/types/idea';
 import { getIdea } from '@/lib/api/idea';
 import { fetchIdeas } from '@/lib/api/idea';
 
@@ -19,14 +20,22 @@ export const useIssueIdeaQuery = (issueId: string) => {
   return useQuery({
     queryKey: ['issues', issueId, 'ideas'],
     queryFn: async () => {
-      const fetchedIdeas = await fetchIdeas(issueId);
+      const fetchedIdeas: SimpleIdea[] = await fetchIdeas(issueId);
 
-      // DB 데이터를 IdeaWithPosition 형태로 변환
+      // SimpleIdea -> IdeaWithPosition 변환
       const ideasWithPosition: IdeaWithPosition[] = fetchedIdeas.map((idea) => ({
-        ...idea,
-        author: idea.issueMember?.nickname || '익명',
+        id: idea.id,
+        userId: idea.userId,
+        content: idea.content,
+        author: idea.nickname,
+        categoryId: idea.categoryId,
         position:
-          idea.positionX && idea.positionY ? { x: idea.positionX, y: idea.positionY } : null,
+          idea.positionX !== null && idea.positionY !== null
+            ? { x: idea.positionX, y: idea.positionY }
+            : null,
+        agreeCount: idea.agreeCount,
+        disagreeCount: idea.disagreeCount,
+        commentCount: idea.commentCount,
         editable: false,
       }));
 

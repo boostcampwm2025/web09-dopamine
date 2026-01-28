@@ -45,3 +45,18 @@ export interface Idea {
     createdAt: Date | string;
   }>;
 }
+
+export interface SimpleIdea {
+  id: string;
+  userId: string;
+  content: string;
+  positionX: number | null;
+  positionY: number | null;
+  categoryId: string | null;
+  nickname: string;
+  agreeCount: number;
+  disagreeCount: number;
+  commentCount: number;
+  myVote: 'AGREE' | 'DISAGREE' | null;
+  createdAt: Date | string;
+}

@@ -1,4 +1,4 @@
-import type { CreateIdeaRequest, Idea } from '@/types/idea';
+import type { CreateIdeaRequest, Idea, SimpleIdea } from '@/types/idea';
 import getAPIResponseData from '../utils/api-response';
 
 type UpdateIdeaPayload = {
@@ -7,9 +7,9 @@ type UpdateIdeaPayload = {
   categoryId?: string | null;
 };
 
-// 아이디어 목록 조회
-export function fetchIdeas(issueId: string): Promise<Idea[]> {
-  return getAPIResponseData<Idea[]>({
+// 아이디어 목록 조회 (SimpleIdea 형태)
+export function fetchIdeas(issueId: string): Promise<SimpleIdea[]> {
+  return getAPIResponseData<SimpleIdea[]>({
     url: `/api/issues/${issueId}/ideas`,
     method: 'GET',
   });
