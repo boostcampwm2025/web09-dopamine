@@ -22,10 +22,14 @@ export async function GET(
 
   try {
     const ideas = await ideaRepository.findByIssueId(id);
+    const ideasWithCount = ideas.map((idea: any) => ({
+      ...idea,
+      commentCount: idea._count?.comments ?? 0,
+    }));
 
     if (filter && filter !== 'none') {
       const filteredIds = ideaFilterService.getFilteredIdeaIds(
-        ideas.map((idea) => ({
+        ideasWithCount.map((idea) => ({
           id: idea.id,
           agreeCount: idea.agreeCount ?? 0,
           disagreeCount: idea.disagreeCount ?? 0,
@@ -36,19 +40,7 @@ export async function GET(
       return createSuccessResponse({ filteredIds: Array.from(filteredIds) });
     }
 
-    // userId가 있으면 각 아이디어에 myVote 정보 추가
-    const ideasWithMyVote = await Promise.all(
-      ideas.map(async (idea) => {
-        const myVote = userId ? await ideaRepository.findMyVote(idea.id, userId) : null;
-
-        return {
-          ...idea,
-          myVote: myVote?.type ?? null,
-        };
-      }),
-    );
-
-    return createSuccessResponse(ideasWithMyVote);
+    return createSuccessResponse(ideasWithCount);
   } catch (error) {
     console.error('아이디어 조회 실패:', error);
     return createErrorResponse('IDEA_FETCH_FAILED', 500);

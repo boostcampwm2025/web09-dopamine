@@ -27,8 +27,7 @@ export async function GET(
 
     return createSuccessResponse({
       ...idea,
-      agreeCount: idea.agreeCount,
-      disagreeCount: idea.disagreeCount,
+      commentCount: idea._count?.comments ?? 0,
       myVote: myVote?.type ?? null,
     });
   } catch (error) {
