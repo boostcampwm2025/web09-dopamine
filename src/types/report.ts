@@ -34,7 +34,6 @@ export interface ReportWithDetails {
       user: {
         id: string;
         name: string | null;
-        displayName: string | null;
         image: string | null;
       };
     }>;
