@@ -5,7 +5,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { useTopicMutations } from '@/hooks';
 import * as issueMapApi from '@/lib/api/issue-map';
-import { act, renderHook, waitFor } from '../../utils/ui-test-helpers';
+import { act, renderHook, waitFor } from '../../utils/test-utils';
 
 // 1. API 및 Toast 모킹
 jest.mock('@/lib/api/issue-map');

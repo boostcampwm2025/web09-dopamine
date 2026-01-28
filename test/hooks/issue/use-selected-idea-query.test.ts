@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 import { selectedIdeaQueryKey, useSelectedIdeaQuery } from '@/hooks';
-import { renderHook } from '../../utils/ui-test-helpers';
+import { renderHook } from '../../utils/test-utils';
 
 describe('useSelectedIdeaQuery', () => {
   const issueId = 'issue-123';

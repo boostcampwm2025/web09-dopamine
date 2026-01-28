@@ -3,7 +3,7 @@
  */
 import { useIssueMemberQuery } from '@/hooks';
 import * as issueApi from '@/lib/api/issue';
-import { renderHook, waitFor } from '../../utils/ui-test-helpers';
+import { renderHook, waitFor } from '../../utils/test-utils';
 
 // 1. API 모킹
 jest.mock('@/lib/api/issue');

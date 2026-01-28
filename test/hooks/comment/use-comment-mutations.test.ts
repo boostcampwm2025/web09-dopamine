@@ -4,7 +4,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { getCommentQueryKey, useCommentMutations } from '@/hooks';
 import * as commentApi from '@/lib/api/comment';
-import { act, renderHook, waitFor } from '../../utils/ui-test-helpers';
+import { act, renderHook, waitFor } from '../../utils/test-utils';
 
 // 1. 외부 의존성 모킹
 jest.mock('@/lib/api/comment');

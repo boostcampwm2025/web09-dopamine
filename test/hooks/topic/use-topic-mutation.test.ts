@@ -5,7 +5,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { useCreateTopicMutation } from '@/hooks';
 import { createTopic } from '@/lib/api/topic';
-import { act, renderHook, waitFor } from '../../utils/ui-test-helpers';
+import { act, renderHook, waitFor } from '../../utils/test-utils';
 
 // 1. 외부 의존성 모킹 (API, Toast)
 jest.mock('@/lib/api/topic');

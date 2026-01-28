@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 import { useParams, usePathname } from 'next/navigation';
-import { renderHook } from '@test/utils/ui-test-helpers';
+import { renderHook } from '@test/utils/test-utils';
 import { useIssueQuery, useTopicId } from '@/hooks';
 
 jest.mock('next/navigation', () => ({

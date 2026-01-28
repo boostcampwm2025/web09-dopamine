@@ -4,7 +4,7 @@
 import { useProjectQuery, useProjectsQuery } from '@/hooks';
 // 실제 export 경로에 맞게 수정
 import * as projectApi from '@/lib/api/project';
-import { renderHook, waitFor } from '../../utils/ui-test-helpers';
+import { renderHook, waitFor } from '../../utils/test-utils';
 
 // 1. API 모듈 모킹
 jest.mock('@/lib/api/project');

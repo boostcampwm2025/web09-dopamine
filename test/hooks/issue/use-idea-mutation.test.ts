@@ -6,7 +6,7 @@ import { toast } from 'react-hot-toast';
 import type { IdeaWithPosition } from '@/app/(with-sidebar)/issue/types/idea';
 import { useIdeaMutations } from '@/hooks';
 import * as ideaApi from '@/lib/api/idea';
-import { act, renderHook, waitFor } from '../../utils/ui-test-helpers';
+import { act, renderHook, waitFor } from '../../utils/test-utils';
 
 // 1. 외부 의존성 모킹
 jest.mock('@/lib/api/idea');

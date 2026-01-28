@@ -4,7 +4,7 @@
 import { useIssueQuery, useTopicIssuesQuery } from '@/hooks';
 import * as issueApi from '@/lib/api/issue';
 import * as issueMapApi from '@/lib/api/issue-map';
-import { renderHook, waitFor } from '../../utils/ui-test-helpers';
+import { renderHook, waitFor } from '../../utils/test-utils';
 
 // 1. API 모듈 모킹
 jest.mock('@/lib/api/issue');
