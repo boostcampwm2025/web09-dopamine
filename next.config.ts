@@ -19,14 +19,6 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'phinf.pstatic.net',
       },
-      {
-        protocol: 'http',
-        hostname: 'k.kakaocdn.net',
-      },
-      {
-        protocol: 'https',
-        hostname: 'k.kakaocdn.net',
-      },
     ],
   },
 };
