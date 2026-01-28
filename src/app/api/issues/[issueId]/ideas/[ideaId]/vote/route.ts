@@ -1,8 +1,11 @@
 import { NextRequest } from 'next/server';
+import { getServerSession } from 'next-auth';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
+import { authOptions } from '@/lib/auth';
 import { voteService } from '@/lib/services/vote.service';
 import { broadcast } from '@/lib/sse/sse-service';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
+import { getUserIdFromRequest } from '@/lib/utils/cookie';
 
 export async function POST(
   req: NextRequest,
@@ -10,7 +13,16 @@ export async function POST(
 ) {
   try {
     const { issueId, ideaId } = await params;
-    const { userId, voteType } = await req.json();
+    const { voteType } = await req.json();
+
+    // 1. 세션에서 userId 확인 (OAuth 로그인 사용자)
+    const session = await getServerSession(authOptions);
+    let userId: string | null = session?.user?.id ?? null;
+
+    // 2. 세션이 없으면 쿠키에서 확인 (익명 사용자 - 빠른 이슈)
+    if (!userId) {
+      userId = getUserIdFromRequest(req, issueId) ?? null;
+    }
 
     if (!userId || !voteType) {
       return createErrorResponse('INVALID_VOTE_REQUEST', 400);

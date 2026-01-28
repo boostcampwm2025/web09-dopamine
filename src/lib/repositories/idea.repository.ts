@@ -51,6 +51,41 @@ export const ideaRepository = {
     });
   },
 
+  async findById(ideaId: string) {
+    return prisma.idea.findUnique({
+      where: {
+        id: ideaId,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+          },
+        },
+        comments: {
+          where: {
+            deletedAt: null,
+          },
+          select: {
+            id: true,
+            content: true,
+            createdAt: true,
+          },
+        },
+      },
+    });
+  },
+
+  async findMyVote(ideaId: string, userId: string) {
+    return prisma.vote.findFirst({
+      where: {
+        ideaId,
+        userId,
+        deletedAt: null,
+      },
+    });
+  },
+
   async resetCategoriesByIssueId(issueId: string, tx: Prisma.TransactionClient = prisma) {
     return tx.idea.updateMany({
       where: { issueId },

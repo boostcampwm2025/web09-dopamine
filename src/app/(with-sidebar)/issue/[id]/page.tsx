@@ -244,6 +244,7 @@ const IssuePage = () => {
 
   // 현재 댓글 창이 열린 아이디어의 아이디
   const activeCommentId = useCommentWindowStore((state) => state.activeCommentId);
+  const closeComment = useCommentWindowStore((state) => state.closeComment);
 
   // 에러 여부 확인
   const hasError = isIssueError || isIdeasError || isCategoryError;
@@ -268,6 +269,7 @@ const IssuePage = () => {
         ) : (
           <Canvas
             onDoubleClick={handleCreateIdea}
+            onCanvasClick={closeComment}
             bottomMessage={ISSUE_STATUS_DESCRIPTION[status]}
             enableAddIdea={status === ISSUE_STATUS.BRAINSTORMING}
           >
@@ -339,31 +341,31 @@ const IssuePage = () => {
           <DragOverlay dropAnimation={null}>
             {activeId
               ? (() => {
-                const activeIdea = ideas.find((idea) => idea.id === activeId);
-                if (!activeIdea) return null;
+                  const activeIdea = ideas.find((idea) => idea.id === activeId);
+                  if (!activeIdea) return null;
 
-                return (
-                  <div
-                    style={{
-                      transform: `scale(${scale})`,
-                      transformOrigin: '0 0', // 왼쪽 위 기준으로 scale
-                    }}
-                  >
-                    <IdeaCard
-                      {...activeIdea}
-                      issueId={issueId}
-                      content={overlayEditValue ?? activeIdea.content}
-                      position={null}
-                      isSelected={activeIdea.id === selectedIdeaId}
-                      author={activeIdea.author}
-                      userId={activeIdea.userId}
-                      status={getIdeaStatus(activeIdea.id)}
-                      isVoteButtonVisible={isVoteButtonVisible}
-                      isVoteDisabled={isVoteDisabled}
-                    />
-                  </div>
-                );
-              })()
+                  return (
+                    <div
+                      style={{
+                        transform: `scale(${scale})`,
+                        transformOrigin: '0 0', // 왼쪽 위 기준으로 scale
+                      }}
+                    >
+                      <IdeaCard
+                        {...activeIdea}
+                        issueId={issueId}
+                        content={overlayEditValue ?? activeIdea.content}
+                        position={null}
+                        isSelected={activeIdea.id === selectedIdeaId}
+                        author={activeIdea.author}
+                        userId={activeIdea.userId}
+                        status={getIdeaStatus(activeIdea.id)}
+                        isVoteButtonVisible={isVoteButtonVisible}
+                        isVoteDisabled={isVoteDisabled}
+                      />
+                    </div>
+                  );
+                })()
               : null}
           </DragOverlay>
         )}

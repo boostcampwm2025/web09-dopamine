@@ -116,10 +116,9 @@ export default function IdeaCard(props: IdeaCardProps) {
     // 토글: 같은 카드의 댓글창이면 닫고, 다른 카드면 전환
     if (activeCommentId === props.id) {
       closeComment();
-      return;
+    } else {
+      openComment(props.id);
     }
-
-    openComment(props.id);
   };
 
   // 드래그 로직

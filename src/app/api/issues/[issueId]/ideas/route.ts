@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
 import type { FilterType } from '@/app/(with-sidebar)/issue/hooks';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
+import { authOptions } from '@/lib/auth';
 import { ideaRepository } from '@/lib/repositories/idea.repository';
 import { ideaFilterService } from '@/lib/services/idea-filter.service';
 import { broadcast } from '@/lib/sse/sse-service';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
+import { getUserIdFromRequest } from '@/lib/utils/cookie';
+import { getAuthenticatedUserId } from '@/lib/utils/auth-helpers';
 
 export async function GET(
   req: NextRequest,
@@ -13,6 +17,8 @@ export async function GET(
   const { issueId: id } = await params;
   const { searchParams } = new URL(req.url);
   const filter = searchParams.get('filter');
+
+  const userId = await getAuthenticatedUserId(req, id);
 
   try {
     const ideas = await ideaRepository.findByIssueId(id);
