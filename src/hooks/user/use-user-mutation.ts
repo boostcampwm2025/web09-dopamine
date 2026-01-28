@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { signOut } from 'next-auth/react';
 import toast from 'react-hot-toast';
-import { withdraw } from '@/lib/api/auth';
+import { withdraw, updateDisplayName } from '@/lib/api/auth';
 
 export const useUserMutation = () => {
   const queryClient = useQueryClient();
@@ -19,5 +19,16 @@ export const useUserMutation = () => {
     },
   });
 
-  return { withdrawMutation };
+  const updateDisplayNameMutation = useMutation({
+    mutationFn: (displayName: string) => updateDisplayName(displayName),
+    onSuccess: () => {
+      toast.success('보여질 이름이 변경되었습니다.');
+    },
+    onError: (error: Error) => {
+      console.error('이름 변경 에러:', error);
+      toast.error(error.message || '이름 변경 중 오류가 발생했습니다.');
+    },
+  });
+
+  return { withdrawMutation, updateDisplayNameMutation };
 };
