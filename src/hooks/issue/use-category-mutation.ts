@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { createCategory, deleteCategory, updateCategory } from '@/lib/api/category';
+import { CLIENT_ERROR_MESSAGES } from '@/constants/error-messages';
 
 type CategoryPayload = {
   title: string;
@@ -18,7 +19,7 @@ export const useCategoryMutations = (issueId: string) => {
     mutationFn: async (payload: CategoryPayload) => {
       const categories = queryClient.getQueryData<any[]>(queryKey);
       if (categories?.some((c) => c.title === payload.title)) {
-        throw new Error('이미 존재하는 카테고리 이름입니다.');
+        throw new Error(CLIENT_ERROR_MESSAGES.CATEGORY_ALREADY_EXISTS);
       }
       return createCategory(issueId, payload);
     },
@@ -39,7 +40,15 @@ export const useCategoryMutations = (issueId: string) => {
     }: {
       categoryId: string;
       payload: Partial<CategoryPayload>;
-    }) => updateCategory(issueId, categoryId, payload),
+    }) => {
+      if (payload.title) {
+        const categories = queryClient.getQueryData<any[]>(queryKey);
+        if (categories?.some((c) => c.title === payload.title && c.id !== categoryId)) {
+          throw new Error(CLIENT_ERROR_MESSAGES.CATEGORY_ALREADY_EXISTS);
+        }
+      }
+      return updateCategory(issueId, categoryId, payload);
+    },
 
     onError: (err) => {
       toast.error(err.message);

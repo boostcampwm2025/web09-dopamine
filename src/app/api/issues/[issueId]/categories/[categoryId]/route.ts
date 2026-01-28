@@ -13,6 +13,13 @@ export async function PATCH(
   const { title, positionX, positionY, width, height } = await req.json();
 
   try {
+    if (title) {
+      const existingCategory = await categoryRepository.findByTitle(issueId, title);
+      if (existingCategory && existingCategory.id !== categoryId) {
+        return createErrorResponse('CATEGORY_ALREADY_EXISTS', 400);
+      }
+    }
+
     const category = await categoryRepository.update(categoryId, {
       title,
       positionX,
