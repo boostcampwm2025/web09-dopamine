@@ -62,14 +62,15 @@ export const Card = styled.article<{
   isHotIdea?: boolean;
 }>`
   position: relative;
-  z-index: ${({ isCommentOpen, isHotIdea }) => (isCommentOpen ? 1001 : isHotIdea ? 100 : 1)};
+  z-index: ${({ isCommentOpen, isHotIdea, theme }) =>
+    isCommentOpen ? theme.zIndex.important : isHotIdea ? theme.zIndex.selected : 1};
   border-radius: ${theme.radius.medium};
   padding: 35px 35px 30px 35px;
   box-shadow: 0 4px 10px rgba(31, 41, 55, 0.06);
   ${({ isHotIdea, status, isCommentOpen }) =>
     isHotIdea && !isCommentOpen
       ? `
-    z-index: 100;
+    z-index: ${theme.zIndex.selected};
     border: 2px solid ${theme.colors.red[500]};
     box-shadow: 0 8px 24px rgba(220, 38, 38, 0.3);
     ${status === 'default' || !status ? `background: ${theme.colors.red[50]};` : ''}
@@ -106,26 +107,26 @@ export const Card = styled.article<{
 
   &:hover {
     ${({ issueStatus, status }) => {
-    if (issueStatus === ISSUE_STATUS.SELECT && status !== 'selected') {
-      return `
+      if (issueStatus === ISSUE_STATUS.SELECT && status !== 'selected') {
+        return `
         border: 2px solid ${theme.colors.yellow[400]} !important;
         background: ${theme.colors.white};
         box-shadow: 0 4px 10px rgba(252, 220, 89, 0.86) !important;
         `;
-    }
-    // 채택된 상태에서 호버 시 노란색 유지
-    if (status === 'selected') {
-      return `
+      }
+      // 채택된 상태에서 호버 시 노란색 유지
+      if (status === 'selected') {
+        return `
         border: 2px solid ${theme.colors.yellow[500]} !important;
         `;
-    }
-  }}
+      }
+    }}
   }
 
   ${({ isHotIdea, status, isCommentOpen }) =>
     isHotIdea && status !== 'selected' && !isCommentOpen
       ? `
-    z-index: 100;
+    z-index: ${theme.zIndex.selected};
     border: 2px solid ${theme.colors.red[500]} !important;
     box-shadow: 0 8px 24px rgba(220, 38, 38, 0.3) !important;
   `
@@ -313,11 +314,11 @@ export const VoteButton = styled.button<{
 
   &:hover {
     ${({ kind, active, cardStatus }) => {
-    if (active || cardStatus === 'selected') return '';
-    if (kind === VOTE_TYPE.AGREE)
-      return `background: ${theme.colors.green[600]}; color: ${theme.colors.white};`;
-    return `background: ${theme.colors.red[600]}; color: ${theme.colors.white};`;
-  }}
+      if (active || cardStatus === 'selected') return '';
+      if (kind === VOTE_TYPE.AGREE)
+        return `background: ${theme.colors.green[600]}; color: ${theme.colors.white};`;
+      return `background: ${theme.colors.red[600]}; color: ${theme.colors.white};`;
+    }}
   }
 
   &:disabled {

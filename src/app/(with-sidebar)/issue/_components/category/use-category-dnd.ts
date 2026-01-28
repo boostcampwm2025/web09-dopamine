@@ -1,4 +1,5 @@
 import { useDroppable } from '@dnd-kit/core';
+import { theme } from '@/styles/theme';
 import { useDraggable } from '../../hooks';
 import type { Position } from '../../types/idea';
 
@@ -55,7 +56,7 @@ export function useCategoryDnd({
         top: draggable.position.y,
         cursor: draggable.isDragging ? 'grabbing' : 'grab',
         userSelect: 'none' as const,
-        zIndex: 0,
+        zIndex: theme.zIndex.base,
         outline: isOver ? '2px dashed #4CAF50' : 'none',
         backgroundColor: isOver ? 'rgba(76, 175, 80, 0.1)' : undefined,
         transition: draggable.isDragging ? 'none' : 'left 0.4s ease-out, top 0.4s ease-out',

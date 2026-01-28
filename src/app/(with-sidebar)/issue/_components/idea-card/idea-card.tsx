@@ -15,6 +15,7 @@ import IdeaCardFooter from './idea-card-footer';
 import IdeaCardHeader from './idea-card-header';
 import * as S from './idea-card.styles';
 import { useIdeaCard } from './use-idea-card';
+import { theme } from '@/styles/theme';
 
 interface IdeaCardProps {
   id: string;
@@ -176,7 +177,7 @@ export default function IdeaCard(props: IdeaCardProps) {
         top: props.position.y,
         cursor: isDragging ? 'grabbing' : 'grab',
         userSelect: 'none' as const,
-        zIndex: isDragging ? 1000 : zIndex,
+        zIndex: isDragging ? theme.zIndex.selected : zIndex,
         // dnd-kit transform 적용 (Canvas scale과 호환됨!)
         transform: CSS.Transform.toString(transform),
         opacity: isDragging ? 0 : undefined,

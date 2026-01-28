@@ -7,7 +7,7 @@ export const FilterPanel = styled.div`
   position: fixed;
   top: 100px;
   left: 300px;
-  z-index: 9999;
+  z-index: ${theme.zIndex.sticky};
   display: flex;
   flex-direction: row;
   align-items: center;

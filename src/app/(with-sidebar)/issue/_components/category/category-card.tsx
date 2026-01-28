@@ -1,5 +1,6 @@
 'use client';
 
+import { theme } from '@/styles/theme';
 import type { Position } from '../../types/idea';
 import { useCanvasContext } from '../canvas/canvas-context';
 import CategoryCardHeader from './category-card-header';
@@ -70,7 +71,7 @@ export default function CategoryCard({
 
   const cardStyle = {
     ...dndCardStyle,
-    zIndex: hasActiveComment ? 9999 : (dndCardStyle.zIndex ?? 0),
+    zIndex: hasActiveComment ? theme.zIndex.important : (dndCardStyle.zIndex ?? 0),
   };
 
   return (
