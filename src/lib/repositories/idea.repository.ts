@@ -1,9 +1,9 @@
-﻿import { Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 
 export const ideaRepository = {
   async findByIssueId(issueId: string) {
-    return prisma.idea.findMany({
+    const ideas = await prisma.idea.findMany({
       where: {
         issueId,
         deletedAt: null,
@@ -13,7 +13,6 @@ export const ideaRepository = {
           select: {
             id: true,
             name: true,
-            displayName: true,
             image: true,
           },
         },
@@ -36,6 +35,29 @@ export const ideaRepository = {
       },
       orderBy: { createdAt: 'desc' },
     });
+
+    // IssueMember 정보 가져오기
+    const issueMembers = await prisma.issueMember.findMany({
+      where: {
+        issueId,
+        deletedAt: null,
+      },
+      select: {
+        userId: true,
+        nickname: true,
+      },
+    });
+
+    // userId로 매핑
+    const memberMap = new Map(issueMembers.map((m) => [m.userId, m.nickname]));
+
+    // 각 아이디어에 IssueMember nickname 추가
+    return ideas.map((idea) => ({
+      ...idea,
+      issueMember: memberMap.get(idea.userId)
+        ? { nickname: memberMap.get(idea.userId)! }
+        : null,
+    }));
   },
 
   async findIdAndContentByIssueId(issueId: string) {
@@ -97,7 +119,7 @@ export const ideaRepository = {
     positionY?: number;
     categoryId?: string;
   }) {
-    return prisma.idea.create({
+    const createdIdea = await prisma.idea.create({
       data: {
         issueId: data.issueId,
         userId: data.userId,
@@ -111,7 +133,6 @@ export const ideaRepository = {
           select: {
             id: true,
             name: true,
-            displayName: true,
             image: true,
           },
         },
@@ -123,6 +144,23 @@ export const ideaRepository = {
         },
       },
     });
+
+    // IssueMember nickname 추가
+    const issueMember = await prisma.issueMember.findFirst({
+      where: {
+        issueId: data.issueId,
+        userId: data.userId,
+        deletedAt: null,
+      },
+      select: {
+        nickname: true,
+      },
+    });
+
+    return {
+      ...createdIdea,
+      issueMember: issueMember ? { nickname: issueMember.nickname } : null,
+    };
   },
 
   async softDelete(ideaId: string) {
@@ -141,7 +179,7 @@ export const ideaRepository = {
     },
   ) {
     const { positionX, positionY, categoryId } = data;
-    return prisma.idea.update({
+    const updatedIdea = await prisma.idea.update({
       where: { id: ideaId },
       data: {
         positionX,
@@ -153,7 +191,6 @@ export const ideaRepository = {
           select: {
             id: true,
             name: true,
-            displayName: true,
             image: true,
           },
         },
@@ -165,6 +202,23 @@ export const ideaRepository = {
         },
       },
     });
+
+    // IssueMember nickname 추가
+    const issueMember = await prisma.issueMember.findFirst({
+      where: {
+        issueId: updatedIdea.issueId,
+        userId: updatedIdea.userId,
+        deletedAt: null,
+      },
+      select: {
+        nickname: true,
+      },
+    });
+
+    return {
+      ...updatedIdea,
+      issueMember: issueMember ? { nickname: issueMember.nickname } : null,
+    };
   },
 
   async findManyByIssueId(issueId: string, tx: Prisma.TransactionClient = prisma) {

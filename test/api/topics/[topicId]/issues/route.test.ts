@@ -3,6 +3,8 @@ import { GET, POST } from '@/app/api/topics/[topicId]/issues/route';
 import { prisma } from '@/lib/prisma';
 import { issueMemberRepository } from '@/lib/repositories/issue-member.repository';
 import { createIssue } from '@/lib/repositories/issue.repository';
+import { getAuthenticatedUserId } from '@/lib/utils/api-auth';
+import { createErrorResponse } from '@/lib/utils/api-helpers';
 import {
   createMockGetRequest,
   createMockParams,
@@ -21,6 +23,7 @@ jest.mock('@/lib/auth', () => ({
 }));
 jest.mock('@/lib/repositories/issue.repository');
 jest.mock('@/lib/repositories/issue-member.repository');
+jest.mock('@/lib/utils/api-auth');
 jest.mock('@/lib/prisma', () => ({
   prisma: {
     $transaction: jest.fn(),
@@ -32,8 +35,11 @@ jest.mock('@/lib/prisma', () => ({
 
 const mockedGetServerSession = getServerSession as jest.MockedFunction<typeof getServerSession>;
 const mockedCreateIssue = createIssue as jest.MockedFunction<typeof createIssue>;
-const mockedAddIssueOwner = issueMemberRepository.addIssueOwner as jest.MockedFunction<
-  typeof issueMemberRepository.addIssueOwner
+const mockedAddIssueMember = issueMemberRepository.addIssueMember as jest.MockedFunction<
+  typeof issueMemberRepository.addIssueMember
+>;
+const mockedGetAuthenticatedUserId = getAuthenticatedUserId as jest.MockedFunction<
+  typeof getAuthenticatedUserId
 >;
 const mockedPrismaTransaction = prisma.$transaction as jest.MockedFunction<
   typeof prisma.$transaction
@@ -84,6 +90,11 @@ describe('POST /api/topics/[topicId]/issues', () => {
   });
 
   it('인증되지 않은 사용자는 401 에러를 받는다', async () => {
+    const errorResponse = createErrorResponse('UNAUTHORIZED', 401);
+    mockedGetAuthenticatedUserId.mockResolvedValue({
+      userId: null,
+      error: errorResponse,
+    });
     setupAuthMock(mockedGetServerSession, null);
 
     const req = createMockRequest({ title: 'New Issue' });
@@ -94,6 +105,10 @@ describe('POST /api/topics/[topicId]/issues', () => {
   });
 
   it('title이 없으면 400 에러를 반환한다', async () => {
+    mockedGetAuthenticatedUserId.mockResolvedValue({
+      userId,
+      error: null,
+    });
     setupAuthMock(mockedGetServerSession, createMockSession(userId));
 
     const req = createMockRequest({});
@@ -115,10 +130,14 @@ describe('POST /api/topics/[topicId]/issues', () => {
       deletedAt: null,
     };
 
+    mockedGetAuthenticatedUserId.mockResolvedValue({
+      userId,
+      error: null,
+    });
     setupAuthMock(mockedGetServerSession, createMockSession(userId));
     mockedPrismaTransaction.mockImplementation(async (callback: any) => {
       mockedCreateIssue.mockResolvedValue(mockIssue as any);
-      mockedAddIssueOwner.mockResolvedValue(mockIssueMember as any);
+      mockedAddIssueMember.mockResolvedValue(mockIssueMember as any);
       return callback({});
     });
 

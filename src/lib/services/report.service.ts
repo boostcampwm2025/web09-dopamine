@@ -10,15 +10,28 @@ import { assignRank, compareIdeasByVote } from '../utils/sort-ideas';
 
 type ReportIdea = ReportWithDetails['issue']['ideas'][number];
 
-const mapIdeaToRankedIdea = (idea: ReportIdea): RankedIdeaDto => ({
-  id: idea.id,
-  content: idea.content,
-  agreeCount: idea.agreeCount,
-  disagreeCount: idea.disagreeCount,
-  commentCount: idea.comments.length,
-  category: idea.category as CategoryDto | null,
-  user: idea.user,
-});
+const mapIdeaToRankedIdea = (
+  idea: ReportIdea,
+  issueMembers: ReportWithDetails['issue']['issueMembers'],
+): RankedIdeaDto => {
+  // issueMember에서 nickname 찾기
+  const issueMember = issueMembers.find((member) => member.userId === idea.user.id);
+  const nickname = issueMember?.nickname || idea.user.name || '익명';
+
+  return {
+    id: idea.id,
+    content: idea.content,
+    agreeCount: idea.agreeCount,
+    disagreeCount: idea.disagreeCount,
+    commentCount: idea.comments.length,
+    category: idea.category as CategoryDto | null,
+    user: {
+      ...idea.user,
+      displayName: nickname, // 하위 호환성을 위해 유지
+      nickname,
+    },
+  };
+};
 
 export async function getReportSummaryByIssueId(issueId: string): Promise<ReportResponse | null> {
   const report = await findReportWithDetailsById(issueId);
@@ -37,7 +50,7 @@ export async function getReportSummaryByIssueId(issueId: string): Promise<Report
 
   // 아이디어 랭킹 계산
   const rankedIdeas: RankedIdeaDto[] = report.issue.ideas
-    .map(mapIdeaToRankedIdea)
+    .map((idea) => mapIdeaToRankedIdea(idea, report.issue.issueMembers))
     .sort(compareIdeasByVote);
 
   const assignedRankedIdeas = assignRank(rankedIdeas, compareIdeasByVote);
@@ -55,7 +68,7 @@ export async function getReportSummaryByIssueId(issueId: string): Promise<Report
           ideas: [],
         };
       }
-      acc[categoryId].ideas.push(mapIdeaToRankedIdea(idea));
+      acc[categoryId].ideas.push(mapIdeaToRankedIdea(idea, report.issue.issueMembers));
       return acc;
     },
     {} as Record<string, CategoryRanking>,

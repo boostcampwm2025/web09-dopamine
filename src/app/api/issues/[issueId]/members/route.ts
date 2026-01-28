@@ -1,9 +1,8 @@
-import { cookies } from 'next/headers';
-import { NextRequest, NextResponse } from 'next/server';
-import { IssueRole } from '@prisma/client';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { NextRequest, NextResponse } from 'next/server';
+import { IssueRole, Prisma } from '@prisma/client';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
+import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { issueMemberRepository } from '@/lib/repositories/issue-member.repository';
 import { findIssueById } from '@/lib/repositories/issue.repository';
@@ -34,8 +33,8 @@ export async function GET(
     }
 
     const response = members.map((member) => ({
-      id: member.user.id,
-      displayName: member.user.displayName || member.user.name || '익명',
+      id: member.userId,
+      nickname: member.nickname,
       role: member.role,
       isConnected: true, // 지금은 기본값, 나중에 SSE 붙이면 여기서 합치면 됨
     }));
@@ -80,7 +79,12 @@ export async function POST(
 
       // 로그인 사용자를 IssueMember에 추가
       await prisma.$transaction(async (tx) => {
-        await issueMemberRepository.addIssueOwner(tx, issueId, session.user.id, IssueRole.MEMBER);
+        await issueMemberRepository.addIssueMember(tx, {
+          issueId,
+          userId: session.user.id,
+          nickname: session.user.name || '익명',
+          role: IssueRole.MEMBER,
+        });
       });
 
       result = { userId: session.user.id };
@@ -92,7 +96,12 @@ export async function POST(
 
       result = await prisma.$transaction(async (tx) => {
         const user = await createAnonymousUser(tx, nickname);
-        await issueMemberRepository.addIssueOwner(tx, issueId, user.id, IssueRole.MEMBER);
+        await issueMemberRepository.addIssueMember(tx, {
+          issueId,
+          userId: user.id,
+          nickname,
+          role: IssueRole.MEMBER,
+        });
 
         return {
           userId: user.id,
@@ -111,8 +120,13 @@ export async function POST(
     });
 
     return createSuccessResponse(result, 201);
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('이슈 참여 실패:', error);
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === 'P2002') {
+        return createErrorResponse('NICKNAME_DUPLICATE', 409);
+      }
+    }
     return createErrorResponse('MEMBER_JOIN_FAILED', 500);
   }
 }

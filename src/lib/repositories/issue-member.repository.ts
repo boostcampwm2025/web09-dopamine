@@ -3,16 +3,25 @@ import { PrismaTransaction } from '@/types/prisma';
 import { prisma } from '../prisma';
 
 export const issueMemberRepository = {
-  async addIssueOwner(
+  async addIssueMember(
     tx: PrismaTransaction,
-    issueId: string,
-    userId: string,
-    role: IssueRole = IssueRole.OWNER,
+    {
+      issueId,
+      userId,
+      nickname,
+      role = IssueRole.MEMBER,
+    }: {
+      issueId: string;
+      userId: string;
+      nickname: string;
+      role?: IssueRole;
+    },
   ) {
     return tx.issueMember.create({
       data: {
         issueId,
         userId,
+        nickname,
         role,
       },
     });
@@ -25,14 +34,9 @@ export const issueMemberRepository = {
         deletedAt: null,
       },
       select: {
+        userId: true,
         role: true,
-        user: {
-          select: {
-            id: true,
-            name: true,
-            displayName: true,
-          },
-        },
+        nickname: true,
       },
     });
   },
@@ -63,14 +67,9 @@ export const issueMemberRepository = {
         deletedAt: null,
       },
       select: {
+        userId: true,
+        nickname: true,
         role: true,
-        user: {
-          select: {
-            id: true,
-            name: true,
-            displayName: true,
-          },
-        },
       },
     });
   },

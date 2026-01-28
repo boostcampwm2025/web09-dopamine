@@ -10,16 +10,20 @@ jest.mock('@/lib/prisma', () => ({
       create: jest.fn(),
       update: jest.fn(),
     },
+    issueMember: {
+      findMany: jest.fn(),
+      findFirst: jest.fn(),
+    },
   },
 }));
 
 const mockedIdea = prisma.idea as jest.Mocked<typeof prisma.idea>;
+const mockedIssueMember = prisma.issueMember as jest.Mocked<typeof prisma.issueMember>;
 
 const ideaUserSelect = {
   select: {
     id: true,
     name: true,
-    displayName: true,
     image: true,
   },
 };
@@ -39,8 +43,10 @@ describe('Idea Repository 테스트', () => {
   it('이슈 ID로 아이디어를 조회하며 관련 데이터까지 함께 가져온다', async () => {
     // 역할: 목록 화면에 필요한 연관 데이터가 누락되지 않도록 include 구성을 보장한다.
     const issueId = 'issue-1';
-    const mockIdeas = [{ id: 'idea-1' }];
+    const mockIdeas = [{ id: 'idea-1', userId: 'user-1' }];
+    const mockIssueMembers = [{ userId: 'user-1', nickname: 'nickname-1' }];
     mockedIdea.findMany.mockResolvedValue(mockIdeas as any);
+    mockedIssueMember.findMany.mockResolvedValue(mockIssueMembers as any);
 
     const result = await ideaRepository.findByIssueId(issueId);
 
@@ -55,18 +61,32 @@ describe('Idea Repository 테스트', () => {
         votes: {
           where: { deletedAt: null },
         },
-        comments: {
-          where: { deletedAt: null },
+        _count: {
           select: {
-            id: true,
-            content: true,
-            createdAt: true,
+            comments: {
+              where: { deletedAt: null },
+            },
           },
         },
       },
       orderBy: { createdAt: 'desc' },
     });
-    expect(result).toEqual(mockIdeas);
+    expect(mockedIssueMember.findMany).toHaveBeenCalledWith({
+      where: {
+        issueId,
+        deletedAt: null,
+      },
+      select: {
+        userId: true,
+        nickname: true,
+      },
+    });
+    expect(result).toEqual([
+      {
+        ...mockIdeas[0],
+        issueMember: { nickname: 'nickname-1' },
+      },
+    ]);
   });
 
   it('이슈 ID로 아이디어의 id/content만 조회한다', async () => {
@@ -129,9 +149,12 @@ describe('Idea Repository 테스트', () => {
       positionY: 20,
       categoryId: 'category-1',
     };
-    mockedIdea.create.mockResolvedValue({ id: 'idea-1' } as any);
+    const mockCreatedIdea = { id: 'idea-1', issueId: 'issue-1', userId: 'user-1' };
+    const mockIssueMember = { nickname: 'nickname-1' };
+    mockedIdea.create.mockResolvedValue(mockCreatedIdea as any);
+    mockedIssueMember.findFirst.mockResolvedValue(mockIssueMember as any);
 
-    await ideaRepository.create(data);
+    const result = await ideaRepository.create(data);
 
     expect(mockedIdea.create).toHaveBeenCalledWith({
       data: {
@@ -146,6 +169,20 @@ describe('Idea Repository 테스트', () => {
         user: ideaUserSelect,
         category: ideaCategorySelect,
       },
+    });
+    expect(mockedIssueMember.findFirst).toHaveBeenCalledWith({
+      where: {
+        issueId: data.issueId,
+        userId: data.userId,
+        deletedAt: null,
+      },
+      select: {
+        nickname: true,
+      },
+    });
+    expect(result).toEqual({
+      ...mockCreatedIdea,
+      issueMember: { nickname: 'nickname-1' },
     });
   });
 
@@ -165,9 +202,12 @@ describe('Idea Repository 테스트', () => {
     // 역할: 드래그/분류 변경 후 최신 데이터가 반환되는지 확인한다.
     const ideaId = 'idea-1';
     const data = { positionX: 100, positionY: 200, categoryId: 'category-1' };
-    mockedIdea.update.mockResolvedValue({ id: ideaId } as any);
+    const mockUpdatedIdea = { id: ideaId, issueId: 'issue-1', userId: 'user-1' };
+    const mockIssueMember = { nickname: 'nickname-1' };
+    mockedIdea.update.mockResolvedValue(mockUpdatedIdea as any);
+    mockedIssueMember.findFirst.mockResolvedValue(mockIssueMember as any);
 
-    await ideaRepository.update(ideaId, data);
+    const result = await ideaRepository.update(ideaId, data);
 
     expect(mockedIdea.update).toHaveBeenCalledWith({
       where: { id: ideaId },
@@ -180,6 +220,20 @@ describe('Idea Repository 테스트', () => {
         user: ideaUserSelect,
         category: ideaCategorySelect,
       },
+    });
+    expect(mockedIssueMember.findFirst).toHaveBeenCalledWith({
+      where: {
+        issueId: 'issue-1',
+        userId: 'user-1',
+        deletedAt: null,
+      },
+      select: {
+        nickname: true,
+      },
+    });
+    expect(result).toEqual({
+      ...mockUpdatedIdea,
+      issueMember: { nickname: 'nickname-1' },
     });
   });
 

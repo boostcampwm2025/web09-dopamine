@@ -29,7 +29,7 @@ describe('User Repository 테스트', () => {
     await createAnonymousUser(mockTx, '익명');
 
     expect(mockTx.user.create).toHaveBeenCalledWith({
-      data: { displayName: '익명', provider: null },
+      data: { displayName: null, provider: null },
     });
   });
 
