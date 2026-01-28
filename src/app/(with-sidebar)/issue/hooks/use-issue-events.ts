@@ -7,8 +7,8 @@ import { MEMBER_ROLE } from '@/constants/issue';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
 import { selectedIdeaQueryKey } from '@/hooks/issue';
 import { deleteCloseModal, getIssueMember, reportActiveIdea } from '@/lib/api/issue';
-import { useIssueStore } from '../store/use-issue-store';
 import { useCommentWindowStore } from '../store/use-comment-window-store';
+import { useIssueStore } from '../store/use-issue-store';
 
 interface UseIssueEventsParams {
   issueId: string;
@@ -80,8 +80,10 @@ export function useIssueEvents({
       setError(null);
 
       // 재연결 시 전체 데이터 갱신
-      // 최초 연결시에도 실행되지만... 큰 문제 없을 듯
-      queryClient.invalidateQueries({ queryKey: ['issues', issueId] });
+      const isReconnect = connectionIdRef.current !== null;
+      if (isReconnect) {
+        queryClient.invalidateQueries({ queryKey: ['issues', issueId] });
+      }
     };
 
     // 에러 발생
@@ -271,7 +273,8 @@ export function useIssueEvents({
           try {
             await deleteCloseModal(issueId);
           } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.';
+            const errorMessage =
+              error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.';
             console.error('Failed to broadcast close modal:', errorMessage);
           }
         },
