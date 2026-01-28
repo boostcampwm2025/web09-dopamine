@@ -27,6 +27,9 @@ export interface Idea {
     displayName: string | null;
     avatarUrl: string | null;
   };
+  issueMember?: {
+    nickname: string;
+  } | null;
   category?: {
     id: string;
     title: string;

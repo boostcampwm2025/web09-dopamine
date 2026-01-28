@@ -19,7 +19,12 @@ export async function POST(req: NextRequest) {
     const result = await prisma.$transaction(async (tx) => {
       const user = await createAnonymousUser(tx, nickname);
       const issue = await createIssue(tx, title);
-      await issueMemberRepository.addIssueOwner(tx, issue.id, user.id, IssueRole.OWNER);
+      await issueMemberRepository.addIssueMember(tx, {
+        issueId: issue.id,
+        userId: user.id,
+        nickname: nickname,
+        role: IssueRole.OWNER,
+      });
 
       return {
         issueId: issue.id,

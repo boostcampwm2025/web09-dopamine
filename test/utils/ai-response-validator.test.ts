@@ -7,7 +7,7 @@ describe('validateAIFunctionCallResponse', () => {
 
     expect(result).toEqual({
       isValid: false,
-      error: 'AI 응답에 toolCalls가 없습니다.',
+      error: 'AI가 분류할 수 없는 아이디어들입니다.',
     });
   });
 

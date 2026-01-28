@@ -6,7 +6,7 @@ type MemberRole = (typeof MEMBER_ROLE)[keyof typeof MEMBER_ROLE];
 
 export type IssueMember = {
   id: string;
-  displayName: string;
+  nickname: string;
   role: MemberRole;
   isConnected: boolean;
 };

@@ -206,6 +206,7 @@ model IssueMember {
   id        String    @id @default(uuid()) @db.Char(36)
   issueId   String    @map("issue_id") @db.Char(36)
   userId    String    @map("user_id") @db.Char(36)
+  nickname  String    @db.VarChar(30)
   role      IssueRole @default(MEMBER)
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
@@ -215,7 +216,8 @@ model IssueMember {
   issue Issue @relation(fields: [issueId], references: [id], onDelete: Cascade)
   user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([issueId, userId, deletedAt])
+  @@unique([issueId, nickname]) // 닉네임 중복 방지
+  @@unique([issueId, userId]) // 유저 중복 방지
   @@index([userId])
   @@index([issueId])
   @@map("issue_members")

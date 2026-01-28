@@ -6,7 +6,7 @@ type PrismaClientOrTx = PrismaTransaction | typeof prisma;
 export async function createAnonymousUser(tx: PrismaTransaction, nickname: string) {
   return tx.user.create({
     data: {
-      displayName: nickname,
+      displayName: null,
       provider: null,
     },
   });
