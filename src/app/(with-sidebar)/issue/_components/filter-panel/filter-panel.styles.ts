@@ -27,7 +27,7 @@ export const Btn = styled.button<{ $selected: boolean }>`
   font-size: ${theme.font.size.small};
   ${({ $selected }) => `
     border: ${$selected ? '2px' : '1px'} solid ${theme.colors.blue[400]};
-    background: ${$selected ? theme.colors.blue[100] : 'none'};
+    background: ${$selected ? theme.colors.blue[100] : theme.colors.white};
     color: ${$selected ? theme.colors.blue[800] : theme.colors.blue[600]};
   `}
 `;
