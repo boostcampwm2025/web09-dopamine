@@ -5,6 +5,7 @@ import type { MouseEventHandler, PointerEventHandler } from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import { useIdeaQuery, useSelectedIdeaMutation } from '@/hooks/issue';
+import { theme } from '@/styles/theme';
 import { useIssueData, useIssueIdentity } from '../../hooks';
 import { useCommentWindowStore } from '../../store/use-comment-window-store';
 import { useIdeaCardStackStore } from '../../store/use-idea-card-stack-store';
@@ -15,7 +16,6 @@ import IdeaCardFooter from './idea-card-footer';
 import IdeaCardHeader from './idea-card-header';
 import * as S from './idea-card.styles';
 import { useIdeaCard } from './use-idea-card';
-import { theme } from '@/styles/theme';
 
 interface IdeaCardProps {
   id: string;
@@ -172,18 +172,18 @@ export default function IdeaCard(props: IdeaCardProps) {
   const cardStyle =
     !inCategory && props.position
       ? {
-        position: 'absolute' as const,
-        left: props.position.x,
-        top: props.position.y,
-        cursor: isDragging ? 'grabbing' : 'grab',
-        userSelect: 'none' as const,
-        zIndex: isDragging ? theme.zIndex.selected : zIndex,
-        // dnd-kit transform 적용 (Canvas scale과 호환됨!)
-        transform: CSS.Transform.toString(transform),
-        opacity: isDragging ? 0 : undefined,
-        // 브로드캐스팅으로 다른 사용자 이동 시 애니메이션
-        transition: props.disableAnimation ? 'none' : 'left 0.4s ease-out, top 0.4s ease-out',
-      }
+          position: 'absolute' as const,
+          left: props.position.x,
+          top: props.position.y,
+          cursor: isDragging ? 'grabbing' : 'grab',
+          userSelect: 'none' as const,
+          zIndex: isDragging ? theme.zIndex.selected : zIndex,
+          // dnd-kit transform 적용 (Canvas scale과 호환됨!)
+          transform: CSS.Transform.toString(transform),
+          opacity: isDragging ? 0 : undefined,
+          // 브로드캐스팅으로 다른 사용자 이동 시 애니메이션
+          transition: props.disableAnimation ? 'none' : 'left 0.4s ease-out, top 0.4s ease-out',
+        }
       : {};
 
   return (
@@ -202,8 +202,8 @@ export default function IdeaCard(props: IdeaCardProps) {
       {...(inCategory
         ? {}
         : Object.fromEntries(
-          Object.entries(listeners || {}).filter(([key]) => key !== 'onPointerDown'),
-        ))}
+            Object.entries(listeners || {}).filter(([key]) => key !== 'onPointerDown'),
+          ))}
       style={cardStyle}
     >
       <IdeaCardBadge
@@ -227,6 +227,7 @@ export default function IdeaCard(props: IdeaCardProps) {
         submitEdit={submitEdit}
         onDelete={handleDeleteClick}
         onCommentClick={handleToggleComment}
+        isCommentOpen={isCommentOpen}
       />
       <IdeaCardFooter
         isVoteButtonVisible={props.isVoteButtonVisible}
