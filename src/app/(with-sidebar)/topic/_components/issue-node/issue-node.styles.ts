@@ -27,6 +27,9 @@ export const NodeContainer = styled.div<{ status: IssueStatus }>`
           outline: 2px solid ${theme.colors.blue[400]};
         `;
       case ISSUE_STATUS.VOTE:
+        return `
+          outline: 2px solid ${theme.colors.red[400]};
+        `;
       case ISSUE_STATUS.SELECT:
         return `
           outline: 2px solid ${theme.colors.green[600]};
@@ -71,6 +74,10 @@ export const Badge = styled.div<{ status: IssueStatus }>`
           color: ${theme.colors.blue[600]};
         `;
       case ISSUE_STATUS.VOTE:
+        return `
+          background-color: ${theme.colors.red[100]};
+          color: ${theme.colors.red[600]};
+        `;
       case ISSUE_STATUS.SELECT:
         return `
           background-color: ${theme.colors.green[100]};
