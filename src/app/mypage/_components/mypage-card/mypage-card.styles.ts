@@ -58,7 +58,7 @@ export const ProfileImage = styled.div`
 
 export const InfoSection = styled.div`
   text-align: center;
-  margin-bottom: 40px;
+  margin-bottom: 20px;
 `;
 
 export const Name = styled.h2`
