@@ -174,6 +174,13 @@ export const ideaRepository = {
     });
   },
 
+  async findUncategorizedByIssueId(issueId: string, tx: Prisma.TransactionClient = prisma) {
+    return tx.idea.findMany({
+      where: { issueId, deletedAt: null, categoryId: null },
+      select: { id: true },
+    });
+  },
+
   async updateManyCategoriesByIds(
     ideaIds: string[],
     issueId: string,
