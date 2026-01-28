@@ -42,8 +42,8 @@ const mockedFindMembersByIssueId = issueMemberRepository.findMembersByIssueId as
 const mockedFindMemberByUserId = issueMemberRepository.findMemberByUserId as jest.MockedFunction<
   typeof issueMemberRepository.findMemberByUserId
 >;
-const mockedAddIssueOwner = issueMemberRepository.addIssueOwner as jest.MockedFunction<
-  typeof issueMemberRepository.addIssueOwner
+const mockedAddIssueMember = issueMemberRepository.addIssueMember as jest.MockedFunction<
+  typeof issueMemberRepository.addIssueMember
 >;
 const mockedCheckNicknameDuplicate = issueMemberService.checkNicknameDuplicate as jest.MockedFunction<
   typeof issueMemberService.checkNicknameDuplicate
@@ -79,12 +79,14 @@ describe('GET /api/issues/[issueId]/members', () => {
   it('성공적으로 멤버 목록을 조회한다', async () => {
     const mockMembers = [
       {
+        userId: 'user-1',
         role: IssueRole.OWNER,
-        user: { id: 'user-1', displayName: 'User 1' },
+        nickname: 'User 1',
       },
       {
+        userId: 'user-2',
         role: IssueRole.MEMBER,
-        user: { id: 'user-2', displayName: 'User 2' },
+        nickname: 'User 2',
       },
     ];
 
@@ -98,6 +100,7 @@ describe('GET /api/issues/[issueId]/members', () => {
 
     expect(data).toHaveLength(2);
     expect(data[0].id).toBe('user-1');
+    expect(data[0].nickname).toBe('User 1');
     expect(data[0].role).toBe(IssueRole.OWNER);
   });
 
@@ -133,8 +136,9 @@ describe('POST /api/issues/[issueId]/members', () => {
   it('토픽 이슈에서 로그인 사용자가 이미 참여한 경우 기존 userId를 반환한다', async () => {
     const mockIssue = { title: 'Test Issue', topicId: 'topic-1', status: 'SELECT', projectId: null };
     const mockMember = {
+      userId,
       role: IssueRole.MEMBER,
-      user: { id: userId, displayName: 'Test User' },
+      nickname: 'Test User',
     };
 
     mockedFindIssueById.mockResolvedValue(mockIssue as any);
@@ -157,7 +161,7 @@ describe('POST /api/issues/[issueId]/members', () => {
     setupAuthMock(mockedGetServerSession, createMockSession(userId));
     mockedFindMemberByUserId.mockResolvedValue(null);
     mockedPrismaTransaction.mockImplementation(async (callback: any) => {
-      mockedAddIssueOwner.mockResolvedValue(undefined);
+      mockedAddIssueMember.mockResolvedValue(undefined);
       return callback({});
     });
 
@@ -191,7 +195,7 @@ describe('POST /api/issues/[issueId]/members', () => {
     setupAuthMock(mockedGetServerSession, null);
     mockedPrismaTransaction.mockImplementation(async (callback: any) => {
       mockedCreateAnonymousUser.mockResolvedValue(mockUser as any);
-      mockedAddIssueOwner.mockResolvedValue(undefined);
+      mockedAddIssueMember.mockResolvedValue(undefined);
       return callback({});
     });
 

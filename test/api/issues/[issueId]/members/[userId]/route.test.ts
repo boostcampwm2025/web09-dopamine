@@ -23,11 +23,9 @@ describe('GET /api/issues/[issueId]/members/[userId]', () => {
 
   it('성공적으로 사용자 정보를 조회한다', async () => {
     const mockMember = {
+      userId,
       role: 'OWNER' as const,
-      user: {
-        id: userId,
-        displayName: 'Test User',
-      },
+      nickname: 'Test User',
     };
 
     mockedFindMemberByUserId.mockResolvedValue(mockMember as any);
@@ -39,7 +37,7 @@ describe('GET /api/issues/[issueId]/members/[userId]', () => {
     const data = await expectSuccessResponse(response, 200);
 
     expect(data.id).toBe(userId);
-    expect(data.displayName).toBe('Test User');
+    expect(data.nickname).toBe('Test User');
     expect(data.role).toBe('OWNER');
   });
 
