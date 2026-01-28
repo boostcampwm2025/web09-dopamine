@@ -212,6 +212,35 @@ describe('Idea Repository 테스트', () => {
     });
   });
 
+  it('미분류 아이디어 ID 목록만 조회한다', async () => {
+    // 역할: 카테고리 재분류 시 미분류 대상만 빠르게 선별한다.
+    const issueId = 'issue-1';
+    const mockTx = {
+      idea: {
+        findMany: jest.fn().mockResolvedValue([{ id: 'idea-1' }]),
+      },
+    } as unknown as PrismaTransaction;
+
+    await ideaRepository.findUncategorizedByIssueId(issueId, mockTx);
+
+    expect(mockTx.idea.findMany).toHaveBeenCalledWith({
+      where: { issueId, deletedAt: null, categoryId: null },
+      select: { id: true },
+    });
+  });
+
+  it('미분류 아이디어 조회는 트랜잭션 미전달 시 기본 prisma를 사용한다', async () => {
+    // 역할: 기본 경로에서도 미분류 필터가 유지되는지 확인한다.
+    mockedIdea.findMany.mockResolvedValue([{ id: 'idea-1' }] as any);
+
+    await ideaRepository.findUncategorizedByIssueId('issue-1');
+
+    expect(mockedIdea.findMany).toHaveBeenCalledWith({
+      where: { issueId: 'issue-1', deletedAt: null, categoryId: null },
+      select: { id: true },
+    });
+  });
+
   it('여러 아이디어의 카테고리를 한 번에 갱신한다', async () => {
     // 역할: 다중 선택 이동 시 원자적으로 카테고리가 변경되는지 보장한다.
     const mockTx = {

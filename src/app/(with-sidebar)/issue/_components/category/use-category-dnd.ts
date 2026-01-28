@@ -58,6 +58,7 @@ export function useCategoryDnd({
         zIndex: 0,
         outline: isOver ? '2px dashed #4CAF50' : 'none',
         backgroundColor: isOver ? 'rgba(76, 175, 80, 0.1)' : undefined,
+        transition: draggable.isDragging ? 'none' : 'left 0.4s ease-out, top 0.4s ease-out',
       }
     : {
         outline: isOver ? '2px dashed #4CAF50' : 'none',

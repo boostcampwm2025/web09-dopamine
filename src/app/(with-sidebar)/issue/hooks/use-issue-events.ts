@@ -255,7 +255,8 @@ export function useIssueEvents({
           try {
             await deleteCloseModal(issueId);
           } catch (error) {
-            console.error('Failed to broadcast close modal:', error);
+            const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.';
+            console.error('Failed to broadcast close modal:', errorMessage);
           }
         },
       });
