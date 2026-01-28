@@ -126,8 +126,17 @@ export function useCategoryOperations(issueId: string, ideas: IdeaWithPosition[]
       return Math.max(currentMax, category.position.x + width);
     }, 0);
 
+    const baseTitle = '새 카테고리';
+    const existingNumbers = categories
+      .filter((c) => c.title.startsWith(baseTitle))
+      .map((c) => parseInt(c.title.replace(baseTitle, '')))
+      .filter((n) => !isNaN(n));
+
+    const nextNumber = existingNumbers.length > 0 ? Math.max(...existingNumbers) + 1 : 1;
+    const newTitle = `${baseTitle}${nextNumber}`;
+
     create.mutate({
-      title: '새 카테고리',
+      title: newTitle,
       positionX: categories.length > 0 ? maxRight + CATEGORY_GAP : START_POSITION.x,
       positionY: START_POSITION.y,
     });
