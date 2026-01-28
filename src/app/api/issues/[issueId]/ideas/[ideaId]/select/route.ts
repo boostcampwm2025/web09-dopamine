@@ -10,6 +10,7 @@ export async function POST(
 ) {
   try {
     const { issueId, ideaId } = await params;
+    const actorConnectionId = req.headers.get('x-sse-connection-id') || undefined;
 
     const idea = await prisma.idea.findFirst({
       where: {
@@ -26,6 +27,7 @@ export async function POST(
 
     broadcast({
       issueId,
+      excludeConnectionId: actorConnectionId,
       event: {
         type: SSE_EVENT_TYPES.IDEA_SELECTED,
         data: { ideaId },

@@ -1,5 +1,5 @@
-import { Prisma } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
+import { Prisma } from '@prisma/client';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
 import { categoryRepository } from '@/lib/repositories/category.repository';
 import { broadcast } from '@/lib/sse/sse-service';
@@ -11,6 +11,7 @@ export async function PATCH(
 ): Promise<NextResponse> {
   const { issueId, categoryId } = await params;
   const { title, positionX, positionY, width, height } = await req.json();
+  const actorConnectionId = req.headers.get('x-sse-connection-id') || undefined;
 
   try {
     const category = await categoryRepository.update(categoryId, {
@@ -23,6 +24,7 @@ export async function PATCH(
 
     broadcast({
       issueId,
+      excludeConnectionId: actorConnectionId,
       event: {
         type: SSE_EVENT_TYPES.CATEGORY_UPDATED,
         data: { categoryId },
@@ -43,16 +45,18 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ issueId: string; categoryId: string }> },
 ): Promise<NextResponse> {
   const { issueId, categoryId } = await params;
+  const actorConnectionId = req.headers.get('x-sse-connection-id') || undefined;
 
   try {
     await categoryRepository.softDelete(categoryId);
 
     broadcast({
       issueId,
+      excludeConnectionId: actorConnectionId,
       event: {
         type: SSE_EVENT_TYPES.CATEGORY_DELETED,
         data: { categoryId },

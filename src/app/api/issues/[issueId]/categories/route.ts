@@ -26,6 +26,7 @@ export async function POST(
 ): Promise<NextResponse> {
   const { issueId } = await params;
   const { title, positionX, positionY, width, height } = await req.json();
+  const actorConnectionId = req.headers.get('x-sse-connection-id') || undefined;
 
   try {
     const category = await categoryRepository.create({
@@ -39,6 +40,7 @@ export async function POST(
 
     broadcast({
       issueId,
+      excludeConnectionId: actorConnectionId,
       event: {
         type: SSE_EVENT_TYPES.CATEGORY_CREATED,
         data: { categoryId: category.id },

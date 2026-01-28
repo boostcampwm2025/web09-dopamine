@@ -1,5 +1,5 @@
-import { NextRequest } from 'next/server';
 import { getServerSession } from 'next-auth';
+import { NextRequest } from 'next/server';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
 import { authOptions } from '@/lib/auth';
 import { voteService } from '@/lib/services/vote.service';
@@ -14,6 +14,7 @@ export async function POST(
   try {
     const { issueId, ideaId } = await params;
     const { voteType } = await req.json();
+    const actorConnectionId = req.headers.get('x-sse-connection-id') || undefined;
 
     // 1. 세션에서 userId 확인 (OAuth 로그인 사용자)
     const session = await getServerSession(authOptions);
@@ -34,6 +35,7 @@ export async function POST(
     if (issueId) {
       broadcast({
         issueId: issueId,
+        excludeConnectionId: actorConnectionId,
         event: {
           type: SSE_EVENT_TYPES.VOTE_CHANGED,
           data: {
