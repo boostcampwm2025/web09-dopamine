@@ -1,12 +1,18 @@
 import { POST } from '@/app/api/issues/[issueId]/ideas/[ideaId]/vote/route';
+import { getServerSession } from 'next-auth';
 import { voteService } from '@/lib/services/vote.service';
 import {
+  createMockSession,
   createMockParams,
   createMockRequest,
   expectErrorResponse,
   expectSuccessResponse,
+  setupAuthMock,
 } from '@test/utils/api-test-helpers';
 
+jest.mock('next-auth', () => ({
+  getServerSession: jest.fn(),
+}));
 jest.mock('@auth/prisma-adapter', () => ({
   PrismaAdapter: () => ({}),
 }));
@@ -14,6 +20,7 @@ jest.mock('@/lib/services/vote.service');
 jest.mock('@/lib/sse/sse-service');
 
 const mockedCastVote = voteService.castVote as jest.MockedFunction<typeof voteService.castVote>;
+const mockedGetServerSession = getServerSession as jest.MockedFunction<typeof getServerSession>;
 
 describe('POST /api/issues/[issueId]/ideas/[ideaId]/vote', () => {
   const issueId = 'issue-1';
@@ -21,6 +28,7 @@ describe('POST /api/issues/[issueId]/ideas/[ideaId]/vote', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    setupAuthMock(mockedGetServerSession, createMockSession('user-1'));
   });
 
   it('userId나 voteType이 없으면 400 에러를 반환한다', async () => {
