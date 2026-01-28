@@ -29,6 +29,7 @@ export const issueMemberRepository = {
         user: {
           select: {
             id: true,
+            name: true,
             displayName: true,
           },
         },
@@ -42,7 +43,10 @@ export const issueMemberRepository = {
         issueId,
         deletedAt: null,
         user: {
-          displayName: nickname,
+          OR: [
+            { displayName: nickname },
+            { name: nickname },
+          ],
         },
       },
       select: {
@@ -63,6 +67,7 @@ export const issueMemberRepository = {
         user: {
           select: {
             id: true,
+            name: true,
             displayName: true,
           },
         },
