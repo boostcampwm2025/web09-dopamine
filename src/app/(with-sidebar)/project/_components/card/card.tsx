@@ -77,4 +77,17 @@ const Card = ({
   );
 };
 
+export const CardSkeleton = () => {
+  return (
+    <S.SkeletonCard role="status" aria-label="토픽 로딩 중">
+      <S.SkeletonIcon />
+      <S.SkeletonContent>
+        <S.SkeletonLine width="45%" />
+        <S.SkeletonLine width="30%" />
+      </S.SkeletonContent>
+      <S.SkeletonRight />
+    </S.SkeletonCard>
+  );
+};
+
 export default Card;
