@@ -9,6 +9,9 @@ import {
   expectSuccessResponse,
 } from '@test/utils/api-test-helpers';
 
+jest.mock('@auth/prisma-adapter', () => ({
+  PrismaAdapter: () => ({}),
+}));
 jest.mock('@/lib/repositories/idea.repository');
 jest.mock('@/lib/utils/cookie');
 jest.mock('@/lib/sse/sse-service');
