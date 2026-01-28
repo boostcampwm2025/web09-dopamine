@@ -10,6 +10,15 @@ import { assignRank, compareIdeasByVote } from '../utils/sort-ideas';
 
 type ReportIdea = ReportWithDetails['issue']['ideas'][number];
 
+const compareIdeasBySelectionAndVote = (a: RankedIdeaDto, b: RankedIdeaDto) => {
+  // 선택된 아이디어가 있다면 랭킹 최상단에 위치시킨다 (투표 수와 무관하게)
+  if (a.isSelected !== b.isSelected) {
+    return b.isSelected ? 1 : -1;
+  }
+  // 그 외의 경우에는 투표 수에 따라 정렬
+  return compareIdeasByVote(a, b);
+};
+
 const mapIdeaToRankedIdea = (
   idea: ReportIdea,
   issueMembers: ReportWithDetails['issue']['issueMembers'],
@@ -50,8 +59,12 @@ export async function getReportSummaryByIssueId(issueId: string): Promise<Report
 
   // 아이디어 랭킹 계산
   const rankedIdeas: RankedIdeaDto[] = report.issue.ideas
-    .map((idea) => mapIdeaToRankedIdea(idea, report.issue.issueMembers))
-    .sort(compareIdeasByVote);
+    .map((idea) => ({
+      ...mapIdeaToRankedIdea(idea, report.issue.issueMembers),
+      // 현재 아이디어가 선택된 아이디어인지 확인하여 마킹
+      isSelected: idea.id === report.selectedIdeaId,
+    }))
+    .sort(compareIdeasBySelectionAndVote);
 
   const assignedRankedIdeas = assignRank(rankedIdeas, compareIdeasByVote);
 
@@ -68,7 +81,11 @@ export async function getReportSummaryByIssueId(issueId: string): Promise<Report
           ideas: [],
         };
       }
-      acc[categoryId].ideas.push(mapIdeaToRankedIdea(idea, report.issue.issueMembers));
+      acc[categoryId].ideas.push({
+        ...mapIdeaToRankedIdea(idea, report.issue.issueMembers),
+        // 현재 아이디어가 선택된 아이디어인지 확인하여 마킹
+        isSelected: idea.id === report.selectedIdeaId,
+      });
       return acc;
     },
     {} as Record<string, CategoryRanking>,
@@ -76,7 +93,7 @@ export async function getReportSummaryByIssueId(issueId: string): Promise<Report
 
   // 각 카테고리의 아이디어를 정렬하고 배열로 변환
   const categorizedIdeas: CategoryRanking[] = Object.values(categoryMap).map((category) => {
-    const sortedCategoryIdeas = category.ideas.sort(compareIdeasByVote);
+    const sortedCategoryIdeas = category.ideas.sort(compareIdeasBySelectionAndVote);
 
     return {
       ...category,
@@ -89,12 +106,12 @@ export async function getReportSummaryByIssueId(issueId: string): Promise<Report
     memo: report.memo,
     selectedIdea: report.selectedIdea
       ? {
-          id: report.selectedIdea.id,
-          content: report.selectedIdea.content,
-          voteCount: report.selectedIdea.agreeCount + report.selectedIdea.disagreeCount,
-          commentCount: report.selectedIdea.comments.length,
-          category: report.selectedIdea.category as CategoryDto | null,
-        }
+        id: report.selectedIdea.id,
+        content: report.selectedIdea.content,
+        voteCount: report.selectedIdea.agreeCount + report.selectedIdea.disagreeCount,
+        commentCount: report.selectedIdea.comments.length,
+        category: report.selectedIdea.category as CategoryDto | null,
+      }
       : null,
     statistics: {
       totalParticipants,
