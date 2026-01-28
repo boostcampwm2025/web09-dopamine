@@ -8,10 +8,12 @@ import HeaderButton from '@/app/(with-sidebar)/issue/_components/header/header-b
 import { useInviteProjectModal } from '@/components/modal/invite-project-modal/use-invite-project-modal';
 import { useProjectQuery } from '@/hooks/project';
 import * as S from './header.styles';
+import { useRouter } from 'next/navigation';
 
 const ProjectHeader = () => {
   const params = useParams<{ id: string }>();
   const projectId = params.id || 'default';
+  const router = useRouter();
 
   const { data: session } = useSession();
   const { data: projectData } = useProjectQuery(projectId);
