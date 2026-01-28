@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
 import type { FilterType } from '@/app/(with-sidebar)/issue/hooks';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
+import { authOptions } from '@/lib/auth';
 import { ideaRepository } from '@/lib/repositories/idea.repository';
 import { ideaFilterService } from '@/lib/services/idea-filter.service';
 import { broadcast } from '@/lib/sse/sse-service';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
+import { getUserIdFromRequest } from '@/lib/utils/cookie';
+import { getAuthenticatedUserId } from '@/lib/utils/auth-helpers';
 
 export async function GET(
   req: NextRequest,
@@ -14,12 +18,18 @@ export async function GET(
   const { searchParams } = new URL(req.url);
   const filter = searchParams.get('filter');
 
+  const userId = await getAuthenticatedUserId(req, id);
+
   try {
     const ideas = await ideaRepository.findByIssueId(id);
+    const ideasWithCount = ideas.map((idea: any) => ({
+      ...idea,
+      commentCount: idea._count?.comments ?? 0,
+    }));
 
     if (filter && filter !== 'none') {
       const filteredIds = ideaFilterService.getFilteredIdeaIds(
-        ideas.map((idea) => ({
+        ideasWithCount.map((idea) => ({
           id: idea.id,
           agreeCount: idea.agreeCount ?? 0,
           disagreeCount: idea.disagreeCount ?? 0,
@@ -30,7 +40,7 @@ export async function GET(
       return createSuccessResponse({ filteredIds: Array.from(filteredIds) });
     }
 
-    return createSuccessResponse(ideas);
+    return createSuccessResponse(ideasWithCount);
   } catch (error) {
     console.error('아이디어 조회 실패:', error);
     return createErrorResponse('IDEA_FETCH_FAILED', 500);

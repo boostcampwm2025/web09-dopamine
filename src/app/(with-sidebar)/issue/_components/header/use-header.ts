@@ -1,9 +1,11 @@
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { useCanvasStore } from '@/app/(with-sidebar)/issue/store/use-canvas-store';
 import { ISSUE_STATUS, MEMBER_ROLE } from '@/constants/issue';
 import { useAIStructuringMutation, useIssueQuery, useIssueStatusMutations } from '@/hooks/issue';
+import { useTopicId } from '@/hooks/use-topic-id';
 import { getIssueMember } from '@/lib/api/issue';
 import { IssueStatus } from '@/types/issue';
 import { useCategoryOperations, useIdeasWithTemp, useIssueIdentity } from '../../hooks';
@@ -15,6 +17,9 @@ interface UseHeaderParams {
 export function useHeader({ issueId }: UseHeaderParams) {
   const { data: issue } = useIssueQuery(issueId);
   const { nextStep } = useIssueStatusMutations(issueId);
+
+  const { topicId } = useTopicId();
+  const router = useRouter();
 
   const { userId } = useIssueIdentity(issueId);
 
@@ -34,6 +39,14 @@ export function useHeader({ issueId }: UseHeaderParams) {
 
   const hiddenStatus = [ISSUE_STATUS.SELECT, ISSUE_STATUS.CLOSE] as IssueStatus[];
   const isVisible = issue && !hiddenStatus.includes(issue.status as IssueStatus);
+
+  const handleGoback = useCallback(() => {
+    if (topicId) {
+      router.push(`/topic/${topicId}`);
+    } else {
+      router.push('/');
+    }
+  }, [issueId, topicId]);
 
   // 이슈 종료 모달 열기
   const handleCloseIssue = useCallback(async () => {
@@ -148,5 +161,6 @@ export function useHeader({ issueId }: UseHeaderParams) {
     handleAddCategory,
     handleAIStructureStart,
     handleCopyURL,
+    handleGoback,
   };
 }

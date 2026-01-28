@@ -7,7 +7,7 @@ import IssueGraphLink from './issue-graph-link';
 import NewIssueButton from './new-issue-button';
 import { useIssueSidebar } from './use-issue-sidebar';
 
-const ISSUE_LIST = [
+export const ISSUE_LIST = [
   { title: 'new issue', href: '#', status: ISSUE_STATUS.BRAINSTORMING },
   { title: 'categorize', href: '#', status: ISSUE_STATUS.CATEGORIZE },
   { title: 'voting issue', href: '#', status: ISSUE_STATUS.VOTE },
@@ -21,6 +21,8 @@ export default function IssueSidebar() {
     topicId,
     isTopicPage,
     topicIssues,
+    filteredIssues,
+    filteredStaticIssues,
     filteredMembers,
     onlineMemberIds,
     sortedMembers,
@@ -28,6 +30,7 @@ export default function IssueSidebar() {
     handleSearchChange,
     showMemberList,
     showIssueList,
+    isSummaryPage,
     goToIssueMap,
   } = useIssueSidebar();
 
@@ -47,22 +50,22 @@ export default function IssueSidebar() {
           </S.SidebarTitle>
           <S.SidebarList>
             {topicId
-              ? topicIssues.map((issue) => (
-                  <SidebarItem
-                    key={issue.id}
-                    title={issue.title}
-                    href={`/issue/${issue.id}`}
-                    status={issue.status as any}
-                  />
-                ))
-              : ISSUE_LIST.map((issue) => (
-                  <SidebarItem
-                    key={issue.title}
-                    title={issue.title}
-                    href={issue.href}
-                    status={issue.status}
-                  />
-                ))}
+              ? filteredIssues.map((issue) => (
+                <SidebarItem
+                  key={issue.id}
+                  title={issue.title}
+                  href={`/issue/${issue.id}`}
+                  status={issue.status as any}
+                />
+              ))
+              : filteredStaticIssues.map((issue) => (
+                <SidebarItem
+                  key={issue.title}
+                  title={issue.title}
+                  href={issue.href}
+                  status={issue.status}
+                />
+              ))}
           </S.SidebarList>
         </>
       )}
@@ -71,13 +74,15 @@ export default function IssueSidebar() {
         <>
           <S.SidebarTitle>
             MEMBER LIST
-            <span>
-              ({onlineMemberIds.length}/{sortedMembers.length})
-            </span>
+            {!isSummaryPage && (
+              <span>
+                ({onlineMemberIds.length}/{sortedMembers.length})
+              </span>
+            )}
           </S.SidebarTitle>
           <S.SidebarList>
             {filteredMembers.map((user) => {
-              const isOnline = onlineMemberIds.includes(user.id);
+              const isOnline = isSummaryPage ? undefined : onlineMemberIds.includes(user.id);
               return (
                 <MemberSidebarItem
                   key={user.id}

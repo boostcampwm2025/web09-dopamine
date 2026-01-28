@@ -11,6 +11,7 @@ export interface Idea {
   category: string;
   agreeCount: number;
   disagreeCount: number;
+  commentCount?: number;
   highlighted: boolean;
 }
 
@@ -27,6 +28,7 @@ export interface IdeaWithPosition {
   agreeCount?: number;
   disagreeCount?: number;
   needDiscussion?: boolean;
+  commentCount?: number;
   editable?: boolean;
   comments?: Array<{
     id: string;

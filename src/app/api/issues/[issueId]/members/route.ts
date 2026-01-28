@@ -35,7 +35,7 @@ export async function GET(
 
     const response = members.map((member) => ({
       id: member.user.id,
-      displayName: member.user.displayName,
+      displayName: member.user.displayName || member.user.name || '익명',
       role: member.role,
       isConnected: true, // 지금은 기본값, 나중에 SSE 붙이면 여기서 합치면 됨
     }));

@@ -21,6 +21,7 @@ const Header = () => {
     handleAddCategory,
     handleAIStructureStart,
     handleCopyURL,
+    handleGoback,
   } = useHeader({
     issueId,
   });
@@ -63,12 +64,14 @@ const Header = () => {
   return (
     <S.HeaderContainer>
       <S.LeftSection>
-        <Image
-          src="/leftArrow.svg"
-          alt="뒤로가기"
-          width={18}
-          height={18}
-        />
+        <button onClick={handleGoback}>
+          <Image
+            src="/leftArrow.svg"
+            alt="뒤로가기"
+            width={18}
+            height={18}
+          />
+        </button>
         {issue?.title}
       </S.LeftSection>
       <S.CenterSection>

@@ -2,7 +2,8 @@
 
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
-import { useParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { useParams } from 'next/navigation';
 import HeaderButton from '@/app/(with-sidebar)/issue/_components/header/header-button';
 import { useInviteProjectModal } from '@/components/modal/invite-project-modal/use-invite-project-modal';
 import { useProjectQuery } from '@/hooks/project';
@@ -11,7 +12,6 @@ import * as S from './header.styles';
 const ProjectHeader = () => {
   const params = useParams<{ id: string }>();
   const projectId = params.id || 'default';
-  const router = useRouter();
 
   const { data: session } = useSession();
   const { data: projectData } = useProjectQuery(projectId);
@@ -29,14 +29,15 @@ const ProjectHeader = () => {
   return (
     <S.HeaderContainer>
       <S.LeftSection>
-        <Image
-          src="/home.svg"
-          alt="홈으로 가기"
-          width={18}
-          height={18}
-          onClick={() => router.push('/project')}
-          style={{ cursor: 'pointer' }}
-        />
+        <Link href={'/project'}>
+          <Image
+            src="/leftArrow.svg"
+            alt="뒤로 가기"
+            width={18}
+            height={18}
+            style={{ cursor: 'pointer' }}
+          />
+        </Link>
         <S.Divider />
         {projectTitle}
       </S.LeftSection>

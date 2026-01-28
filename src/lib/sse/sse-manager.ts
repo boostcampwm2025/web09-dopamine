@@ -4,6 +4,8 @@ import { broadcastMemberPresence } from '../utils/broadcast-helpers';
 
 interface ConnectedClient {
   userId: string;
+  connectionId: string;         // 각 SSE 연결을 식별하기 위한 고유 ID
+  activeIdeaId: string | null;  // 현재 클라이언트가 열어둔 댓글창의 Idea ID
   controller: ReadableStreamDefaultController;
 }
 
@@ -34,6 +36,7 @@ export class SSEManager {
     onDisconnect?: () => void;
   }): ReadableStream {
     const encoder = new TextEncoder();
+    const connectionId = crypto.randomUUID();
 
     return new ReadableStream({
       start: (controller) => {
@@ -43,13 +46,16 @@ export class SSEManager {
         }
 
         // 현재 컨트롤러를 연결 목록에 추가
-        map.get(key)!.add({ userId, controller });
+        map.get(key)!.add({ userId, connectionId, activeIdeaId: null, controller });
 
-        console.log(`[SSE] ${label} 클라이언트 연결됨 - ${keyName}: ${key}, User: ${userId}`);
+        console.log(
+          `[SSE] ${label} 클라이언트 연결됨 - ${keyName}: ${key}, User: ${userId}, ConnectionId: ${connectionId}`,
+        );
 
         // 연결 확인 메시지
         const connectMessage = `data: ${JSON.stringify({
           type: 'connected',
+          connectionId,
           [keyName]: key,
           timestamp: new Date().toISOString(),
         })}\n\n`;
@@ -207,6 +213,20 @@ export class SSEManager {
 
     const userIds = Array.from(clients).map((client) => client.userId);
     return Array.from(new Set(userIds));
+  }
+
+  // 특정 커넥션의 활성 아이디어 ID 업데이트
+  updateActiveIdea(issueId: string, connectionId: string, ideaId: string | null): void {
+    const clients = this.connections.get(issueId);
+    if (!clients) return;
+
+    for (const client of clients) {
+      if (client.connectionId === connectionId) {
+        client.activeIdeaId = ideaId;
+        console.log(`[SSE] Client ${connectionId} activeIdeaId updated to ${ideaId}`);
+        break;
+      }
+    }
   }
 }
 

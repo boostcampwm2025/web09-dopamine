@@ -26,14 +26,13 @@ export const ideaRepository = {
         votes: {
           where: { deletedAt: null },
         },
-        comments: {
-          where: { deletedAt: null },
+        _count: {
           select: {
-            id: true,
-            content: true,
-            createdAt: true,
+            comments: {
+              where: { deletedAt: null },
+            },
           },
-        },
+        }
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -48,6 +47,37 @@ export const ideaRepository = {
       select: {
         id: true,
         content: true,
+      },
+    });
+  },
+
+  async findById(ideaId: string) {
+    return prisma.idea.findUnique({
+      where: { id: ideaId },
+      include: {
+        user: {
+          select: {
+            id: true,
+          },
+        },
+        _count: {
+          select: {
+            comments: {
+              where: { deletedAt: null },
+            },
+          },
+        },
+      },
+    });
+  },
+
+
+  async findMyVote(ideaId: string, userId: string) {
+    return prisma.vote.findFirst({
+      where: {
+        ideaId,
+        userId,
+        deletedAt: null,
       },
     });
   },
@@ -155,4 +185,5 @@ export const ideaRepository = {
       data: { categoryId, positionX: null, positionY: null },
     });
   },
+
 };
