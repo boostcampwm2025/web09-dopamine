@@ -48,8 +48,11 @@ describe('PATCH /api/issues/[issueId]/categories/[categoryId]', () => {
   });
 
   it('존재하지 않는 카테고리를 수정하면 404 에러를 반환한다', async () => {
-    const error = new Error('Not found');
-    (error as any).code = 'P2025';
+    const { Prisma } = await import('@prisma/client');
+    const error = new Prisma.PrismaClientKnownRequestError('Not found', {
+      code: 'P2025',
+      clientVersion: 'test',
+    });
     mockedUpdate.mockRejectedValue(error);
 
     const req = createMockRequest({ title: 'Updated Category' });
@@ -94,8 +97,11 @@ describe('DELETE /api/issues/[issueId]/categories/[categoryId]', () => {
   });
 
   it('존재하지 않는 카테고리를 삭제하면 404 에러를 반환한다', async () => {
-    const error = new Error('Not found');
-    (error as any).code = 'P2025';
+    const { Prisma } = await import('@prisma/client');
+    const error = new Prisma.PrismaClientKnownRequestError('Not found', {
+      code: 'P2025',
+      clientVersion: 'test',
+    });
     mockedSoftDelete.mockRejectedValue(error);
 
     const req = createMockGetRequest();
