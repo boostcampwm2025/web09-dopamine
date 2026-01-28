@@ -1,8 +1,8 @@
 'use client';
 
-import { useParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
+import Link from 'next/link';
 import * as S from './project-header.styles';
 
 const ProjectHeader = () => {
@@ -13,6 +13,15 @@ const ProjectHeader = () => {
   return (
     <S.HeaderContainer>
       <S.LeftSection>
+        <Link href={'/'}>
+          <Image
+            src="/home.svg"
+            alt="홈으로 가기"
+            width={18}
+            height={18}
+            style={{ cursor: 'pointer' }}
+          />
+        </Link>
         <S.Title>내 프로젝트</S.Title>
       </S.LeftSection>
       <S.RightSection>
