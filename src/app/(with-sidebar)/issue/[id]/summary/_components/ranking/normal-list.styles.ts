@@ -11,15 +11,16 @@ export const Container = styled.div`
   flex-direction: column;
 `;
 
-export const Item = styled.div<{ highlighted?: boolean; isTop?: boolean }>`
+export const Item = styled.div<{ highlighted?: boolean; isTop?: boolean; isSelected?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
   padding: 14px 16px;
   border-bottom: 1px solid ${theme.colors.gray[100]};
-  background: ${({ highlighted }) => (highlighted ? theme.colors.gray[50] : 'transparent')};
-  border-radius: ${(isTop) =>
+  background: ${({ highlighted, isSelected }) =>
+    isSelected ? theme.colors.yellow[50] : highlighted ? theme.colors.gray[50] : 'transparent'};
+  border-radius: ${({ isTop }) =>
     isTop ? theme.radius.medium + ' ' + theme.radius.medium + ' 0 0' : '0'};
   &:last-of-type {
     border-bottom: none;
@@ -39,8 +40,8 @@ export const ItemRight = styled.div`
   gap: 4px;
 `;
 
-export const RankBadge = styled.div<{ highlighted?: boolean }>`
-  width: 32px;
+export const RankBadge = styled.div<{ highlighted?: boolean; isSelected?: boolean }>`
+  min-width: 32px;
   height: 32px;
   border-radius: ${theme.radius.medium};
   display: grid;
@@ -48,8 +49,9 @@ export const RankBadge = styled.div<{ highlighted?: boolean }>`
   font-weight: 600;
   font-size: ${theme.font.size.medium};
   color: ${({ highlighted }) => (highlighted ? theme.colors.white : theme.colors.gray[400])};
-  background: ${({ highlighted }) =>
-    highlighted ? theme.colors.green[600] : theme.colors.gray[100]};
+  background: ${({ highlighted, isSelected }) =>
+    isSelected ? theme.colors.yellow[200] :
+      highlighted ? theme.colors.green[600] : theme.colors.gray[100]};
 `;
 
 export const Content = styled.div`

@@ -55,13 +55,13 @@ export const Title = styled.span`
   }
 `;
 
-export const ItemWrapper = styled.div`
+export const ItemWrapper = styled.div<{ isSelected?: boolean }>`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  background: ${theme.colors.white};
-  border: 1px solid ${theme.colors.gray[100]};
+  background: ${({ isSelected }) => (isSelected ? theme.colors.yellow[50] : theme.colors.white)};
+  border: 1px solid ${({ isSelected }) => (isSelected ? theme.colors.yellow[200] : theme.colors.gray[100])};
   border-radius: ${theme.radius.medium};
   gap: 12px;
   padding: 8px;
@@ -87,17 +87,20 @@ export const ItemContent = styled.div`
   cursor: pointer;
 `;
 
-export const RankBadge = styled.div<{ highlighted?: boolean }>`
-  width: 20px;
+export const RankBadge = styled.div<{ highlighted?: boolean; isSelected?: boolean }>`
+  min-width: 20px;
   height: 20px;
   border-radius: ${theme.radius.small};
   display: grid;
   place-items: center;
   font-weight: 600;
   font-size: ${theme.font.size.small};
-  color: ${({ highlighted }) => (highlighted ? theme.colors.yellow[600] : theme.colors.gray[400])};
-  background: ${({ highlighted }) =>
-    highlighted ? theme.colors.yellow[100] : theme.colors.gray[100]};
+  color: ${({ highlighted, isSelected }) =>
+    isSelected ? theme.colors.white :
+      highlighted ? theme.colors.yellow[600] : theme.colors.gray[400]};
+  background: ${({ highlighted, isSelected }) =>
+    isSelected ? theme.colors.yellow[200] :
+      highlighted ? theme.colors.yellow[100] : theme.colors.gray[100]};
 `;
 
 export const VoteInfoSection = styled.span`

@@ -85,9 +85,26 @@ export default function CategorizedList({ categorizedRankings }: CategorizedList
                   </S.HeaderLeft>
                 </S.Header>
                 {visibleIdeas.map((item) => (
-                  <S.ItemWrapper key={item.id}>
+                  <S.ItemWrapper
+                    key={item.id}
+                    isSelected={item.isSelected}
+                  >
                     <S.ItemLeft>
-                      <S.RankBadge highlighted={item.rank === 1}>{item.rank}</S.RankBadge>
+                      <S.RankBadge
+                        highlighted={item.rank === 1}
+                        isSelected={item.isSelected}
+                      >
+                        {item.isSelected ? (
+                          <Image
+                            src="/summary-crown.svg"
+                            alt="채택"
+                            width={10}
+                            height={10}
+                          />
+                        ) : (
+                          item.rank
+                        )}
+                      </S.RankBadge>
                       <S.ItemContent
                         title={item.content}
                         role="button"
