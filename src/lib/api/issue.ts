@@ -63,7 +63,7 @@ export function getIssueMembers(issueId: string) {
   return getAPIResponseData<
     Array<{
       id: string;
-      displayName: string;
+      nickname: string;
       role: string;
       isConnected: boolean;
     }>
@@ -76,7 +76,7 @@ export function getIssueMembers(issueId: string) {
 export function getIssueMember(issueId: string, userId: string) {
   return getAPIResponseData<{
     id: string;
-    displayName: string;
+    nickname: string;
     role: string;
   }>({
     url: `/api/issues/${issueId}/members/${userId}`,

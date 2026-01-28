@@ -26,7 +26,7 @@ export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) 
 
   // 현재 사용자 정보 가져오기
   const { members, isQuickIssue, status } = useIssueData(issueId);
-  const { userId: currentUserId, displayName: currentUserDisplayName } = useIssueIdentity(issueId, {
+  const { userId: currentUserId, nickname: currentUserNickname } = useIssueIdentity(issueId, {
     isQuickIssue,
     members,
   });
@@ -52,7 +52,7 @@ export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) 
       id: tempId,
       userId: currentUserId || '',
       content: '',
-      author: currentUserDisplayName,
+      author: currentUserNickname,
       categoryId: null,
       position,
       editable: true,

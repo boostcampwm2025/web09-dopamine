@@ -7,7 +7,7 @@ export type Comment = {
   user?: {
     id: string;
     name: string | null;
-    displayName: string | null;
+    nickname: string | null;
   };
 };
 

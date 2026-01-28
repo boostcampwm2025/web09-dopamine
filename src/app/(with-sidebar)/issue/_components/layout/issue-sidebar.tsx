@@ -87,7 +87,7 @@ export default function IssueSidebar() {
                 <MemberSidebarItem
                   key={user.id}
                   id={user.id}
-                  name={user.displayName}
+                  name={user.nickname}
                   role={user.role}
                   isConnected={isOnline}
                 />

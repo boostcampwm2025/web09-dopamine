@@ -13,7 +13,6 @@ export const ideaRepository = {
           select: {
             id: true,
             name: true,
-            displayName: true,
             image: true,
           },
         },
@@ -120,7 +119,7 @@ export const ideaRepository = {
     positionY?: number;
     categoryId?: string;
   }) {
-    return prisma.idea.create({
+    const createdIdea = await prisma.idea.create({
       data: {
         issueId: data.issueId,
         userId: data.userId,
@@ -134,7 +133,6 @@ export const ideaRepository = {
           select: {
             id: true,
             name: true,
-            displayName: true,
             image: true,
           },
         },
@@ -146,6 +144,23 @@ export const ideaRepository = {
         },
       },
     });
+
+    // IssueMember nickname 추가
+    const issueMember = await prisma.issueMember.findFirst({
+      where: {
+        issueId: data.issueId,
+        userId: data.userId,
+        deletedAt: null,
+      },
+      select: {
+        nickname: true,
+      },
+    });
+
+    return {
+      ...createdIdea,
+      issueMember: issueMember ? { nickname: issueMember.nickname } : null,
+    };
   },
 
   async softDelete(ideaId: string) {
@@ -164,7 +179,7 @@ export const ideaRepository = {
     },
   ) {
     const { positionX, positionY, categoryId } = data;
-    return prisma.idea.update({
+    const updatedIdea = await prisma.idea.update({
       where: { id: ideaId },
       data: {
         positionX,
@@ -176,7 +191,6 @@ export const ideaRepository = {
           select: {
             id: true,
             name: true,
-            displayName: true,
             image: true,
           },
         },
@@ -188,6 +202,23 @@ export const ideaRepository = {
         },
       },
     });
+
+    // IssueMember nickname 추가
+    const issueMember = await prisma.issueMember.findFirst({
+      where: {
+        issueId: updatedIdea.issueId,
+        userId: updatedIdea.userId,
+        deletedAt: null,
+      },
+      select: {
+        nickname: true,
+      },
+    });
+
+    return {
+      ...updatedIdea,
+      issueMember: issueMember ? { nickname: issueMember.nickname } : null,
+    };
   },
 
   async findManyByIssueId(issueId: string, tx: Prisma.TransactionClient = prisma) {

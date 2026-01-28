@@ -15,6 +15,7 @@ export interface ReportWithDetails {
     issueMembers: Array<{
       id: string;
       userId: string;
+      nickname: string;
       deletedAt: Date | null;
     }>;
     // 이슈에 속한 아이디어들
@@ -113,5 +114,6 @@ export interface UserDto {
   id: string;
   name: string | null;
   displayName: string | null;
+  nickname?: string | null;
   image: string | null;
 }
