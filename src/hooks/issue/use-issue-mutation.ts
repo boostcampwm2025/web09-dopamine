@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
+import { useSseConnectionStore } from '@/app/(with-sidebar)/issue/store/use-sse-connection-store';
 import { ISSUE_STATUS, STEP_FLOW } from '@/constants/issue';
 import { createIssueInTopic, createQuickIssue, updateIssueStatus } from '@/lib/api/issue';
 import { setUserIdForIssue } from '@/lib/storage/issue-user-storage';
@@ -31,10 +32,11 @@ export const useQuickStartMutation = () => {
 export const useIssueStatusMutations = (issueId: string) => {
   const queryClient = useQueryClient();
   const queryKey = ['issues', issueId];
+  const connectionId = useSseConnectionStore((state) => state.connectionIds[issueId]);
 
   const update = useMutation({
     mutationFn: async (nextStatus: IssueStatus) => {
-      await updateIssueStatus(issueId, nextStatus);
+      await updateIssueStatus(issueId, nextStatus, undefined, undefined, connectionId);
       return nextStatus;
     },
 
@@ -66,7 +68,7 @@ export const useIssueStatusMutations = (issueId: string) => {
 
   const close = useMutation({
     mutationFn: async () => {
-      await updateIssueStatus(issueId, ISSUE_STATUS.CLOSE);
+      await updateIssueStatus(issueId, ISSUE_STATUS.CLOSE, undefined, undefined, connectionId);
     },
 
     onSuccess: () => {

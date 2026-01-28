@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
+import { useSseConnectionStore } from '@/app/(with-sidebar)/issue/store/use-sse-connection-store';
 import { createCategory, deleteCategory, updateCategory } from '@/lib/api/category';
 
 type CategoryPayload = {
@@ -13,9 +14,10 @@ type CategoryPayload = {
 export const useCategoryMutations = (issueId: string) => {
   const queryClient = useQueryClient();
   const queryKey = ['issues', issueId, 'categories'];
+  const connectionId = useSseConnectionStore((state) => state.connectionIds[issueId]);
 
   const create = useMutation({
-    mutationFn: (payload: CategoryPayload) => createCategory(issueId, payload),
+    mutationFn: (payload: CategoryPayload) => createCategory(issueId, payload, connectionId),
 
     onError: (_err) => {
       toast.error(_err.message);
@@ -33,7 +35,7 @@ export const useCategoryMutations = (issueId: string) => {
     }: {
       categoryId: string;
       payload: Partial<CategoryPayload>;
-    }) => updateCategory(issueId, categoryId, payload),
+    }) => updateCategory(issueId, categoryId, payload, connectionId),
 
     onError: (err) => {
       toast.error(err.message);
@@ -45,7 +47,7 @@ export const useCategoryMutations = (issueId: string) => {
   });
 
   const remove = useMutation({
-    mutationFn: (categoryId: string) => deleteCategory(issueId, categoryId),
+    mutationFn: (categoryId: string) => deleteCategory(issueId, categoryId, connectionId),
 
     onError: (err) => {
       toast.error(err.message);

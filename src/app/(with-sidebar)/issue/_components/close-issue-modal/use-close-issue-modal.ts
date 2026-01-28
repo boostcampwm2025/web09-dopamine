@@ -6,6 +6,7 @@ import { ISSUE_STATUS } from '@/constants/issue';
 import { useIssueStatusMutations, useSelectedIdeaQuery } from '@/hooks/issue';
 import { deleteCloseModal, updateCloseModalMemo, updateIssueStatus } from '@/lib/api/issue';
 import { useIdeasWithTemp } from '../../hooks';
+import { useSseConnectionStore } from '../../store/use-sse-connection-store';
 
 interface UseCloseIssueModalParams {
   issueId: string;
@@ -18,6 +19,7 @@ export function useCloseIssueModal({ issueId, isOwner }: UseCloseIssueModalParam
   const { close } = useIssueStatusMutations(issueId);
   const { closeModal } = useModalStore();
   const router = useRouter();
+  const connectionId = useSseConnectionStore((state) => state.connectionIds[issueId]);
 
   const [memo, setMemo] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -32,7 +34,7 @@ export function useCloseIssueModal({ issueId, isOwner }: UseCloseIssueModalParam
       if (!isOwner) return;
 
       try {
-        await updateCloseModalMemo(issueId, memoValue);
+        await updateCloseModalMemo(issueId, memoValue, connectionId);
       } catch (error) {
         console.error('Failed to broadcast memo update:', error);
       }
@@ -45,7 +47,7 @@ export function useCloseIssueModal({ issueId, isOwner }: UseCloseIssueModalParam
     if (!isOwner) return;
 
     try {
-      await deleteCloseModal(issueId);
+      await deleteCloseModal(issueId, connectionId);
     } catch (error) {
       console.error('Failed to broadcast close modal:', error);
     }
@@ -115,7 +117,13 @@ export function useCloseIssueModal({ issueId, isOwner }: UseCloseIssueModalParam
 
     try {
       setIsLoading(true);
-      await updateIssueStatus(issueId, ISSUE_STATUS.CLOSE, selectedIdea.id, memo || undefined);
+      await updateIssueStatus(
+        issueId,
+        ISSUE_STATUS.CLOSE,
+        selectedIdea.id,
+        memo || undefined,
+        connectionId,
+      );
       close.mutate();
 
       // 모달 닫기 브로드캐스팅

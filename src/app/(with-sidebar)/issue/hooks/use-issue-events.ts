@@ -7,8 +7,9 @@ import { MEMBER_ROLE } from '@/constants/issue';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
 import { selectedIdeaQueryKey } from '@/hooks/issue';
 import { deleteCloseModal, getIssueMember, reportActiveIdea } from '@/lib/api/issue';
-import { useIssueStore } from '../store/use-issue-store';
 import { useCommentWindowStore } from '../store/use-comment-window-store';
+import { useIssueStore } from '../store/use-issue-store';
+import { useSseConnectionStore } from '../store/use-sse-connection-store';
 
 interface UseIssueEventsParams {
   issueId: string;
@@ -37,6 +38,7 @@ export function useIssueEvents({
 
   const { setIsAIStructuring } = useIssueStore((state) => state.actions);
   const { setOnlineMemberIds } = useIssueStore((state) => state.actions);
+  const setConnectionId = useSseConnectionStore((state) => state.setConnectionId);
 
   // 현재 사용자의 정보 조회
   const { data: currentUser } = useQuery({
@@ -99,6 +101,7 @@ export function useIssueEvents({
       if (data.type === 'connected') {
         const connectionId = data.connectionId;
         connectionIdRef.current = connectionId;
+        setConnectionId(issueId, connectionId);
         toast.success('연결되었습니다');
 
         // 연결 시점에 현재 열려있는 댓글창이 있다면 서버에 알림
@@ -255,7 +258,8 @@ export function useIssueEvents({
           try {
             await deleteCloseModal(issueId);
           } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.';
+            const errorMessage =
+              error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.';
             console.error('Failed to broadcast close modal:', errorMessage);
           }
         },
@@ -287,9 +291,10 @@ export function useIssueEvents({
       eventSource.close();
       eventSourceRef.current = null;
       connectionIdRef.current = null;
+      setConnectionId(issueId, null);
       setIsAIStructuring(false);
     };
-  }, [issueId, enabled, selectedIdeaKey, userId, setIsAIStructuring, topicId]);
+  }, [issueId, enabled, selectedIdeaKey, userId, setIsAIStructuring, setConnectionId, topicId]);
 
   // 댓글창 상태 변경 감지 및 서버 보고
   useEffect(() => {
