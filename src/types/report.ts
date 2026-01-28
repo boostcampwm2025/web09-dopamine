@@ -34,7 +34,7 @@ export interface ReportWithDetails {
         name: string | null;
         displayName: string | null;
         image: string | null;
-      };
+      } | null;
     }>;
   };
   // 선택된 아이디어 정보
@@ -102,7 +102,7 @@ export interface RankedIdeaDto {
   disagreeVoteCount: number;
   commentCount: number;
   category: CategoryDto | null;
-  user: UserDto;
+  user: UserDto | null;
 }
 
 // 사용자 정보
