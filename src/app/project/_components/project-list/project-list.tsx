@@ -15,7 +15,10 @@ export function ProjectList({ projects }: ProjectListProps) {
         {projects?.map((project) => (
           <ProjectCard
             key={project.id}
-            {...project}
+            id={project.id}
+            title={project.title}
+            memberCount={project.memberCount}
+            ownerId={project.ownerId}
           />
         ))}
         <ProjectCard isCreateCard />

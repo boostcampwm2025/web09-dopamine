@@ -17,7 +17,7 @@ interface ProjectCardProps {
   icon?: string;
   memberCount?: number;
   isCreateCard?: boolean;
-  ownerId?: string;
+  ownerId?: string | null;
 }
 
 export function ProjectCard({
