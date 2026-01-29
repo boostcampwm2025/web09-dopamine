@@ -41,9 +41,23 @@ describe('Idea Repository 테스트', () => {
   });
 
   it('이슈 ID로 아이디어를 조회하며 관련 데이터까지 함께 가져온다', async () => {
-    // 역할: 목록 화면에 필요한 연관 데이터가 누락되지 않도록 include 구성을 보장한다.
+    // 역할: 목록 화면에 필요한 데이터(닉네임, 댓글 수, myVote 등)를 가공해 반환한다.
     const issueId = 'issue-1';
-    const mockIdeas = [{ id: 'idea-1', userId: 'user-1' }];
+    const mockIdeas = [
+      {
+        id: 'idea-1',
+        content: '내용',
+        userId: 'user-1',
+        agreeCount: 1,
+        disagreeCount: 0,
+        positionX: 10,
+        positionY: 20,
+        createdAt: new Date('2024-01-01'),
+        category: { id: 'category-1', title: '카테고리' },
+        comments: [{ id: 'comment-1' }],
+        votes: [{ type: 'AGREE' }],
+      },
+    ];
     const mockIssueMembers = [{ userId: 'user-1', nickname: 'nickname-1' }];
     mockedIdea.findMany.mockResolvedValue(mockIdeas as any);
     mockedIssueMember.findMany.mockResolvedValue(mockIssueMembers as any);
@@ -55,17 +69,31 @@ describe('Idea Repository 테스트', () => {
         issueId,
         deletedAt: null,
       },
-      include: {
-        user: ideaUserSelect,
-        category: ideaCategorySelect,
-        votes: {
-          where: { deletedAt: null },
-        },
-        _count: {
+      select: {
+        id: true,
+        content: true,
+        userId: true,
+        agreeCount: true,
+        disagreeCount: true,
+        positionX: true,
+        positionY: true,
+        createdAt: true,
+        category: {
           select: {
-            comments: {
-              where: { deletedAt: null },
-            },
+            id: true,
+            title: true,
+          },
+        },
+        comments: {
+          where: { deletedAt: null },
+          select: { id: true },
+        },
+        votes: {
+          where: {
+            deletedAt: null,
+          },
+          select: {
+            type: true,
           },
         },
       },
@@ -83,8 +111,18 @@ describe('Idea Repository 테스트', () => {
     });
     expect(result).toEqual([
       {
-        ...mockIdeas[0],
-        issueMember: { nickname: 'nickname-1' },
+        id: 'idea-1',
+        content: '내용',
+        userId: 'user-1',
+        categoryId: 'category-1',
+        nickname: 'nickname-1',
+        agreeCount: 1,
+        disagreeCount: 0,
+        commentCount: 1,
+        positionX: 10,
+        positionY: 20,
+        myVote: 'AGREE',
+        createdAt: new Date('2024-01-01'),
       },
     ]);
   });

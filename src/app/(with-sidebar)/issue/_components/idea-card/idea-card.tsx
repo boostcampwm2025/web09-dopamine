@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef } from 'react';
 import type { MouseEventHandler, PointerEventHandler } from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
-import { useIdeaQuery, useSelectedIdeaMutation } from '@/hooks/issue';
+import { useSelectedIdeaMutation } from '@/hooks/issue';
 import { theme } from '@/styles/theme';
 import { useIssueData, useIssueIdentity } from '../../hooks';
 import { useCommentWindowStore } from '../../store/use-comment-window-store';
@@ -29,6 +29,8 @@ interface IdeaCardProps {
   isVoteDisabled?: boolean;
   agreeCount?: number;
   disagreeCount?: number;
+  myVote?: 'AGREE' | 'DISAGREE' | null;
+  commentCount?: number;
   editable?: boolean;
   status?: CardStatus;
   isHotIdea?: boolean;
@@ -102,8 +104,6 @@ export default function IdeaCard(props: IdeaCardProps) {
     onClick: props.onClick,
     selectIdea,
   });
-
-  const { data: idea } = useIdeaQuery(props.issueId, props.id, currentUserId);
 
   // 댓글 윈도우 상태 관리
   const activeCommentId = useCommentWindowStore((s) => s.activeCommentId);
@@ -220,7 +220,7 @@ export default function IdeaCard(props: IdeaCardProps) {
         isCurrentUser={isCurrentUser}
         author={props.author}
         issueStatus={issueStatus}
-        commentCount={(idea as any)?.commentCount ?? 0}
+        commentCount={props.commentCount ?? 0}
         textareaRef={textareaRef}
         setEditValue={setEditValue}
         handleKeyDownEdit={handleKeyDownEdit}
@@ -232,9 +232,9 @@ export default function IdeaCard(props: IdeaCardProps) {
       <IdeaCardFooter
         isVoteButtonVisible={props.isVoteButtonVisible}
         status={status}
-        myVote={idea?.myVote ?? undefined}
-        agreeCount={idea?.agreeCount}
-        disagreeCount={idea?.disagreeCount}
+        myVote={props.myVote}
+        agreeCount={props.agreeCount}
+        disagreeCount={props.disagreeCount}
         isVoteDisabled={props.isVoteDisabled}
         onAgree={handleAgree}
         onDisagree={handleDisagree}

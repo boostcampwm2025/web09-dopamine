@@ -9,7 +9,7 @@ type VoteType = (typeof VOTE_TYPE)[keyof typeof VOTE_TYPE];
 interface IdeaCardFooterProps {
   isVoteButtonVisible?: boolean;
   status?: CardStatus;
-  myVote?: VoteType;
+  myVote?: VoteType | null;
   agreeCount?: number;
   disagreeCount?: number;
   isVoteDisabled?: boolean;

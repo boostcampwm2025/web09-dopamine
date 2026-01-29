@@ -3,7 +3,6 @@
 import type { KeyboardEventHandler, MouseEventHandler, RefObject } from 'react';
 import Image from 'next/image';
 import { ISSUE_STATUS } from '@/constants/issue';
-import { useCommentCountQuery } from '@/hooks/comment/use-comment-query';
 import type { IssueStatus } from '@/types/issue';
 import * as S from './idea-card.styles';
 
@@ -46,8 +45,7 @@ export default function IdeaCardHeader({
   onDelete,
   onCommentClick,
 }: IdeaCardHeaderProps) {
-  const { commentCountQuery } = useCommentCountQuery(issueId, id);
-  const commentCount = commentCountQuery.data ?? initialCommentCount;
+  const commentCount = initialCommentCount;
   return (
     <S.Header>
       {isEditing ? (
