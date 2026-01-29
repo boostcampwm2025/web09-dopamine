@@ -15,7 +15,7 @@ import { ErrorPage } from '@/components/error/error';
 import LoadingOverlay from '@/components/loading-overlay/loading-overlay';
 import { useModalStore } from '@/components/modal/use-modal-store';
 import { ISSUE_STATUS, ISSUE_STATUS_DESCRIPTION } from '@/constants/issue';
-import { useIssueQuery, useSelectedIdeaQuery } from '@/hooks/issue';
+import { selectedIdeaQueryKey, useIssueQuery, useSelectedIdeaQuery } from '@/hooks/issue';
 import { useProjectsQuery } from '@/hooks/project';
 import { joinIssueAsLoggedInUser } from '@/lib/api/issue';
 import { getActiveDiscussionIdeaIds } from '@/lib/utils/active-discussion-idea';
@@ -192,6 +192,13 @@ const IssuePage = () => {
     handleIdeaPositionChange: serverHandleIdeaPositionChange,
     handleMoveIdeaToCategory,
   } = useIdeaOperations(issueId, isCreateIdeaActive);
+
+  // 아이디어 목록 로드 시 채택된 아이디어 ID를 쿼리 캐시에 동기화
+  useEffect(() => {
+    if (!serverIdeas?.length || !issueId) return;
+    const selectedId = serverIdeas.find((i) => i.isSelected)?.id ?? null;
+    queryClient.setQueryData(selectedIdeaQueryKey(issueId), selectedId);
+  }, [serverIdeas, issueId, queryClient]);
 
   // 드래그 중인 position을 오버레이
   const ideas = useMemo(() => {

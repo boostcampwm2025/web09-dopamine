@@ -25,6 +25,18 @@ export async function POST(
       return createErrorResponse('IDEA_NOT_FOUND', 404);
     }
 
+    // DB에 채택 상태 반영 (새로고침 후에도 유지)
+    await prisma.$transaction([
+      prisma.idea.updateMany({
+        where: { issueId, deletedAt: null },
+        data: { isSelected: false },
+      }),
+      prisma.idea.update({
+        where: { id: ideaId },
+        data: { isSelected: true },
+      }),
+    ]);
+
     broadcast({
       issueId,
       excludeConnectionId: actorConnectionId,

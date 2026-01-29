@@ -24,6 +24,7 @@ export const useIssueIdeaQuery = (issueId: string) => {
         disagreeCount: idea.disagreeCount,
         myVote: idea.myVote,
         commentCount: idea.commentCount,
+        isSelected: idea.isSelected ?? false,
         editable: false,
       }));
 

@@ -58,5 +58,6 @@ export interface SimpleIdea {
   disagreeCount: number;
   commentCount: number;
   myVote: 'AGREE' | 'DISAGREE' | null;
+  isSelected: boolean;
   createdAt: Date | string;
 }
