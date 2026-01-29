@@ -94,16 +94,7 @@ export default function CategorizedList({ categorizedRankings }: CategorizedList
                         highlighted={item.rank === 1}
                         isSelected={item.isSelected}
                       >
-                        {item.isSelected ? (
-                          <Image
-                            src="/summary-crown.svg"
-                            alt="채택"
-                            width={10}
-                            height={10}
-                          />
-                        ) : (
-                          item.rank
-                        )}
+                        {item.rank}
                       </S.RankBadge>
                       <S.ItemContent
                         title={item.content}

@@ -50,7 +50,7 @@ export const RankBadge = styled.div<{ highlighted?: boolean; isSelected?: boolea
   font-size: ${theme.font.size.medium};
   color: ${({ highlighted }) => (highlighted ? theme.colors.white : theme.colors.gray[400])};
   background: ${({ highlighted, isSelected }) =>
-    isSelected ? theme.colors.yellow[200] :
+    isSelected ? theme.colors.yellow[400] :
       highlighted ? theme.colors.green[600] : theme.colors.gray[100]};
 `;
 

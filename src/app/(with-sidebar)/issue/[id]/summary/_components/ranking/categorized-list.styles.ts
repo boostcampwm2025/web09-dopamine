@@ -99,7 +99,7 @@ export const RankBadge = styled.div<{ highlighted?: boolean; isSelected?: boolea
     isSelected ? theme.colors.white :
       highlighted ? theme.colors.yellow[600] : theme.colors.gray[400]};
   background: ${({ highlighted, isSelected }) =>
-    isSelected ? theme.colors.yellow[200] :
+    isSelected ? theme.colors.yellow[400] :
       highlighted ? theme.colors.yellow[100] : theme.colors.gray[100]};
 `;
 

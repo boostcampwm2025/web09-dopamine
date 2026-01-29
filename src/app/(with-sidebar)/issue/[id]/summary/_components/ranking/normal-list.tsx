@@ -43,16 +43,7 @@ export default function NormalList({ normalRankings }: NormalListProps) {
               highlighted={item.rank === 1}
               isSelected={item.isSelected}
             >
-              {item.isSelected ? (
-                <Image
-                  src="/summary-crown.svg"
-                  alt="채택"
-                  width={15}
-                  height={15}
-                />
-              ) : (
-                item.rank
-              )}
+              {item.rank}
             </S.RankBadge>
             <S.Content>
               <S.Title
