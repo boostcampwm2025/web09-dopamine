@@ -86,31 +86,25 @@ const IssuePage = () => {
   }, [session?.user?.id, members]);
 
   // 토픽 내 이슈 접근 권한 검증
+  // 1. 로딩 상태인지 먼저 확인
+  const isPageLoading =
+    isLoading || sessionStatus === 'loading' || (projectId && isProjectsLoading);
+
+  // 2. 권한 검사 (useEffect 안이 아니라 밖에서 계산)
+  const isAuthError = isQuickIssue === false && !session?.user?.id;
+  const isMemberError = isQuickIssue === false && projectId && !isProjectMember;
+
   useEffect(() => {
-    if (!issueId || isLoading || sessionStatus === 'loading') return;
+    if (isPageLoading) return;
 
-    // 토픽 내 이슈인데 로그인하지 않은 경우 → 홈으로 리다이렉트
-    if (isQuickIssue === false && !session?.user?.id) {
-      router.replace('/');
+    if (isAuthError) {
       toast.error('로그인이 필요한 서비스입니다.');
-      return;
-    }
-
-    if (isQuickIssue === false && projectId && !isProjectsLoading && !isProjectMember) {
       router.replace('/');
-      toast.error('로그인이 필요한 서비스입니다.');
+    } else if (isMemberError) {
+      toast.error('권한이 필요한 서비스입니다.');
+      router.replace('/');
     }
-  }, [
-    issueId,
-    isQuickIssue,
-    session,
-    sessionStatus,
-    isLoading,
-    projectId,
-    isProjectsLoading,
-    isProjectMember,
-    router,
-  ]);
+  }, [isPageLoading, isAuthError, isMemberError, router]);
 
   // 로그인 사용자 자동 참여
   useEffect(() => {
@@ -173,7 +167,7 @@ const IssuePage = () => {
 
   // SSE 연결
   // 빠른 이슈는 localStorage userId, 토픽 이슈는 로그인 userId 기준으로 연결
-  const shouldConnectSSE = !!currentUserId;
+  const shouldConnectSSE = !isPageLoading && !!currentUserId && !isAuthError && !isMemberError;
   useIssueEvents({
     issueId,
     userId: currentUserId,
@@ -254,6 +248,10 @@ const IssuePage = () => {
 
   // 에러 여부 확인
   const hasError = isIssueError || isIdeasError || isCategoryError;
+
+  if (isAuthError || isMemberError) {
+    return null; // 리다이렉트 될 때까지 화면을 비워둠 (정보 노출 차단)
+  }
 
   return (
     <>
@@ -377,7 +375,7 @@ const IssuePage = () => {
         )}
       </DndContext>
 
-      {!hasError && isLoading && <LoadingOverlay />}
+      {!hasError && isPageLoading && <LoadingOverlay />}
       {/* AI 구조화 로딩 오버레이 */}
       {!hasError && isAIStructuring && (
         <LoadingOverlay message="AI가 아이디어를 분류하고 있습니다..." />
