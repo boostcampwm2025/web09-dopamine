@@ -29,7 +29,11 @@ export function useIssueIdentity(issueId: string, options: UseIssueIdentityOptio
   const currentMember = members.find((member) => member.id === userId);
   const nickname = isQuickIssue
     ? currentMember?.nickname || DEFAULT_SELF_LABEL
-    : session?.user?.name || currentMember?.nickname || DEFAULT_SELF_LABEL;
+    : session?.user?.displayName ||
+      currentMember?.displayName ||
+      session?.user?.name ||
+      currentMember?.nickname ||
+      DEFAULT_SELF_LABEL;
 
   return {
     userId, // 이슈에 연결된 사용자 ID
