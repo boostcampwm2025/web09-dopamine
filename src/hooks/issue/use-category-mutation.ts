@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import type { Category } from '@/types/category';
 import toast from 'react-hot-toast';
 import { createCategory, deleteCategory, updateCategory } from '@/lib/api/category';
 import { CLIENT_ERROR_MESSAGES } from '@/constants/error-messages';
@@ -17,7 +18,7 @@ export const useCategoryMutations = (issueId: string) => {
 
   const create = useMutation({
     mutationFn: async (payload: CategoryPayload) => {
-      const categories = queryClient.getQueryData<any[]>(queryKey);
+      const categories = queryClient.getQueryData<Category[]>(queryKey);
       if (categories?.some((c) => c.title === payload.title)) {
         throw new Error(CLIENT_ERROR_MESSAGES.CATEGORY_ALREADY_EXISTS);
       }
@@ -42,7 +43,7 @@ export const useCategoryMutations = (issueId: string) => {
       payload: Partial<CategoryPayload>;
     }) => {
       if (payload.title) {
-        const categories = queryClient.getQueryData<any[]>(queryKey);
+        const categories = queryClient.getQueryData<Category[]>(queryKey);
         if (categories?.some((c) => c.title === payload.title && c.id !== categoryId)) {
           throw new Error(CLIENT_ERROR_MESSAGES.CATEGORY_ALREADY_EXISTS);
         }
