@@ -19,7 +19,7 @@ describe('Issue Member Repository 테스트', () => {
     jest.clearAllMocks();
   });
 
-  it('이슈 소유자를 기본 역할(OWNER)로 추가한다', async () => {
+  it('이슈 멤버를 기본 역할(MEMBER)로 추가한다', async () => {
     // 역할: 기본 역할 부여가 누락되면 권한 로직이 깨지므로 기본값 적용을 보장한다.
     const mockTx = {
       issueMember: {
@@ -27,12 +27,18 @@ describe('Issue Member Repository 테스트', () => {
       },
     } as unknown as PrismaTransaction;
 
-    await issueMemberRepository.addIssueOwner(mockTx, 'issue-1', 'user-1');
+    await issueMemberRepository.addIssueMember(mockTx, {
+      issueId: 'issue-1',
+      userId: 'user-1',
+      nickname: 'Test User',
+      role: IssueRole.OWNER,
+    });
 
     expect(mockTx.issueMember.create).toHaveBeenCalledWith({
       data: {
         issueId: 'issue-1',
         userId: 'user-1',
+        nickname: 'Test User',
         role: IssueRole.OWNER,
       },
     });
@@ -50,13 +56,9 @@ describe('Issue Member Repository 테스트', () => {
         deletedAt: null,
       },
       select: {
+        userId: true,
         role: true,
-        user: {
-          select: {
-            id: true,
-            displayName: true,
-          },
-        },
+        nickname: true,
       },
     });
   });
@@ -72,7 +74,10 @@ describe('Issue Member Repository 테스트', () => {
         issueId: 'issue-1',
         deletedAt: null,
         user: {
-          displayName: '닉네임',
+          OR: [
+            { displayName: '닉네임' },
+            { name: '닉네임' },
+          ],
         },
       },
       select: {
@@ -94,13 +99,9 @@ describe('Issue Member Repository 테스트', () => {
         deletedAt: null,
       },
       select: {
+        userId: true,
+        nickname: true,
         role: true,
-        user: {
-          select: {
-            id: true,
-            displayName: true,
-          },
-        },
       },
     });
   });

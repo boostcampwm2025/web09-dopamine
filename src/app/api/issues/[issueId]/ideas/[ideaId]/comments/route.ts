@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
 import { commentRepository } from '@/lib/repositories/comment.repository';
+import { ideaRepository } from '@/lib/repositories/idea.repository';
 import { broadcast } from '@/lib/sse/sse-service';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 
@@ -12,10 +13,10 @@ export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ issueId: string; ideaId: string }> },
 ): Promise<NextResponse> {
-  const { ideaId } = await params;
+  const { issueId, ideaId } = await params;
 
   try {
-    const comments = await commentRepository.findByIdeaId(ideaId);
+    const comments = await commentRepository.findByIdeaId(ideaId, issueId);
     return createSuccessResponse(comments);
   } catch (error) {
     console.error('댓글 조회 중 오류 발생:', error);
@@ -43,7 +44,13 @@ export async function POST(
       ideaId,
       userId,
       content,
+      issueId,
     });
+
+    // 최신 댓글 수 계산
+    const ideas = await ideaRepository.findByIssueId(issueId);
+    const targetIdea = ideas.find((idea) => idea.id === ideaId);
+    const commentCount = targetIdea?.commentCount ?? null;
 
     broadcast({
       issueId,
@@ -52,6 +59,7 @@ export async function POST(
         data: {
           ideaId,
           commentId: comment.id,
+          commentCount,
         },
       },
     });

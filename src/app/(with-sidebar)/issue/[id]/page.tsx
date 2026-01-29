@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useParams, usePathname, useRouter } from 'next/navigation';
 import { DndContext, DragOverlay } from '@dnd-kit/core';
+import { useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import Canvas from '@/app/(with-sidebar)/issue/_components/canvas/canvas';
 import CategoryCard from '@/app/(with-sidebar)/issue/_components/category/category-card';
@@ -30,6 +31,7 @@ import {
   useIssueIdentity,
 } from '../hooks';
 import { useCommentWindowStore } from '../store/use-comment-window-store';
+import { useSseConnectionStore } from '../store/use-sse-connection-store';
 
 const IssuePage = () => {
   const params = useParams<{ id: string; issueId?: string }>();
@@ -38,6 +40,8 @@ const IssuePage = () => {
   const issueId =
     params.issueId ?? (Array.isArray(params.id) ? params.id[0] : (params.id ?? issueIdFromPath));
   const router = useRouter();
+  const queryClient = useQueryClient();
+  const connectionId = useSseConnectionStore((state) => state.connectionIds[issueId]);
   const { openModal, isOpen } = useModalStore();
   const hasOpenedModal = useRef(false);
 
@@ -119,7 +123,8 @@ const IssuePage = () => {
       if (isLoggedInUserMember) return;
 
       try {
-        await joinIssueAsLoggedInUser(issueId);
+        await joinIssueAsLoggedInUser(issueId, connectionId);
+        queryClient.invalidateQueries({ queryKey: ['issues', issueId, 'members'] });
       } catch (error) {
         console.error('자동 참여 실패:', error);
       }
@@ -136,6 +141,7 @@ const IssuePage = () => {
     projectId,
     isProjectsLoading,
     isProjectMember,
+    queryClient,
   ]);
 
   // userId 체크 및 모달 표시

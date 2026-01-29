@@ -2,7 +2,7 @@ import { getActiveDiscussionIdeaIds } from '@/lib/utils/active-discussion-idea';
 
 const makeIdea = (id: string, commentCount: number) => ({
   id,
-  comments: Array.from({ length: commentCount }, () => ({ id: 'c' })),
+  commentCount,
 });
 
 describe('getActiveDiscussionIdeaIds', () => {

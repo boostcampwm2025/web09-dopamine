@@ -88,13 +88,13 @@ describe('report.repository 통합 테스트', () => {
     created.issueId = issue.id;
 
     const member1 = await prisma.issueMember.create({
-      data: { issueId: issue.id, userId: user1.id },
+      data: { issueId: issue.id, userId: user1.id, nickname: '사용자1' },
     });
     const member2 = await prisma.issueMember.create({
-      data: { issueId: issue.id, userId: user2.id },
+      data: { issueId: issue.id, userId: user2.id, nickname: '사용자2' },
     });
     const deletedMember = await prisma.issueMember.create({
-      data: { issueId: issue.id, userId: user3.id, deletedAt: new Date() },
+      data: { issueId: issue.id, userId: user3.id, nickname: '삭제멤버', deletedAt: new Date() },
     });
     created.issueMemberIds.push(member1.id, member2.id, deletedMember.id);
 
@@ -109,6 +109,7 @@ describe('report.repository 통합 테스트', () => {
         userId: user1.id,
         categoryId: category.id,
         content: '아이디어1',
+        agreeCount: 1,
       },
     });
     const idea2 = await prisma.idea.create({
@@ -181,7 +182,8 @@ describe('report.repository 통합 테스트', () => {
     expect(selectedIdea?.comments).toHaveLength(1);
 
     const idea1Result = result?.issue.ideas.find((idea) => idea.id === idea1.id);
-    expect(idea1Result?.votes).toHaveLength(1);
+    expect(idea1Result?.agreeCount).toBe(1);
+    expect(idea1Result?.disagreeCount).toBe(0);
     expect(idea1Result?.comments).toHaveLength(1);
   });
 });

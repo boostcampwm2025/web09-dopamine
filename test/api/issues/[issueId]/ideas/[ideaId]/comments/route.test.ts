@@ -39,7 +39,7 @@ describe('GET /api/issues/[issueId]/ideas/[ideaId]/comments', () => {
     const data = await expectSuccessResponse(response, 200);
 
     expect(data).toEqual(mockComments);
-    expect(mockedFindByIdeaId).toHaveBeenCalledWith(ideaId);
+    expect(mockedFindByIdeaId).toHaveBeenCalledWith(ideaId, issueId);
   });
 });
 
@@ -80,6 +80,7 @@ describe('POST /api/issues/[issueId]/ideas/[ideaId]/comments', () => {
       ideaId,
       userId: 'user-1',
       content: 'New Comment',
+      issueId,
     });
   });
 });

@@ -46,8 +46,8 @@ describe('categorizeService.categorizeAndBroadcast', () => {
     mockedIdeaRepository.resetCategoriesByIssueId.mockResolvedValue({ count: 3 } as any);
     // 2) 새 카테고리 생성
     mockedCategoryRepository.createManyForIssue.mockResolvedValue([
-      { id: 'cat-1' },
-      { id: 'cat-2' },
+      { id: 'cat-1', title: 'Category A' },
+      { id: 'cat-2', title: 'Category B' },
     ] as any);
     // 3) 아이디어를 새 카테고리에 재할당
     mockedIdeaRepository.updateManyCategoriesByIds.mockResolvedValue({ count: 1 } as any);
@@ -84,7 +84,10 @@ describe('categorizeService.categorizeAndBroadcast', () => {
 
     // 5) 결과 매핑 확인
     expect(result).toEqual({
-      categories: [{ id: 'cat-1' }, { id: 'cat-2' }],
+      categories: [
+        { id: 'cat-1', title: 'Category A' },
+        { id: 'cat-2', title: 'Category B' },
+      ],
       ideaCategoryMap: {
         'idea-1': 'cat-1',
         'idea-2': 'cat-1',
@@ -121,8 +124,8 @@ describe('categorizeService.categorizeAndBroadcast', () => {
     mockedCategoryRepository.softDeleteByIssueId.mockResolvedValue({ count: 2 } as any);
     mockedIdeaRepository.resetCategoriesByIssueId.mockResolvedValue({ count: 3 } as any);
     mockedCategoryRepository.createManyForIssue.mockResolvedValue([
-      { id: 'cat-1' },
-      { id: 'cat-2' },
+      { id: 'cat-1', title: 'Category A' },
+      { id: 'cat-2', title: 'Category B' },
     ] as any);
     mockedIdeaRepository.updateManyCategoriesByIds.mockResolvedValue({ count: 1 } as any);
     mockedIdeaRepository.findUncategorizedByIssueId.mockResolvedValue([{ id: 'idea-2' }] as any);
@@ -145,7 +148,11 @@ describe('categorizeService.categorizeAndBroadcast', () => {
       'cat-uncat',
       tx,
     );
-    expect(result.categories).toEqual([{ id: 'cat-1' }, { id: 'cat-2' }, { id: 'cat-uncat' }]);
+    expect(result.categories).toEqual([
+      { id: 'cat-1', title: 'Category A' },
+      { id: 'cat-2', title: 'Category B' },
+      { id: 'cat-uncat' },
+    ]);
     expect(result.ideaCategoryMap).toEqual({
       'idea-1': 'cat-1',
       'idea-2': 'cat-uncat',
@@ -163,6 +170,86 @@ describe('categorizeService.categorizeAndBroadcast', () => {
         type: SSE_EVENT_TYPES.IDEA_MOVED,
         data: { ideaIds: ['idea-1', 'idea-2'] },
       },
+    });
+  });
+
+  it('중복된 카테고리 제목이 있을 경우 아이디어들을 병합한다', async () => {
+    const tx = setupTransaction();
+    const issueId = 'issue-1';
+    const payloads = [
+      { title: 'Category A', ideaIds: ['idea-1'] },
+      { title: 'Category A', ideaIds: ['idea-2'] }, // 중복된 제목
+      { title: 'Category B', ideaIds: ['idea-3'] },
+    ];
+
+    mockedCategoryRepository.softDeleteByIssueId.mockResolvedValue({ count: 0 } as any);
+    mockedIdeaRepository.resetCategoriesByIssueId.mockResolvedValue({ count: 3 } as any);
+    mockedCategoryRepository.createManyForIssue.mockResolvedValue([
+      { id: 'cat-1', title: 'Category A' },
+      { id: 'cat-2', title: 'Category B' },
+    ] as any);
+    mockedIdeaRepository.updateManyCategoriesByIds.mockResolvedValue({ count: 1 } as any);
+    mockedIdeaRepository.findUncategorizedByIssueId.mockResolvedValue([] as any);
+
+    const result = await categorizeService.categorizeAndBroadcast(issueId, payloads);
+
+    // Category A가 하나로 합쳐져서 createManyForIssue가 호출되었는지 확인
+    expect(mockedCategoryRepository.createManyForIssue).toHaveBeenCalledWith(
+      issueId,
+      [
+        { title: 'Category A', ideaIds: ['idea-1', 'idea-2'] },
+        { title: 'Category B', ideaIds: ['idea-3'] },
+      ],
+      tx,
+    );
+
+    // Category A(cat-1)에 idea-1, idea-2가 모두 할당되었는지 확인
+    expect(mockedIdeaRepository.updateManyCategoriesByIds).toHaveBeenCalledWith(
+      ['idea-1', 'idea-2'],
+      issueId,
+      'cat-1',
+      tx,
+    );
+
+    expect(result.ideaCategoryMap).toEqual({
+      'idea-1': 'cat-1',
+      'idea-2': 'cat-1',
+      'idea-3': 'cat-2',
+    });
+  });
+
+  it('AI 결과에 "기타" 카테고리가 포함된 경우 미분류 아이디어를 해당 카테고리에 합친다', async () => {
+    const tx = setupTransaction();
+    const issueId = 'issue-1';
+    const payloads = [
+      { title: '기타', ideaIds: ['idea-1'] },
+    ];
+
+    mockedCategoryRepository.softDeleteByIssueId.mockResolvedValue({ count: 0 } as any);
+    mockedIdeaRepository.resetCategoriesByIssueId.mockResolvedValue({ count: 2 } as any);
+    mockedCategoryRepository.createManyForIssue.mockResolvedValue([
+      { id: 'cat-other-ai', title: '기타' },
+    ] as any);
+    mockedIdeaRepository.findUncategorizedByIssueId.mockResolvedValue([{ id: 'idea-2' }] as any);
+    mockedIdeaRepository.updateManyCategoriesByIds.mockResolvedValue({ count: 1 } as any);
+
+    const result = await categorizeService.categorizeAndBroadcast(issueId, payloads);
+
+    // 새로운 "기타" 카테고리를 생성하지 않고 기존 'cat-other-ai'를 사용함
+    expect(mockedCategoryRepository.create).not.toHaveBeenCalled();
+
+    // AI가 생성한 "기타" 카테고리에 미분류 아이디어(idea-2)도 함께 할당됨
+    expect(mockedIdeaRepository.updateManyCategoriesByIds).toHaveBeenCalledWith(
+      ['idea-2'],
+      issueId,
+      'cat-other-ai',
+      tx,
+    );
+
+    expect(result.categories).toHaveLength(1);
+    expect(result.ideaCategoryMap).toEqual({
+      'idea-1': 'cat-other-ai',
+      'idea-2': 'cat-other-ai',
     });
   });
 });

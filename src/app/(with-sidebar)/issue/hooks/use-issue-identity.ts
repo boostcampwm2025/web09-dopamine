@@ -27,13 +27,13 @@ export function useIssueIdentity(issueId: string, options: UseIssueIdentityOptio
 
   const members = options.members ?? [];
   const currentMember = members.find((member) => member.id === userId);
-  const displayName = isQuickIssue
-    ? currentMember?.displayName || DEFAULT_SELF_LABEL
-    : session?.user?.name || currentMember?.displayName || DEFAULT_SELF_LABEL;
+  const nickname = isQuickIssue
+    ? currentMember?.nickname || DEFAULT_SELF_LABEL
+    : session?.user?.name || currentMember?.nickname || DEFAULT_SELF_LABEL;
 
   return {
     userId, // 이슈에 연결된 사용자 ID
-    displayName, // 노출될 이름
+    nickname, // 노출될 이름
     issueUserId, // 익명 이슈용 사용자 ID
     sessionUserId, // 로그인한 사용자 ID
     isQuickIssue, // 익명 이슈 여부

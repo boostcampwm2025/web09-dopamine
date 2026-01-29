@@ -1,9 +1,10 @@
 import Image from 'next/image';
 import { redirect } from 'next/navigation';
 import * as projectRepository from '@/lib/repositories/project.repository';
-import Card from '../_components/card/card';
+import Card, { CardSkeleton } from '../_components/card/card';
 import CreateTopicButton from '../_components/create-topic-button/create-topic-button';
 import EditProjectButton from '../_components/edit-project-button/edit-project-button';
+import EmptyTopicState from '../_components/empty-topic-state/empty-topic-state';
 import * as S from './page.styles';
 
 interface ProjectPageProps {
@@ -64,17 +65,28 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
           <CreateTopicButton />
         </S.TopicListContainer>
         <S.TopicCardsContainer>
-          {topics.map((topic) => (
-            <Card
-              key={topic.id}
-              id={topic.id}
-              variant="item"
-              leftIcon="/folder.svg"
-              title={topic.title}
-              subtitle={`이슈 ${topic.issueCount}개`}
-              showArrow
-            />
-          ))}
+          {topics.length === 0 ? (
+            <>
+              <CardSkeleton />
+              <CardSkeleton />
+              <CardSkeleton />
+              <S.EmptyTopicOverlay>
+                <EmptyTopicState />
+              </S.EmptyTopicOverlay>
+            </>
+          ) : (
+            topics.map((topic) => (
+              <Card
+                key={topic.id}
+                id={topic.id}
+                variant="item"
+                leftIcon="/folder.svg"
+                title={topic.title}
+                subtitle={`이슈 ${topic.issueCount}개`}
+                showArrow
+              />
+            ))
+          )}
         </S.TopicCardsContainer>
       </S.TopicSection>
     </S.ProjectPageContainer>

@@ -15,6 +15,16 @@ export const categoryRepository = {
     });
   },
 
+  async findByTitle(issueId: string, title: string) {
+    return prisma.category.findFirst({
+      where: {
+        issueId,
+        title,
+        deletedAt: null,
+      },
+    });
+  },
+
   async softDeleteByIssueId(
     issueId: string,
     now: Date = new Date(),

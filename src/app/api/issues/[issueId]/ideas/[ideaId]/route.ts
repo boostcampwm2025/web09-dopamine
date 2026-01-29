@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
-import { authOptions } from '@/lib/auth';
 import { ideaRepository } from '@/lib/repositories/idea.repository';
+import { issueMemberRepository } from '@/lib/repositories/issue-member.repository';
 import { broadcast } from '@/lib/sse/sse-service';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
-import { getUserIdFromRequest } from '@/lib/utils/cookie';
 import { getAuthenticatedUserId } from '@/lib/utils/auth-helpers';
 
 export async function GET(
@@ -23,12 +21,16 @@ export async function GET(
       return createErrorResponse('IDEA_NOT_FOUND', 404);
     }
 
+    // IssueMember 정보 가져오기
+    const issueMember = await issueMemberRepository.findMemberByUserId(issueId, idea.userId);
+
     const myVote = userId ? await ideaRepository.findMyVote(ideaId, userId) : null;
 
     return createSuccessResponse({
       ...idea,
       commentCount: idea._count?.comments ?? 0,
       myVote: myVote?.type ?? null,
+      issueMember: issueMember ? { nickname: issueMember.nickname } : null,
     });
   } catch (error) {
     console.error('아이디어 상세 조회 실패:', error);
@@ -41,6 +43,7 @@ export async function DELETE(
   { params }: { params: Promise<{ issueId: string; ideaId: string }> },
 ): Promise<NextResponse> {
   const { issueId, ideaId } = await params;
+  const actorConnectionId = req.headers.get('x-sse-connection-id') || undefined;
 
   if (!ideaId) {
     return createErrorResponse('IDEA_ID_REQUIRED', 400);
@@ -55,6 +58,7 @@ export async function DELETE(
     // SSE 브로드캐스팅: 아이디어 삭제 이벤트
     broadcast({
       issueId,
+      excludeConnectionId: actorConnectionId,
       event: {
         type: SSE_EVENT_TYPES.IDEA_DELETED,
         data: { ideaId },
@@ -79,6 +83,7 @@ export async function PATCH(
 ): Promise<NextResponse> {
   const { issueId } = await params;
   const { ideaId, positionX, positionY, categoryId } = await req.json();
+  const actorConnectionId = req.headers.get('x-sse-connection-id') || undefined;
 
   if (!ideaId) {
     return createErrorResponse('IDEA_ID_REQUIRED', 400);
@@ -94,6 +99,7 @@ export async function PATCH(
     // SSE 브로드캐스팅: 아이디어 이동 이벤트
     broadcast({
       issueId,
+      excludeConnectionId: actorConnectionId,
       event: {
         type: SSE_EVENT_TYPES.IDEA_MOVED,
         data: { ideaId, positionX, positionY, categoryId },

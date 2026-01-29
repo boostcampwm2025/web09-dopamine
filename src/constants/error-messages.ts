@@ -12,6 +12,7 @@ export const CLIENT_ERROR_MESSAGES: Record<string, string> = {
   CATEGORY_CREATE_FAILED: '카테고리 생성에 실패했습니다.',
   CATEGORY_UPDATE_FAILED: '카테고리 수정에 실패했습니다.',
   CATEGORY_DELETE_FAILED: '카테고리 삭제에 실패했습니다.',
+  CATEGORY_ALREADY_EXISTS: '이미 존재하는 카테고리 이름입니다.',
 
   // 이슈
   ISSUE_NOT_FOUND: '존재하지 않는 이슈입니다.',
@@ -30,6 +31,7 @@ export const CLIENT_ERROR_MESSAGES: Record<string, string> = {
   MEMBER_FETCH_FAILED: '사용자 정보 조회에 실패했습니다.',
   MEMBER_JOIN_FAILED: '이슈 참여에 실패했습니다.',
   NICKNAME_REQUIRED: 'nickname은 필수입니다.',
+  NICKNAME_DUPLICATE: '이미 사용 중인 닉네임입니다. 다른 닉네임을 사용해주세요.',
   NICKNAME_GENERATION_FAILED: '닉네임 생성에 실패했습니다.',
   USER_ID_REQUIRED: 'User ID가 필요합니다.',
   OWNER_PERMISSION_REQUIRED: '방장 권한이 필요합니다.',
@@ -65,4 +67,7 @@ export const CLIENT_ERROR_MESSAGES: Record<string, string> = {
   REPORT_NOT_FOUND: '리포트를 찾을 수 없습니다.',
   WORD_CLOUD_FETCH_FAILED: '워드클라우드 조회에 실패했습니다.',
   WORD_CLOUD_CREATE_FAILED: '워드클라우드 생성에 실패했습니다.',
+
+  // 마이페이지
+  INVALID_DISPLAYNAME: '잘못된 닉네임 형식입니다.',
 };

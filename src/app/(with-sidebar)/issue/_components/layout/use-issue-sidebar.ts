@@ -61,8 +61,8 @@ export const useIssueSidebar = () => {
       }
 
       // 3. 이름순 정렬
-      const nameA = a.displayName || '익명';
-      const nameB = b.displayName || '익명';
+      const nameA = a.nickname || '익명';
+      const nameB = b.nickname || '익명';
       return nameA.localeCompare(nameB);
     });
   }, [members, onlineMemberIds, isSummaryPage]);
@@ -83,7 +83,7 @@ export const useIssueSidebar = () => {
     if (!trimmed) return sortedMembers;
 
     return sortedMembers.filter((member) =>
-      matchSearch(member.displayName || '익명', normalized, searchChoseong),
+      matchSearch(member.nickname || '익명', normalized, searchChoseong),
     );
   }, [searchParams, sortedMembers]);
 

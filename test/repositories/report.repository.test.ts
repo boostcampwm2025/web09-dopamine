@@ -264,6 +264,7 @@ describe('Report Repository', () => {
                 select: {
                   id: true,
                   userId: true,
+                  nickname: true,
                   deletedAt: true,
                 },
               },
@@ -272,10 +273,8 @@ describe('Report Repository', () => {
                 select: {
                   id: true,
                   content: true,
-                  votes: {
-                    where: { deletedAt: null },
-                    select: { id: true, type: true },
-                  },
+                  agreeCount: true,
+                  disagreeCount: true,
                   comments: {
                     where: { deletedAt: null },
                     select: { id: true, content: true },
@@ -290,7 +289,6 @@ describe('Report Repository', () => {
                     select: {
                       id: true,
                       name: true,
-                      displayName: true,
                       image: true,
                     },
                   },
@@ -302,10 +300,8 @@ describe('Report Repository', () => {
             select: {
               id: true,
               content: true,
-              votes: {
-                where: { deletedAt: null },
-                select: { id: true, type: true },
-              },
+              agreeCount: true,
+              disagreeCount: true,
               comments: {
                 where: { deletedAt: null },
                 select: { id: true },

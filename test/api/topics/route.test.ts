@@ -1,13 +1,13 @@
 import { getServerSession } from 'next-auth';
-import { POST } from '@/app/api/topics/route';
-import * as topicRepository from '@/lib/repositories/topic.repository';
 import {
   createMockRequest,
   createMockSession,
-  setupAuthMock,
   expectErrorResponse,
   expectSuccessResponse,
+  setupAuthMock,
 } from '@test/utils/api-test-helpers';
+import { POST } from '@/app/api/topics/route';
+import * as topicRepository from '@/lib/repositories/topic.repository';
 
 jest.mock('next-auth', () => ({
   getServerSession: jest.fn(),
