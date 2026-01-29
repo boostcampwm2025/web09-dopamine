@@ -234,12 +234,19 @@ export function useIssueEvents({
       setOnlineMemberIds(data.onlineUserIds || []);
     });
 
-    // 채택된 아이디어 이벤트 핸들러
+    // 채택된 아이디어 이벤트 핸들러 (selectedIdea 쿼리 + ideas 배열의 isSelected 동기화)
     eventSource.addEventListener(SSE_EVENT_TYPES.IDEA_SELECTED, (event) => {
       const data = JSON.parse((event as MessageEvent).data);
-      if (data.ideaId) {
-        queryClient.setQueryData(selectedIdeaKey, data.ideaId);
-      }
+      if (!data.ideaId) return;
+      queryClient.setQueryData(selectedIdeaKey, data.ideaId);
+      queryClient.setQueryData<IdeaWithPosition[]>(['issues', issueId, 'ideas'], (old) => {
+        if (!Array.isArray(old)) return old;
+        return old.map((idea) =>
+          idea.id === data.ideaId
+            ? { ...idea, isSelected: true }
+            : { ...idea, isSelected: false },
+        );
+      });
     });
 
     // 종료 모달 열기 이벤트 핸들러

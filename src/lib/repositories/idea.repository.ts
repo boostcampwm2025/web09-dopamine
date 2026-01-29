@@ -17,6 +17,7 @@ export const ideaRepository = {
         positionX: true,
         positionY: true,
         createdAt: true,
+        isSelected: true,
 
         category: {
           select: {
@@ -69,6 +70,7 @@ export const ideaRepository = {
       commentCount: idea.comments.length,
       positionX: idea.positionX,
       positionY: idea.positionY,
+      isSelected: idea.isSelected,
 
       myVote: idea.votes.length > 0 ? idea.votes[0].type : null,
 
