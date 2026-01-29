@@ -147,7 +147,7 @@ const IssuePage = () => {
     if (!isQuickIssue) return;
 
     // 빠른 이슈 + localStorage에 userId 없음 -> 참여 모달
-    if (!issueUserId) {
+    if (!issueUserId && status !== ISSUE_STATUS.CLOSE) {
       hasOpenedModal.current = true;
       openModal({
         title: '이슈 참여',
