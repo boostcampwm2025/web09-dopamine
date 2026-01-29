@@ -85,6 +85,10 @@ const IssuePage = () => {
     return members.some((member) => member.id === session.user.id);
   }, [session?.user?.id, members]);
 
+  // 프로젝트 멤버이지만 이슈 미참여 + 종료된 이슈 → Summary 읽기 전용
+  const isReadOnlySummaryView =
+    isProjectMember && !isLoggedInUserMember && status === ISSUE_STATUS.CLOSE;
+
   // 토픽 내 이슈 접근 권한 검증
   // 1. 로딩 상태인지 먼저 확인
   const isPageLoading =
@@ -167,13 +171,16 @@ const IssuePage = () => {
     }
   }, [status, issueId, router]);
 
-  // SSE 연결
-  // 빠른 이슈는 localStorage userId, 토픽 이슈는 로그인 userId 기준으로 연결
-  const shouldConnectSSE = !isPageLoading && !!currentUserId && !isAuthError && !isMemberError;
+  // SSE 연결: 토픽 이슈는 읽기 전용이 아닐 때만(프로젝트 멤버 + 이슈 멤버 X + 이슈 종료됨)
+  const hasSseConnectionCondition =
+    !isPageLoading && !!currentUserId && !isAuthError && !isMemberError;
+  const isSseEnabled = isQuickIssue
+    ? hasSseConnectionCondition
+    : hasSseConnectionCondition && !isReadOnlySummaryView;
   useIssueEvents({
     issueId,
     userId: currentUserId,
-    enabled: shouldConnectSSE,
+    enabled: isSseEnabled,
     topicId: issue?.topicId,
   });
 
