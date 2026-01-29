@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
+import { useSseConnectionStore } from '@/app/(with-sidebar)/issue/store/use-sse-connection-store';
 import { postVote } from '@/lib/api/vote';
 
 interface VoteResponse {
@@ -11,10 +12,11 @@ interface VoteResponse {
 export const useVoteMutation = (issueId: string, ideaId: string) => {
   const queryClient = useQueryClient();
   const queryKey = ['issues', issueId, 'ideas', ideaId];
+  const connectionId = useSseConnectionStore((state) => state.connectionIds[issueId]);
 
   return useMutation({
     mutationFn: (variables: { userId: string; voteType: 'AGREE' | 'DISAGREE' }) =>
-      postVote({ issueId, ideaId, ...variables }),
+      postVote({ issueId, ideaId, ...variables, connectionId }),
 
     onMutate: async ({ voteType }) => {
       // 진행 중인 쿼리 취소

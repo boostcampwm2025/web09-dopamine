@@ -53,6 +53,7 @@ export async function POST(
   const { issueId } = await params;
   const session = await getServerSession(authOptions);
   const { nickname } = await req.json();
+  const actorConnectionId = req.headers.get('x-sse-connection-id') || undefined;
 
   try {
     const issue = await findIssueById(issueId);
@@ -113,6 +114,7 @@ export async function POST(
 
     broadcast({
       issueId,
+      excludeConnectionId: actorConnectionId,
       event: {
         type: SSE_EVENT_TYPES.MEMBER_JOINED,
         data: {},

@@ -1,8 +1,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import type { Category } from '@/types/category';
 import toast from 'react-hot-toast';
-import { createCategory, deleteCategory, updateCategory } from '@/lib/api/category';
+import { useSseConnectionStore } from '@/app/(with-sidebar)/issue/store/use-sse-connection-store';
 import { CLIENT_ERROR_MESSAGES } from '@/constants/error-messages';
+import { createCategory, deleteCategory, updateCategory } from '@/lib/api/category';
+import type { Category } from '@/types/category';
 
 type CategoryPayload = {
   title: string;
@@ -15,6 +16,7 @@ type CategoryPayload = {
 export const useCategoryMutations = (issueId: string) => {
   const queryClient = useQueryClient();
   const queryKey = ['issues', issueId, 'categories'];
+  const connectionId = useSseConnectionStore((state) => state.connectionIds[issueId]);
 
   const create = useMutation({
     mutationFn: async (payload: CategoryPayload) => {
@@ -22,7 +24,7 @@ export const useCategoryMutations = (issueId: string) => {
       if (categories?.some((c) => c.title === payload.title)) {
         throw new Error(CLIENT_ERROR_MESSAGES.CATEGORY_ALREADY_EXISTS);
       }
-      return createCategory(issueId, payload);
+      return createCategory(issueId, payload, connectionId);
     },
 
     onError: (_err) => {
@@ -48,7 +50,7 @@ export const useCategoryMutations = (issueId: string) => {
           throw new Error(CLIENT_ERROR_MESSAGES.CATEGORY_ALREADY_EXISTS);
         }
       }
-      return updateCategory(issueId, categoryId, payload);
+      return updateCategory(issueId, categoryId, payload, connectionId);
     },
 
     onError: (err) => {
@@ -61,7 +63,7 @@ export const useCategoryMutations = (issueId: string) => {
   });
 
   const remove = useMutation({
-    mutationFn: (categoryId: string) => deleteCategory(issueId, categoryId),
+    mutationFn: (categoryId: string) => deleteCategory(issueId, categoryId, connectionId),
 
     onError: (err) => {
       toast.error(err.message);

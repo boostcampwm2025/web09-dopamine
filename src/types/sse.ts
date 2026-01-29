@@ -23,4 +23,5 @@ export interface CreateStreamParams {
 export interface BroadcastingEvent {
   issueId: string;
   event: SSEEvent;
+  excludeConnectionId?: string;
 }
