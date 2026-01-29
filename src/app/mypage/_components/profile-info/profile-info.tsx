@@ -21,23 +21,40 @@ export default function ProfileInfo({ user }: ProfileInfoProps) {
     setDisplayName(user?.displayName || '');
   }, [user?.displayName]);
 
+  const validateDisplayName = (value: string, allowEmpty: boolean) => {
+    if (allowEmpty && value.length === 0) {
+      return null;
+    }
+    if (/\s/.test(value)) {
+      return '공백은 입력할 수 없습니다.';
+    }
+    if (value.length < 1 || value.length > 10) {
+      return '보여질 이름은 1자 이상 10자 이하여야 합니다.';
+    }
+    return null;
+  };
+
   const handleDisplayNameChange = (value: string) => {
+    const error = validateDisplayName(value, true);
+    if (error) {
+      toast.error(error);
+      return;
+    }
     setDisplayName(value);
   };
 
   const handleUpdateDisplayName = () => {
-    const trimmed = displayName.trim();
-
-    if (trimmed.length < 1 || trimmed.length > 10) {
-      toast.error('보여질 이름은 1자 이상 10자 이하여야 합니다.');
+    const error = validateDisplayName(displayName, false);
+    if (error) {
+      toast.error(error);
       return;
     }
 
-    if (trimmed === user?.displayName) return;
+    if (displayName === user?.displayName) return;
 
-    updateDisplayNameMutation.mutate(trimmed, {
+    updateDisplayNameMutation.mutate(displayName, {
       onSuccess: async () => {
-        await update({ displayName: trimmed });
+        await update({ displayName });
       },
     });
   };
@@ -52,6 +69,7 @@ export default function ProfileInfo({ user }: ProfileInfoProps) {
         value={displayName}
         onChange={handleDisplayNameChange}
         onEnter={handleUpdateDisplayName}
+        maxLength={10}
         description='팀원들에게 표시되는 이름입니다.'
         icon={
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

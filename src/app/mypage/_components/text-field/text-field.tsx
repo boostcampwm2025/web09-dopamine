@@ -8,6 +8,7 @@ interface TextFieldProps {
   onBlur?: () => void;
   onEnter?: () => void;
   placeholder?: string;
+  maxLength?: number;
   readOnly?: boolean;
   description?: string;
   icon?: ReactNode;
@@ -21,6 +22,7 @@ export default function TextField({
   onBlur,
   onEnter,
   placeholder,
+  maxLength,
   readOnly = false,
   description,
   icon,
@@ -50,6 +52,7 @@ export default function TextField({
           value={value}
           onChange={(e) => onChange?.(e.target.value)}
           placeholder={placeholder}
+          maxLength={maxLength}
           readOnly={readOnly}
           disabled={readOnly}
           onFocus={() => setIsFocused(true)}
