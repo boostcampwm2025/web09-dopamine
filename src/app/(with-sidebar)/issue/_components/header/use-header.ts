@@ -4,7 +4,12 @@ import toast from 'react-hot-toast';
 import { useCanvasStore } from '@/app/(with-sidebar)/issue/store/use-canvas-store';
 import { ISSUE_STATUS, MEMBER_ROLE } from '@/constants/issue';
 import { useTopicId } from '@/hooks';
-import { useAIStructuringMutation, useIssueMemberQuery, useIssueQuery, useIssueStatusMutations } from '@/hooks/issue';
+import {
+  useAIStructuringMutation,
+  useIssueMemberQuery,
+  useIssueQuery,
+  useIssueStatusMutations,
+} from '@/hooks/issue';
 import { getIssueMember } from '@/lib/api/issue';
 import { IssueStatus } from '@/types/issue';
 import { useCategoryOperations, useIdeasWithTemp, useIssueIdentity } from '../../hooks';
@@ -133,7 +138,7 @@ export function useHeader({ issueId }: UseHeaderParams) {
 
   // URL 공유
   const handleCopyURL = () => {
-    const textToCopy = `${process.env.NEXT_PUBLIC_BASE_URL}/issue/${issueId}`;
+    const textToCopy = `${window.location.origin}/issue/${issueId}`;
     copyToClipboard(textToCopy);
   };
 
