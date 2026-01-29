@@ -24,7 +24,7 @@ export const useCategoryMutations = (issueId: string) => {
       if (categories?.some((c) => c.title === payload.title)) {
         throw new Error(CLIENT_ERROR_MESSAGES.CATEGORY_ALREADY_EXISTS);
       }
-      return createCategory(issueId, payload);
+      return createCategory(issueId, payload, connectionId);
     },
 
     onError: (_err) => {
@@ -50,7 +50,7 @@ export const useCategoryMutations = (issueId: string) => {
           throw new Error(CLIENT_ERROR_MESSAGES.CATEGORY_ALREADY_EXISTS);
         }
       }
-      return updateCategory(issueId, categoryId, payload);
+      return updateCategory(issueId, categoryId, payload, connectionId);
     },
 
     onError: (err) => {
