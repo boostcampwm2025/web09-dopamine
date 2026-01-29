@@ -149,9 +149,19 @@ export const TopicListDescription = styled.span`
 `;
 
 export const TopicCardsContainer = styled.div`
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 16px;
+`;
+
+export const EmptyTopicOverlay = styled.div`
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
 `;
 
 export const Divider = styled.div`
