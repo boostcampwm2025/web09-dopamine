@@ -106,6 +106,7 @@ export interface RankedIdeaDto {
   category: CategoryDto | null;
   user: UserDto | null;
   rank?: number;
+  isSelected: boolean;
 }
 
 // 사용자 정보
