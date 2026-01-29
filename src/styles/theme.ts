@@ -98,6 +98,19 @@ export const theme = {
       bold: 700,
     },
   },
+  zIndex: {
+    hide: -1,
+    base: 0,
+    important: 9999,
+
+    selected: 100, // idea card - isHotIdea 상태 등
+
+    sticky: 200, // 필터 패널, 프로그레스 바, 줌 컨트롤
+    backdrop: 300, // 모달 배경
+    modal: 400, // 모달, 다이얼로그
+    popover: 500, // 툴팁, 팝오버
+    overlay: 600, // 전역 오버레이
+  },
   status: {
     BRAINSTORMING: {
       color: colors.yellow[400],

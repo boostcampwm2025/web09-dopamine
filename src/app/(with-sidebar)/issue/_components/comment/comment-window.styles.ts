@@ -19,7 +19,7 @@ export const Window = styled.section`
   flex-direction: column;
   overflow: hidden;
   pointer-events: auto;
-  z-index: 9999;
+  z-index: ${theme.zIndex.important};
 `;
 
 export const Header = styled.header`
