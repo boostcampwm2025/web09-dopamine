@@ -83,6 +83,7 @@ const createMockIssue = (
     issueMembers: Array.from({ length: members }, (_, i) => ({
       id: `member-${i}`,
       userId: `user-${i}`,
+      nickname: `Member ${i}`,
       deletedAt: null,
     })),
     ideas,
@@ -178,7 +179,10 @@ describe('Report Service', () => {
       expect(result?.rankings.all[0].id).toBe('idea-1'); // 2 agree - 1 disagree = 1점
       expect(result?.rankings.all[0].agreeCount).toBe(2);
       expect(result?.rankings.all[0].disagreeCount).toBe(1);
+      expect(result?.rankings.all[0].isSelected).toBe(true);
+
       expect(result?.rankings.all[1].id).toBe('idea-2'); // 1 agree - 0 disagree = 1점
+      expect(result?.rankings.all[1].isSelected).toBe(false);
     });
 
     it('카테고리별로 아이디어를 그룹핑하여 반환한다', async () => {

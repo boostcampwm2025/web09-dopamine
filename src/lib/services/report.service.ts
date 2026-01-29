@@ -13,6 +13,7 @@ type ReportIdea = ReportWithDetails['issue']['ideas'][number];
 const mapIdeaToRankedIdea = (
   idea: ReportIdea,
   issueMembers: ReportWithDetails['issue']['issueMembers'],
+  selectedIdeaId: string | null,
 ): RankedIdeaDto => {
   // issueMember에서 nickname 찾기
   const issueMember = issueMembers.find((member) => member.userId === idea.user.id);
@@ -30,6 +31,7 @@ const mapIdeaToRankedIdea = (
       displayName: nickname, // 하위 호환성을 위해 유지
       nickname,
     },
+    isSelected: idea.id === selectedIdeaId,
   };
 };
 
@@ -50,7 +52,7 @@ export async function getReportSummaryByIssueId(issueId: string): Promise<Report
 
   // 아이디어 랭킹 계산
   const rankedIdeas: RankedIdeaDto[] = report.issue.ideas
-    .map((idea) => mapIdeaToRankedIdea(idea, report.issue.issueMembers))
+    .map((idea) => mapIdeaToRankedIdea(idea, report.issue.issueMembers, report.selectedIdeaId))
     .sort(compareIdeasByVote);
 
   const assignedRankedIdeas = assignRank(rankedIdeas, compareIdeasByVote);
@@ -68,7 +70,9 @@ export async function getReportSummaryByIssueId(issueId: string): Promise<Report
           ideas: [],
         };
       }
-      acc[categoryId].ideas.push(mapIdeaToRankedIdea(idea, report.issue.issueMembers));
+      acc[categoryId].ideas.push(
+        mapIdeaToRankedIdea(idea, report.issue.issueMembers, report.selectedIdeaId),
+      );
       return acc;
     },
     {} as Record<string, CategoryRanking>,
@@ -89,12 +93,12 @@ export async function getReportSummaryByIssueId(issueId: string): Promise<Report
     memo: report.memo,
     selectedIdea: report.selectedIdea
       ? {
-          id: report.selectedIdea.id,
-          content: report.selectedIdea.content,
-          voteCount: report.selectedIdea.agreeCount + report.selectedIdea.disagreeCount,
-          commentCount: report.selectedIdea.comments.length,
-          category: report.selectedIdea.category as CategoryDto | null,
-        }
+        id: report.selectedIdea.id,
+        content: report.selectedIdea.content,
+        voteCount: report.selectedIdea.agreeCount + report.selectedIdea.disagreeCount,
+        commentCount: report.selectedIdea.comments.length,
+        category: report.selectedIdea.category as CategoryDto | null,
+      }
       : null,
     statistics: {
       totalParticipants,
