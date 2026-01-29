@@ -1,5 +1,3 @@
-import styled from '@emotion/styled';
-import { theme } from '@/styles/theme';
 import MemberSidebarItem from '@/components/sidebar/member-sidebar-item';
 import Sidebar from '@/components/sidebar/sidebar';
 import SidebarFilter from '@/components/sidebar/sidebar-filter';
@@ -23,6 +21,7 @@ export default function IssueSidebar() {
     isMounted,
     topicId,
     isTopicPage,
+    isQuickIssue,
     topicIssues,
     filteredIssues,
     filteredStaticIssues,
@@ -98,7 +97,11 @@ export default function IssueSidebar() {
                 <MemberSidebarItem
                   key={user.id}
                   id={user.id}
-                  name={user.nickname}
+                  name={
+                    isQuickIssue
+                      ? user.nickname || '익명'
+                      : user.displayName || user.nickname || '익명'
+                  }
                   role={user.role}
                   isConnected={isOnline}
                 />
