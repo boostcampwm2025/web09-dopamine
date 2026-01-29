@@ -1,5 +1,6 @@
 import type { CreateIdeaRequest, Idea, SimpleIdea } from '@/types/idea';
 import getAPIResponseData from '../utils/api-response';
+import { withSseHeader } from '../utils/with-sse-header';
 
 type UpdateIdeaPayload = {
   positionX?: number | null;
@@ -16,11 +17,15 @@ export function fetchIdeas(issueId: string): Promise<SimpleIdea[]> {
 }
 
 // 아이디어 생성
-export function createIdea(issueId: string, ideaData: CreateIdeaRequest): Promise<Idea> {
+export function createIdea(
+  issueId: string,
+  ideaData: CreateIdeaRequest,
+  connectionId?: string,
+): Promise<Idea> {
   return getAPIResponseData<Idea>({
     url: `/api/issues/${issueId}/ideas`,
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: withSseHeader({ 'Content-Type': 'application/json' }, connectionId),
     body: JSON.stringify(ideaData),
   });
 }
@@ -43,19 +48,21 @@ export function updateIdea(
   issueId: string,
   ideaId: string,
   payload: UpdateIdeaPayload,
+  connectionId?: string,
 ): Promise<Idea> {
   return getAPIResponseData<Idea>({
     url: `/api/issues/${issueId}/ideas/${ideaId}`,
     method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
+    headers: withSseHeader({ 'Content-Type': 'application/json' }, connectionId),
     body: JSON.stringify({ ideaId, ...payload }),
   });
 }
 
 // 아이디어 삭제
-export function deleteIdea(issueId: string, ideaId: string): Promise<void> {
+export function deleteIdea(issueId: string, ideaId: string, connectionId?: string): Promise<void> {
   return getAPIResponseData<void>({
     url: `/api/issues/${issueId}/ideas/${ideaId}`,
     method: 'DELETE',
+    headers: withSseHeader(undefined, connectionId),
   });
 }

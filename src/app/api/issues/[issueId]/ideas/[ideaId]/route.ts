@@ -43,6 +43,7 @@ export async function DELETE(
   { params }: { params: Promise<{ issueId: string; ideaId: string }> },
 ): Promise<NextResponse> {
   const { issueId, ideaId } = await params;
+  const actorConnectionId = req.headers.get('x-sse-connection-id') || undefined;
 
   if (!ideaId) {
     return createErrorResponse('IDEA_ID_REQUIRED', 400);
@@ -57,6 +58,7 @@ export async function DELETE(
     // SSE 브로드캐스팅: 아이디어 삭제 이벤트
     broadcast({
       issueId,
+      excludeConnectionId: actorConnectionId,
       event: {
         type: SSE_EVENT_TYPES.IDEA_DELETED,
         data: { ideaId },
@@ -81,6 +83,7 @@ export async function PATCH(
 ): Promise<NextResponse> {
   const { issueId } = await params;
   const { ideaId, positionX, positionY, categoryId } = await req.json();
+  const actorConnectionId = req.headers.get('x-sse-connection-id') || undefined;
 
   if (!ideaId) {
     return createErrorResponse('IDEA_ID_REQUIRED', 400);
@@ -96,6 +99,7 @@ export async function PATCH(
     // SSE 브로드캐스팅: 아이디어 이동 이벤트
     broadcast({
       issueId,
+      excludeConnectionId: actorConnectionId,
       event: {
         type: SSE_EVENT_TYPES.IDEA_MOVED,
         data: { ideaId, positionX, positionY, categoryId },

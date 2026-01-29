@@ -18,6 +18,7 @@ interface IdeaCardHeaderProps {
   issueStatus?: IssueStatus;
   commentCount?: number;
   textareaRef: RefObject<HTMLTextAreaElement | null>;
+  isCommentOpen: boolean;
   setEditValue: (value: string) => void;
   handleKeyDownEdit: KeyboardEventHandler<HTMLTextAreaElement>;
   submitEdit: () => void;
@@ -37,6 +38,7 @@ export default function IdeaCardHeader({
   issueStatus,
   commentCount: initialCommentCount = 0,
   textareaRef,
+  isCommentOpen,
   setEditValue,
   handleKeyDownEdit,
   submitEdit,
@@ -68,6 +70,7 @@ export default function IdeaCardHeader({
             aria-label="comment"
             onClick={onCommentClick}
             data-no-canvas-close="true"
+            isCommentOpen={isCommentOpen}
           >
             <Image
               src="/comment.svg"

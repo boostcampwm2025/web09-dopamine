@@ -1,15 +1,17 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
+import { useSseConnectionStore } from '@/app/(with-sidebar)/issue/store/use-sse-connection-store';
 import { postVote } from '@/lib/api/vote';
 import type { IdeaWithPosition } from '@/app/(with-sidebar)/issue/types/idea';
 
 export const useVoteMutation = (issueId: string, ideaId: string) => {
   const queryClient = useQueryClient();
   const listQueryKey = ['issues', issueId, 'ideas'];
+  const connectionId = useSseConnectionStore((state) => state.connectionIds[issueId]);
 
   return useMutation({
     mutationFn: (variables: { userId: string; voteType: 'AGREE' | 'DISAGREE' }) =>
-      postVote({ issueId, ideaId, ...variables }),
+      postVote({ issueId, ideaId, ...variables, connectionId }),
 
     onMutate: async ({ voteType }) => {
       // 목록 쿼리 취소
