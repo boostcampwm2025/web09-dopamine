@@ -14,6 +14,9 @@ jest.mock('@/lib/sse/sse-service');
 const mockedFindByIssueId = categoryRepository.findByIssueId as jest.MockedFunction<
   typeof categoryRepository.findByIssueId
 >;
+const mockedFindByTitle = categoryRepository.findByTitle as jest.MockedFunction<
+  typeof categoryRepository.findByTitle
+>;
 const mockedCreate = categoryRepository.create as jest.MockedFunction<typeof categoryRepository.create>;
 
 describe('GET /api/issues/[issueId]/categories', () => {
@@ -93,5 +96,17 @@ describe('POST /api/issues/[issueId]/categories', () => {
 
     const response = await POST(req, params);
     await expectErrorResponse(response, 500, 'CATEGORY_CREATE_FAILED');
+  });
+
+  it('동일한 이름의 카테고리가 존재하면 400 에러를 반환한다', async () => {
+    mockedFindByTitle.mockResolvedValue({ id: 'existing-cat' } as any);
+
+    const req = createMockRequest({ title: 'Duplicate Category' });
+    const params = createMockParams({ issueId });
+
+    const response = await POST(req, params);
+    await expectErrorResponse(response, 400, 'CATEGORY_ALREADY_EXISTS');
+    expect(mockedFindByTitle).toHaveBeenCalledWith(issueId, 'Duplicate Category');
+    expect(mockedCreate).not.toHaveBeenCalled();
   });
 });

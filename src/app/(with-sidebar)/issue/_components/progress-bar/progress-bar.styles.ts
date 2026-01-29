@@ -35,7 +35,7 @@ export const Circle = styled.div<{ isActive: boolean; delay: number }>`
   transition: all 0.3s ease;
   transition-delay: ${({ delay }) => `${delay}s`};
   box-shadow: 2px 0 2px -1px rgba(0, 0, 0, 0.2);
-  z-index: 2;
+  z-index: ${theme.zIndex.sticky};
 `;
 
 export const Label = styled.span<{ isActive: boolean; delay: number }>`

@@ -14,6 +14,13 @@ export async function PATCH(
   const actorConnectionId = req.headers.get('x-sse-connection-id') || undefined;
 
   try {
+    if (title) {
+      const existingCategory = await categoryRepository.findByTitle(issueId, title);
+      if (existingCategory && existingCategory.id !== categoryId) {
+        return createErrorResponse('CATEGORY_ALREADY_EXISTS', 400);
+      }
+    }
+
     const category = await categoryRepository.update(categoryId, {
       title,
       positionX,

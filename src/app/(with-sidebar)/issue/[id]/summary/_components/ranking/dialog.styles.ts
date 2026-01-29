@@ -7,7 +7,7 @@ export const DialogOverlay = styled.div`
   background: rgba(0, 0, 0, 0.35);
   display: grid;
   place-items: center;
-  z-index: 50;
+  z-index: ${theme.zIndex.backdrop};
   padding: 16px;
 `;
 

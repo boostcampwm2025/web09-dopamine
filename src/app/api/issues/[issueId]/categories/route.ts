@@ -29,6 +29,12 @@ export async function POST(
   const actorConnectionId = req.headers.get('x-sse-connection-id') || undefined;
 
   try {
+    // 카테고리 중복 확인
+    const existingCategory = await categoryRepository.findByTitle(issueId, title);
+    if (existingCategory) {
+      return createErrorResponse('CATEGORY_ALREADY_EXISTS', 400);
+    }
+
     const category = await categoryRepository.create({
       issueId,
       title,
