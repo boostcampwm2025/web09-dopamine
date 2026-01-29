@@ -109,6 +109,7 @@ describe('report.repository 통합 테스트', () => {
         userId: user1.id,
         categoryId: category.id,
         content: '아이디어1',
+        agreeCount: 1,
       },
     });
     const idea2 = await prisma.idea.create({
