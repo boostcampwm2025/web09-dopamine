@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
-import { useCategoryMutations } from './react-query/use-category-mutation';
-import { useCategoryQuery } from './react-query/use-category-query';
+import { useCategoryMutations, useCategoryQuery } from '@/hooks/issue';
+import { generateUniqueCategoryName } from '@/lib/utils/category';
 import type { Position } from '@/app/(with-sidebar)/issue/types/idea';
 import type { IdeaWithPosition } from '@/app/(with-sidebar)/issue/types/idea';
 
@@ -127,8 +127,11 @@ export function useCategoryOperations(issueId: string, ideas: IdeaWithPosition[]
       return Math.max(currentMax, category.position.x + width);
     }, 0);
 
+    const baseTitle = '새 카테고리';
+    const newTitle = generateUniqueCategoryName(categories.map(c => c.title), baseTitle);
+
     create.mutate({
-      title: '새 카테고리',
+      title: newTitle,
       positionX: categories.length > 0 ? maxRight + CATEGORY_GAP : START_POSITION.x,
       positionY: START_POSITION.y,
     });

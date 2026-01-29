@@ -15,13 +15,15 @@ export interface ReportWithDetails {
     issueMembers: Array<{
       id: string;
       userId: string;
+      nickname: string;
       deletedAt: Date | null;
     }>;
     // 이슈에 속한 아이디어들
     ideas: Array<{
       id: string;
       content: string;
-      votes: Array<{ id: string; type: string }>;
+      agreeCount: number;
+      disagreeCount: number;
       comments: Array<{ id: string; content: string }>;
       // 아이디어 카테고리
       category: {
@@ -32,16 +34,16 @@ export interface ReportWithDetails {
       user: {
         id: string;
         name: string | null;
-        displayName: string | null;
         image: string | null;
-      };
+      } | null;
     }>;
   };
   // 선택된 아이디어 정보
   selectedIdea: {
     id: string;
     content: string;
-    votes: Array<{ id: string; type: string }>;
+    agreeCount: number;
+    disagreeCount: number;
     comments: Array<{ id: string }>;
     category: {
       id: string;
@@ -98,11 +100,13 @@ export interface CategoryRanking {
 export interface RankedIdeaDto {
   id: string;
   content: string;
-  agreeVoteCount: number;
-  disagreeVoteCount: number;
+  agreeCount: number;
+  disagreeCount: number;
   commentCount: number;
   category: CategoryDto | null;
-  user: UserDto;
+  user: UserDto | null;
+  rank?: number;
+  isSelected: boolean;
 }
 
 // 사용자 정보
@@ -110,5 +114,6 @@ export interface UserDto {
   id: string;
   name: string | null;
   displayName: string | null;
+  nickname?: string | null;
   image: string | null;
 }

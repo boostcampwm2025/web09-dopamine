@@ -1,6 +1,7 @@
 'use client';
 
 import styled from '@emotion/styled';
+import { css, keyframes } from '@emotion/react';
 import { boxStyle } from '@/styles/mixins';
 import { theme } from '@/styles/theme';
 
@@ -79,4 +80,65 @@ export const ArrowIcon = styled.div`
   align-items: center;
   justify-content: center;
   color: ${theme.colors.gray[400]};
+`;
+
+const shimmer = keyframes`
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: 200px 0;
+  }
+`;
+
+const skeletonBackground = css`
+  background: linear-gradient(
+    90deg,
+    ${theme.colors.gray[50]} 0%,
+    ${theme.colors.gray[100]} 50%,
+    ${theme.colors.gray[50]} 100%
+  );
+  background-size: 400px 100%;
+  animation: ${shimmer} 1.4s ease-in-out infinite;
+`;
+
+export const SkeletonCard = styled.div`
+  border: 1px dashed ${theme.colors.gray[200]};
+  background-color: white;
+  border-radius: ${theme.radius.large};
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  pointer-events: none;
+`;
+
+export const SkeletonIcon = styled.div`
+  width: 48px;
+  height: 48px;
+  border-radius: ${theme.radius.small};
+  ${skeletonBackground}
+  flex-shrink: 0;
+`;
+
+export const SkeletonContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+`;
+
+export const SkeletonLine = styled.div<{ width?: string }>`
+  height: 14px;
+  width: ${(props) => props.width ?? '100%'};
+  border-radius: 8px;
+  ${skeletonBackground}
+`;
+
+export const SkeletonRight = styled.div`
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  ${skeletonBackground}
+  flex-shrink: 0;
 `;

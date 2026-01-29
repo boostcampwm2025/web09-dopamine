@@ -1,4 +1,5 @@
 import getAPIResponseData from '../utils/api-response';
+import { withSseHeader } from '../utils/with-sse-header';
 
 export type Comment = {
   id: string;
@@ -7,7 +8,7 @@ export type Comment = {
   user?: {
     id: string;
     name: string | null;
-    displayName: string | null;
+    nickname: string | null;
   };
 };
 
@@ -19,7 +20,7 @@ export type Comment = {
  */
 export async function fetchComments(id: string, ideaId: string): Promise<Comment[]> {
   return getAPIResponseData<Comment[]>({
-    url: `/api/issues/${id}/ideas/${ideaId}/comment`,
+    url: `/api/issues/${id}/ideas/${ideaId}/comments`,
     method: 'GET',
   });
 }
@@ -34,11 +35,12 @@ export async function createComment(
   id: string,
   ideaId: string,
   payload: { userId: string; content: string },
+  connectionId?: string,
 ) {
   return getAPIResponseData<Comment>({
-    url: `/api/issues/${id}/ideas/${ideaId}/comment`,
+    url: `/api/issues/${id}/ideas/${ideaId}/comments`,
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: withSseHeader({ 'Content-Type': 'application/json' }, connectionId),
     body: JSON.stringify(payload),
   });
 }
@@ -55,11 +57,12 @@ export async function updateComment(
   ideaId: string,
   commentId: string,
   payload: { content: string },
+  connectionId?: string,
 ) {
   return getAPIResponseData<Comment>({
-    url: `/api/issues/${issueId}/ideas/${ideaId}/comment/${commentId}`,
+    url: `/api/issues/${issueId}/ideas/${ideaId}/comments/${commentId}`,
     method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
+    headers: withSseHeader({ 'Content-Type': 'application/json' }, connectionId),
     body: JSON.stringify(payload),
   });
 }
@@ -70,9 +73,16 @@ export async function updateComment(
  * @param ideaId - 아이디어 식별자
  * @param commentId - 삭제할 댓글 식별자
  */
-export async function deleteComment(issueId: string, ideaId: string, commentId: string) {
+export async function deleteComment(
+  issueId: string,
+  ideaId: string,
+  commentId: string,
+  connectionId?: string,
+) {
   return getAPIResponseData<void>({
-    url: `/api/issues/${issueId}/ideas/${ideaId}/comment/${commentId}`,
+    url: `/api/issues/${issueId}/ideas/${ideaId}/comments/${commentId}`,
     method: 'DELETE',
+    headers: withSseHeader(undefined, connectionId),
   });
 }
+

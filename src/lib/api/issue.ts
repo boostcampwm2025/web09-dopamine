@@ -2,6 +2,7 @@
  * 이슈 관련 API 함수들 (공통 응답 포맷 사용)
  */
 import getAPIResponseData from '@/lib/utils/api-response';
+import { withSseHeader } from '../utils/with-sse-header';
 
 /* =========================
  * Issue
@@ -39,6 +40,7 @@ export function updateIssueStatus(
   status: string,
   selectedIdeaId?: string,
   memo?: string,
+  connectionId?: string,
 ) {
   return getAPIResponseData<{
     id: string;
@@ -50,7 +52,7 @@ export function updateIssueStatus(
   }>({
     url: `/api/issues/${issueId}/status`,
     method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
+    headers: withSseHeader({ 'Content-Type': 'application/json' }, connectionId),
     body: JSON.stringify({ status, selectedIdeaId, memo }),
   });
 }
@@ -63,7 +65,7 @@ export function getIssueMembers(issueId: string) {
   return getAPIResponseData<
     Array<{
       id: string;
-      displayName: string;
+      nickname: string;
       role: string;
       isConnected: boolean;
     }>
@@ -76,7 +78,7 @@ export function getIssueMembers(issueId: string) {
 export function getIssueMember(issueId: string, userId: string) {
   return getAPIResponseData<{
     id: string;
-    displayName: string;
+    nickname: string;
     role: string;
   }>({
     url: `/api/issues/${issueId}/members/${userId}`,
@@ -84,24 +86,24 @@ export function getIssueMember(issueId: string, userId: string) {
   });
 }
 
-export function joinIssue(issueId: string, nickname: string) {
+export function joinIssue(issueId: string, nickname: string, connectionId?: string) {
   return getAPIResponseData<{
     userId: string;
   }>({
     url: `/api/issues/${issueId}/members`,
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: withSseHeader({ 'Content-Type': 'application/json' }, connectionId),
     body: JSON.stringify({ nickname }),
   });
 }
 
-export function joinIssueAsLoggedInUser(issueId: string) {
+export function joinIssueAsLoggedInUser(issueId: string, connectionId?: string) {
   return getAPIResponseData<{
     userId: string;
   }>({
     url: `/api/issues/${issueId}/members`,
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: withSseHeader({ 'Content-Type': 'application/json' }, connectionId),
     body: JSON.stringify({}),
   });
 }
@@ -120,7 +122,7 @@ export function generateNickname(issueId: string) {
   return getAPIResponseData<{
     nickname: string;
   }>({
-    url: `/api/issues/${issueId}/members-nickname`,
+    url: `/api/issues/${issueId}/members/nickname`,
     method: 'POST',
   });
 }
@@ -144,14 +146,13 @@ export function categorizeIdeas(issueId: string) {
  * Selected Idea
  * ========================= */
 
-export function selectIdea(issueId: string, selectedIdeaId: string) {
+export function selectIdea(issueId: string, selectedIdeaId: string, connectionId?: string) {
   return getAPIResponseData<{
     ok: boolean;
   }>({
-    url: `/api/issues/${issueId}/selected-idea`,
+    url: `/api/issues/${issueId}/ideas/${selectedIdeaId}/select`,
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ selectedIdeaId }),
+    headers: withSseHeader(undefined, connectionId),
   });
 }
 
@@ -163,5 +164,30 @@ export function createIssueInTopic(topicId: string, title: string) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ title }),
+  });
+}
+
+/* =========================
+ * Close Modal
+ * ========================= */
+
+export function updateCloseModalMemo(issueId: string, memo: string, connectionId?: string) {
+  return getAPIResponseData<{
+    success: boolean;
+  }>({
+    url: `/api/issues/${issueId}/close-modal`,
+    method: 'PATCH',
+    headers: withSseHeader({ 'Content-Type': 'application/json' }, connectionId),
+    body: JSON.stringify({ memo }),
+  });
+}
+
+export function deleteCloseModal(issueId: string, connectionId?: string) {
+  return getAPIResponseData<{
+    success: boolean;
+  }>({
+    url: `/api/issues/${issueId}/close-modal`,
+    method: 'DELETE',
+    headers: withSseHeader(undefined, connectionId),
   });
 }

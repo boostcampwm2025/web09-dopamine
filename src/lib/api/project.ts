@@ -1,9 +1,16 @@
 import getAPIResponseData from '@/lib/utils/api-response';
-import { CreateProjectResponse, ProjectListItem } from '@/types/project';
+import { CreateProjectResponse, ProjectListItem, ProjectwithTopic } from '@/types/project';
 
 export function getProjects() {
   return getAPIResponseData<Array<ProjectListItem>>({
     url: '/api/projects',
+    method: 'GET',
+  });
+}
+
+export function getProject(projectId: string) {
+  return getAPIResponseData<ProjectwithTopic>({
+    url: `/api/projects/${projectId}`,
     method: 'GET',
   });
 }
@@ -28,7 +35,7 @@ export function deleteProject(id: string) {
 
 export function updateProject(id: string, title: string, description?: string) {
   return getAPIResponseData<{ id: string }>({
-    url: `/api/project/${id}`,
+    url: `/api/projects/${id}`,
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ id, title, description }),

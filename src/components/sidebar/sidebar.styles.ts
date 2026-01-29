@@ -22,18 +22,22 @@ export const Sidebar = styled.aside`
 
 export const InputWrapper = styled.div`
   display: flex;
-  padding: 0 16px;
-  position: relative;
+  align-items: center;
+  margin: 0 16px;
+  padding: 0;
+  gap: 8px;
+  border-bottom: 1px solid ${theme.colors.gray[200]};
+`;
 
-  &:has(input:focus) img {
-    visibility: hidden;
-  }
+export const SearchBox = styled.div`
+  position: relative;
+  flex: 1;
 `;
 
 export const InputIcon = styled(Image)`
   position: absolute;
   top: 50%;
-  left: 16px;
+  left: 0;
   transform: translateY(-50%);
 `;
 
@@ -51,9 +55,8 @@ export const SrOnly = styled.label`
 `;
 export const SidebarInput = styled.input`
   width: 100%;
-  padding: 8px;
+  padding: 8px 8px 8px 24px;
   border: none;
-  border-bottom: 1px solid ${theme.colors.gray[200]};
 `;
 
 export const SidebarTitle = styled.div`

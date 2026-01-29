@@ -9,10 +9,15 @@ jest.mock('@/lib/prisma', () => ({
       create: jest.fn(),
       update: jest.fn(),
     },
+    issueMember: {
+      findMany: jest.fn(),
+      findFirst: jest.fn(),
+    },
   },
 }));
 
 const mockedPrismaComment = prisma.comment as jest.Mocked<typeof prisma.comment>;
+const mockedPrismaIssueMember = prisma.issueMember as jest.Mocked<typeof prisma.issueMember>;
 
 /**
  * 댓글 리포지토리 테스트
@@ -32,14 +37,20 @@ describe('Comment Repository 테스트', () => {
   describe('findByIdeaId (댓글 목록 조회)', () => {
     it('삭제되지 않은 댓글을 생성일 기준 오름차순으로 반환해야 한다', async () => {
       // Given
+      const issueId = 'issue-123';
       const mockComments = [
-        { id: 'comment-1', content: '첫 번째 댓글', createdAt: mockDate },
-        { id: 'comment-2', content: '두 번째 댓글', createdAt: mockDate },
+        { id: 'comment-1', content: '첫 번째 댓글', createdAt: mockDate, userId: 'user-1', user: { id: 'user-1', name: 'User 1' } },
+        { id: 'comment-2', content: '두 번째 댓글', createdAt: mockDate, userId: 'user-2', user: { id: 'user-2', name: 'User 2' } },
+      ];
+      const mockIssueMembers = [
+        { userId: 'user-1', nickname: 'Nickname 1' },
+        { userId: 'user-2', nickname: 'Nickname 2' },
       ];
       mockedPrismaComment.findMany.mockResolvedValue(mockComments as any);
+      mockedPrismaIssueMember.findMany.mockResolvedValue(mockIssueMembers as any);
 
       // When
-      const result = await commentRepository.findByIdeaId(ideaId);
+      const result = await commentRepository.findByIdeaId(ideaId, issueId);
 
       // Then
       expect(mockedPrismaComment.findMany).toHaveBeenCalledWith({
@@ -52,18 +63,40 @@ describe('Comment Repository 테스트', () => {
           id: true,
           content: true,
           createdAt: true,
+          userId: true,
+          user: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
         },
       });
-      expect(result).toEqual(mockComments);
+      expect(mockedPrismaIssueMember.findMany).toHaveBeenCalledWith({
+        where: {
+          issueId,
+          deletedAt: null,
+        },
+        select: {
+          userId: true,
+          nickname: true,
+        },
+      });
+      expect(result).toHaveLength(2);
+      expect(result[0].user.nickname).toBe('Nickname 1');
+      expect(result[1].user.nickname).toBe('Nickname 2');
     });
   });
 
   describe('create (댓글 생성)', () => {
     it('새로운 댓글을 생성하고 지정된 필드를 반환해야 한다', async () => {
       // Given
-      const input = { ideaId, userId, content };
-      const mockCreatedComment = { id: commentId, content, createdAt: mockDate };
+      const issueId = 'issue-123';
+      const input = { ideaId, userId, content, issueId };
+      const mockCreatedComment = { id: commentId, content, createdAt: mockDate, userId, user: { id: userId, name: 'User 1' } };
+      const mockIssueMember = { nickname: 'Nickname 1' };
       mockedPrismaComment.create.mockResolvedValue(mockCreatedComment as any);
+      mockedPrismaIssueMember.findFirst.mockResolvedValue(mockIssueMember as any);
 
       // When
       const result = await commentRepository.create(input);
@@ -79,9 +112,35 @@ describe('Comment Repository 테스트', () => {
           id: true,
           content: true,
           createdAt: true,
+          userId: true,
+          user: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
         },
       });
-      expect(result).toEqual(mockCreatedComment);
+      expect(mockedPrismaIssueMember.findFirst).toHaveBeenCalledWith({
+        where: {
+          issueId,
+          userId,
+          deletedAt: null,
+        },
+        select: {
+          nickname: true,
+        },
+      });
+      expect(result).toEqual({
+        id: commentId,
+        content,
+        createdAt: mockDate,
+        user: {
+          id: userId,
+          name: 'User 1',
+          nickname: 'Nickname 1',
+        },
+      });
     });
   });
 

@@ -2,11 +2,13 @@
 
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
-import { useParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { useParams } from 'next/navigation';
 import HeaderButton from '@/app/(with-sidebar)/issue/_components/header/header-button';
 import { useInviteProjectModal } from '@/components/modal/invite-project-modal/use-invite-project-modal';
-import { useProjectQuery } from '../../hooks/use-project-query';
+import { useProjectQuery } from '@/hooks/project';
 import * as S from './header.styles';
+import { useRouter } from 'next/navigation';
 
 const ProjectHeader = () => {
   const params = useParams<{ id: string }>();
@@ -22,17 +24,22 @@ const ProjectHeader = () => {
   const userImage = session?.user?.image || '/profile.svg';
   const projectTitle = projectData?.title || '로딩 중...';
 
+  const handleProfileClick = () => {
+    router.push('/mypage');
+  };
+
   return (
     <S.HeaderContainer>
       <S.LeftSection>
-        <Image
-          src="/home.svg"
-          alt="홈으로 가기"
-          width={18}
-          height={18}
-          onClick={() => router.push('/project')}
-          style={{ cursor: 'pointer' }}
-        />
+        <Link href={'/project'}>
+          <Image
+            src="/leftArrow.svg"
+            alt="뒤로 가기"
+            width={18}
+            height={18}
+            style={{ cursor: 'pointer' }}
+          />
+        </Link>
         <S.Divider />
         {projectTitle}
       </S.LeftSection>
@@ -44,14 +51,14 @@ const ProjectHeader = () => {
           onClick={(e) => openInviteProjectModal(projectId, projectTitle, e)}
         />
         <S.Divider />
-        <S.Profile>
+        <S.Profile onClick={handleProfileClick}>
           {userName}
           <Image
             src={userImage}
             alt="프로필"
             width={38}
             height={38}
-            style={{ borderRadius: '50%' }}
+            style={{ borderRadius: '50%'}}
           />
         </S.Profile>
       </S.RightSection>

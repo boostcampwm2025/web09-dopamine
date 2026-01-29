@@ -1,11 +1,21 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { ChangeEvent } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { getChoseong } from 'es-hangul';
 import { MEMBER_ROLE } from '@/constants/issue';
-import { useTopicId } from '@/hooks/use-topic-id';
-import { useIssueData, useIssueId, useTopicIssuesQuery } from '../../hooks';
+import { useTopicId, useTopicIssuesQuery } from '@/hooks';
+import { useIssueData, useIssueId } from '../../hooks';
 import { useIssueStore } from '../../store/use-issue-store';
+import { ISSUE_LIST } from './issue-sidebar';
+
+/**
+ * 일반 문자열 및 초성 검색 매칭 여부를 확인하는 유틸리티
+ */
+const matchSearch = (text: string, normalizedTerm: string, searchChoseong: string) => {
+  if (text.toLowerCase().includes(normalizedTerm)) return true;
+  if (!searchChoseong) return false;
+  return getChoseong(text).includes(searchChoseong);
+};
 
 export const useIssueSidebar = () => {
   // 클라이언트 마운트 감지
@@ -17,6 +27,8 @@ export const useIssueSidebar = () => {
 
   // 토픽 ID 및 페이지 타입 가져오기
   const { topicId, isTopicPage } = useTopicId();
+  const pathname = usePathname();
+  const isSummaryPage = pathname?.endsWith('/summary');
 
   const issueId = useIssueId();
   // 토픽 페이지에서는 이슈 데이터 가져오지 않음
@@ -29,6 +41,7 @@ export const useIssueSidebar = () => {
   // 검색 관련 상태
   const [searchValue, setSearchValue] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [searchTarget, setSearchTarget] = useState<'issue' | 'member'>('issue');
 
   // 멤버 정렬: 소유자 > 온라인 > 이름순
   const sortedMembers = useMemo(() => {
@@ -38,38 +51,67 @@ export const useIssueSidebar = () => {
         return a.role === MEMBER_ROLE.OWNER ? -1 : 1;
       }
 
-      // 2. 온라인 상태별 정렬
-      const isAOnline = onlineMemberIds.includes(a.id);
-      const isBOnline = onlineMemberIds.includes(b.id);
+      // 2. 온라인 상태별 정렬 (요약 페이지에서는 제외)
+      if (!isSummaryPage) {
+        const isAOnline = onlineMemberIds.includes(a.id);
+        const isBOnline = onlineMemberIds.includes(b.id);
 
-      if (isAOnline !== isBOnline) {
-        return Number(isBOnline) - Number(isAOnline);
+        if (isAOnline !== isBOnline) {
+          return Number(isBOnline) - Number(isAOnline);
+        }
       }
 
       // 3. 이름순 정렬
-      return a.displayName.localeCompare(b.displayName);
+      const nameA = a.nickname || '익명';
+      const nameB = b.nickname || '익명';
+      return nameA.localeCompare(nameB);
     });
-  }, [members, onlineMemberIds]);
+  }, [members, onlineMemberIds, isSummaryPage]);
 
-  // 멤버 검색 필터링: 일반 문자열 검색 + 한글 초성 검색 지원
-  const filteredMembers = useMemo(() => {
+  // 공통 검색 파라미터 계산
+  const searchParams = useMemo(() => {
     const trimmed = searchTerm.trim();
+    return {
+      trimmed,
+      normalized: trimmed.toLowerCase(),
+      searchChoseong: getChoseong(trimmed),
+    };
+  }, [searchTerm]);
+
+  // 멤버 검색 필터링
+  const filteredMembers = useMemo(() => {
+    // 멤버 검색 모드가 아니면 전체 반환
+    if (searchTarget !== 'member') return sortedMembers;
+
+    const { trimmed, normalized, searchChoseong } = searchParams;
     if (!trimmed) return sortedMembers;
 
-    const normalized = trimmed.toLowerCase();
-    const searchChoseong = getChoseong(trimmed);
+    return sortedMembers.filter((member) =>
+      matchSearch(member.nickname || '익명', normalized, searchChoseong),
+    );
+  }, [searchParams, sortedMembers, searchTarget]);
 
-    return sortedMembers.filter((member) => {
-      const name = member.displayName;
+  // 이슈 검색 필터링
+  const filteredIssues = useMemo(() => {
+    // 이슈 검색 모드가 아니면 전체 반환
+    if (searchTarget !== 'issue') return topicIssues;
 
-      // 일반 문자열 포함 여부 확인
-      if (name.toLowerCase().includes(normalized)) return true;
+    const { trimmed, normalized, searchChoseong } = searchParams;
+    if (!trimmed) return topicIssues;
 
-      // 초성 검색 비교
-      if (!searchChoseong) return false;
-      return getChoseong(name).includes(searchChoseong);
-    });
-  }, [searchTerm, sortedMembers]);
+    return topicIssues.filter((issue) => matchSearch(issue.title || '', normalized, searchChoseong));
+  }, [searchParams, topicIssues, searchTarget]);
+
+  // 정적 이슈 리스트 필터링
+  const filteredStaticIssues = useMemo(() => {
+    // 이슈 검색 모드가 아니면 전체 반환
+    if (searchTarget !== 'issue') return ISSUE_LIST;
+
+    const { trimmed, normalized, searchChoseong } = searchParams;
+    if (!trimmed) return ISSUE_LIST;
+
+    return ISSUE_LIST.filter((issue) => matchSearch(issue.title || '', normalized, searchChoseong));
+  }, [searchParams, searchTarget]);
 
   // 검색어 입력 핸들러
   const handleSearchChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
@@ -111,6 +153,8 @@ export const useIssueSidebar = () => {
     topicId,
     isTopicPage,
     topicIssues,
+    filteredIssues,
+    filteredStaticIssues,
     filteredMembers,
     onlineMemberIds,
     sortedMembers,
@@ -122,8 +166,11 @@ export const useIssueSidebar = () => {
     // 표시 여부
     showMemberList,
     showIssueList,
+    isSummaryPage,
 
     // 액션
     goToIssueMap,
+    searchTarget,
+    setSearchTarget,
   };
 };

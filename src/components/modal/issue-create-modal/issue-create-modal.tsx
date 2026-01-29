@@ -1,10 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
-import { useQuickStartMutation } from '@/app/(with-sidebar)/issue/hooks';
-import LoadingOverlay from '@/components/loading-overlay/loading-overlay';
+import { useQuickStartMutation } from '@/hooks/issue';
 import { generateRandomNickname } from '@/lib/utils/nickname';
 import { useModalStore } from '../use-modal-store';
 import * as S from './issue-create-modal.styles';
@@ -13,11 +12,15 @@ export default function CreateIssueModal() {
   const router = useRouter();
   const [title, setTitle] = useState('');
   const [ownerNickname, setOwnerNickname] = useState(generateRandomNickname());
-  const { closeModal } = useModalStore();
+  const { setIsPending, isOpen, closeModal } = useModalStore();
 
   const { mutate, isPending } = useQuickStartMutation();
 
-  const handleQuickStart = async () => {
+  useEffect(() => {
+    setIsPending(isPending);
+  }, [isPending, setIsPending]);
+
+  const handleQuickStart = useCallback(async () => {
     if (!title.trim() || !ownerNickname.trim()) {
       toast.error('이슈 제목과 닉네임을 입력해주세요.');
       return;
@@ -32,7 +35,15 @@ export default function CreateIssueModal() {
         },
       },
     );
-  };
+  }, [title, ownerNickname, mutate, closeModal, router]);
+
+  useEffect(() => {
+    if (isOpen) {
+      useModalStore.setState({
+        onSubmit: handleQuickStart,
+      });
+    }
+  }, [isOpen, handleQuickStart]);
 
   return (
     <>
@@ -55,17 +66,7 @@ export default function CreateIssueModal() {
             />
           </S.InputWrapper>
         </S.InfoContainer>
-
-        <S.Footer>
-          <S.SubmitButton
-            type="button"
-            onClick={handleQuickStart}
-          >
-            이슈 생성
-          </S.SubmitButton>
-        </S.Footer>
       </S.Container>
-      {isPending && <LoadingOverlay message="이슈를 생성하고 있습니다" />}
     </>
   );
 }

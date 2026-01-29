@@ -1,20 +1,13 @@
-import React, { useCallback } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
-import CloseIssueModal from '@/app/(with-sidebar)/issue/_components/close-issue-modal/close-issue-modal';
 import { useCanvasStore } from '@/app/(with-sidebar)/issue/store/use-canvas-store';
-import { useModalStore } from '@/components/modal/use-modal-store';
 import { ISSUE_STATUS, MEMBER_ROLE } from '@/constants/issue';
+import { useTopicId } from '@/hooks';
+import { useAIStructuringMutation, useIssueMemberQuery, useIssueQuery, useIssueStatusMutations } from '@/hooks/issue';
 import { getIssueMember } from '@/lib/api/issue';
 import { IssueStatus } from '@/types/issue';
-import {
-  useAIStructuringMutation,
-  useCategoryOperations,
-  useIdeasWithTemp,
-  useIssueIdentity,
-  useIssueQuery,
-  useIssueStatusMutations,
-} from '../../hooks';
+import { useCategoryOperations, useIdeasWithTemp, useIssueIdentity } from '../../hooks';
 
 interface UseHeaderParams {
   issueId: string;
@@ -24,25 +17,31 @@ export function useHeader({ issueId }: UseHeaderParams) {
   const { data: issue } = useIssueQuery(issueId);
   const { nextStep } = useIssueStatusMutations(issueId);
 
+  const { topicId } = useTopicId();
+  const router = useRouter();
+
   const { userId } = useIssueIdentity(issueId);
 
-  // 현재 사용자의 정보 조회
-  const { data: currentUser } = useQuery({
-    queryKey: ['issues', issueId, 'members', userId],
-    queryFn: () => getIssueMember(issueId, userId),
-    enabled: !!userId,
-  });
+  const { data: members = [] } = useIssueMemberQuery(issueId, !!userId);
+  const currentMember = members.find((member) => member.id === userId);
 
   const { handleAIStructure } = useAIStructuringMutation(issueId);
 
-  const isOwner = currentUser && currentUser.role === MEMBER_ROLE.OWNER;
+  const isOwner = currentMember?.role === MEMBER_ROLE.OWNER;
   const { ideas, hasEditingIdea } = useIdeasWithTemp(issueId);
-  const { openModal } = useModalStore();
   const scale = useCanvasStore((state) => state.scale);
   const { categories, handleAddCategory } = useCategoryOperations(issueId, ideas, scale);
 
   const hiddenStatus = [ISSUE_STATUS.SELECT, ISSUE_STATUS.CLOSE] as IssueStatus[];
   const isVisible = issue && !hiddenStatus.includes(issue.status as IssueStatus);
+
+  const handleGoback = useCallback(() => {
+    if (topicId) {
+      router.push(`/topic/${topicId}`);
+    } else {
+      router.push('/');
+    }
+  }, [issueId, topicId]);
 
   // 이슈 종료 모달 열기
   const handleCloseIssue = useCallback(async () => {
@@ -52,7 +51,7 @@ export function useHeader({ issueId }: UseHeaderParams) {
     }
 
     try {
-      // API 호출하여 SSE 브로드캐스팅
+      // API 호출하여 SSE 브로드캐스팅 (모든 사용자에게 모달 열림)
       const response = await fetch(`/api/issues/${issueId}/close-modal`, {
         method: 'POST',
       });
@@ -61,19 +60,13 @@ export function useHeader({ issueId }: UseHeaderParams) {
         const errorData = await response.json();
         throw new Error(errorData.error?.message || 'Failed to broadcast close modal');
       }
+      // SSE 이벤트로 모든 사용자(방장 포함)에게 모달이 열림
     } catch (error) {
       console.error('Failed to open close modal:', error);
       toast.error('모달 열기에 실패했습니다.');
       return;
     }
-
-    // 방장 본인에게도 모달 열기
-    openModal({
-      title: '이슈 종료',
-      content: React.createElement(CloseIssueModal, { issueId, isOwner }),
-      modalType: 'close-issue',
-    });
-  }, [issueId, isOwner, openModal]);
+  }, [issueId, isOwner]);
 
   // 단계 검증
   const validateStep = useCallback(() => {
@@ -163,5 +156,6 @@ export function useHeader({ issueId }: UseHeaderParams) {
     handleAddCategory,
     handleAIStructureStart,
     handleCopyURL,
+    handleGoback,
   };
 }

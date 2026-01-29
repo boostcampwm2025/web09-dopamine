@@ -1,5 +1,6 @@
 'use client';
 
+import { theme } from '@/styles/theme';
 import type { Position } from '../../types/idea';
 import { useCanvasContext } from '../canvas/canvas-context';
 import CategoryCardHeader from './category-card-header';
@@ -14,6 +15,7 @@ interface CategoryCardProps {
   position: Position;
   isMuted?: boolean;
   children?: React.ReactNode;
+  hasActiveComment?: boolean;
   onRemove?: () => void;
   onPositionChange?: (id: string, position: Position) => void;
   onDrag?: (id: string, position: Position, delta: { dx: number; dy: number }) => void;
@@ -30,6 +32,7 @@ export default function CategoryCard({
   position,
   isMuted = false,
   children,
+  hasActiveComment = false,
   onRemove,
   onPositionChange,
   onDrag,
@@ -39,7 +42,7 @@ export default function CategoryCard({
 }: CategoryCardProps) {
   const { scale } = useCanvasContext();
 
-  const { setDroppableRef, cardStyle, draggable } = useCategoryDnd({
+  const { setDroppableRef, dndCardStyle, draggable } = useCategoryDnd({
     id,
     position,
     scale,
@@ -58,11 +61,18 @@ export default function CategoryCard({
     setDraftTitle,
     submitEditedTitle,
     cancelEditingTitle,
+    handlePointerDown,
+    handleClick,
   } = useCategoryCard({
     id,
     issueId,
     title,
   });
+
+  const cardStyle = {
+    ...dndCardStyle,
+    zIndex: hasActiveComment ? theme.zIndex.important : (dndCardStyle.zIndex ?? 0),
+  };
 
   return (
     <StyledCategoryCard
@@ -82,7 +92,11 @@ export default function CategoryCard({
         onSubmitTitle={submitEditedTitle}
         onCancelEdit={cancelEditingTitle}
         onRemove={onRemove}
-        onMouseDown={draggable?.handleMouseDown}
+        onMouseDown={(e) => {
+          draggable?.handleMouseDown(e);
+          handlePointerDown(e);
+        }}
+        onClick={handleClick}
       />
       {children && <ChildrenWrapper>{children}</ChildrenWrapper>}
     </StyledCategoryCard>

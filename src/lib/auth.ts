@@ -2,7 +2,6 @@ import { NextAuthOptions } from 'next-auth';
 import { Adapter, AdapterUser } from 'next-auth/adapters';
 import GitHubProvider from 'next-auth/providers/github';
 import GoogleProvider from 'next-auth/providers/google';
-import KakaoProvider from 'next-auth/providers/kakao';
 import NaverProvider from 'next-auth/providers/naver';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import { prisma } from '@/lib/prisma';
@@ -31,11 +30,6 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.GITHUB_CLIENT_SECRET || '',
       allowDangerousEmailAccountLinking: true,
     }),
-    KakaoProvider({
-      clientId: process.env.KAKAO_CLIENT_ID || '',
-      clientSecret: process.env.KAKAO_CLIENT_SECRET || '',
-      allowDangerousEmailAccountLinking: true,
-    }),
     NaverProvider({
       clientId: process.env.NAVER_CLIENT_ID || '',
       clientSecret: process.env.NAVER_CLIENT_SECRET || '',
@@ -44,21 +38,33 @@ export const authOptions: NextAuthOptions = {
   ],
   session: {
     strategy: 'jwt',
+    maxAge: 60 * 60 * 12,
+    updateAge: 60 * 60 * 1,
+  },
+  jwt: {
+    maxAge: 60 * 60 * 12,
   },
   callbacks: {
     async session({ session, token }) {
       if (session.user && token.sub) {
         session.user.id = token.sub;
+        session.user.displayName = token.displayName;
       }
       return session;
     },
     async jwt({ token, user, trigger, session }) {
-      if (trigger === 'update' && session?.name) {
-        token.name = session.name;
+      if (trigger === 'update') {
+        if (session?.name) token.name = session.name;
+        if (session?.displayName) token.displayName = session.displayName;
       }
 
       if (user) {
         token.id = user.id;
+        const dbUser = await prisma.user.findUnique({
+          where: { id: user.id },
+          select: { displayName: true },
+        });
+        token.displayName = dbUser?.displayName ?? undefined;
       }
       return token;
     },

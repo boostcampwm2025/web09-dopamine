@@ -44,7 +44,8 @@ export const useFilterIdea = (issueId: string) => {
         }
       } catch (error) {
         // 4. 요청 실패 시 에러 로그를 남기고 필터링된 목록을 비움
-        console.error('필터링 요청 실패:', error);
+        const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.';
+        console.error('필터링 요청 실패:', errorMessage);
         if (!cancelled) {
           setFilteredIds(new Set());
         }

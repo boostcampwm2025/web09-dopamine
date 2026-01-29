@@ -7,6 +7,8 @@ import type { IssueStatus } from '@/types/issue';
 import * as S from './idea-card.styles';
 
 interface IdeaCardHeaderProps {
+  id: string;
+  issueId: string;
   isEditing: boolean;
   editValue: string;
   displayContent: string;
@@ -16,6 +18,7 @@ interface IdeaCardHeaderProps {
   issueStatus?: IssueStatus;
   commentCount?: number;
   textareaRef: RefObject<HTMLTextAreaElement | null>;
+  isCommentOpen: boolean;
   setEditValue: (value: string) => void;
   handleKeyDownEdit: KeyboardEventHandler<HTMLTextAreaElement>;
   submitEdit: () => void;
@@ -24,6 +27,8 @@ interface IdeaCardHeaderProps {
 }
 
 export default function IdeaCardHeader({
+  id,
+  issueId,
   isEditing,
   editValue,
   displayContent,
@@ -31,14 +36,16 @@ export default function IdeaCardHeader({
   isCurrentUser,
   author,
   issueStatus,
-  commentCount = 0,
+  commentCount: initialCommentCount = 0,
   textareaRef,
+  isCommentOpen,
   setEditValue,
   handleKeyDownEdit,
   submitEdit,
   onDelete,
   onCommentClick,
 }: IdeaCardHeaderProps) {
+  const commentCount = initialCommentCount;
   return (
     <S.Header>
       {isEditing ? (
@@ -62,6 +69,8 @@ export default function IdeaCardHeader({
           <S.IconButton
             aria-label="comment"
             onClick={onCommentClick}
+            data-no-canvas-close="true"
+            isCommentOpen={isCommentOpen}
           >
             <Image
               src="/comment.svg"

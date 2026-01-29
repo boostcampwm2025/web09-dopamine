@@ -90,6 +90,51 @@ export const getProjectsByMemberId = async (userId: string) => {
   }));
 };
 
+// 참여중인 프로젝트(소유/게스트 포함) 조회
+export const getProjectsByUserMembership = async (userId: string) => {
+  const projects = await prisma.project.findMany({
+    where: {
+      deletedAt: null,
+      projectMembers: {
+        some: {
+          userId,
+          deletedAt: null,
+        },
+      },
+    },
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      ownerId: true,
+      createdAt: true,
+      updatedAt: true,
+      _count: {
+        select: {
+          projectMembers: {
+            where: {
+              deletedAt: null,
+            },
+          },
+        },
+      },
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
+
+  return projects.map((project) => ({
+    id: project.id,
+    title: project.title,
+    description: project.description,
+    ownerId: project.ownerId,
+    memberCount: project._count.projectMembers,
+    createdAt: project.createdAt,
+    updatedAt: project.updatedAt,
+  }));
+};
+
 export const getProjectWithTopics = async (projectId: string) => {
   const project = await prisma.project.findUnique({
     where: {
@@ -117,7 +162,7 @@ export const getProjectWithTopics = async (projectId: string) => {
           user: {
             select: {
               id: true,
-              name: true,
+              displayName: true,
               image: true,
             },
           },
@@ -159,7 +204,7 @@ export const getProjectWithTopics = async (projectId: string) => {
     if (pm.user) {
       memberMap.set(pm.user.id, {
         id: pm.user.id,
-        name: pm.user.name,
+        name: pm.user.displayName,
         image: pm.user.image,
         role: pm.user.id === project.ownerId ? 'OWNER' : 'MEMBER',
       });

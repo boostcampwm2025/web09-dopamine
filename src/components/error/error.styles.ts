@@ -128,7 +128,7 @@ export const FoldedCorner = styled.div`
 export const Shadow = styled.div`
   position: absolute;
   inset: 0;
-  z-index: -1;
+  z-index: ${theme.zIndex.hide};
   filter: blur(4px);
   opacity: 0.2;
   background-color: ${theme.colors.green[600]};

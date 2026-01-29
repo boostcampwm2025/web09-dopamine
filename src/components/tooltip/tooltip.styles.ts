@@ -7,7 +7,7 @@ export const Container = styled.div`
   font-size: ${theme.font.size.small};
   color: ${theme.colors.gray[800]};
   background-color: ${theme.colors.yellow[100]};
-  z-index: 999;
+  z-index: ${theme.zIndex.popover};
   pointer-events: none;
   font-weight: ${theme.font.weight.medium};
 `;

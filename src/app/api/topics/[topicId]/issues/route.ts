@@ -5,6 +5,7 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { issueMemberRepository } from '@/lib/repositories/issue-member.repository';
 import { createIssue } from '@/lib/repositories/issue.repository';
+import { getAuthenticatedUserId } from '@/lib/utils/api-auth';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ topicId: string }> }) {
@@ -35,11 +36,12 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ top
 export async function POST(req: NextRequest, { params }: { params: Promise<{ topicId: string }> }) {
   const { topicId } = await params;
   const { title } = await req.json();
-  const session = await getServerSession(authOptions);
-  const user = session?.user;
 
-  if (!user) {
-    return createErrorResponse('UNAUTHORIZED', 401);
+  const session = await getServerSession(authOptions);
+  const { userId, error } = await getAuthenticatedUserId(req);
+
+  if (!userId) {
+    return error ?? createErrorResponse('UNAUTHORIZED', 401);
   }
 
   if (!title) {
@@ -49,7 +51,13 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ top
   try {
     const issueId = await prisma.$transaction(async (tx) => {
       const issue = await createIssue(tx, title, topicId);
-      await issueMemberRepository.addIssueOwner(tx, issue.id, user.id, IssueRole.OWNER);
+
+      await issueMemberRepository.addIssueMember(tx, {
+        issueId: issue.id,
+        userId,
+        nickname: session?.user?.name || '익명',
+        role: IssueRole.OWNER,
+      });
 
       return issue.id;
     });

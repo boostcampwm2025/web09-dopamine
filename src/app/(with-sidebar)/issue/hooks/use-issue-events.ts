@@ -1,18 +1,21 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import CloseIssueModal from '@/app/(with-sidebar)/issue/_components/close-issue-modal/close-issue-modal';
 import { useModalStore } from '@/components/modal/use-modal-store';
 import { MEMBER_ROLE } from '@/constants/issue';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
-import { getIssueMember } from '@/lib/api/issue';
+import { selectedIdeaQueryKey, useIssueMemberQuery } from '@/hooks/issue';
+import { deleteCloseModal } from '@/lib/api/issue';
 import { useIssueStore } from '../store/use-issue-store';
-import { selectedIdeaQueryKey } from './react-query/use-selected-idea-query';
+import { useSseConnectionStore } from '../store/use-sse-connection-store';
+import type { IdeaWithPosition } from '../types/idea';
 
 interface UseIssueEventsParams {
   issueId: string;
   userId: string;
   enabled?: boolean;
+  topicId?: string | null;
 }
 
 interface UseIssueEventsReturn {
@@ -24,24 +27,22 @@ export function useIssueEvents({
   issueId,
   userId,
   enabled = true,
+  topicId,
 }: UseIssueEventsParams): UseIssueEventsReturn {
   const queryClient = useQueryClient();
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState<Event | null>(null);
   const eventSourceRef = useRef<EventSource | null>(null);
+  const connectionIdRef = useRef<string | null>(null);
   const selectedIdeaKey = useMemo(() => selectedIdeaQueryKey(issueId), [issueId]);
 
   const { setIsAIStructuring } = useIssueStore((state) => state.actions);
   const { setOnlineMemberIds } = useIssueStore((state) => state.actions);
+  const setConnectionId = useSseConnectionStore((state) => state.setConnectionId);
 
-  // 현재 사용자의 정보 조회
-  const { data: currentUser } = useQuery({
-    queryKey: ['issues', issueId, 'members', userId],
-    queryFn: () => getIssueMember(issueId, userId),
-    enabled: !!userId && enabled,
-  });
-
-  const isOwner = currentUser && currentUser.role === MEMBER_ROLE.OWNER;
+  const { data: members = [] } = useIssueMemberQuery(issueId, enabled);
+  const currentMember = members.find((member) => member.id === userId);
+  const isOwner = currentMember?.role === MEMBER_ROLE.OWNER;
   const isOwnerRef = useRef(isOwner);
 
   // isOwner 값이 변경될 때마다 ref 업데이트
@@ -64,8 +65,10 @@ export function useIssueEvents({
       setError(null);
 
       // 재연결 시 전체 데이터 갱신
-      // 최초 연결시에도 실행되지만... 큰 문제 없을 듯
-      queryClient.invalidateQueries({ queryKey: ['issues', issueId] });
+      const isReconnect = connectionIdRef.current !== null;
+      if (isReconnect) {
+        queryClient.invalidateQueries({ queryKey: ['issues', issueId] });
+      }
     };
 
     // 에러 발생
@@ -81,6 +84,9 @@ export function useIssueEvents({
       const data = JSON.parse(event.data);
 
       if (data.type === 'connected') {
+        const connectionId = data.connectionId;
+        connectionIdRef.current = connectionId;
+        setConnectionId(issueId, connectionId);
         toast.success('연결되었습니다');
       }
     };
@@ -137,24 +143,42 @@ export function useIssueEvents({
       toast.error(errorMessage);
     });
 
-    // 투표 이벤트 핸들러
+    // 투표 이벤트 핸들러 (변경된 아이디어만 agreeCount, disagreeCount 갱신)
     eventSource.addEventListener(SSE_EVENT_TYPES.VOTE_CHANGED, (event) => {
       const data = JSON.parse((event as MessageEvent).data);
-      // 특정 아이디어의 투표만 갱신
-      if (data.ideaId) {
-        queryClient.invalidateQueries({ queryKey: ['issues', issueId, 'ideas', data.ideaId] });
-      }
+      if (
+        !data.ideaId ||
+        typeof data.agreeCount !== 'number' ||
+        typeof data.disagreeCount !== 'number'
+      )
+        return;
+      queryClient.setQueryData<IdeaWithPosition[]>(['issues', issueId, 'ideas'], (old) => {
+        if (!Array.isArray(old)) return old;
+        return old.map((idea) =>
+          idea.id === data.ideaId
+            ? { ...idea, agreeCount: data.agreeCount, disagreeCount: data.disagreeCount }
+            : idea,
+        );
+      });
     });
 
     // 댓글 이벤트 핸들러
     eventSource.addEventListener(SSE_EVENT_TYPES.COMMENT_CREATED, (event) => {
       const data = JSON.parse((event as MessageEvent).data);
-      // 특정 아이디어의 댓글과 아이디어 정보 갱신 (댓글 개수 업데이트)
+      // 특정 아이디어의 댓글 목록 및 commentCount 갱신
       if (data.ideaId) {
         queryClient.invalidateQueries({ queryKey: ['comments', issueId, data.ideaId] });
-        queryClient.invalidateQueries({ queryKey: ['issues', issueId, 'ideas', data.ideaId] });
-        // 치열한 토론중 브로드캐스팅을 위해 추가
-        queryClient.invalidateQueries({ queryKey: ['issues', issueId, 'ideas'] });
+
+        if (typeof data.commentCount === 'number') {
+          queryClient.setQueryData(['issues', issueId, 'ideas'], (old: any) => {
+            if (!Array.isArray(old)) return old;
+            return old.map((idea) =>
+              idea.id === data.ideaId ? { ...idea, commentCount: data.commentCount } : idea,
+            );
+          });
+        } else {
+          queryClient.invalidateQueries({ queryKey: ['issues', issueId, 'ideas'] });
+        }
       }
     });
 
@@ -167,18 +191,32 @@ export function useIssueEvents({
 
     eventSource.addEventListener(SSE_EVENT_TYPES.COMMENT_DELETED, (event) => {
       const data = JSON.parse((event as MessageEvent).data);
-      // 특정 아이디어의 댓글과 아이디어 정보 갱신 (댓글 개수 업데이트)
+      // 특정 아이디어의 댓글 목록 및 commentCount 갱신
       if (data.ideaId) {
         queryClient.invalidateQueries({ queryKey: ['comments', issueId, data.ideaId] });
-        queryClient.invalidateQueries({ queryKey: ['issues', issueId, 'ideas', data.ideaId] });
-        // 치열한 토론중 브로드캐스팅을 위해 추가
-        queryClient.invalidateQueries({ queryKey: ['issues', issueId, 'ideas'] });
+
+        if (typeof data.commentCount === 'number') {
+          queryClient.setQueryData(['issues', issueId, 'ideas'], (old: any) => {
+            if (!Array.isArray(old)) return old;
+            return old.map((idea) =>
+              idea.id === data.ideaId ? { ...idea, commentCount: data.commentCount } : idea,
+            );
+          });
+        } else {
+          queryClient.invalidateQueries({ queryKey: ['issues', issueId, 'ideas'] });
+        }
       }
     });
 
     // 이슈 상태 이벤트 핸들러
-    eventSource.addEventListener(SSE_EVENT_TYPES.ISSUE_STATUS_CHANGED, () => {
+    eventSource.addEventListener(SSE_EVENT_TYPES.ISSUE_STATUS_CHANGED, (event) => {
+      const data = JSON.parse((event as MessageEvent).data);
       queryClient.invalidateQueries({ queryKey: ['issues', issueId] });
+      // 사이드바 이슈 목록도 갱신
+      const targetTopicId = data.topicId || topicId;
+      if (targetTopicId) {
+        queryClient.invalidateQueries({ queryKey: ['topics', targetTopicId, 'issues'] });
+      }
     });
 
     // 멤버 이벤트 핸들러
@@ -196,27 +234,48 @@ export function useIssueEvents({
       setOnlineMemberIds(data.onlineUserIds || []);
     });
 
-    // 채택된 아이디어 이벤트 핸들러
+    // 채택된 아이디어 이벤트 핸들러 (selectedIdea 쿼리 + ideas 배열의 isSelected 동기화)
     eventSource.addEventListener(SSE_EVENT_TYPES.IDEA_SELECTED, (event) => {
       const data = JSON.parse((event as MessageEvent).data);
-      if (data.ideaId) {
-        queryClient.setQueryData(selectedIdeaKey, data.ideaId);
-      }
+      if (!data.ideaId) return;
+      queryClient.setQueryData(selectedIdeaKey, data.ideaId);
+      queryClient.setQueryData<IdeaWithPosition[]>(['issues', issueId, 'ideas'], (old) => {
+        if (!Array.isArray(old)) return old;
+        return old.map((idea) =>
+          idea.id === data.ideaId
+            ? { ...idea, isSelected: true }
+            : { ...idea, isSelected: false },
+        );
+      });
     });
 
     // 종료 모달 열기 이벤트 핸들러
     eventSource.addEventListener(SSE_EVENT_TYPES.CLOSE_MODAL_OPENED, () => {
       // 모든 사용자에게 모달 열기 (방장 여부는 모달 내부에서 확인)
       // ref를 사용하여 최신 isOwner 값을 참조
+      const isOwnerValue = isOwnerRef.current;
+
       useModalStore.getState().openModal({
         title: '이슈 종료',
         content: React.createElement(CloseIssueModal, {
           issueId,
-          isOwner: isOwnerRef.current,
+          isOwner: isOwnerValue,
         }),
-        closeOnOverlayClick: false,
-        hasCloseButton: false,
+        closeOnOverlayClick: isOwnerValue,
+        hasCloseButton: isOwnerValue,
         modalType: 'close-issue',
+        submitButtonText: '이슈 종료',
+        onClose: async () => {
+          // 모달 닫힘 시 다른 클라이언트에게 브로드캐스팅
+          if (!isOwnerRef.current) return;
+          try {
+            await deleteCloseModal(issueId);
+          } catch (error) {
+            const errorMessage =
+              error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.';
+            console.error('Failed to broadcast close modal:', errorMessage);
+          }
+        },
       });
     });
 
@@ -241,13 +300,14 @@ export function useIssueEvents({
       );
     });
 
-    // Cleanup
     return () => {
       eventSource.close();
       eventSourceRef.current = null;
+      connectionIdRef.current = null;
+      setConnectionId(issueId, null);
       setIsAIStructuring(false);
     };
-  }, [issueId, enabled, selectedIdeaKey, userId, setIsAIStructuring]);
+  }, [issueId, enabled, selectedIdeaKey, userId, setIsAIStructuring, setConnectionId, topicId]);
 
   return { isConnected, error };
 }

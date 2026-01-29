@@ -31,14 +31,20 @@ export default function NormalList({ normalRankings }: NormalListProps) {
 
   return (
     <>
-      {visibleItems.map((item, index) => (
+      {visibleItems.map((item) => (
         <S.Item
           key={item.id}
-          highlighted={index === 0}
-          isTop={index === 0}
+          highlighted={item.rank === 1}
+          isTop={item.rank === 1}
+          isSelected={item.isSelected}
         >
           <S.ItemLeft>
-            <S.RankBadge highlighted={index === 0}>{index + 1}</S.RankBadge>
+            <S.RankBadge
+              highlighted={item.rank === 1}
+              isSelected={item.isSelected}
+            >
+              {item.rank}
+            </S.RankBadge>
             <S.Content>
               <S.Title
                 title={item.content}
@@ -55,7 +61,7 @@ export default function NormalList({ normalRankings }: NormalListProps) {
                 {item.content}
               </S.Title>
               <S.MetaRow>
-                <S.Author>{item.user?.displayName || item.user?.name || '익명'}</S.Author>
+                <S.Author>{item.user?.nickname || item.user?.displayName || item.user?.name || '익명'}</S.Author>
                 <S.Divider />
                 <span>{item.category?.title || '미분류'}</span>
               </S.MetaRow>
@@ -65,11 +71,11 @@ export default function NormalList({ normalRankings }: NormalListProps) {
             <S.VoteInfoSection>
               <S.VoteInfo type={VOTE_TYPE.AGREE}>
                 <S.VoteLabel>찬성</S.VoteLabel>
-                <S.VoteCount type={VOTE_TYPE.AGREE}>{item.agreeVoteCount}</S.VoteCount>
+                <S.VoteCount type={VOTE_TYPE.AGREE}>{item.agreeCount}</S.VoteCount>
               </S.VoteInfo>
               <S.VoteInfo type={VOTE_TYPE.DISAGREE}>
                 <S.VoteLabel>반대</S.VoteLabel>
-                <S.VoteCount type={VOTE_TYPE.DISAGREE}>{item.disagreeVoteCount}</S.VoteCount>
+                <S.VoteCount type={VOTE_TYPE.DISAGREE}>{item.disagreeCount}</S.VoteCount>
               </S.VoteInfo>
             </S.VoteInfoSection>
           </S.ItemRight>

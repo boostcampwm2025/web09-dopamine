@@ -3,18 +3,16 @@ import * as projectRepository from '@/lib/repositories/project.repository';
 import { getAuthenticatedUserId } from '@/lib/utils/api-auth';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 
-export async function GET() {
-  const { userId: ownerId, error } = await getAuthenticatedUserId();
+export async function GET(req: NextRequest) {
+  const { userId: ownerId, error } = await getAuthenticatedUserId(req);
 
-  if (error) {
-    return error;
+  if (!ownerId) {
+    return error ?? createErrorResponse('UNAUTHORIZED', 401);
   }
 
   try {
-    // 내 소유의 프로젝트와 게트스로 참여중인 프로젝트를 모두 불려옴
-    const myOwnProjects = await projectRepository.getProjectsByOwnerId(ownerId!);
-    const guestProjects = await projectRepository.getProjectsByMemberId(ownerId!);
-    const projects = [...myOwnProjects, ...guestProjects];
+    // 참여중인 프로젝트(소유/게스트 포함) 조회
+    const projects = await projectRepository.getProjectsByUserMembership(ownerId);
     return createSuccessResponse(projects, 200);
   } catch (error) {
     console.error('프로젝트 목록 조회 실패:', error);
@@ -23,10 +21,10 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const { userId: ownerId, error } = await getAuthenticatedUserId();
+  const { userId: ownerId, error } = await getAuthenticatedUserId(req);
 
-  if (error) {
-    return error;
+  if (!ownerId) {
+    return error ?? createErrorResponse('UNAUTHORIZED', 401);
   }
 
   const { title, description } = await req.json();
@@ -36,7 +34,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const result = await projectRepository.createProject(title, ownerId!, description);
+    const result = await projectRepository.createProject(title, ownerId, description);
     return createSuccessResponse(result, 201);
   } catch (error) {
     console.error('프로젝트 생성 실패:', error);
@@ -45,10 +43,10 @@ export async function POST(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  const { userId: ownerId, error } = await getAuthenticatedUserId();
+  const { userId: ownerId, error } = await getAuthenticatedUserId(req);
 
-  if (error) {
-    return error;
+  if (!ownerId) {
+    return error ?? createErrorResponse('UNAUTHORIZED', 401);
   }
 
   const { id } = await req.json();
@@ -58,7 +56,7 @@ export async function DELETE(req: NextRequest) {
   }
 
   try {
-    const result = await projectRepository.deleteProject(id, ownerId!);
+    const result = await projectRepository.deleteProject(id, ownerId);
     return createSuccessResponse(result, 200);
   } catch (error) {
     console.error('프로젝트 삭제 실패:', error);

@@ -26,29 +26,29 @@ const createMockUser = (
   name: string,
   options: {
     displayName?: string | null;
-    avatarUrl?: string | null;
+    image?: string | null;
   } = {},
 ) => ({
   id,
   name,
   displayName: options.displayName ?? name,
-  avatarUrl: options.avatarUrl ?? null,
+  image: options.image ?? null,
 });
 
 const createMockIdea = (
   id: string,
   content: string,
   options: {
-    agreeVotes?: number;
-    disagreeVotes?: number;
+    agreeCount?: number;
+    disagreeCount?: number;
     comments?: number;
     category?: { id: string; title: string } | null;
     user?: ReturnType<typeof createMockUser>;
   } = {},
 ) => {
   const {
-    agreeVotes = 0,
-    disagreeVotes = 0,
+    agreeCount = 0,
+    disagreeCount = 0,
     comments = 0,
     category = null,
     user = createMockUser('user-1', 'User 1'),
@@ -57,17 +57,12 @@ const createMockIdea = (
   return {
     id,
     content,
-    votes: [
-      ...Array.from({ length: agreeVotes }, (_, i) => ({
-        id: `vote-${id}-agree-${i}`,
-        type: 'AGREE' as const,
-      })),
-      ...Array.from({ length: disagreeVotes }, (_, i) => ({
-        id: `vote-${id}-disagree-${i}`,
-        type: 'DISAGREE' as const,
-      })),
-    ],
-    comments: Array.from({ length: comments }, (_, i) => ({ id: `comment-${id}-${i}` })),
+    agreeCount,
+    disagreeCount,
+    comments: Array.from({ length: comments }, (_, i) => ({
+      id: `comment-${id}-${i}`,
+      content: `Comment content ${i}`,
+    })),
     category,
     user,
   };
@@ -88,6 +83,7 @@ const createMockIssue = (
     issueMembers: Array.from({ length: members }, (_, i) => ({
       id: `member-${i}`,
       userId: `user-${i}`,
+      nickname: `Member ${i}`,
       deletedAt: null,
     })),
     ideas,
@@ -118,17 +114,17 @@ describe('Report Service', () => {
       // 준비
       const category1 = { id: 'cat-1', title: 'Category 1' };
       const idea1 = createMockIdea('idea-1', 'First idea', {
-        agreeVotes: 2,
-        disagreeVotes: 1,
+        agreeCount: 2,
+        disagreeCount: 1,
         comments: 2,
         category: category1,
         user: createMockUser('user-1', 'John Doe', {
           displayName: 'John',
-          avatarUrl: 'https://example.com/avatar.jpg',
+          image: 'https://example.com/avatar.jpg',
         }),
       });
       const idea2 = createMockIdea('idea-2', 'Second idea', {
-        agreeVotes: 1,
+        agreeCount: 1,
         comments: 1,
         category: category1,
         user: createMockUser('user-2', 'Jane Doe'),
@@ -145,7 +141,8 @@ describe('Report Service', () => {
         selectedIdea: {
           id: idea1.id,
           content: idea1.content,
-          votes: idea1.votes,
+          agreeCount: idea1.agreeCount,
+          disagreeCount: idea1.disagreeCount,
           comments: idea1.comments,
           category: idea1.category,
         },
@@ -180,9 +177,12 @@ describe('Report Service', () => {
       // rankings.all 검증 (투표 점수 순으로 정렬)
       expect(result?.rankings.all).toHaveLength(2);
       expect(result?.rankings.all[0].id).toBe('idea-1'); // 2 agree - 1 disagree = 1점
-      expect(result?.rankings.all[0].agreeVoteCount).toBe(2);
-      expect(result?.rankings.all[0].disagreeVoteCount).toBe(1);
+      expect(result?.rankings.all[0].agreeCount).toBe(2);
+      expect(result?.rankings.all[0].disagreeCount).toBe(1);
+      expect(result?.rankings.all[0].isSelected).toBe(true);
+
       expect(result?.rankings.all[1].id).toBe('idea-2'); // 1 agree - 0 disagree = 1점
+      expect(result?.rankings.all[1].isSelected).toBe(false);
     });
 
     it('카테고리별로 아이디어를 그룹핑하여 반환한다', async () => {
@@ -196,12 +196,12 @@ describe('Report Service', () => {
           members: 1,
           ideas: [
             createMockIdea('idea-1', 'Category 1 idea', {
-              agreeVotes: 1,
+              agreeCount: 1,
               category: cat1,
               user: createMockUser('user-1', 'User 1'),
             }),
             createMockIdea('idea-2', 'Category 2 idea', {
-              agreeVotes: 1,
+              agreeCount: 1,
               category: cat2,
               user: createMockUser('user-2', 'User 2'),
             }),
@@ -288,23 +288,32 @@ describe('Report Service', () => {
       expect(result?.rankings.byCategory).toHaveLength(0);
     });
 
-    it('아이디어 랭킹을 투표 점수(찬성 - 반대) 순으로 정렬한다', async () => {
+    it('아이디어 랭킹을 정렬 규칙(1.차이 -> 2.합계)에 따라 정렬한다', async () => {
       // 준비
       const mockReport: ReportWithDetails = {
         ...createMockReportBase(mockIssueId),
         issue: createMockIssue(mockIssueId, {
           ideas: [
-            createMockIdea('idea-1', 'Low score idea', {
-              disagreeVotes: 1,
-              user: createMockUser('user-1', 'User 1'),
+            // Idea A: 차이 2 (3-1), 합계 4, 찬성 3 => 3등
+            createMockIdea('idea-A', 'Score 2, Total 4', {
+              agreeCount: 3,
+              disagreeCount: 1,
             }),
-            createMockIdea('idea-2', 'High score idea', {
-              agreeVotes: 3,
-              user: createMockUser('user-2', 'User 2'),
+            // Idea B: 차이 2 (4-2), 합계 6, 찬성 4 => 1등 (합계가 높음)
+            createMockIdea('idea-B', 'Score 2, Total 6', {
+              agreeCount: 4,
+              disagreeCount: 2,
             }),
-            createMockIdea('idea-3', 'Medium score idea', {
-              agreeVotes: 1,
-              user: createMockUser('user-3', 'User 3'),
+            // Idea C: 차이 2 (3-1), 합계 4, 찬성 3 => Idea A와 동점 (공동 3등)
+            // 테스트를 위해 A와 완벽히 같은 조건
+            createMockIdea('idea-C', 'Score 2, Total 4', {
+              agreeCount: 3,
+              disagreeCount: 1,
+            }),
+            // Idea D: 차이 3 (3-0) => 0순위 (점수 자체가 높음) -> 실제 1등
+            createMockIdea('idea-D', 'Score 3', {
+              agreeCount: 3,
+              disagreeCount: 0,
             }),
           ],
         }),
@@ -315,14 +324,56 @@ describe('Report Service', () => {
 
       // 실행
       const result = await getReportSummaryByIssueId(mockIssueId);
+      const rankings = result?.rankings.all || [];
 
       // 검증
-      expect(result?.rankings.all).toHaveLength(3);
-      expect(result?.rankings.all[0].id).toBe('idea-2'); // 3 - 0 = 3점
-      expect(result?.rankings.all[0].agreeVoteCount).toBe(3);
-      expect(result?.rankings.all[0].disagreeVoteCount).toBe(0);
-      expect(result?.rankings.all[1].id).toBe('idea-3'); // 1 - 0 = 1점
-      expect(result?.rankings.all[2].id).toBe('idea-1'); // 0 - 1 = -1점
+      expect(rankings).toHaveLength(4);
+
+      // 1위: Idea D (점수 차이 3점으로 가장 높음)
+      expect(rankings[0].id).toBe('idea-D');
+
+      // 2위: Idea B (점수 차이는 2점으로 A,C와 같으나, 투표 합계가 6으로 가장 많음)
+      expect(rankings[1].id).toBe('idea-B');
+
+      // 3, 4위: Idea A와 Idea C (모든 조건이 같음, 순서는 인덱스나 생성 순서에 따름)
+      // A와 C가 3번째, 4번째에 위치하는지만 확인
+      const lastTwoIds = [rankings[2].id, rankings[3].id];
+      expect(lastTwoIds).toContain('idea-A');
+      expect(lastTwoIds).toContain('idea-C');
+    });
+
+    // 동점자 등수 처리(Rank) 로직 검증
+    it('동점자에게는 같은 등수를 부여하고, 다음 등수는 +1 한다 (1223 방식)', async () => {
+      // 준비
+      const mockReport: ReportWithDetails = {
+        ...createMockReportBase(mockIssueId),
+        issue: createMockIssue(mockIssueId, {
+          ideas: [
+            // 공동 1등 (10 - 0 = 10점)
+            createMockIdea('idea-1', 'Winner 1', { agreeCount: 10, disagreeCount: 0 }),
+            // 공동 1등 (10 - 0 = 10점)
+            createMockIdea('idea-2', 'Winner 2', { agreeCount: 10, disagreeCount: 0 }),
+            // 2등 (5 - 0 = 5점)
+            createMockIdea('idea-3', 'Second Place', { agreeCount: 5, disagreeCount: 0 }),
+          ],
+        }),
+        selectedIdea: null,
+      };
+
+      mockedFindReportWithDetailsById.mockResolvedValue(mockReport);
+
+      // 실행
+      const result = await getReportSummaryByIssueId(mockIssueId);
+      const rankings = result?.rankings.all;
+
+      // 검증
+      expect(rankings).toBeDefined();
+      if (!rankings) return;
+
+      // 등수 확인
+      expect(rankings[0].rank).toBe(1); // 첫 번째 사람 1등
+      expect(rankings[1].rank).toBe(1); // 두 번째 사람도 1등 (동점)
+      expect(rankings[2].rank).toBe(2); // 세 번째 사람은 2등
     });
 
     it('선택된 아이디어가 없는 경우 null을 반환한다', async () => {

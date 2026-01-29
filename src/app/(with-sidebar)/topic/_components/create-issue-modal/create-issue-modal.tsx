@@ -1,23 +1,26 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import * as S from '@/app/(with-sidebar)/issue/_components/issue-join-modal/issue-join-modal.styles';
-import { useCreateIssueInTopicMutation } from '@/app/(with-sidebar)/issue/hooks';
 import { useModalStore } from '@/components/modal/use-modal-store';
-import { useTopicId } from '@/hooks/use-topic-id';
+import { useCreateIssueInTopicMutation, useTopicId } from '@/hooks';
 
 export default function CreateIssueModal() {
   const router = useRouter();
   const [issueTitle, setIssueTitle] = useState('');
-  const { closeModal } = useModalStore();
+  const { setIsPending, isOpen, closeModal } = useModalStore();
   const { mutate, isPending } = useCreateIssueInTopicMutation();
+
+  useEffect(() => {
+    setIsPending(isPending);
+  }, [isPending, setIsPending]);
 
   // 토픽 ID 가져오기 (토픽 페이지면 URL에서, 이슈 페이지면 이슈 데이터에서)
   const { topicId } = useTopicId();
 
-  const handleCreate = () => {
+  const handleCreate = useCallback(async () => {
     if (!topicId) {
       toast.error('토픽 정보를 찾을 수 없습니다.');
       return;
@@ -37,13 +40,15 @@ export default function CreateIssueModal() {
         },
       },
     );
-  };
+  }, [issueTitle, topicId, mutate]);
 
-  const onKeyDownEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && !isPending) {
-      handleCreate();
+  useEffect(() => {
+    if (isOpen) {
+      useModalStore.setState({
+        onSubmit: handleCreate,
+      });
     }
-  };
+  }, [isOpen, handleCreate]);
 
   const onChangeTitle = (e: React.ChangeEvent<HTMLInputElement>) => {
     setIssueTitle(e.target.value);
@@ -58,22 +63,11 @@ export default function CreateIssueModal() {
             value={issueTitle}
             onChange={onChangeTitle}
             placeholder="제목을 입력하세요"
-            onKeyDown={onKeyDownEnter}
             autoFocus
             disabled={isPending}
           />
         </S.InputWrapper>
       </S.InfoContainer>
-
-      <S.Footer>
-        <S.SubmitButton
-          type="button"
-          onClick={handleCreate}
-          disabled={isPending}
-        >
-          {isPending ? '생성 중...' : '만들기'}
-        </S.SubmitButton>
-      </S.Footer>
     </S.Container>
   );
 }

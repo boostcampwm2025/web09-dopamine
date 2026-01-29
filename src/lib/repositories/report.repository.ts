@@ -56,6 +56,7 @@ export async function findReportWithDetailsById(
             select: {
               id: true,
               userId: true,
+              nickname: true,
               deletedAt: true,
             },
           },
@@ -65,10 +66,8 @@ export async function findReportWithDetailsById(
             select: {
               id: true,
               content: true,
-              votes: {
-                where: { deletedAt: null },
-                select: { id: true, type: true },
-              },
+              agreeCount: true,
+              disagreeCount: true,
               comments: {
                 where: { deletedAt: null },
                 select: { id: true, content: true },
@@ -85,7 +84,6 @@ export async function findReportWithDetailsById(
                 select: {
                   id: true,
                   name: true,
-                  displayName: true,
                   image: true,
                 },
               },
@@ -98,10 +96,8 @@ export async function findReportWithDetailsById(
         select: {
           id: true,
           content: true,
-          votes: {
-            where: { deletedAt: null },
-            select: { id: true, type: true },
-          },
+          agreeCount: true,
+          disagreeCount: true,
           comments: {
             where: { deletedAt: null },
             select: { id: true },

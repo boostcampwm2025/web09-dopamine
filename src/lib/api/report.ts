@@ -22,7 +22,7 @@ export interface WordCloudResponse {
 export async function getWordClouds(issueId: string): Promise<WordCloudItem[]> {
   try {
     const data = await getAPIResponseData<WordCloudResponse>({
-      url: `/api/reports/${issueId}/word-cloud`,
+      url: `/api/issues/${issueId}/reports/word-cloud`,
       method: 'GET',
     });
 
@@ -42,7 +42,7 @@ export async function getWordClouds(issueId: string): Promise<WordCloudItem[]> {
 export async function generateWordCloud(issueId: string): Promise<WordCloudItem[]> {
   try {
     const data = await getAPIResponseData<{ success: boolean; wordClouds: WordCloudItem[] }>({
-      url: `/api/reports/${issueId}/word-cloud`,
+      url: `/api/issues/${issueId}/reports/word-cloud`,
       method: 'POST',
     });
 

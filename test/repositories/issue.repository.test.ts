@@ -1,6 +1,11 @@
 import { Issue, IssueStatus } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
-import { createIssue, findIssueById, updateIssueStatus } from '@/lib/repositories/issue.repository';
+import {
+  createIssue,
+  findIssueById,
+  findIssuesWithMapDataByTopicId,
+  updateIssueStatus,
+} from '@/lib/repositories/issue.repository';
 import { PrismaTransaction } from '@/types/prisma';
 
 jest.mock('@/lib/prisma', () => ({
@@ -8,12 +13,19 @@ jest.mock('@/lib/prisma', () => ({
     issue: {
       create: jest.fn(),
       findFirst: jest.fn(),
+      findMany: jest.fn(),
       update: jest.fn(),
+    },
+    issueConnection: {
+      findMany: jest.fn(),
     },
   },
 }));
 
 const mockedPrismaIssue = prisma.issue as jest.Mocked<typeof prisma.issue>;
+const mockedPrismaIssueConnection = prisma.issueConnection as jest.Mocked<
+  typeof prisma.issueConnection
+>;
 
 describe('Issue Repository', () => {
   beforeEach(() => {
@@ -45,23 +57,61 @@ describe('Issue Repository', () => {
       expect(result.id).toBe('issue-123');
       expect(result.title).toBe('Test Issue');
     });
+
+    it('topicId가 있으면 이슈 노드가 함께 생성된다', async () => {
+      // 역할: 맵 화면에서 필요한 노드가 누락되지 않도록 연관 생성 로직을 검증한다.
+      const mockTx = {
+        issue: {
+          create: jest.fn().mockResolvedValue({
+            id: 'issue-123',
+            title: 'Test Issue',
+            status: IssueStatus.SELECT,
+            topicId: 'topic-123',
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            deletedAt: null,
+            closedAt: null,
+          }),
+        },
+      } as unknown as PrismaTransaction;
+
+      await createIssue(mockTx, 'Test Issue', 'topic-123');
+
+      expect(mockTx.issue.create).toHaveBeenCalledWith({
+        data: {
+          title: 'Test Issue',
+          topicId: 'topic-123',
+          issueNode: {
+            create: {
+              positionX: 500,
+              positionY: 400,
+            },
+          },
+        },
+      });
+    });
   });
 
   describe('findIssueById', () => {
     it('삭제되지 않은 이슈를 ID로 조회한다', async () => {
       // 준비
-      const mockIssue = {
-        id: 'issue-123',
+      const mockPrismaResult = {
         title: 'Test Issue',
         status: IssueStatus.SELECT,
         topicId: 'topic-123',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        deletedAt: null,
-        closedAt: null,
-      } as Issue;
+        topic: {
+          projectId: 'project-123',
+        },
+      };
 
-      mockedPrismaIssue.findFirst.mockResolvedValue(mockIssue as Issue);
+      const expectedResult = {
+        title: 'Test Issue',
+        status: IssueStatus.SELECT,
+        topicId: 'topic-123',
+        projectId: 'project-123',
+      };
+
+      mockedPrismaIssue.findFirst.mockResolvedValue(mockPrismaResult as any);
 
       // 실행
       const result = await findIssueById('issue-123');
@@ -72,8 +122,18 @@ describe('Issue Repository', () => {
           id: 'issue-123',
           deletedAt: null, // 삭제되지 않은 이슈만 조회
         },
+        select: {
+          title: true,
+          status: true,
+          topicId: true,
+          topic: {
+            select: {
+              projectId: true,
+            },
+          },
+        },
       });
-      expect(result).toEqual(mockIssue);
+      expect(result).toEqual(expectedResult);
     });
 
     /**
@@ -88,6 +148,25 @@ describe('Issue Repository', () => {
 
       // 검증
       expect(result).toBeNull();
+    });
+
+    it('토픽 정보가 없으면 projectId는 null로 반환된다', async () => {
+      // 역할: 토픽이 없는 이슈도 안전하게 응답하도록 null 분기를 보장한다.
+      mockedPrismaIssue.findFirst.mockResolvedValue({
+        title: 'Test Issue',
+        status: IssueStatus.SELECT,
+        topicId: null,
+        topic: null,
+      } as any);
+
+      const result = await findIssueById('issue-123');
+
+      expect(result).toEqual({
+        title: 'Test Issue',
+        status: IssueStatus.SELECT,
+        topicId: null,
+        projectId: null,
+      });
     });
   });
 
@@ -189,6 +268,50 @@ describe('Issue Repository', () => {
       // 검증: closedAt이 null인지 확인
       const updateCall = mockedPrismaIssue.update.mock.calls[0][0];
       expect(updateCall.data.closedAt).toBeNull();
+    });
+  });
+
+  describe('findIssuesWithMapDataByTopicId', () => {
+    it('이슈/연결 정보를 함께 조회한다', async () => {
+      // 역할: 맵 화면 렌더링에 필요한 이슈/연결 데이터를 동시에 제공하는지 확인한다.
+      mockedPrismaIssue.findMany.mockResolvedValue([{ id: 'issue-1' }] as any);
+      mockedPrismaIssueConnection.findMany.mockResolvedValue([{ id: 'conn-1' }] as any);
+
+      const result = await findIssuesWithMapDataByTopicId('topic-1');
+
+      expect(mockedPrismaIssue.findMany).toHaveBeenCalledWith({
+        where: { topicId: 'topic-1', deletedAt: null },
+        select: {
+          id: true,
+          title: true,
+          status: true,
+          createdAt: true,
+          updatedAt: true,
+          issueNode: {
+            where: { deletedAt: null },
+            select: {
+              id: true,
+              positionX: true,
+              positionY: true,
+            },
+          },
+        },
+      });
+      expect(mockedPrismaIssueConnection.findMany).toHaveBeenCalledWith({
+        where: {
+          deletedAt: null,
+          sourceIssue: { topicId: 'topic-1', deletedAt: null },
+          targetIssue: { topicId: 'topic-1', deletedAt: null },
+        },
+        select: {
+          id: true,
+          sourceIssueId: true,
+          targetIssueId: true,
+          sourceHandle: true,
+          targetHandle: true,
+        },
+      });
+      expect(result).toEqual({ issues: [{ id: 'issue-1' }], connections: [{ id: 'conn-1' }] });
     });
   });
 });

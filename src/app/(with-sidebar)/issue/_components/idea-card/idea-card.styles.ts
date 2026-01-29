@@ -68,37 +68,36 @@ export const Card = styled.article<{
   ${({ isHotIdea, status }) =>
     isHotIdea
       ? `
-    z-index: 100;
+    z-index: ${theme.zIndex.selected};
     border: 2px solid ${theme.colors.red[500]};
     box-shadow: 0 8px 24px rgba(220, 38, 38, 0.3);
     ${status === 'default' || !status ? `background: ${theme.colors.red[50]};` : ''}
   `
       : ''}
-  ${({ status, isCommentOpen }) => {
+
+  ${({ status }) => {
     switch (status) {
       case 'needDiscussion':
         return `
         border: 2px solid ${theme.colors.red[600]};
-        background: ${isCommentOpen ? theme.colors.red[100] : theme.colors.red[50]};
-        ${isCommentOpen ? 'box-shadow: 0 8px 20px rgba(220, 38, 38, 0.15);' : ''}
+        background: ${theme.colors.red[50]};
         `;
       case 'mostLiked':
         return `border: 2px solid ${theme.colors.blue[600]};
-        background: ${isCommentOpen ? theme.colors.blue[100] : theme.colors.blue[50]};
-        ${isCommentOpen ? 'box-shadow: 0 8px 20px rgba(37, 99, 235, 0.15);' : ''}
+        background: ${theme.colors.blue[50]};
         `;
       case 'selected':
         return `
         border: 2px solid ${theme.colors.yellow[500]};
-        background: ${isCommentOpen ? theme.colors.yellow[100] : theme.colors.yellow[50]};
-        box-shadow: ${isCommentOpen ? '0 8px 20px rgba(250, 204, 21, 0.3)' : '0 4px 10px rgba(250, 204, 21, 0.86)'};
+        background: ${theme.colors.yellow[50]};
+        box-shadow: '0 4px 10px rgba(250, 204, 21, 0.86)';
         `;
       case 'default':
       default:
         return `
-        border: 1px solid ${isCommentOpen ? theme.colors.blue[300] : theme.colors.gray[200]};
-        background: ${isCommentOpen ? theme.colors.blue[50] : theme.colors.white};
-        box-shadow: ${isCommentOpen ? '0 8px 20px rgba(37, 99, 235, 0.12)' : '0 4px 10px rgba(31, 41, 55, 0.06)'};
+        border: 1px solid ${theme.colors.gray[200]};
+        background: ${theme.colors.white};
+        box-shadow: '0 4px 10px rgba(31, 41, 55, 0.06)';
         `;
     }
   }}
@@ -124,13 +123,16 @@ export const Card = styled.article<{
   ${({ isHotIdea, status }) =>
     isHotIdea && status !== 'selected'
       ? `
-    z-index: 100;
+    z-index: ${theme.zIndex.selected};
     border: 2px solid ${theme.colors.red[500]} !important;
     box-shadow: 0 8px 24px rgba(220, 38, 38, 0.3) !important;
   `
       : ''}
   min-width: 30em;
   max-width: 30em;
+
+  z-index: ${({ isCommentOpen, isHotIdea, theme }) =>
+    isCommentOpen ? theme.zIndex.important : isHotIdea ? theme.zIndex.selected : 1};
 
   /* 등장 애니메이션 */
   @keyframes ideaCardAppear {
@@ -229,9 +231,12 @@ export const SubmitButton = styled.button`
     background-color: ${theme.colors.green[100]};
   }
 `;
-export const IconButton = styled.button`
+export const IconButton = styled.button<{ isCommentOpen?: boolean }>`
   background: ${theme.colors.white};
-  border: 1px solid ${theme.colors.gray[200]};
+  border: ${({ isCommentOpen }) =>
+    isCommentOpen ? 'none' : `1px solid ${theme.colors.gray[200]}`};
+  outline: ${({ isCommentOpen }) =>
+    isCommentOpen ? `2px solid ${theme.colors.blue[400]}` : 'none'};
   min-width: 42px;
   height: 42px;
   padding: 0 10px;

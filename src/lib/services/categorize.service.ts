@@ -27,29 +27,90 @@ export const categorizeService = {
 
       await ideaRepository.resetCategoriesByIssueId(issueId, tx);
 
+      // 카테고리 제목 중복을 제거하고, 동일한 제목에 속한 아이디어들을 하나로 병합하기 위해 Map 사용
+      const uniqueCategoriesMap = new Map<string, string[]>();
+      categoryPayloads.forEach((payload) => {
+        const title = payload.title.trim();
+        if (!title) return;
+        const existingIdeaIds = uniqueCategoriesMap.get(title) || [];
+        uniqueCategoriesMap.set(title, [...existingIdeaIds, ...payload.ideaIds]);
+      });
+
+      // 중복 제거된 카테고리
+      const dedupedPayloads = Array.from(uniqueCategoriesMap.entries()).map(([title, ideaIds]) => ({
+        title,
+        ideaIds: Array.from(new Set(ideaIds)),
+      }));
+
       const createdCategories = await categoryRepository.createManyForIssue(
         issueId,
-        categoryPayloads,
+        dedupedPayloads,
         tx as Prisma.TransactionClient,
       );
 
       const ideaCategoryMap = new Map<string, string>();
-      categoryPayloads.forEach((category, index) => {
+      const categoryToIdeaIds = new Map<string, string[]>();
+      dedupedPayloads.forEach((category, index) => {
         const categoryId = createdCategories[index]?.id;
         if (!categoryId) return;
         category.ideaIds.forEach((ideaId) => {
           ideaCategoryMap.set(ideaId, categoryId);
+          // 카테고리별 아이디어를 묶어 updateMany 호출 횟수를 줄인다.
+          const ideaIds = categoryToIdeaIds.get(categoryId);
+          if (ideaIds) {
+            ideaIds.push(ideaId);
+          } else {
+            categoryToIdeaIds.set(categoryId, [ideaId]);
+          }
         });
       });
 
       await Promise.all(
-        Array.from(ideaCategoryMap.entries()).map(([ideaId, categoryId]) =>
-          tx.idea.updateMany({
-            where: { id: ideaId, issueId },
-            data: { categoryId, positionX: null, positionY: null },
-          }),
+        Array.from(categoryToIdeaIds.entries()).map(([categoryId, ideaIds]) =>
+          ideaRepository.updateManyCategoriesByIds(ideaIds, issueId, categoryId, tx),
         ),
       );
+
+      // 미분류 아이디어 처리
+      const uncategorizedIdeas = await ideaRepository.findUncategorizedByIssueId(issueId, tx);
+      const uncategorizedIdeaIds = uncategorizedIdeas.map((idea) => idea.id);
+
+      if (uncategorizedIdeaIds.length > 0) {
+        // "기타" 카테고리가 이미 존재하는지 확인
+        const existingOtherCategory = createdCategories.find((c) => c.title === '기타');
+
+        let targetCategoryId: string;
+
+        if (existingOtherCategory) {
+          targetCategoryId = existingOtherCategory.id;
+        } else {
+          // "기타" 카테고리 생성
+          const uncategorizedCategory = await categoryRepository.create(
+            {
+              issueId,
+              title: '기타',
+              positionX: 100 + createdCategories.length * 600,
+              positionY: 100,
+            },
+            tx,
+          );
+          targetCategoryId = uncategorizedCategory.id;
+          createdCategories.push(uncategorizedCategory);
+        }
+
+        // 미분류 아이디어들을 "기타" 카테고리에 할당
+        await ideaRepository.updateManyCategoriesByIds(
+          uncategorizedIdeaIds,
+          issueId,
+          targetCategoryId,
+          tx,
+        );
+
+        // ideaCategoryMap 업데이트
+        uncategorizedIdeaIds.forEach((ideaId) => {
+          ideaCategoryMap.set(ideaId, targetCategoryId);
+        });
+      }
 
       return {
         categories: createdCategories,

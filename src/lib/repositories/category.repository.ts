@@ -15,6 +15,16 @@ export const categoryRepository = {
     });
   },
 
+  async findByTitle(issueId: string, title: string) {
+    return prisma.category.findFirst({
+      where: {
+        issueId,
+        title,
+        deletedAt: null,
+      },
+    });
+  },
+
   async softDeleteByIssueId(
     issueId: string,
     now: Date = new Date(),
@@ -45,15 +55,18 @@ export const categoryRepository = {
     );
   },
 
-  async create(data: {
-    issueId: string;
-    title: string;
-    positionX?: number;
-    positionY?: number;
-    width?: number;
-    height?: number;
-  }) {
-    return prisma.category.create({
+  async create(
+    data: {
+      issueId: string;
+      title: string;
+      positionX?: number;
+      positionY?: number;
+      width?: number;
+      height?: number;
+    },
+    tx: Prisma.TransactionClient = prisma,
+  ) {
+    return tx.category.create({
       data: {
         issueId: data.issueId,
         title: data.title,

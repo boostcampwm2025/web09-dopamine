@@ -1,4 +1,5 @@
 import getAPIResponseData from '@/lib/utils/api-response';
+import { withSseHeader } from '../utils/with-sse-header';
 
 type VoteRequest = {
   issueId: string;
@@ -18,11 +19,12 @@ export const postVote = async ({
   ideaId,
   userId,
   voteType,
-}: VoteRequest): Promise<VoteResponse> => {
+  connectionId,
+}: VoteRequest & { connectionId?: string }): Promise<VoteResponse> => {
   return getAPIResponseData<VoteResponse>({
-    url: `/api/issues/${issueId}/idea/${ideaId}/vote`,
+    url: `/api/issues/${issueId}/ideas/${ideaId}/vote`,
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: withSseHeader({ 'Content-Type': 'application/json' }, connectionId),
     body: JSON.stringify({
       userId,
       voteType,
