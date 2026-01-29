@@ -112,9 +112,11 @@ const IssuePage = () => {
       if (isQuickIssue) return;
       if (!issueId || isLoading || sessionStatus === 'loading' || !session?.user?.id) return;
       if (projectId && (isProjectsLoading || !isProjectMember)) return;
+      if (status === ISSUE_STATUS.CLOSE) return;
 
-      // 이미 참여한 경우 스킵
-      if (isLoggedInUserMember) return;
+      if (isLoggedInUserMember)
+        // 이미 참여한 경우 스킵
+        return;
 
       try {
         await joinIssueAsLoggedInUser(issueId, connectionId);
