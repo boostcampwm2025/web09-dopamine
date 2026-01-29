@@ -1,7 +1,6 @@
 import Image from 'next/image';
-import { useIssueId } from '@/app/(with-sidebar)/issue/hooks';
+import { useIssueId, useIssueIdentity } from '@/app/(with-sidebar)/issue/hooks';
 import { MEMBER_ROLE } from '@/constants/issue';
-import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
 import * as MemberS from './member-sidebar-item.styles';
 import * as S from './sidebar.styles';
 
@@ -21,8 +20,10 @@ export default function MemberSidebarItem({
   isConnected,
 }: MemberSidebarItemProps) {
   const issueId = useIssueId();
-  const currentUserId = getUserIdForIssue(issueId);
-  const isCurrentUser = currentUserId === id;
+
+  const { userId } = useIssueIdentity(issueId);
+
+  const isCurrentUser = userId === id;
 
   const isProjectOwner = role === MEMBER_ROLE.OWNER && profile;
   const isIssueOwner = role === MEMBER_ROLE.OWNER && !profile;
