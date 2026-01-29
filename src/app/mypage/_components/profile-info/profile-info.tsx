@@ -22,19 +22,22 @@ export default function ProfileInfo({ user }: ProfileInfoProps) {
   }, [user?.displayName]);
 
   const handleDisplayNameChange = (value: string) => {
-    if (value.length > 30) {
-      toast.error('보여질 이름은 30자 이하여야 합니다.');
-      return;
-    }
     setDisplayName(value);
   };
 
   const handleUpdateDisplayName = () => {
-    if (!displayName || displayName === user?.displayName) return;
+    const trimmed = displayName.trim();
 
-    updateDisplayNameMutation.mutate(displayName, {
+    if (trimmed.length < 1 || trimmed.length > 10) {
+      toast.error('보여질 이름은 1자 이상 10자 이하여야 합니다.');
+      return;
+    }
+
+    if (trimmed === user?.displayName) return;
+
+    updateDisplayNameMutation.mutate(trimmed, {
       onSuccess: async () => {
-        await update({ displayName });
+        await update({ displayName: trimmed });
       },
     });
   };

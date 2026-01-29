@@ -66,4 +66,7 @@ export const CLIENT_ERROR_MESSAGES: Record<string, string> = {
   REPORT_NOT_FOUND: '리포트를 찾을 수 없습니다.',
   WORD_CLOUD_FETCH_FAILED: '워드클라우드 조회에 실패했습니다.',
   WORD_CLOUD_CREATE_FAILED: '워드클라우드 생성에 실패했습니다.',
+
+  // 마이페이지
+  INVALID_DISPLAYNAME: '잘못된 닉네임 형식입니다.',
 };

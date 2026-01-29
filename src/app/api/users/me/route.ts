@@ -2,6 +2,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { updateUser } from '@/lib/repositories/user.repository';
 import { createSuccessResponse, createErrorResponse } from '@/lib/utils/api-helpers';
+import { CLIENT_ERROR_MESSAGES } from '@/constants/error-messages';
 
 export async function PATCH(request: Request) {
   try {
@@ -14,11 +15,13 @@ export async function PATCH(request: Request) {
     const body = await request.json();
     const { displayName } = body;
 
-    if (typeof displayName !== 'string' || displayName.length > 30) {
-      return createErrorResponse('BAD_REQUEST', 400, 'Invalid displayName');
+    const normalized = typeof displayName === 'string' ? displayName.trim() : '';
+
+    if (normalized.length < 1 || normalized.length > 10) {
+      return createErrorResponse('BAD_REQUEST', 400, CLIENT_ERROR_MESSAGES.INVALID_DISPLAYNAME);
     }
 
-    const user = await updateUser(session.user.id, { displayName });
+    const user = await updateUser(session.user.id, { displayName: normalized });
 
     return createSuccessResponse(user);
   } catch (error) {
