@@ -9,6 +9,7 @@ import { selectedIdeaQueryKey, useIssueMemberQuery } from '@/hooks/issue';
 import { deleteCloseModal } from '@/lib/api/issue';
 import { useIssueStore } from '../store/use-issue-store';
 import { useSseConnectionStore } from '../store/use-sse-connection-store';
+import type { IdeaWithPosition } from '../types/idea';
 
 interface UseIssueEventsParams {
   issueId: string;
@@ -142,13 +143,23 @@ export function useIssueEvents({
       toast.error(errorMessage);
     });
 
-    // 투표 이벤트 핸들러
+    // 투표 이벤트 핸들러 (변경된 아이디어만 agreeCount, disagreeCount 갱신)
     eventSource.addEventListener(SSE_EVENT_TYPES.VOTE_CHANGED, (event) => {
       const data = JSON.parse((event as MessageEvent).data);
-      // 특정 아이디어의 투표만 갱신
-      if (data.ideaId) {
-        queryClient.invalidateQueries({ queryKey: ['issues', issueId, 'ideas', data.ideaId] });
-      }
+      if (
+        !data.ideaId ||
+        typeof data.agreeCount !== 'number' ||
+        typeof data.disagreeCount !== 'number'
+      )
+        return;
+      queryClient.setQueryData<IdeaWithPosition[]>(['issues', issueId, 'ideas'], (old) => {
+        if (!Array.isArray(old)) return old;
+        return old.map((idea) =>
+          idea.id === data.ideaId
+            ? { ...idea, agreeCount: data.agreeCount, disagreeCount: data.disagreeCount }
+            : idea,
+        );
+      });
     });
 
     // 댓글 이벤트 핸들러
