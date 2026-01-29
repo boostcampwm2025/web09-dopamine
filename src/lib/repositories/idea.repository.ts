@@ -62,7 +62,7 @@ export const ideaRepository = {
       userId: idea.userId,
       categoryId: idea.category?.id || null,
 
-      nickname: nicknameMap.get(idea.userId) ?? '알 수 없음',
+      nickname: idea.userId ? nicknameMap.get(idea.userId) ?? '알 수 없음' : '알 수 없음',
 
       agreeCount: idea.agreeCount,
       disagreeCount: idea.disagreeCount,
