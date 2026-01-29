@@ -37,6 +37,11 @@ export const issueMemberRepository = {
         userId: true,
         role: true,
         nickname: true,
+        user: {
+          select: {
+            displayName: true,
+          },
+        },
       },
     });
   },
@@ -61,7 +66,7 @@ export const issueMemberRepository = {
 
   async findMemberByUserId(issueId: string, userId: string | null) {
     if (!userId) return null;
-    return prisma.issueMember.findFirst({
+    const member = await prisma.issueMember.findFirst({
       where: {
         issueId,
         userId,
@@ -71,7 +76,19 @@ export const issueMemberRepository = {
         userId: true,
         nickname: true,
         role: true,
+        user: {
+          select: {
+            displayName: true,
+          },
+        },
       },
     });
+    if (!member) return null;
+    return {
+      userId: member.userId,
+      nickname: member.nickname,
+      role: member.role,
+      displayName: member.user?.displayName ?? null,
+    };
   },
 };
