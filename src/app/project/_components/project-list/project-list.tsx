@@ -19,6 +19,7 @@ export function ProjectList({ projects }: ProjectListProps) {
             title={project.title}
             memberCount={project.memberCount}
             ownerId={project.ownerId}
+            members={project.members}
           />
         ))}
         <ProjectCard isCreateCard />
