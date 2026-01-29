@@ -7,6 +7,7 @@ const BaseCard = styled.div`
   padding: 24px;
   cursor: pointer;
   transition: all 0.2s ease;
+  min-height: 240px;
 
   &:hover {
     box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.05);
