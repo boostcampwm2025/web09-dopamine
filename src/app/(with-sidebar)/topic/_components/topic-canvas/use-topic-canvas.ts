@@ -127,6 +127,11 @@ export function useTopicCanvas({
         return;
       }
 
+      // 자기 자신과 연결 방지
+      if (params.source === params.target) {
+        return;
+      }
+
       // sourceHandle/targetHandle에서 "-source", "-target" 제거
       const sourceHandle = params.sourceHandle?.replace('-source', '') || null;
       const targetHandle = params.targetHandle?.replace('-target', '') || null;

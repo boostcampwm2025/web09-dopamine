@@ -44,6 +44,10 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ top
     return createErrorResponse('ISSUE_IDS_REQUIRED', 400);
   }
 
+  if (sourceIssueId === targetIssueId) {
+    return createErrorResponse('CANNOT_CONNECT_TO_SELF', 400);
+  }
+
   try {
     const connection = await prisma.issueConnection.create({
       data: {
