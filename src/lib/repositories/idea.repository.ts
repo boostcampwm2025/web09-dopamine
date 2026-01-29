@@ -62,7 +62,7 @@ export const ideaRepository = {
       userId: idea.userId,
       categoryId: idea.category?.id || null,
 
-      nickname: nicknameMap.get(idea.userId) ?? '알 수 없음',
+      nickname: idea.userId ? nicknameMap.get(idea.userId) ?? '알 수 없음' : '알 수 없음',
 
       agreeCount: idea.agreeCount,
       disagreeCount: idea.disagreeCount,
@@ -219,16 +219,18 @@ export const ideaRepository = {
     });
 
     // IssueMember nickname 추가
-    const issueMember = await prisma.issueMember.findFirst({
-      where: {
-        issueId: updatedIdea.issueId,
-        userId: updatedIdea.userId,
-        deletedAt: null,
-      },
-      select: {
-        nickname: true,
-      },
-    });
+    const issueMember = updatedIdea.userId
+      ? await prisma.issueMember.findFirst({
+          where: {
+            issueId: updatedIdea.issueId,
+            userId: updatedIdea.userId,
+            deletedAt: null,
+          },
+          select: {
+            nickname: true,
+          },
+        })
+      : null;
 
     return {
       ...updatedIdea,

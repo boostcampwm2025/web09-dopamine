@@ -59,7 +59,8 @@ export const issueMemberRepository = {
     });
   },
 
-  async findMemberByUserId(issueId: string, userId: string) {
+  async findMemberByUserId(issueId: string, userId: string | null) {
+    if (!userId) return null;
     return prisma.issueMember.findFirst({
       where: {
         issueId,

@@ -37,7 +37,6 @@ export default function MypageCard() {
       <S.ContentSection>
         <ProfileInfo user={user} />
         <LoginInfo user={user} />
-        <S.Divider />
         <AccountActions />
       </S.ContentSection>
     </S.CardContainer>

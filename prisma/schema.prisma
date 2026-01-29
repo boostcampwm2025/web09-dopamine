@@ -97,7 +97,7 @@ model VerificationToken {
 
 model Project {
   id          String    @id @default(uuid()) @db.Char(36)
-  ownerId     String    @map("owner_id") @db.Char(36)
+  ownerId     String?   @map("owner_id") @db.Char(36)
   title       String    @db.VarChar(255)
   description String?   @db.Text
   createdAt   DateTime  @default(now()) @map("created_at")
@@ -105,7 +105,7 @@ model Project {
   deletedAt   DateTime? @map("deleted_at")
 
   // Relations
-  owner          User            @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  owner          User?           @relation(fields: [ownerId], references: [id], onDelete: SetNull)
   projectMembers ProjectMember[]
   topics         Topic[]
   invitations    ProjectInvitation[]
@@ -281,7 +281,7 @@ model Category {
 model Idea {
   id            String    @id @default(uuid()) @db.Char(36)
   issueId       String    @map("issue_id") @db.Char(36)
-  userId        String    @map("user_id") @db.Char(36)
+  userId        String?   @map("user_id") @db.Char(36)
   categoryId    String?   @map("category_id") @db.Char(36)
   content       String    @db.Text
   positionX     Float?    @map("position_x") @db.Float
@@ -295,7 +295,7 @@ model Idea {
 
   // Relations
   issue    Issue     @relation(fields: [issueId], references: [id], onDelete: Cascade)
-  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user     User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
   category Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   comments Comment[]
   votes    Vote[]
@@ -310,7 +310,7 @@ model Idea {
 model Comment {
   id        String    @id @default(uuid()) @db.Char(36)
   ideaId    String    @map("idea_id") @db.Char(36)
-  userId    String    @map("user_id") @db.Char(36)
+  userId    String?   @map("user_id") @db.Char(36)
   content   String    @db.Text
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
@@ -318,7 +318,7 @@ model Comment {
 
   // Relations
   idea Idea @relation(fields: [ideaId], references: [id], onDelete: Cascade)
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([ideaId])
   @@index([userId])
@@ -328,7 +328,7 @@ model Comment {
 model Vote {
   id        String    @id @default(uuid()) @db.Char(36)
   ideaId    String    @map("idea_id") @db.Char(36)
-  userId    String    @map("user_id") @db.Char(36)
+  userId    String?   @map("user_id") @db.Char(36)
   type      VoteType
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
@@ -336,7 +336,7 @@ model Vote {
 
   // Relations
   idea Idea @relation(fields: [ideaId], references: [id], onDelete: Cascade)
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@unique([ideaId, userId, deletedAt])
   @@index([ideaId])
