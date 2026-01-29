@@ -10,7 +10,7 @@ const ProjectHeader = () => {
   const { data: session } = useSession();
   const router = useRouter();
   const userImage = session?.user?.image || '/profile.svg';
-  const userName = session?.user?.name || '사용자';
+  const userName = session?.user?.displayName || '사용자';
 
   const handleProfileClick = () => {
     router.push(`/mypage`);
