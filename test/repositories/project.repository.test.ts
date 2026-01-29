@@ -5,6 +5,7 @@ import {
   getProjectWithTopics,
   getProjectsByMemberId,
   getProjectsByOwnerId,
+  getProjectsByUserMembership,
   updateProject,
 } from '@/lib/repositories/project.repository';
 import { PrismaTransaction } from '@/types/prisma';
@@ -130,6 +131,62 @@ describe('Project Repository 테스트', () => {
       orderBy: { createdAt: 'desc' },
     });
     expect(result[0].memberCount).toBe(3);
+  });
+
+  it('참여중인 프로젝트 목록을 단일 쿼리로 조회한다', async () => {
+    // 역할: 소유/게스트를 모두 포함한 참여 프로젝트를 단일 조건으로 조회한다.
+    const userId = 'user-1';
+    const now = new Date();
+
+    mockedProject.findMany.mockResolvedValue([
+      {
+        id: 'project-1',
+        title: '프로젝트1',
+        description: '설명',
+        ownerId: userId,
+        createdAt: now,
+        updatedAt: now,
+        _count: { projectMembers: 2 },
+      },
+    ] as any);
+
+    const result = await getProjectsByUserMembership(userId);
+
+    expect(mockedProject.findMany).toHaveBeenCalledWith({
+      where: {
+        deletedAt: null,
+        projectMembers: {
+          some: { userId, deletedAt: null },
+        },
+      },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        ownerId: true,
+        createdAt: true,
+        updatedAt: true,
+        _count: {
+          select: {
+            projectMembers: {
+              where: { deletedAt: null },
+            },
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+    expect(result).toEqual([
+      {
+        id: 'project-1',
+        title: '프로젝트1',
+        description: '설명',
+        ownerId: userId,
+        memberCount: 2,
+        createdAt: now,
+        updatedAt: now,
+      },
+    ]);
   });
 
   it('프로젝트가 없으면 null을 반환한다', async () => {

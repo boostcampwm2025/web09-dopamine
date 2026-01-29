@@ -2,7 +2,7 @@ export interface Project {
   id: string;
   title: string;
   description: string | null;
-  ownerId: string;
+  ownerId: string | null;
   createdAt: string;
   updatedAt: string;
   deletedAt?: string | null;
