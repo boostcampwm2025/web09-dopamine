@@ -43,6 +43,14 @@ export const useIssueSidebar = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchTarget, setSearchTarget] = useState<'issue' | 'member'>('issue');
 
+  const getMemberName = useCallback(
+    (member: { nickname: string; displayName?: string }) => {
+      if (isQuickIssue) return member.nickname || '익명';
+      return member.displayName || member.nickname || '익명';
+    },
+    [isQuickIssue],
+  );
+
   // 멤버 정렬: 소유자 > 온라인 > 이름순
   const sortedMembers = useMemo(() => {
     return [...members].sort((a, b) => {
@@ -62,11 +70,11 @@ export const useIssueSidebar = () => {
       }
 
       // 3. 이름순 정렬
-      const nameA = a.nickname || '익명';
-      const nameB = b.nickname || '익명';
+      const nameA = getMemberName(a);
+      const nameB = getMemberName(b);
       return nameA.localeCompare(nameB);
     });
-  }, [members, onlineMemberIds, isSummaryPage]);
+  }, [members, onlineMemberIds, isSummaryPage, getMemberName]);
 
   // 공통 검색 파라미터 계산
   const searchParams = useMemo(() => {
@@ -87,9 +95,9 @@ export const useIssueSidebar = () => {
     if (!trimmed) return sortedMembers;
 
     return sortedMembers.filter((member) =>
-      matchSearch(member.nickname || '익명', normalized, searchChoseong),
+      matchSearch(getMemberName(member), normalized, searchChoseong),
     );
-  }, [searchParams, sortedMembers, searchTarget]);
+  }, [searchParams, sortedMembers, searchTarget, getMemberName]);
 
   // 이슈 검색 필터링
   const filteredIssues = useMemo(() => {
@@ -152,6 +160,7 @@ export const useIssueSidebar = () => {
     // 데이터
     topicId,
     isTopicPage,
+    isQuickIssue,
     topicIssues,
     filteredIssues,
     filteredStaticIssues,
