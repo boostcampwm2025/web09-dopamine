@@ -19,12 +19,10 @@ jest.mock('@/lib/repositories/project.repository');
 const mockedGetAuthenticatedUserId = getAuthenticatedUserId as jest.MockedFunction<
   typeof getAuthenticatedUserId
 >;
-const mockedGetProjectsByOwnerId = projectRepository.getProjectsByOwnerId as jest.MockedFunction<
-  typeof projectRepository.getProjectsByOwnerId
->;
-const mockedGetProjectsByMemberId = projectRepository.getProjectsByMemberId as jest.MockedFunction<
-  typeof projectRepository.getProjectsByMemberId
->;
+const mockedGetProjectsByUserMembership =
+  projectRepository.getProjectsByUserMembership as jest.MockedFunction<
+    typeof projectRepository.getProjectsByUserMembership
+  >;
 const mockedCreateProject = projectRepository.createProject as jest.MockedFunction<
   typeof projectRepository.createProject
 >;
@@ -58,22 +56,22 @@ describe('GET /api/projects', () => {
 
   it('성공적으로 프로젝트 목록을 조회한다', async () => {
     const userId = 'user-1';
-    const mockOwnProjects = [{ id: 'project-1', title: 'My Project' }];
-    const mockGuestProjects = [{ id: 'project-2', title: 'Guest Project' }];
+    const mockProjects = [
+      { id: 'project-1', title: 'My Project' },
+      { id: 'project-2', title: 'Guest Project' },
+    ];
 
     mockedGetAuthenticatedUserId.mockResolvedValue({
       userId,
       error: null,
     });
-    mockedGetProjectsByOwnerId.mockResolvedValue(mockOwnProjects as any);
-    mockedGetProjectsByMemberId.mockResolvedValue(mockGuestProjects as any);
+    mockedGetProjectsByUserMembership.mockResolvedValue(mockProjects as any);
 
     const response = await GET();
     const data = await expectSuccessResponse(response, 200);
 
     expect(data).toHaveLength(2);
-    expect(mockedGetProjectsByOwnerId).toHaveBeenCalledWith(userId);
-    expect(mockedGetProjectsByMemberId).toHaveBeenCalledWith(userId);
+    expect(mockedGetProjectsByUserMembership).toHaveBeenCalledWith(userId);
   });
 });
 
