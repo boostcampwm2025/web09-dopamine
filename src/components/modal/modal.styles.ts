@@ -7,7 +7,7 @@ export const Overlay = styled.div`
   background: rgba(15, 23, 42, 0.35);
   display: grid;
   place-items: center;
-  z-index: 1000;
+  z-index: ${theme.zIndex.backdrop};
   padding: 16px;
 `;
 

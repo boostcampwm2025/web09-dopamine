@@ -1,14 +1,23 @@
 import { GET, POST } from '@/app/api/issues/[issueId]/ideas/route';
+import { getServerSession } from 'next-auth';
 import { ideaRepository } from '@/lib/repositories/idea.repository';
 import { ideaFilterService } from '@/lib/services/idea-filter.service';
 import {
+  createMockSession,
   createMockGetRequest,
   createMockParams,
   createMockRequest,
   expectErrorResponse,
   expectSuccessResponse,
+  setupAuthMock,
 } from '@test/utils/api-test-helpers';
 
+jest.mock('next-auth', () => ({
+  getServerSession: jest.fn(),
+}));
+jest.mock('@auth/prisma-adapter', () => ({
+  PrismaAdapter: () => ({}),
+}));
 jest.mock('@/lib/repositories/idea.repository');
 jest.mock('@/lib/services/idea-filter.service');
 jest.mock('@/lib/sse/sse-service');
@@ -20,12 +29,14 @@ const mockedCreate = ideaRepository.create as jest.MockedFunction<typeof ideaRep
 const mockedGetFilteredIdeaIds = ideaFilterService.getFilteredIdeaIds as jest.MockedFunction<
   typeof ideaFilterService.getFilteredIdeaIds
 >;
+const mockedGetServerSession = getServerSession as jest.MockedFunction<typeof getServerSession>;
 
 describe('GET /api/issues/[issueId]/ideas', () => {
   const issueId = 'issue-1';
 
   beforeEach(() => {
     jest.clearAllMocks();
+    setupAuthMock(mockedGetServerSession, createMockSession('user-1'));
   });
 
   it('성공적으로 아이디어 목록을 조회한다', async () => {
@@ -42,7 +53,12 @@ describe('GET /api/issues/[issueId]/ideas', () => {
     const response = await GET(req, params);
     const data = await expectSuccessResponse(response, 200);
 
-    expect(data).toEqual(mockIdeas);
+    expect(data).toEqual(
+      mockIdeas.map((idea) => ({
+        ...idea,
+        commentCount: 0,
+      })),
+    );
     expect(mockedFindByIssueId).toHaveBeenCalledWith(issueId);
   });
 
@@ -71,6 +87,7 @@ describe('POST /api/issues/[issueId]/ideas', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    setupAuthMock(mockedGetServerSession, createMockSession('user-1'));
   });
 
   it('성공적으로 아이디어를 생성한다', async () => {

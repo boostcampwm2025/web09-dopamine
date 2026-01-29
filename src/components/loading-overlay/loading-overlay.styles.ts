@@ -1,5 +1,6 @@
 import { keyframes } from '@emotion/react';
 import styled from '@emotion/styled';
+import { theme } from '@/styles/theme';
 
 const spin = keyframes`
   0% { 
@@ -21,7 +22,7 @@ export const Overlay = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  z-index: 10000;
+  z-index: ${theme.zIndex.overlay};
   backdrop-filter: blur(4px);
 `;
 

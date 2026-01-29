@@ -12,6 +12,7 @@ export const CLIENT_ERROR_MESSAGES: Record<string, string> = {
   CATEGORY_CREATE_FAILED: '카테고리 생성에 실패했습니다.',
   CATEGORY_UPDATE_FAILED: '카테고리 수정에 실패했습니다.',
   CATEGORY_DELETE_FAILED: '카테고리 삭제에 실패했습니다.',
+  CATEGORY_ALREADY_EXISTS: '이미 존재하는 카테고리 이름입니다.',
 
   // 이슈
   ISSUE_NOT_FOUND: '존재하지 않는 이슈입니다.',

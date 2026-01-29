@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+import { theme } from '@/styles/theme';
 
 export const BackgroundContainer = styled.div`
   position: fixed;
@@ -6,7 +7,7 @@ export const BackgroundContainer = styled.div`
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: -1;
+  z-index: ${theme.zIndex.hide};
   overflow: hidden;
   background: #ffffff;
 `;

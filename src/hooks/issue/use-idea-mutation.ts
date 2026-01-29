@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
+import { useSseConnectionStore } from '@/app/(with-sidebar)/issue/store/use-sse-connection-store';
 import type { IdeaWithPosition } from '@/app/(with-sidebar)/issue/types/idea';
 import {
   createIdea as createIdeaAPI,
@@ -10,11 +11,12 @@ import type { CreateIdeaRequest } from '@/types/idea';
 
 export const useIdeaMutations = (issueId: string) => {
   const queryClient = useQueryClient();
+  const connectionId = useSseConnectionStore((state) => state.connectionIds[issueId]);
 
   // 아이디어 생성
   const createMutation = useMutation({
     mutationFn: async (data: CreateIdeaRequest) => {
-      return createIdeaAPI(issueId, data);
+      return createIdeaAPI(issueId, data, connectionId);
     },
 
     onError: (err) => {
@@ -40,7 +42,7 @@ export const useIdeaMutations = (issueId: string) => {
       positionY?: number | null;
       categoryId?: string | null;
     }) => {
-      return updateIdeaAPI(issueId, ideaId, { positionX, positionY, categoryId });
+      return updateIdeaAPI(issueId, ideaId, { positionX, positionY, categoryId }, connectionId);
     },
     onMutate: async ({ ideaId, positionX, positionY, categoryId }) => {
       // 진행 중인 쿼리 취소
@@ -103,7 +105,7 @@ export const useIdeaMutations = (issueId: string) => {
   // 아이디어 삭제
   const removeMutation = useMutation({
     mutationFn: async (ideaId: string) => {
-      return deleteIdeaAPI(issueId, ideaId);
+      return deleteIdeaAPI(issueId, ideaId, connectionId);
     },
     onMutate: async (ideaId) => {
       // 진행 중인 쿼리 취소
