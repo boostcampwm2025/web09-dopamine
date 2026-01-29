@@ -41,6 +41,7 @@ export const useIssueSidebar = () => {
   // 검색 관련 상태
   const [searchValue, setSearchValue] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [searchTarget, setSearchTarget] = useState<'issue' | 'member'>('issue');
 
   // 멤버 정렬: 소유자 > 온라인 > 이름순
   const sortedMembers = useMemo(() => {
@@ -79,31 +80,38 @@ export const useIssueSidebar = () => {
 
   // 멤버 검색 필터링
   const filteredMembers = useMemo(() => {
+    // 멤버 검색 모드가 아니면 전체 반환
+    if (searchTarget !== 'member') return sortedMembers;
+
     const { trimmed, normalized, searchChoseong } = searchParams;
     if (!trimmed) return sortedMembers;
 
     return sortedMembers.filter((member) =>
       matchSearch(member.nickname || '익명', normalized, searchChoseong),
     );
-  }, [searchParams, sortedMembers]);
+  }, [searchParams, sortedMembers, searchTarget]);
 
   // 이슈 검색 필터링
   const filteredIssues = useMemo(() => {
+    // 이슈 검색 모드가 아니면 전체 반환
+    if (searchTarget !== 'issue') return topicIssues;
+
     const { trimmed, normalized, searchChoseong } = searchParams;
     if (!trimmed) return topicIssues;
 
-    return topicIssues.filter((issue) =>
-      matchSearch(issue.title || '', normalized, searchChoseong),
-    );
-  }, [searchParams, topicIssues]);
+    return topicIssues.filter((issue) => matchSearch(issue.title || '', normalized, searchChoseong));
+  }, [searchParams, topicIssues, searchTarget]);
 
   // 정적 이슈 리스트 필터링
   const filteredStaticIssues = useMemo(() => {
+    // 이슈 검색 모드가 아니면 전체 반환
+    if (searchTarget !== 'issue') return ISSUE_LIST;
+
     const { trimmed, normalized, searchChoseong } = searchParams;
     if (!trimmed) return ISSUE_LIST;
 
     return ISSUE_LIST.filter((issue) => matchSearch(issue.title || '', normalized, searchChoseong));
-  }, [searchParams]);
+  }, [searchParams, searchTarget]);
 
   // 검색어 입력 핸들러
   const handleSearchChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
@@ -162,5 +170,7 @@ export const useIssueSidebar = () => {
 
     // 액션
     goToIssueMap,
+    searchTarget,
+    setSearchTarget,
   };
 };
