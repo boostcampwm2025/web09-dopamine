@@ -86,15 +86,3 @@ export async function deleteComment(
   });
 }
 
-/**
- * 특정 아이디어의 댓글 개수를 조회합니다.
- * @param issueId - 이슈 식별자
- * @param ideaId - 아이디어 식별자
- */
-export async function fetchCommentCount(issueId: string, ideaId: string): Promise<number> {
-  const result = await getAPIResponseData<{ count: number }>({
-    url: `/api/issues/${issueId}/ideas/${ideaId}/comments/count`,
-    method: 'GET',
-  });
-  return result.count;
-}

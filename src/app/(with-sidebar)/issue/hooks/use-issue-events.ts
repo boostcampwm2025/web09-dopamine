@@ -6,8 +6,7 @@ import { useModalStore } from '@/components/modal/use-modal-store';
 import { MEMBER_ROLE } from '@/constants/issue';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
 import { selectedIdeaQueryKey, useIssueMemberQuery } from '@/hooks/issue';
-import { deleteCloseModal, reportActiveIdea } from '@/lib/api/issue';
-import { useCommentWindowStore } from '../store/use-comment-window-store';
+import { deleteCloseModal } from '@/lib/api/issue';
 import { useIssueStore } from '../store/use-issue-store';
 import { useSseConnectionStore } from '../store/use-sse-connection-store';
 
@@ -33,7 +32,7 @@ export function useIssueEvents({
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState<Event | null>(null);
   const eventSourceRef = useRef<EventSource | null>(null);
-  const connectionIdRef = useRef<string | null>(null); // 댓글창 연결 ID
+  const connectionIdRef = useRef<string | null>(null);
   const selectedIdeaKey = useMemo(() => selectedIdeaQueryKey(issueId), [issueId]);
 
   const { setIsAIStructuring } = useIssueStore((state) => state.actions);
@@ -51,18 +50,6 @@ export function useIssueEvents({
   }, [isOwner]);
 
   const SSE_REQ_URL = `/api/issues/${issueId}/events`;
-
-  // 서버에 현재 활성화된 아이디어(댓글창)를 보고함
-  const handleReportActiveIdea = async (ideaId: string | null) => {
-    const connectionId = connectionIdRef.current;
-    if (!connectionId) return;
-
-    try {
-      await reportActiveIdea(issueId, connectionId, ideaId);
-    } catch (error) {
-      console.error('Failed to report active idea state:', error);
-    }
-  };
 
   useEffect(() => {
     if (!enabled || !issueId || !userId) return;
@@ -100,12 +87,6 @@ export function useIssueEvents({
         connectionIdRef.current = connectionId;
         setConnectionId(issueId, connectionId);
         toast.success('연결되었습니다');
-
-        // 연결 시점에 현재 열려있는 댓글창이 있다면 서버에 알림
-        const activeIdeaId = useCommentWindowStore.getState().activeCommentId;
-        if (activeIdeaId) {
-          handleReportActiveIdea(activeIdeaId);
-        }
       }
     };
 
@@ -308,16 +289,6 @@ export function useIssueEvents({
       setIsAIStructuring(false);
     };
   }, [issueId, enabled, selectedIdeaKey, userId, setIsAIStructuring, setConnectionId, topicId]);
-
-  // 댓글창 상태 변경 감지 및 서버 보고
-  useEffect(() => {
-    const unsubscribe = useCommentWindowStore.subscribe((state) => {
-      // 댓글창이 열리거나 닫힐 때 서버에 알림
-      handleReportActiveIdea(state.activeCommentId);
-    });
-
-    return () => unsubscribe();
-  }, [issueId]);
 
   return { isConnected, error };
 }

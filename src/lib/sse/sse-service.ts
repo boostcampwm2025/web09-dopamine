@@ -31,11 +31,3 @@ export function getConnectionsInfo(): Record<string, number> {
 export function getOnlineMemberIds(issueId: string): string[] {
   return sseManager.getOnlineMemberIds(issueId);
 }
-// 특정 커넥션의 활성 아이디어 ID 업데이트 (댓글 타겟 브로드캐스팅용)
-export function updateActiveIdea(
-  issueId: string,
-  connectionId: string,
-  ideaId: string | null,
-): void {
-  sseManager.updateActiveIdea(issueId, connectionId, ideaId);
-}
