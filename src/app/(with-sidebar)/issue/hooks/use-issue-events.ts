@@ -268,6 +268,7 @@ export function useIssueEvents({
         submitButtonText: '이슈 종료',
         onClose: async () => {
           // 모달 닫힘 시 다른 클라이언트에게 브로드캐스팅
+          if (!isOwnerRef.current) return;
           try {
             await deleteCloseModal(issueId);
           } catch (error) {
