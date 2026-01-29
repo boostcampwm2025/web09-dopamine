@@ -40,7 +40,7 @@ export const ZoomControls = styled.div`
   display: flex;
   flex-direction: column;
   gap: 8px;
-  z-index: 100;
+  z-index: ${theme.zIndex.sticky};
 `;
 
 export const ZoomButton = styled.button`
