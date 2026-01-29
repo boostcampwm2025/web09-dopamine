@@ -48,16 +48,23 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       if (session.user && token.sub) {
         session.user.id = token.sub;
+        session.user.displayName = token.displayName;
       }
       return session;
     },
     async jwt({ token, user, trigger, session }) {
-      if (trigger === 'update' && session?.name) {
-        token.name = session.name;
+      if (trigger === 'update') {
+        if (session?.name) token.name = session.name;
+        if (session?.displayName) token.displayName = session.displayName;
       }
 
       if (user) {
         token.id = user.id;
+        const dbUser = await prisma.user.findUnique({
+          where: { id: user.id },
+          select: { displayName: true },
+        });
+        token.displayName = dbUser?.displayName ?? undefined;
       }
       return token;
     },

@@ -1,36 +1,38 @@
 import { GET, DELETE, PATCH } from '@/app/api/issues/[issueId]/ideas/[ideaId]/route';
-import { prisma } from '@/lib/prisma';
+import { getServerSession } from 'next-auth';
 import { ideaRepository } from '@/lib/repositories/idea.repository';
+import { issueMemberRepository } from '@/lib/repositories/issue-member.repository';
 import {
+  createMockSession,
   createMockGetRequest,
   createMockParams,
   createMockRequest,
   expectErrorResponse,
   expectSuccessResponse,
+  setupAuthMock,
 } from '@test/utils/api-test-helpers';
 
+jest.mock('next-auth', () => ({
+  getServerSession: jest.fn(),
+}));
+jest.mock('@auth/prisma-adapter', () => ({
+  PrismaAdapter: () => ({}),
+}));
 jest.mock('@/lib/repositories/idea.repository');
+jest.mock('@/lib/repositories/issue-member.repository');
 jest.mock('@/lib/utils/cookie');
 jest.mock('@/lib/sse/sse-service');
-jest.mock('@/lib/prisma', () => ({
-  prisma: {
-    idea: {
-      findUnique: jest.fn(),
-    },
-    vote: {
-      findFirst: jest.fn(),
-    },
-  },
-}));
 
-const mockedFindUnique = prisma.idea.findUnique as jest.MockedFunction<
-  typeof prisma.idea.findUnique
+const mockedFindById = ideaRepository.findById as jest.MockedFunction<typeof ideaRepository.findById>;
+const mockedFindMyVote = ideaRepository.findMyVote as jest.MockedFunction<
+  typeof ideaRepository.findMyVote
 >;
-const mockedFindFirst = prisma.vote.findFirst as jest.MockedFunction<typeof prisma.vote.findFirst>;
-const mockedSoftDelete = ideaRepository.softDelete as jest.MockedFunction<
-  typeof ideaRepository.softDelete
->;
+const mockedSoftDelete = ideaRepository.softDelete as jest.MockedFunction<typeof ideaRepository.softDelete>;
 const mockedUpdate = ideaRepository.update as jest.MockedFunction<typeof ideaRepository.update>;
+const mockedFindMemberByUserId = issueMemberRepository.findMemberByUserId as jest.MockedFunction<
+  typeof issueMemberRepository.findMemberByUserId
+>;
+const mockedGetServerSession = getServerSession as jest.MockedFunction<typeof getServerSession>;
 
 describe('GET /api/issues/[issueId]/ideas/[ideaId]', () => {
   const issueId = 'issue-1';
@@ -38,6 +40,7 @@ describe('GET /api/issues/[issueId]/ideas/[ideaId]', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    setupAuthMock(mockedGetServerSession, createMockSession('user-1'));
   });
 
   it('성공적으로 아이디어를 조회한다', async () => {
@@ -50,8 +53,9 @@ describe('GET /api/issues/[issueId]/ideas/[ideaId]', () => {
       disagreeCount: 2,
     };
 
-    mockedFindUnique.mockResolvedValue(mockIdea as any);
-    mockedFindFirst.mockResolvedValue(null);
+    mockedFindById.mockResolvedValue(mockIdea as any);
+    mockedFindMyVote.mockResolvedValue(null);
+    mockedFindMemberByUserId.mockResolvedValue({ nickname: '사용자1' } as any);
 
     const req = createMockGetRequest();
     const params = createMockParams({ issueId, ideaId });
@@ -64,7 +68,7 @@ describe('GET /api/issues/[issueId]/ideas/[ideaId]', () => {
   });
 
   it('존재하지 않는 아이디어를 조회하면 404 에러를 반환한다', async () => {
-    mockedFindUnique.mockResolvedValue(null);
+    mockedFindById.mockResolvedValue(null);
 
     const req = createMockGetRequest();
     const params = createMockParams({ issueId, ideaId });
@@ -80,6 +84,7 @@ describe('DELETE /api/issues/[issueId]/ideas/[ideaId]', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    setupAuthMock(mockedGetServerSession, createMockSession('user-1'));
   });
 
   it('ideaId가 없으면 400 에러를 반환한다', async () => {
@@ -125,6 +130,7 @@ describe('PATCH /api/issues/[issueId]/ideas/[ideaId]', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    setupAuthMock(mockedGetServerSession, createMockSession('user-1'));
   });
 
   it('ideaId가 없으면 400 에러를 반환한다', async () => {

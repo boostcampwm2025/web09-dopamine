@@ -8,10 +8,12 @@ import HeaderButton from '@/app/(with-sidebar)/issue/_components/header/header-b
 import { useInviteProjectModal } from '@/components/modal/invite-project-modal/use-invite-project-modal';
 import { useProjectQuery } from '@/hooks/project';
 import * as S from './header.styles';
+import { useRouter } from 'next/navigation';
 
 const ProjectHeader = () => {
   const params = useParams<{ id: string }>();
   const projectId = params.id || 'default';
+  const router = useRouter();
 
   const { data: session } = useSession();
   const { data: projectData } = useProjectQuery(projectId);
@@ -21,6 +23,10 @@ const ProjectHeader = () => {
   const userName = session?.user?.name || '사용자';
   const userImage = session?.user?.image || '/profile.svg';
   const projectTitle = projectData?.title || '로딩 중...';
+
+  const handleProfileClick = () => {
+    router.push('/mypage');
+  };
 
   return (
     <S.HeaderContainer>
@@ -45,14 +51,14 @@ const ProjectHeader = () => {
           onClick={(e) => openInviteProjectModal(projectId, projectTitle, e)}
         />
         <S.Divider />
-        <S.Profile>
+        <S.Profile onClick={handleProfileClick}>
           {userName}
           <Image
             src={userImage}
             alt="프로필"
             width={38}
             height={38}
-            style={{ borderRadius: '50%' }}
+            style={{ borderRadius: '50%'}}
           />
         </S.Profile>
       </S.RightSection>

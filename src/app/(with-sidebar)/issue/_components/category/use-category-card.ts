@@ -38,15 +38,23 @@ export function useCategoryCard(props: UseCategoryProps) {
       }
 
       setCurTitle(finalTitle);
-      setDraftTitle(finalTitle);
       setIsEditing(false);
 
-      update.mutate({
-        categoryId: id,
-        payload: { title: finalTitle },
-      });
+      update.mutate(
+        {
+          categoryId: id,
+          payload: { title: finalTitle },
+        },
+        {
+          onError: () => {
+            // 에러 발생 시 원래 제목으로 복구
+            setCurTitle(title);
+            setDraftTitle(title);
+          },
+        },
+      );
     },
-    [curTitle, id, update],
+    [curTitle, id, update, title],
   );
 
   const cancelEditingTitle = () => {

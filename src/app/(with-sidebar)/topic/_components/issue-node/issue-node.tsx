@@ -1,3 +1,5 @@
+'use client';
+
 import { memo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Node, NodeProps, Position } from '@xyflow/react';
@@ -97,6 +99,16 @@ function TopicNode({ id, data }: NodeProps<Node<TopicNodeData>>) {
         id="right-source"
       />
     </S.NodeContainer>
+  );
+}
+
+export function IssueNodeSkeleton() {
+  return (
+    <S.SkeletonNode>
+      <S.SkeletonBadge />
+      <S.SkeletonTitle />
+      <S.SkeletonLine />
+    </S.SkeletonNode>
   );
 }
 

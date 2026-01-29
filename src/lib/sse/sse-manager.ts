@@ -4,8 +4,8 @@ import { broadcastMemberPresence } from '../utils/broadcast-helpers';
 
 interface ConnectedClient {
   userId: string;
-  connectionId: string;         // 각 SSE 연결을 식별하기 위한 고유 ID
-  activeIdeaId: string | null;  // 현재 클라이언트가 열어둔 댓글창의 Idea ID
+  connectionId: string; // 각 SSE 연결을 식별하기 위한 고유 ID
+  activeIdeaId: string | null; // 현재 클라이언트가 열어둔 댓글창의 Idea ID
   controller: ReadableStreamDefaultController;
 }
 
@@ -80,7 +80,9 @@ export class SSEManager {
 
         // 연결 종료 처리
         signal.addEventListener('abort', () => {
-          console.log(`[SSE] ${label} 클라이언트 연결 종료됨 - ${keyName}: ${key}, User: ${userId}`);
+          console.log(
+            `[SSE] ${label} 클라이언트 연결 종료됨 - ${keyName}: ${key}, User: ${userId}`,
+          );
           clearInterval(heartbeatInterval);
 
           const clients = map.get(key);
@@ -116,6 +118,7 @@ export class SSEManager {
     id: string,
     event: BroadcastingEvent['event'],
     label: string,
+    excludeConnectionId?: string,
   ): void {
     if (!clients || clients.size === 0) {
       console.log(`[SSE] ${label}에 연결된 유저가 없습니다 ID: ${id}`);
@@ -131,6 +134,9 @@ export class SSEManager {
     );
 
     clients.forEach((client) => {
+      // 제외할 커넥션 ID(보낸 사람 자신)일경우 skip
+      if (excludeConnectionId && client.connectionId === excludeConnectionId) return;
+
       try {
         client.controller.enqueue(encoded);
       } catch (error) {
@@ -155,9 +161,9 @@ export class SSEManager {
   }
 
   // 이슈 브로드캐스트
-  broadcastToIssue({ issueId, event }: BroadcastingEvent): void {
+  broadcastToIssue({ issueId, event, excludeConnectionId }: BroadcastingEvent): void {
     const clients = this.connections.get(issueId);
-    this.broadcastToClients(clients, issueId, event, '이슈');
+    this.broadcastToClients(clients, issueId, event, '이슈', excludeConnectionId);
   }
 
   // 토픽 연결 생성
@@ -184,12 +190,14 @@ export class SSEManager {
   broadcastToTopic({
     topicId,
     event,
+    excludeConnectionId,
   }: {
     topicId: string;
     event: BroadcastingEvent['event'];
+    excludeConnectionId?: string;
   }): void {
     const clients = this.topicConnections.get(topicId);
-    this.broadcastToClients(clients, topicId, event, '토픽');
+    this.broadcastToClients(clients, topicId, event, '토픽', excludeConnectionId);
   }
 
   getConnectionCount(issueId: string): number {

@@ -1,5 +1,8 @@
+import styled from '@emotion/styled';
+import { theme } from '@/styles/theme';
 import MemberSidebarItem from '@/components/sidebar/member-sidebar-item';
 import Sidebar from '@/components/sidebar/sidebar';
+import SidebarFilter from '@/components/sidebar/sidebar-filter';
 import SidebarItem from '@/components/sidebar/sidebar-item';
 import * as S from '@/components/sidebar/sidebar.styles';
 import { ISSUE_STATUS } from '@/constants/issue';
@@ -32,6 +35,8 @@ export default function IssueSidebar() {
     showIssueList,
     isSummaryPage,
     goToIssueMap,
+    searchTarget,
+    setSearchTarget,
   } = useIssueSidebar();
 
   return (
@@ -40,6 +45,12 @@ export default function IssueSidebar() {
         value: searchValue,
         onChange: handleSearchChange,
       }}
+      suffix={
+        <SidebarFilter
+          value={searchTarget}
+          onChange={setSearchTarget}
+        />
+      }
     >
       {isMounted && showIssueList && (
         <>

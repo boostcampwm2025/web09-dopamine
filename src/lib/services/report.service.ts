@@ -16,8 +16,9 @@ const mapIdeaToRankedIdea = (
   selectedIdeaId: string | null,
 ): RankedIdeaDto => {
   // issueMember에서 nickname 찾기
-  const issueMember = issueMembers.find((member) => member.userId === idea.user.id);
-  const nickname = issueMember?.nickname || idea.user.name || '익명';
+  const userId = idea.user?.id ?? null;
+  const issueMember = userId ? issueMembers.find((member) => member.userId === userId) : undefined;
+  const nickname = issueMember?.nickname || idea.user?.name || '익명';
 
   return {
     id: idea.id,
@@ -26,11 +27,13 @@ const mapIdeaToRankedIdea = (
     disagreeCount: idea.disagreeCount,
     commentCount: idea.comments.length,
     category: idea.category as CategoryDto | null,
-    user: {
-      ...idea.user,
-      displayName: nickname, // 하위 호환성을 위해 유지
-      nickname,
-    },
+    user: idea.user
+      ? {
+        ...idea.user,
+        displayName: nickname, // 하위 호환성을 위해 유지
+        nickname,
+      }
+      : null,
     isSelected: idea.id === selectedIdeaId,
   };
 };
