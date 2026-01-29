@@ -3,13 +3,9 @@ import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { useCanvasStore } from '@/app/(with-sidebar)/issue/store/use-canvas-store';
 import { ISSUE_STATUS, MEMBER_ROLE } from '@/constants/issue';
-import {
-  useAIStructuringMutation,
-  useIssueMemberQuery,
-  useIssueQuery,
-  useIssueStatusMutations,
-} from '@/hooks/issue';
-import { useTopicId } from '@/hooks/use-topic-id';
+import { useTopicId } from '@/hooks';
+import { useAIStructuringMutation, useIssueMemberQuery, useIssueQuery, useIssueStatusMutations } from '@/hooks/issue';
+import { getIssueMember } from '@/lib/api/issue';
 import { IssueStatus } from '@/types/issue';
 import { useCategoryOperations, useIdeasWithTemp, useIssueIdentity } from '../../hooks';
 
