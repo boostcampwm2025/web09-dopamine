@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { issueMemberService } from '@/lib/services/issue-member.service';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 
