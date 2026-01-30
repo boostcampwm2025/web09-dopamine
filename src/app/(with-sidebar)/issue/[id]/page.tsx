@@ -296,7 +296,6 @@ const IssuePage = () => {
                   {...category}
                   issueId={issueId}
                   hasActiveComment={hasActiveComment}
-                  isMuted={category.title === '기타'}
                   onPositionChange={handleCategoryPositionChange}
                   checkCollision={checkCategoryOverlap}
                   onRemove={() => handleDeleteCategory(category.id)}
@@ -352,31 +351,31 @@ const IssuePage = () => {
           <DragOverlay dropAnimation={null}>
             {activeId
               ? (() => {
-                  const activeIdea = ideas.find((idea) => idea.id === activeId);
-                  if (!activeIdea) return null;
+                const activeIdea = ideas.find((idea) => idea.id === activeId);
+                if (!activeIdea) return null;
 
-                  return (
-                    <div
-                      style={{
-                        transform: `scale(${scale})`,
-                        transformOrigin: '0 0', // 왼쪽 위 기준으로 scale
-                      }}
-                    >
-                      <IdeaCard
-                        {...activeIdea}
-                        issueId={issueId}
-                        content={overlayEditValue ?? activeIdea.content}
-                        position={null}
-                        isSelected={activeIdea.id === selectedIdeaId}
-                        author={activeIdea.author}
-                        userId={activeIdea.userId}
-                        status={getIdeaStatus(activeIdea.id)}
-                        isVoteButtonVisible={isVoteButtonVisible}
-                        isVoteDisabled={isVoteDisabled}
-                      />
-                    </div>
-                  );
-                })()
+                return (
+                  <div
+                    style={{
+                      transform: `scale(${scale})`,
+                      transformOrigin: '0 0', // 왼쪽 위 기준으로 scale
+                    }}
+                  >
+                    <IdeaCard
+                      {...activeIdea}
+                      issueId={issueId}
+                      content={overlayEditValue ?? activeIdea.content}
+                      position={null}
+                      isSelected={activeIdea.id === selectedIdeaId}
+                      author={activeIdea.author}
+                      userId={activeIdea.userId}
+                      status={getIdeaStatus(activeIdea.id)}
+                      isVoteButtonVisible={isVoteButtonVisible}
+                      isVoteDisabled={isVoteDisabled}
+                    />
+                  </div>
+                );
+              })()
               : null}
           </DragOverlay>
         )}
