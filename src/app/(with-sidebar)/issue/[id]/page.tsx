@@ -113,9 +113,6 @@ const IssuePage = () => {
       if (!issueId || isLoading || sessionStatus === 'loading' || !session?.user?.id) return;
       if (projectId && (isProjectsLoading || !isProjectMember)) return;
 
-      // 이미 참여한 경우 스킵
-      if (isLoggedInUserMember) return;
-
       try {
         await joinIssueAsLoggedInUser(issueId, connectionId);
         queryClient.invalidateQueries({ queryKey: ['issues', issueId, 'members'] });
@@ -130,7 +127,6 @@ const IssuePage = () => {
     isLoading,
     sessionStatus,
     session?.user?.id,
-    isLoggedInUserMember,
     isQuickIssue,
     projectId,
     isProjectsLoading,
