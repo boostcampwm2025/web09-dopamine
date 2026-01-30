@@ -38,7 +38,7 @@ export const categoryRepository = {
 
   async createManyForIssue(
     issueId: string,
-    categories: Array<{ title: string }>,
+    categories: Array<{ title: string; ideaIds: string[] }>,
     tx: Prisma.TransactionClient = prisma,
   ) {
     return Promise.all(
@@ -49,6 +49,9 @@ export const categoryRepository = {
             title: category.title,
             positionX: 100 + index * 600,
             positionY: 100,
+            ideas: {
+              connect: category.ideaIds.map((id) => ({ id })),
+            },
           },
         }),
       ),
@@ -100,8 +103,8 @@ export const categoryRepository = {
     });
   },
 
-  async softDelete(categoryId: string) {
-    return prisma.category.update({
+  async softDelete(categoryId: string, tx: Prisma.TransactionClient = prisma) {
+    return tx.category.update({
       where: { id: categoryId },
       data: { deletedAt: new Date() },
     });
