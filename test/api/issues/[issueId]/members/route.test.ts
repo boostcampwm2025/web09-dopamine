@@ -4,7 +4,6 @@ import { IssueRole } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { issueMemberRepository } from '@/lib/repositories/issue-member.repository';
 import { findIssueById } from '@/lib/repositories/issue.repository';
-import { createAnonymousUser } from '@/lib/repositories/user.repository';
 import { issueMemberService } from '@/lib/services/issue-member.service';
 import {
   createMockGetRequest,
@@ -39,17 +38,14 @@ const mockedFindIssueById = findIssueById as jest.MockedFunction<typeof findIssu
 const mockedFindMembersByIssueId = issueMemberRepository.findMembersByIssueId as jest.MockedFunction<
   typeof issueMemberRepository.findMembersByIssueId
 >;
-const mockedFindMemberByUserId = issueMemberRepository.findMemberByUserId as jest.MockedFunction<
-  typeof issueMemberRepository.findMemberByUserId
+const mockedJoinLoggedInMember = issueMemberRepository.joinLoggedInMember as jest.MockedFunction<
+  typeof issueMemberRepository.joinLoggedInMember
 >;
-const mockedAddIssueMember = issueMemberRepository.addIssueMember as jest.MockedFunction<
-  typeof issueMemberRepository.addIssueMember
+const mockedJoinAnonymousMember = issueMemberRepository.joinAnonymousMember as jest.MockedFunction<
+  typeof issueMemberRepository.joinAnonymousMember
 >;
 const mockedCheckNicknameDuplicate = issueMemberService.checkNicknameDuplicate as jest.MockedFunction<
   typeof issueMemberService.checkNicknameDuplicate
->;
-const mockedCreateAnonymousUser = createAnonymousUser as jest.MockedFunction<
-  typeof createAnonymousUser
 >;
 const mockedPrismaTransaction = prisma.$transaction as jest.MockedFunction<
   typeof prisma.$transaction
@@ -143,13 +139,13 @@ describe('POST /api/issues/[issueId]/members', () => {
 
     mockedFindIssueById.mockResolvedValue(mockIssue as any);
     setupAuthMock(mockedGetServerSession, createMockSession(userId));
-    mockedFindMemberByUserId.mockResolvedValue(mockMember as any);
+    mockedJoinLoggedInMember.mockResolvedValue({ userId, didJoin: false });
 
     const req = createMockRequest({});
     const params = createMockParams({ issueId });
 
     const response = await POST(req, params);
-    const data = await expectSuccessResponse(response, 200);
+    const data = await expectSuccessResponse(response, 201);
 
     expect(data.userId).toBe(userId);
   });
@@ -159,11 +155,7 @@ describe('POST /api/issues/[issueId]/members', () => {
 
     mockedFindIssueById.mockResolvedValue(mockIssue as any);
     setupAuthMock(mockedGetServerSession, createMockSession(userId));
-    mockedFindMemberByUserId.mockResolvedValue(null);
-    mockedPrismaTransaction.mockImplementation(async (callback: any) => {
-      mockedAddIssueMember.mockResolvedValue(undefined);
-      return callback({});
-    });
+    mockedJoinLoggedInMember.mockResolvedValue({ userId, didJoin: true });
 
     const req = createMockRequest({});
     const params = createMockParams({ issueId });
@@ -189,15 +181,9 @@ describe('POST /api/issues/[issueId]/members', () => {
 
   it('빠른 이슈에서 익명 사용자가 참여한다', async () => {
     const mockIssue = { title: 'Test Issue', topicId: null, status: 'SELECT', projectId: null };
-    const mockUser = { id: 'anonymous-user-1', nickname: 'Anonymous User' };
-
     mockedFindIssueById.mockResolvedValue(mockIssue as any);
     setupAuthMock(mockedGetServerSession, null);
-    mockedPrismaTransaction.mockImplementation(async (callback: any) => {
-      mockedCreateAnonymousUser.mockResolvedValue(mockUser as any);
-      mockedAddIssueMember.mockResolvedValue(undefined);
-      return callback({});
-    });
+    mockedJoinAnonymousMember.mockResolvedValue({ userId: 'anonymous-user-1', didJoin: true });
 
     const req = createMockRequest({ nickname: 'Anonymous User' });
     const params = createMockParams({ issueId });

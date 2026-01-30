@@ -59,6 +59,12 @@ describe('Issue Member Repository 테스트', () => {
         userId: true,
         role: true,
         nickname: true,
+        user: {
+          select: {
+            displayName: true,
+            name: true,
+          },
+        },
       },
     });
   });
@@ -73,12 +79,7 @@ describe('Issue Member Repository 테스트', () => {
       where: {
         issueId: 'issue-1',
         deletedAt: null,
-        user: {
-          OR: [
-            { displayName: '닉네임' },
-            { name: '닉네임' },
-          ],
-        },
+        nickname: '닉네임',
       },
       select: {
         id: true,
@@ -102,6 +103,12 @@ describe('Issue Member Repository 테스트', () => {
         userId: true,
         nickname: true,
         role: true,
+        user: {
+          select: {
+            displayName: true,
+            name: true,
+          },
+        },
       },
     });
   });
