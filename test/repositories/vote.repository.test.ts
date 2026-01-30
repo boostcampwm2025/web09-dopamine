@@ -7,6 +7,7 @@ const createMockTx = () =>
       findFirst: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
+      updateMany: jest.fn(),
     },
     idea: {
       update: jest.fn(),
@@ -42,26 +43,29 @@ describe('Vote Repository 테스트', () => {
   it('투표 타입을 업데이트한다', async () => {
     // 역할: 의견 변경 시 타입 업데이트가 정확히 반영되는지 확인한다.
     const mockTx = createMockTx();
-    (mockTx.vote.update as jest.Mock).mockResolvedValue({ id: 'vote-1' });
+    (mockTx.vote.updateMany as jest.Mock).mockResolvedValue({ count: 1 });
 
-    await voteRepository.updateVoteType('vote-1', VoteType.DISAGREE, mockTx);
+    await voteRepository.updateVoteType('vote-1', VoteType.AGREE, VoteType.DISAGREE, mockTx);
 
-    expect(mockTx.vote.update).toHaveBeenCalledWith({
-      where: { id: 'vote-1' },
+    expect(mockTx.vote.updateMany).toHaveBeenCalledWith({
+      where: {
+        id: 'vote-1',
+        type: VoteType.AGREE,
+        deletedAt: null,
+      },
       data: { type: VoteType.DISAGREE },
-      select: { id: true, type: true },
     });
   });
 
   it('투표를 Soft Delete 처리한다', async () => {
     // 역할: 투표 이력은 남기면서 활성 집계에서 제외되도록 한다.
     const mockTx = createMockTx();
-    (mockTx.vote.update as jest.Mock).mockResolvedValue({ id: 'vote-1' });
+    (mockTx.vote.updateMany as jest.Mock).mockResolvedValue({ count: 1 });
 
     await voteRepository.softDeleteVote('vote-1', mockTx);
 
-    const call = (mockTx.vote.update as jest.Mock).mock.calls[0][0];
-    expect(call.where).toEqual({ id: 'vote-1' });
+    const call = (mockTx.vote.updateMany as jest.Mock).mock.calls[0][0];
+    expect(call.where).toEqual({ id: 'vote-1', deletedAt: null });
     expect(call.data.deletedAt).toBeInstanceOf(Date);
   });
 
