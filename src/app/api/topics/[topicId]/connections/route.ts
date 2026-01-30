@@ -44,6 +44,20 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ top
     return createErrorResponse('ISSUE_IDS_REQUIRED', 400);
   }
 
+  // 중복 연결인 경우 방어 로직
+  const existingConnection = await prisma.issueConnection.findFirst({
+    where: {
+      sourceIssueId,
+      targetIssueId,
+      deletedAt: null,
+    },
+  });
+
+  if (existingConnection) {
+    return createErrorResponse('CONNECTION_ALREADY_EXISTS', 400);
+  }
+
+  // Self-connection 방어 로직
   if (sourceIssueId === targetIssueId) {
     return createErrorResponse('CANNOT_CONNECT_TO_SELF', 400);
   }
