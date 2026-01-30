@@ -189,7 +189,7 @@ export function ProjectCard({
               <S.MemberAvatar
                 key={member.user.id}
                 src={member.user.image ?? '/profile.svg'}
-                alt={`${member.user.displayName || '유저'}의 프로필 이미지`}
+                alt={`${member.user.displayName || '사용자'}의 프로필 이미지`}
                 width={32}
                 height={32}
               />
