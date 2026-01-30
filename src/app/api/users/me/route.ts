@@ -1,6 +1,6 @@
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { updateUser } from '@/lib/repositories/user.repository';
+import { prisma } from '@/lib/prisma';
 import { createSuccessResponse, createErrorResponse } from '@/lib/utils/api-helpers';
 import { CLIENT_ERROR_MESSAGES } from '@/constants/error-messages';
 
@@ -21,7 +21,20 @@ export async function PATCH(request: Request) {
       return createErrorResponse('BAD_REQUEST', 400, CLIENT_ERROR_MESSAGES.INVALID_DISPLAYNAME);
     }
 
-    const user = await updateUser(session.user.id, { displayName: normalized });
+    const user = await prisma.$transaction(async (tx) => {
+      const updatedUser = await tx.user.update({
+        where: { id: session.user.id },
+        data: { displayName: normalized },
+        select: { displayName: true },
+      });
+
+      await tx.issueMember.updateMany({
+        where: { userId: session.user.id, deletedAt: null },
+        data: { nickname: normalized },
+      });
+
+      return updatedUser;
+    });
 
     return createSuccessResponse(user);
   } catch (error) {
