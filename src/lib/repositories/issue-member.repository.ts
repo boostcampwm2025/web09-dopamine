@@ -45,13 +45,8 @@ export const issueMemberRepository = {
     return prisma.issueMember.findFirst({
       where: {
         issueId,
+        nickname,
         deletedAt: null,
-        user: {
-          OR: [
-            { displayName: nickname },
-            { name: nickname },
-          ],
-        },
       },
       select: {
         id: true,
