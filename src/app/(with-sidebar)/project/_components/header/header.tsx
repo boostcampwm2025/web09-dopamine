@@ -20,7 +20,7 @@ const ProjectHeader = () => {
 
   const { openInviteProjectModal } = useInviteProjectModal();
 
-  const userName = session?.user?.name || '사용자';
+  const userName = session?.user?.displayName || '사용자';
   const userImage = session?.user?.image || '/profile.svg';
   const projectTitle = projectData?.title || '로딩 중...';
 
