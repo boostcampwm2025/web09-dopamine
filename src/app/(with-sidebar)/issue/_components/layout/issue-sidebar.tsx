@@ -1,5 +1,3 @@
-import styled from '@emotion/styled';
-import { theme } from '@/styles/theme';
 import MemberSidebarItem from '@/components/sidebar/member-sidebar-item';
 import Sidebar from '@/components/sidebar/sidebar';
 import SidebarFilter from '@/components/sidebar/sidebar-filter';
@@ -62,21 +60,21 @@ export default function IssueSidebar() {
           <S.SidebarList>
             {topicId
               ? filteredIssues.map((issue) => (
-                <SidebarItem
-                  key={issue.id}
-                  title={issue.title}
-                  href={`/issue/${issue.id}`}
-                  status={issue.status as any}
-                />
-              ))
+                  <SidebarItem
+                    key={issue.id}
+                    title={issue.title}
+                    href={`/issue/${issue.id}`}
+                    status={issue.status as any}
+                  />
+                ))
               : filteredStaticIssues.map((issue) => (
-                <SidebarItem
-                  key={issue.title}
-                  title={issue.title}
-                  href={issue.href}
-                  status={issue.status}
-                />
-              ))}
+                  <SidebarItem
+                    key={issue.title}
+                    title={issue.title}
+                    href={issue.href}
+                    status={issue.status}
+                  />
+                ))}
           </S.SidebarList>
         </>
       )}

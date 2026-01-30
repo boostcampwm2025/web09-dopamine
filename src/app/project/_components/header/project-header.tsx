@@ -2,8 +2,8 @@
 
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import * as S from './project-header.styles';
 
 const ProjectHeader = () => {

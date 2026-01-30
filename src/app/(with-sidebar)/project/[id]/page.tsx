@@ -30,65 +30,67 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
   });
 
   return (
-    <S.ProjectPageContainer>
-      <S.ProjectTitleBox>
-        {/* 프로젝트 헤더 */}
-        <S.ProjectTitleHeader>
-          <S.DateSection>{createdAt}</S.DateSection>
-          <EditProjectButton
-            projectId={id}
-            currentTitle={title}
-            currentDescription={description ?? undefined}
-          />
-        </S.ProjectTitleHeader>
-        {/* 프로젝트 제목 */}
-        <S.ProjectTitleWrapper>
-          <Image
-            src="/check-circle.svg"
-            alt="체크 아이콘"
-            width={32}
-            height={32}
-          />
-          <S.ProjectTitleInfo>
-            <S.ProjectTitle>{title}</S.ProjectTitle>
-            <S.ProjectCreatedDate>{description}</S.ProjectCreatedDate>
-          </S.ProjectTitleInfo>
-        </S.ProjectTitleWrapper>
-      </S.ProjectTitleBox>
-      {/* 토픽 리스트 */}
-      <S.TopicSection>
-        <S.TopicListContainer>
-          <S.TopicListHeader>
-            <S.TopicListTitle>토픽 목록</S.TopicListTitle>
-            <S.TopicListDescription>팀이 논의해야 할 큰 주제들입니다.</S.TopicListDescription>
-          </S.TopicListHeader>
-          <CreateTopicButton />
-        </S.TopicListContainer>
-        <S.TopicCardsContainer>
-          {topics.length === 0 ? (
-            <>
-              <CardSkeleton />
-              <CardSkeleton />
-              <CardSkeleton />
-              <S.EmptyTopicOverlay>
-                <EmptyTopicState />
-              </S.EmptyTopicOverlay>
-            </>
-          ) : (
-            topics.map((topic) => (
-              <Card
-                key={topic.id}
-                id={topic.id}
-                variant="item"
-                leftIcon="/folder.svg"
-                title={topic.title}
-                subtitle={`이슈 ${topic.issueCount}개`}
-                showArrow
-              />
-            ))
-          )}
-        </S.TopicCardsContainer>
-      </S.TopicSection>
-    </S.ProjectPageContainer>
+    <S.Background>
+      <S.Container>
+        <S.ProjectTitleBox>
+          {/* 프로젝트 헤더 */}
+          <S.ProjectTitleHeader>
+            <S.DateSection>{createdAt}</S.DateSection>
+            <EditProjectButton
+              projectId={id}
+              currentTitle={title}
+              currentDescription={description ?? undefined}
+            />
+          </S.ProjectTitleHeader>
+          {/* 프로젝트 제목 */}
+          <S.ProjectTitleWrapper>
+            <Image
+              src="/check-circle.svg"
+              alt="체크 아이콘"
+              width={32}
+              height={32}
+            />
+            <S.ProjectTitleInfo>
+              <S.ProjectTitle>{title}</S.ProjectTitle>
+              <S.ProjectCreatedDate>{description}</S.ProjectCreatedDate>
+            </S.ProjectTitleInfo>
+          </S.ProjectTitleWrapper>
+        </S.ProjectTitleBox>
+        {/* 토픽 리스트 */}
+        <S.TopicSection>
+          <S.TopicListContainer>
+            <S.TopicListHeader>
+              <S.TopicListTitle>토픽 목록</S.TopicListTitle>
+              <S.TopicListDescription>팀이 논의해야 할 큰 주제들입니다.</S.TopicListDescription>
+            </S.TopicListHeader>
+            <CreateTopicButton />
+          </S.TopicListContainer>
+          <S.TopicCardsContainer>
+            {topics.length === 0 ? (
+              <>
+                <CardSkeleton />
+                <CardSkeleton />
+                <CardSkeleton />
+                <S.EmptyTopicOverlay>
+                  <EmptyTopicState />
+                </S.EmptyTopicOverlay>
+              </>
+            ) : (
+              topics.map((topic) => (
+                <Card
+                  key={topic.id}
+                  id={topic.id}
+                  variant="item"
+                  leftIcon="/folder.svg"
+                  title={topic.title}
+                  subtitle={`이슈 ${topic.issueCount}개`}
+                  showArrow
+                />
+              ))
+            )}
+          </S.TopicCardsContainer>
+        </S.TopicSection>
+      </S.Container>
+    </S.Background>
   );
 }
