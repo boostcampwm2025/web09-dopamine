@@ -17,7 +17,6 @@ export async function GET(
 
     return createSuccessResponse({
       id: member.userId,
-      displayName: member.displayName ?? member.nickname,
       nickname: member.nickname,
       role: member.role,
     });
