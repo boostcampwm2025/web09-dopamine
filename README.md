@@ -20,36 +20,64 @@ Murphy는 팀의 의사결정 과정을 구조화하고, 흩어진 아이디어�
 <br>
 </div>
 
+### 자유료윤 의견 발산
+
+배경을 더블 클릭하는 것 만으로 손쉽게 아이디어를 제출할 수 있습니다.
+
+<img width="1440" height="900" alt="의견 발산" src="https://github.com/user-attachments/assets/fcf1a62c-7047-40e9-9c04-98db6c2492c2" />
+
 ### AI 기반 카테고리화
 
 무질서하게 발산된 수많은 아이디어 카드를 AI가 문맥을 분석하여 자동으로 클러스터링합니다.<br>
 버튼 한 번으로 비슷한 의견끼리 묶이고, 드래그 앤 드롭으로 수동 조정도 가능합니다.
 
-<img width="1440" height="900" alt="AI 기반 카테고리화" src="https://github.com/user-attachments/assets/763fc4b4-f20f-4824-b4ae-929eff0e2d19" />
+<img width="1440" height="900" alt="AI 기반 카테고리화" src="https://github.com/user-attachments/assets/53ba28a4-e562-421c-993a-6a398c90612d" />
 
-### 투표와 의사결정
+### 투표
 
 투표 결과는 의사결정을 위한 핵심 지표로 활용됩니다.<br>
-최다 득표 아이디어를 시각적으로 강조하여 보여주며, 이를 바탕으로 사용자가 합리적인 최종 결정을 내릴 수 있도록 지원합니다.
+마음에 드는 아이디어에는 찬성을, 아쉬운 아이디어에는 반대를 던질 수 있습니다.
 
-<img width="1440" height="840" alt="투표와 의사결정" src="https://github.com/user-attachments/assets/37afdc15-ead7-4229-9b69-097e41f58101" />
+<img width="1440" height="840" alt="투표" src="https://github.com/user-attachments/assets/4cac1158-d615-4bc2-b321-d1699c1f6f9e" />
+
+## 댓글로 치열한 토론
+
+댓글로 아이디어에 대한 의견을 표현할 수 있습니다. <br>
+또한, 많은 의견이 오고가는 아이디어를 강조하여 팀의 핵심 논의를 한눈에 파악할 수 있습니다.
+
+<img width="1440" height="840" alt="투표" src="https://github.com/user-attachments/assets/424fd1db-d6c3-457b-87d6-9e73ab54ce47" />
 
 ### 의사결정 흐름의 시각화
 
 이슈 간의 관계를 노드 형태로 시각화하여 의사결정 흐름을 한눈에 파악할 수 있습니다.
 
-<img width="1440" height="900" alt="의사결정 흐름의 시각화" src="https://github.com/user-attachments/assets/44fb7914-4036-403d-bb2a-459fc1d41694" />
+<img width="1440" height="900" alt="의사결정 흐름의 시각화" src="https://github.com/user-attachments/assets/6c07ed6f-8989-4617-a584-cee7f8364cca" />
 
 ## ⚙️ 프로젝트 실행 방법
 
+### 의존성 패키지 설치
+
 ```
 yarn install
-yarn dev
 ```
 
-## 📂 프로젝트 구조
+### 로컬 DB 설치
 
-추가 예정
+```
+yarn docker:up
+```
+
+- 로컬 환경에서 Docker가 설치되어있어야 합니다.
+
+### DB 마이그레이션
+
+```
+yarn db:update
+```
+
+## 📂 아키텍처 구조
+
+<img width="808" height="708" alt="Image" src="https://github.com/user-attachments/assets/a656095a-2eec-4d96-8623-a4df6a343dd0" />
 
 ## 🛠️ 기술 스택
 
@@ -59,7 +87,7 @@ yarn dev
 
 ### 🗄️ Data & State Management
 
-<img src="https://img.shields.io/badge/TanStack%20Query-3FAF8B?style=flat&logo=tanstack&logoColor=white"/> <img src="https://img.shields.io/badge/Zusatnd-3FAF8B?style=flat"/> <img src="https://img.shields.io/badge/mysql-3FAF8B?style=flat&logo=mysql&logoColor=white"/> <img src="https://img.shields.io/badge/redis-3FAF8B?style=flat&logo=redis&logoColor=white"/>
+<img src="https://img.shields.io/badge/TanStack%20Query-3FAF8B?style=flat&logo=tanstack&logoColor=white"/> <img src="https://img.shields.io/badge/Zusatnd-3FAF8B?style=flat"/> <img src="https://img.shields.io/badge/mysql-3FAF8B?style=flat&logo=mysql&logoColor=white"/>
 
 ### 🚀 Infrastructure & DevOps
 
