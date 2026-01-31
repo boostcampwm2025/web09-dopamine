@@ -77,7 +77,8 @@ async function main() {
       name: 'Alice',
       displayName: 'alice',
       provider: 'github',
-      avatarUrl: 'https://example.com/avatar/alice.png',
+      provider: 'github',
+      image: 'https://example.com/avatar/alice.png',
     },
     {
       id: ids.userBob,
@@ -85,7 +86,8 @@ async function main() {
       name: 'Bob',
       displayName: 'bob',
       provider: 'google',
-      avatarUrl: 'https://example.com/avatar/bob.png',
+      provider: 'google',
+      image: 'https://example.com/avatar/bob.png',
     },
     {
       id: ids.userCharlie,
@@ -93,7 +95,8 @@ async function main() {
       name: 'Charlie',
       displayName: 'charlie',
       provider: 'kakao',
-      avatarUrl: 'https://example.com/avatar/charlie.png',
+      provider: 'kakao',
+      image: 'https://example.com/avatar/charlie.png',
     },
   ];
 
@@ -163,8 +166,8 @@ async function main() {
 
   await upsertById(prisma.issueConnection, {
     id: ids.issueLink,
-    issueAId: ids.issueRetention,
-    issueBId: ids.issueActivation,
+    sourceIssueId: ids.issueRetention,
+    targetIssueId: ids.issueActivation,
   });
 
   const issueMembers = [
@@ -173,12 +176,14 @@ async function main() {
       issueId: ids.issueRetention,
       userId: ids.userAlice,
       role: 'OWNER',
+      nickname: 'Alice',
     },
     {
       id: ids.issueMemberBob,
       issueId: ids.issueActivation,
       userId: ids.userBob,
       role: 'MEMBER',
+      nickname: 'Bob',
     },
   ];
 
