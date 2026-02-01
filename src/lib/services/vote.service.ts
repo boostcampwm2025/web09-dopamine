@@ -6,6 +6,11 @@ import { countField } from '../utils/vote';
 export const voteService = {
   async castVote(ideaId: string, userId: string, voteType: VoteType) {
     return await prisma.$transaction(async (tx) => {
+      // 0. [비관적 락] 아이디어 Row 잠금 (동시성 제어)
+      // MySQL Unique Index 한계(Null 허용)로 인해 애플리케이션 레벨의 직렬화 필요
+      // 이 쿼리는 해당 트랜잭션이 끝날 때까지 유지됨
+      await tx.$executeRaw`SELECT * FROM ideas WHERE id = ${ideaId} FOR UPDATE`;
+
       // 1. 기존 투표 확인
       const existing = await voteRepository.findActiveVote(ideaId, userId, tx);
 
