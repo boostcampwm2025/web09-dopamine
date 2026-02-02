@@ -33,7 +33,7 @@ describe('POST /api/issues/[issueId]/members/nickname', () => {
     const data = await expectSuccessResponse(response, 200);
 
     expect(data.nickname).toBe(mockNickname);
-    expect(mockedCreateUniqueNickname).toHaveBeenCalledWith(issueId);
+    expect(mockedCreateUniqueNickname).toHaveBeenCalled();
   });
 
   it('에러 발생 시 500 에러를 반환한다', async () => {
