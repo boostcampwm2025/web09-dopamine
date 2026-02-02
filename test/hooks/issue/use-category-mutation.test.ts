@@ -3,7 +3,6 @@
  */
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
-// store 훅을 직접 import 해서 mockImplementation을 변경할 수 있게 합니다.
 import { useSseConnectionStore } from '@/app/(with-sidebar)/issue/store/use-sse-connection-store';
 import { useCategoryMutations } from '@/hooks';
 import * as categoryApi from '@/lib/api/category';
@@ -41,27 +40,37 @@ describe('useCategoryMutations', () => {
   // QueryClient Spy
   const mockInvalidateQueries = jest.fn();
   const mockGetQueryData = jest.fn();
+  const mockSetQueryData = jest.fn(); // 혹시 모를 의존성 대비 추가
 
   beforeEach(() => {
     jest.clearAllMocks();
 
-    (useQueryClient as jest.Mock).mockReturnValue({
+    // mockReturnValue 대신 mockImplementation 사용
+    // 이렇게 하면 호출 시점에 확실하게 객체를 만들어 반환합니다.
+    (useQueryClient as jest.Mock).mockImplementation(() => ({
       invalidateQueries: mockInvalidateQueries,
       getQueryData: mockGetQueryData,
-    });
+      setQueryData: mockSetQueryData,
+    }));
 
-    // 여기서 실제 변수(issueId, connectionId)를 사용하여 Mock 동작을 정의합니다.
+    // Store 모킹 구현 주입
     (useSseConnectionStore as unknown as jest.Mock).mockImplementation((selector) => {
-      // selector 함수에 우리가 원하는 가짜 state를 넣어서 실행시킴
       return selector({
         connectionIds: {
-          [issueId]: connectionId, // { 'issue-123': 'conn-1' }
+          [issueId]: connectionId,
         },
       });
     });
 
     // 기본적으로 빈 배열 반환 (중복 검사 통과)
     mockGetQueryData.mockReturnValue([]);
+
+    // console.error 모킹 (테스트 로그 오염 방지)
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   describe('create (카테고리 생성)', () => {
