@@ -22,9 +22,10 @@ export default function MemberSidebarItem({
 }: MemberSidebarItemProps) {
   const issueId = useIssueId();
   const pathname = usePathname();
+
+  // URL의 ID가 이슈 ID로 오인되는 것을 방지
   const isIssuePage = pathname?.startsWith('/issue/');
   const validIssueId = isIssuePage ? issueId : undefined;
-
   const { userId } = useIssueIdentity(validIssueId);
 
   const isCurrentUser = userId === id;
