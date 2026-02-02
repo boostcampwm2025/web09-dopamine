@@ -133,6 +133,19 @@ describe('Issue Member & Nickname Mutations', () => {
         await waitFor(() => expect(result.current.generate.isSuccess).toBe(true));
         expect(mockGenerateNickname).toHaveBeenCalledWith(issueId);
       });
+      test('생성 실패 시 에러 토스트를 띄워야 한다', async () => {
+        const error = new Error('생성 실패');
+        mockGenerateNickname.mockRejectedValue(error);
+
+        const { result } = renderHook(() => useNicknameMutations(issueId));
+
+        act(() => {
+          result.current.generate.mutate();
+        });
+
+        await waitFor(() => expect(result.current.generate.isError).toBe(true));
+        expect(mockToastError).toHaveBeenCalledWith('생성 실패');
+      });
     });
 
     describe('checkDuplicate (중복 확인)', () => {
@@ -187,6 +200,22 @@ describe('Issue Member & Nickname Mutations', () => {
 
         // 토스트 호출 확인
         expect(mockToastError).toHaveBeenCalledWith('Network Error');
+      });
+
+      test('Error 객체가 아닌 에러 발생 시 기본 메시지를 띄워야 한다', async () => {
+        // 문자열로 에러 던짐 (throw "Some string")
+        mockCheckNicknameDuplicate.mockRejectedValue('Unknown Error');
+
+        const { result } = renderHook(() => useNicknameMutations(issueId));
+
+        await expect(async () => {
+          await act(async () => {
+            await result.current.checkDuplicate('Nick');
+          });
+        }).rejects.toEqual('Unknown Error');
+
+        // 기본 메시지 확인
+        expect(mockToastError).toHaveBeenCalledWith('닉네임 중복 확인 중 오류가 발생했습니다.');
       });
     });
   });
