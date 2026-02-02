@@ -96,6 +96,26 @@ describe('useUserMutation', () => {
       expect(mockSignOut).not.toHaveBeenCalled();
       expect(mockClear).not.toHaveBeenCalled();
     });
+
+    test('에러 메시지가 없는 경우 기본 메시지("회원탈퇴 중 오류가 발생했습니다.")를 띄워야 한다', async () => {
+      // Given: 메시지가 빈 에러 객체 생성
+      const error = new Error();
+      error.message = '';
+      mockWithdraw.mockRejectedValue(error);
+
+      const { result } = renderHook(() => useUserMutation());
+
+      // When
+      act(() => {
+        result.current.withdrawMutation.mutate();
+      });
+
+      // Then
+      await waitFor(() => expect(result.current.withdrawMutation.isError).toBe(true));
+
+      // 기본 메시지 확인
+      expect(mockToastError).toHaveBeenCalledWith('회원탈퇴 중 오류가 발생했습니다.');
+    });
   });
 
   describe('updateDisplayNameMutation (이름 변경)', () => {
