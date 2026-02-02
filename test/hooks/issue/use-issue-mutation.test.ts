@@ -58,6 +58,7 @@ describe('Issue Mutations', () => {
     (useQueryClient as jest.Mock).mockReturnValue(mockQueryClient);
 
     // Store 구현 주입: 특정 issueId에 대해 connectionId 반환
+    // (mockImplementation을 사용하여 호출 시점에 값을 반환하도록 설정)
     (useSseConnectionStore as unknown as jest.Mock).mockImplementation((selector) => {
       return selector({
         connectionIds: {
@@ -65,6 +66,13 @@ describe('Issue Mutations', () => {
         },
       });
     });
+
+    // console.error 모킹 (테스트 로그 오염 방지)
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   // 1. 빠른 시작 (Quick Start)
@@ -125,14 +133,14 @@ describe('Issue Mutations', () => {
         });
 
         // Then
-        // 🔥 수정: 5개의 인자를 모두 확인 (issueId, status, undefined, undefined, connectionId)
+        // 5개의 인자를 모두 확인 (issueId, status, undefined, undefined, connectionId)
         await waitFor(() => {
           expect(mockUpdateIssueStatus).toHaveBeenCalledWith(
             issueId,
             ISSUE_STATUS.CATEGORIZE,
             undefined,
             undefined,
-            connectionId,
+            connectionId, // 여기가 undefined가 아니어야 함
           );
         });
 
@@ -159,7 +167,7 @@ describe('Issue Mutations', () => {
         });
 
         // Then
-        // 5개의 인자를 모두 확인
+        // 5개의 인자 확인
         await waitFor(() => {
           expect(mockUpdateIssueStatus).toHaveBeenCalledWith(
             issueId,
@@ -223,7 +231,7 @@ describe('Issue Mutations', () => {
         // Then
         await waitFor(() => expect(result.current.close.isSuccess).toBe(true));
 
-        // 5개의 인자를 모두 확인
+        // 5개의 인자 확인
         expect(mockUpdateIssueStatus).toHaveBeenCalledWith(
           issueId,
           ISSUE_STATUS.CLOSE,
