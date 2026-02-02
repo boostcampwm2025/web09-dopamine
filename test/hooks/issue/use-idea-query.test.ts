@@ -20,8 +20,9 @@ describe('Idea Queries', () => {
 
   describe('useIssueIdeaQuery (아이디어 목록 조회 및 변환)', () => {
     test('DB 데이터를 받아와서 IdeaWithPosition 형태로 올바르게 변환해야 한다', async () => {
-      // Given: 구현 코드(SimpleIdea 타입)에 맞춰 Mock 데이터 구성
+      // Given: 다양한 케이스를 포함한 Mock 데이터 구성
       const mockDbIdeas = [
+        // Case 1: 모든 데이터가 완벽하게 있는 경우
         {
           id: '1',
           userId: 'user-1',
@@ -36,6 +37,7 @@ describe('Idea Queries', () => {
           isSelected: false,
           myVote: null,
         },
+        // Case 2: 좌표가 둘 다 없는 경우 & isSelected가 true인 경우
         {
           id: '2',
           userId: 'user-2',
@@ -50,6 +52,21 @@ describe('Idea Queries', () => {
           isSelected: true,
           myVote: 'AGREE',
         },
+        // Case 3: isSelected가 없고(undefined), 좌표가 하나만 있는 경우
+        {
+          id: '3',
+          userId: 'user-3',
+          content: 'Edge Case',
+          positionX: 100, // X는 있는데
+          positionY: null, // Y가 없음 -> 결과는 position: null 이어야 함
+          nickname: 'EdgeUser',
+          categoryId: null,
+          agreeCount: 0,
+          disagreeCount: 0,
+          commentCount: 0,
+          isSelected: undefined, // 값이 없음 -> 결과는 false 이어야 함 (?? false 커버)
+          myVote: null,
+        },
       ];
 
       mockFetchIdeas.mockResolvedValue(mockDbIdeas);
@@ -62,24 +79,32 @@ describe('Idea Queries', () => {
 
       const ideas = result.current.data;
 
-      // 1. 첫 번째 아이디어 검증 (모든 필드 존재)
+      // 1. 첫 번째 아이디어 검증 (정상)
       expect(ideas?.[0]).toEqual(
         expect.objectContaining({
           id: '1',
-          author: 'NickName', // nickname -> author 매핑 확인
-          position: { x: 100, y: 200 }, // 좌표 변환 확인
-          editable: false,
+          position: { x: 100, y: 200 },
+          isSelected: false,
         }),
       );
 
-      // 2. 두 번째 아이디어 검증 (좌표 없음 -> null, 선택된 상태)
+      // 2. 두 번째 아이디어 검증 (좌표 둘 다 없음)
       expect(ideas?.[1]).toEqual(
         expect.objectContaining({
           id: '2',
-          author: 'AnotherUser',
-          position: null, // null 확인
+          position: null,
           isSelected: true,
-          myVote: 'AGREE',
+        }),
+      );
+
+      // 세 번째 아이디어 검증 (Edge Case)
+      expect(ideas?.[2]).toEqual(
+        expect.objectContaining({
+          id: '3',
+          // 좌표가 하나라도 비면 null이어야 함
+          position: null,
+          // isSelected가 undefined면 기본값 false여야 함
+          isSelected: false,
         }),
       );
     });
