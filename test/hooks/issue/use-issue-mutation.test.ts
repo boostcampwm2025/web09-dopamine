@@ -261,6 +261,66 @@ describe('Issue Mutations', () => {
         expect(mockToastSuccess).toHaveBeenCalledWith('이슈가 종료되었습니다.');
       });
     });
+
+    describe('Edge Cases (데이터 불일치 상황)', () => {
+      test('onMutate 시점에 캐시가 사라지면(undefined) 낙관적 업데이트를 수행하지 않아야 한다', async () => {
+        // Given
+        // 1. handleNextStep 호출 시점: 데이터 있음 (진입 성공)
+        mockQueryClient.getQueryData.mockReturnValueOnce({
+          id: issueId,
+          status: ISSUE_STATUS.BRAINSTORMING,
+        });
+
+        // 2. onMutate 내부 호출 시점: 데이터 사라짐 (Cache Miss 시뮬레이션)
+        // 이렇게 하면 onMutate 내부의 if (previousIssue) 블록을 건너뜁니다.
+        mockQueryClient.getQueryData.mockReturnValueOnce(undefined);
+
+        mockUpdateIssueStatus.mockResolvedValue({});
+
+        const { result } = renderHook(() => useIssueStatusMutations(issueId));
+
+        // When
+        act(() => {
+          result.current.nextStep();
+        });
+
+        // Then
+        // update API는 정상적으로 호출되어야 함
+        await waitFor(() => {
+          expect(mockUpdateIssueStatus).toHaveBeenCalled();
+        });
+
+        // 하지만 onMutate 내부의 setQueryData(낙관적 업데이트)는 호출되지 않아야 함
+        expect(mockQueryClient.setQueryData).not.toHaveBeenCalled();
+      });
+
+      test('onMutate 시점에 데이터가 없어 Context가 비어있다면, 실패 시 롤백하지 않아야 한다', async () => {
+        // Given
+        // 1. handleNextStep용 데이터 (성공)
+        mockQueryClient.getQueryData.mockReturnValueOnce({
+          id: issueId,
+          status: ISSUE_STATUS.BRAINSTORMING,
+        });
+
+        // 2. onMutate용 데이터 (없음) -> context.previousIssue가 undefined가 됨
+        mockQueryClient.getQueryData.mockReturnValueOnce(undefined);
+
+        mockUpdateIssueStatus.mockRejectedValue(new Error('Fail'));
+
+        const { result } = renderHook(() => useIssueStatusMutations(issueId));
+
+        // When
+        act(() => {
+          result.current.nextStep();
+        });
+
+        // Then
+        await waitFor(() => expect(mockToastError).toHaveBeenCalledWith('Fail'));
+
+        // Context가 없으므로 롤백(setQueryData)이 실행되지 않아야 함
+        expect(mockQueryClient.setQueryData).not.toHaveBeenCalled();
+      });
+    });
   });
 
   // 3. 토픽 내 이슈 생성
