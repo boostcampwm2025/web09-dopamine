@@ -50,6 +50,8 @@ export default function IdeaCardHeader({
     <S.Header>
       {isEditing ? (
         <S.EditableInput
+          data-testid="idea-input"
+          aria-label="idea-input"
           ref={textareaRef}
           rows={1}
           value={editValue}
@@ -61,7 +63,12 @@ export default function IdeaCardHeader({
           placeholder="아이디어를 입력해주세요."
         />
       ) : (
-        <S.Content>{displayContent}</S.Content>
+        <S.Content
+          data-testid="idea-content"
+          aria-label="idea-content"
+        >
+          {displayContent}
+        </S.Content>
       )}
       <S.Meta>
         <S.AuthorPill isCurrentUser={isCurrentUser}>{author}</S.AuthorPill>
