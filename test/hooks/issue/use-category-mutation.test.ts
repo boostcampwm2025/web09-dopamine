@@ -3,6 +3,8 @@
  */
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
+// store 훅을 직접 import 해서 mockImplementation을 변경할 수 있게 합니다.
+import { useSseConnectionStore } from '@/app/(with-sidebar)/issue/store/use-sse-connection-store';
 import { useCategoryMutations } from '@/hooks';
 import * as categoryApi from '@/lib/api/category';
 import { act, renderHook, waitFor } from '../../utils/test-utils';
@@ -11,7 +13,7 @@ import { act, renderHook, waitFor } from '../../utils/test-utils';
 jest.mock('@/lib/api/category');
 jest.mock('react-hot-toast');
 
-// 2. React Query 모킹 (invalidateQueries 감시용)
+// 2. React Query 모킹
 jest.mock('@tanstack/react-query', () => {
   const original = jest.requireActual('@tanstack/react-query');
   return {
@@ -20,8 +22,14 @@ jest.mock('@tanstack/react-query', () => {
   };
 });
 
+// 3. Store 모킹 (껍데기만 생성)
+jest.mock('@/app/(with-sidebar)/issue/store/use-sse-connection-store', () => ({
+  useSseConnectionStore: jest.fn(),
+}));
+
 describe('useCategoryMutations', () => {
   const issueId = 'issue-123';
+  const connectionId = 'conn-1';
   const queryKey = ['issues', issueId, 'categories'];
 
   // Mock 함수들
@@ -32,13 +40,28 @@ describe('useCategoryMutations', () => {
 
   // QueryClient Spy
   const mockInvalidateQueries = jest.fn();
+  const mockGetQueryData = jest.fn();
 
   beforeEach(() => {
     jest.clearAllMocks();
 
     (useQueryClient as jest.Mock).mockReturnValue({
       invalidateQueries: mockInvalidateQueries,
+      getQueryData: mockGetQueryData,
     });
+
+    // 여기서 실제 변수(issueId, connectionId)를 사용하여 Mock 동작을 정의합니다.
+    (useSseConnectionStore as unknown as jest.Mock).mockImplementation((selector) => {
+      // selector 함수에 우리가 원하는 가짜 state를 넣어서 실행시킴
+      return selector({
+        connectionIds: {
+          [issueId]: connectionId, // { 'issue-123': 'conn-1' }
+        },
+      });
+    });
+
+    // 기본적으로 빈 배열 반환 (중복 검사 통과)
+    mockGetQueryData.mockReturnValue([]);
   });
 
   describe('create (카테고리 생성)', () => {
@@ -50,18 +73,18 @@ describe('useCategoryMutations', () => {
       const { result } = renderHook(() => useCategoryMutations(issueId));
 
       // When
-      act(() => {
+      await act(async () => {
         result.current.create.mutate(payload);
       });
 
       // Then
       await waitFor(() => expect(result.current.create.isSuccess).toBe(true));
 
-      expect(mockCreateCategory).toHaveBeenCalledWith(issueId, payload);
+      expect(mockCreateCategory).toHaveBeenCalledWith(issueId, payload, connectionId);
       expect(mockInvalidateQueries).toHaveBeenCalledWith({ queryKey });
     });
 
-    test('실패 시 에러 토스트를 띄우고(onSettled에 의해) 쿼리를 무효화해야 한다', async () => {
+    test('실패 시 에러 토스트를 띄우고 쿼리를 무효화해야 한다', async () => {
       // Given
       const errorMsg = '생성 실패';
       mockCreateCategory.mockRejectedValue(new Error(errorMsg));
@@ -75,9 +98,7 @@ describe('useCategoryMutations', () => {
       // Then
       await waitFor(() => expect(result.current.create.isError).toBe(true));
 
-      // 1. 에러 토스트 확인
       expect(mockToastError).toHaveBeenCalledWith(errorMsg);
-      // 2. onSettled 로직 확인 (실패해도 무효화 실행됨)
       expect(mockInvalidateQueries).toHaveBeenCalledWith({ queryKey });
     });
   });
@@ -99,7 +120,12 @@ describe('useCategoryMutations', () => {
       // Then
       await waitFor(() => expect(result.current.update.isSuccess).toBe(true));
 
-      expect(mockUpdateCategory).toHaveBeenCalledWith(issueId, categoryId, updatePayload);
+      expect(mockUpdateCategory).toHaveBeenCalledWith(
+        issueId,
+        categoryId,
+        updatePayload,
+        connectionId,
+      );
       expect(mockInvalidateQueries).toHaveBeenCalledWith({ queryKey });
     });
 
@@ -137,7 +163,7 @@ describe('useCategoryMutations', () => {
       // Then
       await waitFor(() => expect(result.current.remove.isSuccess).toBe(true));
 
-      expect(mockDeleteCategory).toHaveBeenCalledWith(issueId, categoryId);
+      expect(mockDeleteCategory).toHaveBeenCalledWith(issueId, categoryId, connectionId);
       expect(mockInvalidateQueries).toHaveBeenCalledWith({ queryKey });
     });
 
