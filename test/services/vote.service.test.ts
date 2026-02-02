@@ -31,7 +31,7 @@ describe('voteService.castVote', () => {
   it('같은 타입을 다시 누르면 투표를 취소한다', async () => {
     const tx = setupTransaction();
     mockedVoteRepository.findActiveVote.mockResolvedValue({ id: 'vote-1', type: 'AGREE' });
-    mockedVoteRepository.softDeleteVote.mockResolvedValue({ count: 1 });
+    mockedVoteRepository.softDeleteVote.mockResolvedValue({ id: 'vote-1' } as any);
     mockedVoteRepository.updateIdeaCounts.mockResolvedValue({ agreeCount: 2, disagreeCount: 1 });
 
     const result = await voteService.castVote(ideaId, userId, VoteType.AGREE);
@@ -54,7 +54,7 @@ describe('voteService.castVote', () => {
   it('다른 타입을 누르면 투표 타입을 변경한다', async () => {
     const tx = setupTransaction();
     mockedVoteRepository.findActiveVote.mockResolvedValue({ id: 'vote-1', type: 'AGREE' });
-    mockedVoteRepository.updateVoteType.mockResolvedValue({ count: 1 });
+    mockedVoteRepository.updateVoteType.mockResolvedValue({ id: 'vote-1', type: 'DISAGREE' });
     mockedVoteRepository.updateIdeaCounts.mockResolvedValue({ agreeCount: 1, disagreeCount: 3 });
 
     const result = await voteService.castVote(ideaId, userId, VoteType.DISAGREE);
@@ -62,7 +62,6 @@ describe('voteService.castVote', () => {
     expect(mockedVoteRepository.findActiveVote).toHaveBeenCalledWith(ideaId, userId, tx);
     expect(mockedVoteRepository.updateVoteType).toHaveBeenCalledWith(
       'vote-1',
-      VoteType.AGREE,
       VoteType.DISAGREE,
       tx,
     );

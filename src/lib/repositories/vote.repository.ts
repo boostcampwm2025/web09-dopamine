@@ -15,28 +15,13 @@ export const voteRepository = {
   },
 
   // 투표 타입 변경
-  // 투표 타입 변경 (낙관적 락 지원: oldType 확인 및 count 반환)
-  updateVoteType(voteId: string, oldType: VoteType, newType: VoteType, tx: Prisma.TransactionClient) {
-    return tx.vote.updateMany({
-      where: {
-        id: voteId,
-        type: oldType,
-        deletedAt: null,
-      },
-      data: { type: newType },
-    });
+  updateVoteType(voteId: string, type: VoteType, tx: Prisma.TransactionClient) {
+    return tx.vote.update({ where: { id: voteId }, data: { type }, select: { id: true, type: true } });
   },
 
   // 투표 삭제 (Soft Delete)
-  // 투표 삭제 (낙관적 락 지원: deletedAt 확인 및 count 반환)
   softDeleteVote(voteId: string, tx: Prisma.TransactionClient) {
-    return tx.vote.updateMany({
-      where: {
-        id: voteId,
-        deletedAt: null,
-      },
-      data: { deletedAt: new Date() },
-    });
+    return tx.vote.update({ where: { id: voteId }, data: { deletedAt: new Date() } });
   },
 
   // 아이디어 테이블의 카운트 업데이트 (atomic increment/decrement)
