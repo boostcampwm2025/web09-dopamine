@@ -1,12 +1,9 @@
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { IssueRole, Prisma } from '@prisma/client';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
 import { authOptions } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
 import { issueMemberRepository } from '@/lib/repositories/issue-member.repository';
 import { findIssueById } from '@/lib/repositories/issue.repository';
-import { issueMemberService } from '@/lib/services/issue-member.service';
 import { broadcast } from '@/lib/sse/sse-service';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 import { setUserIdCookie } from '@/lib/utils/cookie';
@@ -16,13 +13,6 @@ export async function GET(
   { params }: { params: Promise<{ issueId: string }> },
 ): Promise<NextResponse> {
   const { issueId: id } = await params;
-  const { searchParams } = new URL(req.url);
-  const nickname = searchParams.get('nickname');
-
-  if (nickname) {
-    const isDuplicate = await issueMemberService.checkNicknameDuplicate(id, nickname);
-    return createSuccessResponse({ isDuplicate });
-  }
 
   try {
     const members = await issueMemberRepository.findMembersByIssueId(id);
@@ -94,11 +84,6 @@ export async function POST(
     return createSuccessResponse({ userId: result.userId }, 201);
   } catch (error: unknown) {
     console.error('이슈 참여 실패:', error);
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      if (error.code === 'P2002') {
-        return createErrorResponse('NICKNAME_DUPLICATE', 409);
-      }
-    }
     return createErrorResponse('MEMBER_JOIN_FAILED', 500);
   }
 }
