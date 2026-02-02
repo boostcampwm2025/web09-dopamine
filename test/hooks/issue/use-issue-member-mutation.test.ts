@@ -3,6 +3,7 @@
  */
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
+import { useSseConnectionStore } from '@/app/(with-sidebar)/issue/store/use-sse-connection-store';
 import { useIssueMemberMutations, useNicknameMutations } from '@/hooks';
 import * as issueApi from '@/lib/api/issue';
 import * as storage from '@/lib/storage/issue-user-storage';
@@ -22,8 +23,14 @@ jest.mock('@tanstack/react-query', () => {
   };
 });
 
+// 3. Store 모킹 (껍데기 생성)
+jest.mock('@/app/(with-sidebar)/issue/store/use-sse-connection-store', () => ({
+  useSseConnectionStore: jest.fn(),
+}));
+
 describe('Issue Member & Nickname Mutations', () => {
   const issueId = 'issue-1';
+  const connectionId = 'conn-1'; // 테스트용 connectionId
 
   // API Mocks
   const mockJoinIssue = issueApi.joinIssue as jest.Mock;
@@ -42,6 +49,21 @@ describe('Issue Member & Nickname Mutations', () => {
     (useQueryClient as jest.Mock).mockReturnValue({
       invalidateQueries: mockInvalidateQueries,
     });
+
+    (useSseConnectionStore as unknown as jest.Mock).mockImplementation((selector) => {
+      return selector({
+        connectionIds: {
+          [issueId]: connectionId,
+        },
+      });
+    });
+
+    // console.error 모킹
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   // 1. 이슈 참여 테스트
@@ -61,10 +83,10 @@ describe('Issue Member & Nickname Mutations', () => {
       // Then
       await waitFor(() => expect(result.current.join.isSuccess).toBe(true));
 
-      // 1. API 호출 확인
-      expect(mockJoinIssue).toHaveBeenCalledWith(issueId, 'NewUser');
+      // 1. API 호출 확인 (connectionId 포함 3개 인자 확인)
+      expect(mockJoinIssue).toHaveBeenCalledWith(issueId, 'NewUser', connectionId);
 
-      // 2. 스토리지 저장 로직 확인 (중요)
+      // 2. 스토리지 저장 로직 확인
       expect(mockSetUserId).toHaveBeenCalledWith(issueId, 'user-new');
 
       // 3. 쿼리 무효화 확인
