@@ -3,6 +3,7 @@
  */
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
+import { useSseConnectionStore } from '@/app/(with-sidebar)/issue/store/use-sse-connection-store';
 import { ISSUE_STATUS } from '@/constants/issue';
 import {
   useCreateIssueInTopicMutation,
@@ -18,9 +19,6 @@ jest.mock('@/lib/api/issue');
 jest.mock('@/lib/storage/issue-user-storage');
 jest.mock('react-hot-toast');
 
-// @/constants/issue는 모킹하지 않고 실제 값을 사용합니다.
-// 그래야 실제 비즈니스 로직(STEP_FLOW 순서)이 맞는지 검증할 수 있습니다.
-
 // 2. React Query 모킹
 jest.mock('@tanstack/react-query', () => {
   const original = jest.requireActual('@tanstack/react-query');
@@ -30,7 +28,15 @@ jest.mock('@tanstack/react-query', () => {
   };
 });
 
+// 3. Store 모킹 (껍데기 생성)
+jest.mock('@/app/(with-sidebar)/issue/store/use-sse-connection-store', () => ({
+  useSseConnectionStore: jest.fn(),
+}));
+
 describe('Issue Mutations', () => {
+  const issueId = 'issue-123';
+  const connectionId = 'conn-1'; // 테스트용 connectionId
+
   // Mock 함수들
   const mockCreateQuickIssue = issueApi.createQuickIssue as jest.Mock;
   const mockUpdateIssueStatus = issueApi.updateIssueStatus as jest.Mock;
@@ -50,6 +56,15 @@ describe('Issue Mutations', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     (useQueryClient as jest.Mock).mockReturnValue(mockQueryClient);
+
+    // Store 구현 주입: 특정 issueId에 대해 connectionId 반환
+    (useSseConnectionStore as unknown as jest.Mock).mockImplementation((selector) => {
+      return selector({
+        connectionIds: {
+          [issueId]: connectionId,
+        },
+      });
+    });
   });
 
   // 1. 빠른 시작 (Quick Start)
@@ -91,12 +106,11 @@ describe('Issue Mutations', () => {
 
   // 2. 이슈 상태 관리 (Status Update & Next Step)
   describe('useIssueStatusMutations', () => {
-    const issueId = 'issue-123';
     const queryKey = ['issues', issueId];
 
     describe('handleNextStep (다음 단계 이동)', () => {
       test('BRAINSTORMING 상태에서 다음 단계인 CATEGORIZE로 업데이트해야 한다', async () => {
-        // Given: 현재 상태가 BRAINSTORMING (STEP_FLOW의 첫 번째)
+        // Given
         mockQueryClient.getQueryData.mockReturnValue({
           id: issueId,
           status: ISSUE_STATUS.BRAINSTORMING,
@@ -111,10 +125,15 @@ describe('Issue Mutations', () => {
         });
 
         // Then
-        // STEP_FLOW: [BRAINSTORMING, CATEGORIZE, VOTE, SELECT, CLOSE]
-        // 따라서 다음 단계는 CATEGORIZE여야 함
+        // 🔥 수정: 5개의 인자를 모두 확인 (issueId, status, undefined, undefined, connectionId)
         await waitFor(() => {
-          expect(mockUpdateIssueStatus).toHaveBeenCalledWith(issueId, ISSUE_STATUS.CATEGORIZE);
+          expect(mockUpdateIssueStatus).toHaveBeenCalledWith(
+            issueId,
+            ISSUE_STATUS.CATEGORIZE,
+            undefined,
+            undefined,
+            connectionId,
+          );
         });
 
         // 낙관적 업데이트 확인
@@ -140,8 +159,15 @@ describe('Issue Mutations', () => {
         });
 
         // Then
+        // 5개의 인자를 모두 확인
         await waitFor(() => {
-          expect(mockUpdateIssueStatus).toHaveBeenCalledWith(issueId, ISSUE_STATUS.SELECT);
+          expect(mockUpdateIssueStatus).toHaveBeenCalledWith(
+            issueId,
+            ISSUE_STATUS.SELECT,
+            undefined,
+            undefined,
+            connectionId,
+          );
         });
       });
 
@@ -170,7 +196,7 @@ describe('Issue Mutations', () => {
 
         const { result } = renderHook(() => useIssueStatusMutations(issueId));
 
-        // When: nextStep 호출
+        // When: nextStep 호출 (API 호출 유발)
         act(() => {
           result.current.nextStep();
         });
@@ -197,7 +223,14 @@ describe('Issue Mutations', () => {
         // Then
         await waitFor(() => expect(result.current.close.isSuccess).toBe(true));
 
-        expect(mockUpdateIssueStatus).toHaveBeenCalledWith(issueId, ISSUE_STATUS.CLOSE);
+        // 5개의 인자를 모두 확인
+        expect(mockUpdateIssueStatus).toHaveBeenCalledWith(
+          issueId,
+          ISSUE_STATUS.CLOSE,
+          undefined,
+          undefined,
+          connectionId,
+        );
         expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({ queryKey });
         expect(mockToastSuccess).toHaveBeenCalledWith('이슈가 종료되었습니다.');
       });
