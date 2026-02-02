@@ -193,6 +193,24 @@ describe('Issue Mutations', () => {
         // Then
         expect(mockUpdateIssueStatus).not.toHaveBeenCalled();
       });
+
+      test('마지막 단계이거나 다음 단계가 없으면 상태 업데이트를 하지 않아야 한다', () => {
+        // Given: 마지막 단계인 CLOSE 상태
+        mockQueryClient.getQueryData.mockReturnValue({
+          id: issueId,
+          status: ISSUE_STATUS.CLOSE,
+        });
+
+        const { result } = renderHook(() => useIssueStatusMutations(issueId));
+
+        // When
+        act(() => {
+          result.current.nextStep();
+        });
+
+        // Then: API 호출이 일어나지 않아야 함
+        expect(mockUpdateIssueStatus).not.toHaveBeenCalled();
+      });
     });
 
     describe('update (낙관적 업데이트)', () => {
@@ -267,6 +285,24 @@ describe('Issue Mutations', () => {
         queryKey: ['topics', topicId, 'issues'],
       });
       expect(mockToastSuccess).toHaveBeenCalledWith('이슈가 생성되었습니다!');
+    });
+
+    test('토픽 이슈 생성 실패 시 에러 메시지가 없으면 기본 메시지를 띄워야 한다', async () => {
+      // Given: 메시지 없는 에러 객체
+      const error = new Error();
+      error.message = ''; // 강제로 비움
+      mockCreateIssueInTopic.mockRejectedValue(error);
+
+      const { result } = renderHook(() => useCreateIssueInTopicMutation());
+
+      // When
+      act(() => {
+        result.current.mutate({ topicId: 't-1', title: 'Title' });
+      });
+
+      // Then
+      await waitFor(() => expect(result.current.isError).toBe(true));
+      expect(mockToastError).toHaveBeenCalledWith('이슈 생성에 실패했습니다.');
     });
   });
 });
