@@ -1,10 +1,8 @@
 import { getServerSession } from 'next-auth';
 import { GET, POST } from '@/app/api/issues/[issueId]/members/route';
 import { IssueRole } from '@prisma/client';
-import { prisma } from '@/lib/prisma';
 import { issueMemberRepository } from '@/lib/repositories/issue-member.repository';
 import { findIssueById } from '@/lib/repositories/issue.repository';
-import { issueMemberService } from '@/lib/services/issue-member.service';
 import {
   createMockGetRequest,
   createMockParams,
@@ -24,14 +22,8 @@ jest.mock('@/lib/auth', () => ({
 jest.mock('@/lib/repositories/issue.repository');
 jest.mock('@/lib/repositories/issue-member.repository');
 jest.mock('@/lib/repositories/user.repository');
-jest.mock('@/lib/services/issue-member.service');
 jest.mock('@/lib/utils/cookie');
 jest.mock('@/lib/sse/sse-service');
-jest.mock('@/lib/prisma', () => ({
-  prisma: {
-    $transaction: jest.fn(),
-  },
-}));
 
 const mockedGetServerSession = getServerSession as jest.MockedFunction<typeof getServerSession>;
 const mockedFindIssueById = findIssueById as jest.MockedFunction<typeof findIssueById>;
@@ -44,32 +36,12 @@ const mockedJoinLoggedInMember = issueMemberRepository.joinLoggedInMember as jes
 const mockedJoinAnonymousMember = issueMemberRepository.joinAnonymousMember as jest.MockedFunction<
   typeof issueMemberRepository.joinAnonymousMember
 >;
-const mockedCheckNicknameDuplicate = issueMemberService.checkNicknameDuplicate as jest.MockedFunction<
-  typeof issueMemberService.checkNicknameDuplicate
->;
-const mockedPrismaTransaction = prisma.$transaction as jest.MockedFunction<
-  typeof prisma.$transaction
->;
 
 describe('GET /api/issues/[issueId]/members', () => {
   const issueId = 'issue-1';
 
   beforeEach(() => {
     jest.clearAllMocks();
-  });
-
-  it('nickname 파라미터가 있으면 중복 여부를 확인한다', async () => {
-    const nickname = 'TestUser';
-    mockedCheckNicknameDuplicate.mockResolvedValue(false);
-
-    const req = createMockGetRequest({ url: `http://localhost:3000?nickname=${nickname}` });
-    const params = createMockParams({ issueId });
-
-    const response = await GET(req, params);
-    const data = await expectSuccessResponse(response, 200);
-
-    expect(data.isDuplicate).toBe(false);
-    expect(mockedCheckNicknameDuplicate).toHaveBeenCalledWith(issueId, nickname);
   });
 
   it('성공적으로 멤버 목록을 조회한다', async () => {
