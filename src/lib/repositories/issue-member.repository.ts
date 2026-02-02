@@ -1,47 +1,12 @@
 import { IssueRole } from '@prisma/client';
-import { PrismaTransaction } from '@/types/prisma';
 import { prisma } from '../prisma';
 import { createAnonymousUser } from './user.repository';
+import { PrismaTransaction } from '@/types/prisma';
 
 export const issueMemberRepository = {
-  async createUniqueNicknameFromBase(
-    tx: PrismaTransaction,
-    issueId: string,
-    baseName: string,
-    excludeUserId?: string,
-  ) {
-    const trimmedBase = baseName.trim() || '익명';
-    let uniqueNickname = trimmedBase;
-    let suffix = 1;
-
-    const findDuplicate = async (nickname: string) => {
-      return tx.issueMember.findFirst({
-        where: {
-          issueId,
-          nickname,
-          deletedAt: null,
-          ...(excludeUserId ? { NOT: { userId: excludeUserId } } : {}),
-        },
-        select: { id: true },
-      });
-    };
-
-    while (await findDuplicate(uniqueNickname)) {
-      uniqueNickname = `${trimmedBase}${suffix}`;
-      suffix += 1;
-    }
-
-    return uniqueNickname;
-  },
-
   async joinLoggedInMember(issueId: string, userId: string, baseName: string) {
     return prisma.$transaction(async (tx) => {
-      const uniqueNickname = await this.createUniqueNicknameFromBase(
-        tx,
-        issueId,
-        baseName,
-        userId,
-      );
+      const nickname = baseName.trim() || '익명';
 
       const existingMember = await tx.issueMember.findFirst({
         where: { issueId, userId, deletedAt: null },
@@ -49,10 +14,10 @@ export const issueMemberRepository = {
       });
 
       if (existingMember) {
-        if (existingMember.nickname !== uniqueNickname) {
+        if (existingMember.nickname !== nickname) {
           await tx.issueMember.update({
             where: { id: existingMember.id },
-            data: { nickname: uniqueNickname },
+            data: { nickname },
           });
         }
         return { userId, didJoin: false };
@@ -61,7 +26,7 @@ export const issueMemberRepository = {
       await this.addIssueMember(tx, {
         issueId,
         userId,
-        nickname: uniqueNickname,
+        nickname,
         role: IssueRole.MEMBER,
       });
 
@@ -117,19 +82,6 @@ export const issueMemberRepository = {
         userId: true,
         role: true,
         nickname: true,
-      },
-    });
-  },
-
-  async findMemberByNickname(issueId: string, nickname: string) {
-    return prisma.issueMember.findFirst({
-      where: {
-        issueId,
-        nickname,
-        deletedAt: null,
-      },
-      select: {
-        id: true,
       },
     });
   },
