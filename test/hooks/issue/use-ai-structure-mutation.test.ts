@@ -136,5 +136,21 @@ describe('useAIStructuringMutation', () => {
       // 실패했으므로 무효화는 호출되지 않아야 함
       expect(mockInvalidateQueries).not.toHaveBeenCalled();
     });
+
+    test('캐시된 데이터가 없는 경우(undefined) 빈 배열로 처리되어 토스트 에러를 띄운다', () => {
+      // Given: 캐시가 없어서 undefined 반환 (Branch: cachedData || [])
+      mockGetQueryData.mockReturnValue(undefined);
+
+      const { result } = renderHook(() => useAIStructuringMutation(issueId));
+
+      // When
+      act(() => {
+        result.current.handleAIStructure();
+      });
+
+      // Then: ideas가 []가 되고 -> validIdeas도 []가 됨 -> 에러 토스트 발생
+      expect(mockToastError).toHaveBeenCalledWith('분류할 아이디어가 없습니다.');
+      expect(mockCategorizeIdeas).not.toHaveBeenCalled();
+    });
   });
 });
