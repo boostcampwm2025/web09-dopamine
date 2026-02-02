@@ -9,14 +9,17 @@ const LayoutContainer = styled.div`
   flex-direction: column;
   gap: 40px;
   height: 100vh;
-  padding-top: 32px;
+  padding: 32px 80px 0 80px;
 `;
 
 const ContentArea = styled.div`
   display: flex;
   flex: 1;
   overflow-y: auto;
-  padding-inline: 144px;
+  max-width: 1200px;
+  align-self: center;
+  align-items: space-between;
+  width: 100%;
 `;
 
 export default function ProjectLayout({ children }: { children: ReactNode }) {

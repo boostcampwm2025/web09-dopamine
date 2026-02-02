@@ -4,16 +4,25 @@ import styled from '@emotion/styled';
 import { boxStyle } from '@/styles/mixins';
 import { theme } from '@/styles/theme';
 
-export const ProjectPageContainer = styled.div`
+export const Background = styled.div`
   background-color: ${theme.colors.gray[50]};
   width: 100%;
   overflow-y: auto;
-  padding-top: 28px;
-  padding-left: 100px;
-  padding-right: 100px;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+`;
+
+export const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
   gap: 36px;
+  padding: 60px 80px;
+  height: fit-content;
+  max-width: 1200px;
+  width: 100%;
 `;
 
 export const ProjectTitleBox = styled.div`

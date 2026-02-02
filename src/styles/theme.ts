@@ -71,6 +71,15 @@ const colors = {
 
   black: '#000',
   white: '#fff',
+
+  wordcloud: {
+    100: '#98c9a3',
+    200: '#8cb369',
+    300: '#248277',
+    400: '#55a630',
+    500: '#4c956c',
+    600: '#2c6e49',
+  },
 };
 
 export const theme = {

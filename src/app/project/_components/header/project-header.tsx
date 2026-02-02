@@ -2,15 +2,15 @@
 
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import * as S from './project-header.styles';
 
 const ProjectHeader = () => {
   const { data: session } = useSession();
   const router = useRouter();
   const userImage = session?.user?.image || '/profile.svg';
-  const userName = session?.user?.name || '사용자';
+  const userName = session?.user?.displayName || '사용자';
 
   const handleProfileClick = () => {
     router.push(`/mypage`);

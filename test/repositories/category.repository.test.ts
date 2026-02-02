@@ -71,7 +71,10 @@ describe('Category Repository 테스트', () => {
 
   it('이슈에 속한 카테고리를 일괄 생성하고 기본 좌표를 부여한다', async () => {
     const issueId = 'issue-1';
-    const categories = [{ title: 'A' }, { title: 'B' }];
+    const categories = [
+      { title: 'A', ideaIds: ['idea-1'] },
+      { title: 'B', ideaIds: ['idea-2'] },
+    ];
     const mockTx = {
       category: {
         create: jest
@@ -89,6 +92,9 @@ describe('Category Repository 테스트', () => {
         title: 'A',
         positionX: 100,
         positionY: 100,
+        ideas: {
+          connect: [{ id: 'idea-1' }],
+        },
       },
     });
     expect(mockTx.category.create).toHaveBeenCalledWith({
@@ -97,6 +103,9 @@ describe('Category Repository 테스트', () => {
         title: 'B',
         positionX: 700,
         positionY: 100,
+        ideas: {
+          connect: [{ id: 'idea-2' }],
+        },
       },
     });
     expect(result).toHaveLength(2);
@@ -105,7 +114,7 @@ describe('Category Repository 테스트', () => {
   it('카테고리 일괄 생성은 트랜잭션 미전달 시 기본 prisma로 처리된다', async () => {
     mockedCategory.create.mockResolvedValue({ id: 'category-1' } as any);
 
-    await categoryRepository.createManyForIssue('issue-1', [{ title: 'A' }]);
+    await categoryRepository.createManyForIssue('issue-1', [{ title: 'A', ideaIds: [] }]);
 
     expect(mockedCategory.create).toHaveBeenCalledWith({
       data: {
@@ -113,6 +122,9 @@ describe('Category Repository 테스트', () => {
         title: 'A',
         positionX: 100,
         positionY: 100,
+        ideas: {
+          connect: [],
+        },
       },
     });
   });
