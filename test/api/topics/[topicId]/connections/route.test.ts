@@ -1,5 +1,3 @@
-import { GET, POST } from '@/app/api/topics/[topicId]/connections/route';
-import { prisma } from '@/lib/prisma';
 import {
   createMockGetRequest,
   createMockParams,
@@ -7,12 +5,15 @@ import {
   expectErrorResponse,
   expectSuccessResponse,
 } from '@test/utils/api-test-helpers';
+import { GET, POST } from '@/app/api/topics/[topicId]/connections/route';
+import { prisma } from '@/lib/prisma';
 
 jest.mock('@/lib/prisma', () => ({
   prisma: {
     issueConnection: {
       findMany: jest.fn(),
       create: jest.fn(),
+      findFirst: jest.fn(),
     },
   },
 }));
@@ -22,6 +23,9 @@ const mockedFindMany = prisma.issueConnection.findMany as jest.MockedFunction<
 >;
 const mockedCreate = prisma.issueConnection.create as jest.MockedFunction<
   typeof prisma.issueConnection.create
+>;
+const mockedFindFirst = prisma.issueConnection.findFirst as jest.MockedFunction<
+  typeof prisma.issueConnection.findFirst
 >;
 
 describe('GET /api/topics/[topicId]/connections', () => {
@@ -89,6 +93,7 @@ describe('POST /api/topics/[topicId]/connections', () => {
       targetHandle: 'target',
     };
 
+    mockedFindFirst.mockResolvedValue(null);
     mockedCreate.mockResolvedValue(mockConnection as any);
 
     const req = createMockRequest({
@@ -106,6 +111,7 @@ describe('POST /api/topics/[topicId]/connections', () => {
   });
 
   it('에러 발생 시 500 에러를 반환한다', async () => {
+    mockedFindFirst.mockResolvedValue(null);
     mockedCreate.mockRejectedValue(new Error('Database error'));
 
     const req = createMockRequest({
