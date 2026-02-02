@@ -32,4 +32,9 @@ export const voteRepository = {
       select: { agreeCount: true, disagreeCount: true },
     });
   },
+
+  // 비관적 락
+  lockIdea(ideaId: string, tx: Prisma.TransactionClient) {
+    return tx.$executeRaw`SELECT * FROM ideas WHERE id = ${ideaId} FOR UPDATE`;
+  },
 };

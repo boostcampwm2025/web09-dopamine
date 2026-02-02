@@ -9,7 +9,7 @@ export const voteService = {
       // 0. [비관적 락] 아이디어 Row 잠금 (동시성 제어)
       // MySQL Unique Index 한계(Null 허용)로 인해 애플리케이션 레벨의 직렬화 필요
       // 이 쿼리는 해당 트랜잭션이 끝날 때까지 유지됨
-      await tx.$executeRaw`SELECT * FROM ideas WHERE id = ${ideaId} FOR UPDATE`;
+      await voteRepository.lockIdea(ideaId, tx);
 
       // 1. 기존 투표 확인
       const existing = await voteRepository.findActiveVote(ideaId, userId, tx);
