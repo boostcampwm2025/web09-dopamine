@@ -2,6 +2,7 @@
  * @jest-environment jsdom
  */
 import { useQueryClient } from '@tanstack/react-query';
+import { useSseConnectionStore } from '@/app/(with-sidebar)/issue/store/use-sse-connection-store';
 import { getCommentQueryKey, useCommentMutations } from '@/hooks';
 import * as commentApi from '@/lib/api/comment';
 import { act, renderHook, waitFor } from '../../utils/test-utils';
@@ -10,7 +11,7 @@ import { act, renderHook, waitFor } from '../../utils/test-utils';
 jest.mock('@/lib/api/comment');
 jest.mock('@/hooks/comment/use-comment-query');
 
-// 2. React Query의 useQueryClient 모킹
+// 2. React Query 모킹
 jest.mock('@tanstack/react-query', () => {
   const original = jest.requireActual('@tanstack/react-query');
   return {
@@ -19,10 +20,16 @@ jest.mock('@tanstack/react-query', () => {
   };
 });
 
+// 3. Store 모킹 (껍데기 생성)
+jest.mock('@/app/(with-sidebar)/issue/store/use-sse-connection-store', () => ({
+  useSseConnectionStore: jest.fn(),
+}));
+
 describe('useCommentMutations', () => {
   const issueId = 'issue-1';
   const ideaId = 'idea-1';
-  const queryKey = ['comments', issueId, ideaId]; // 테스트용 키
+  const connectionId = 'conn-1'; // 테스트용 connectionId
+  const queryKey = ['comments', issueId, ideaId];
 
   // Mock 함수들
   const mockCreateComment = commentApi.createComment as jest.Mock;
@@ -37,14 +44,20 @@ describe('useCommentMutations', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    // useQueryClient 설정
     (useQueryClient as jest.Mock).mockReturnValue({
       setQueryData: mockSetQueryData,
       invalidateQueries: mockInvalidateQueries,
     });
 
-    // 쿼리 키 유틸 설정
     mockGetCommentQueryKey.mockReturnValue(queryKey);
+
+    (useSseConnectionStore as unknown as jest.Mock).mockImplementation((selector) => {
+      return selector({
+        connectionIds: {
+          [issueId]: connectionId,
+        },
+      });
+    });
   });
 
   describe('createMutation (댓글 생성)', () => {
@@ -63,24 +76,26 @@ describe('useCommentMutations', () => {
       // Then
       await waitFor(() => expect(result.current.createMutation.isSuccess).toBe(true));
 
-      // 1. API 호출 확인
-      expect(mockCreateComment).toHaveBeenCalledWith(issueId, ideaId, {
-        userId: 'user-1',
-        content: 'New Comment',
-      });
+      // connectionId 포함 확인 (4번째 인자)
+      expect(mockCreateComment).toHaveBeenCalledWith(
+        issueId,
+        ideaId,
+        {
+          userId: 'user-1',
+          content: 'New Comment',
+        },
+        connectionId,
+      );
 
-      // 2. setQueryData가 함수형 업데이트로 호출되었는지 확인하고, 그 로직 검증
-      // 호출 인자 확인: (Key, UpdaterFunction)
+      // setQueryData 확인
       expect(mockSetQueryData).toHaveBeenCalledWith(queryKey, expect.any(Function));
 
-      // Updater 함수를 직접 실행해서 로직 검증 (기존 배열에 잘 추가되는지)
       const updater = mockSetQueryData.mock.calls[0][1];
       const prevData = [{ id: 'c-old', content: 'Old' }];
       const nextData = updater(prevData);
+      expect(nextData).toEqual([...prevData, newComment]);
 
-      expect(nextData).toEqual([...prevData, newComment]); // 기존 + 새것
-
-      // 3. 아이디어 쿼리(댓글 수 갱신용) 무효화 확인
+      // 무효화 확인
       expect(mockInvalidateQueries).toHaveBeenCalledWith({
         queryKey: ['issues', issueId, 'ideas', ideaId],
       });
@@ -103,23 +118,28 @@ describe('useCommentMutations', () => {
       // Then
       await waitFor(() => expect(result.current.updateMutation.isSuccess).toBe(true));
 
-      expect(mockUpdateComment).toHaveBeenCalledWith(issueId, ideaId, 'c-1', {
-        content: 'Updated Content',
-      });
+      // connectionId 포함 확인 (5번째 인자)
+      expect(mockUpdateComment).toHaveBeenCalledWith(
+        issueId,
+        ideaId,
+        'c-1',
+        { content: 'Updated Content' },
+        connectionId,
+      );
 
       // 캐시 업데이트 로직 검증
       expect(mockSetQueryData).toHaveBeenCalledWith(queryKey, expect.any(Function));
 
       const updater = mockSetQueryData.mock.calls[0][1];
       const prevData = [
-        { id: 'c-1', content: 'Original' }, // 수정 대상
-        { id: 'c-2', content: 'Other' }, // 유지 대상
+        { id: 'c-1', content: 'Original' },
+        { id: 'c-2', content: 'Other' },
       ];
       const nextData = updater(prevData);
 
       expect(nextData).toEqual([
-        { id: 'c-1', content: 'Updated Content' }, // 변경됨
-        { id: 'c-2', content: 'Other' }, // 그대로
+        { id: 'c-1', content: 'Updated Content' },
+        { id: 'c-2', content: 'Other' },
       ]);
     });
   });
@@ -139,23 +159,22 @@ describe('useCommentMutations', () => {
       // Then
       await waitFor(() => expect(result.current.deleteMutation.isSuccess).toBe(true));
 
-      expect(mockDeleteComment).toHaveBeenCalledWith(issueId, ideaId, 'c-1');
+      // connectionId 포함 확인 (4번째 인자)
+      expect(mockDeleteComment).toHaveBeenCalledWith(issueId, ideaId, 'c-1', connectionId);
 
       // 캐시 필터링 로직 검증
       expect(mockSetQueryData).toHaveBeenCalledWith(queryKey, expect.any(Function));
 
       const updater = mockSetQueryData.mock.calls[0][1];
       const prevData = [
-        { id: 'c-1', content: 'Delete me' }, // 삭제 대상
-        { id: 'c-2', content: 'Keep me' }, // 유지 대상
+        { id: 'c-1', content: 'Delete me' },
+        { id: 'c-2', content: 'Keep me' },
       ];
       const nextData = updater(prevData);
 
-      expect(nextData).toEqual([
-        { id: 'c-2', content: 'Keep me' }, // c-1이 사라져야 함
-      ]);
+      expect(nextData).toEqual([{ id: 'c-2', content: 'Keep me' }]);
 
-      // 아이디어 쿼리(댓글 수 갱신용) 무효화 확인
+      // 무효화 확인
       expect(mockInvalidateQueries).toHaveBeenCalledWith({
         queryKey: ['issues', issueId, 'ideas', ideaId],
       });
