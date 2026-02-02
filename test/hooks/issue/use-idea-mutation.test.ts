@@ -3,6 +3,7 @@
  */
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
+import { useSseConnectionStore } from '@/app/(with-sidebar)/issue/store/use-sse-connection-store';
 import type { IdeaWithPosition } from '@/app/(with-sidebar)/issue/types/idea';
 import { useIdeaMutations } from '@/hooks';
 import * as ideaApi from '@/lib/api/idea';
@@ -21,8 +22,14 @@ jest.mock('@tanstack/react-query', () => {
   };
 });
 
+// 3. Store 모킹 (껍데기 생성)
+jest.mock('@/app/(with-sidebar)/issue/store/use-sse-connection-store', () => ({
+  useSseConnectionStore: jest.fn(),
+}));
+
 describe('useIdeaMutations', () => {
   const issueId = 'issue-1';
+  const connectionId = 'conn-1'; // 테스트용 connectionId
   const queryKey = ['issues', issueId, 'ideas'];
 
   // Mock 함수들
@@ -46,6 +53,22 @@ describe('useIdeaMutations', () => {
       cancelQueries: mockCancelQueries,
       invalidateQueries: mockInvalidateQueries,
     });
+
+    // Store 구현 주입: 특정 issueId에 대해 connectionId 반환
+    (useSseConnectionStore as unknown as jest.Mock).mockImplementation((selector) => {
+      return selector({
+        connectionIds: {
+          [issueId]: connectionId,
+        },
+      });
+    });
+
+    // console.error 모킹
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   describe('createIdea', () => {
@@ -62,11 +85,11 @@ describe('useIdeaMutations', () => {
       // Then
       await waitFor(() => expect(result.current.isCreating).toBe(false));
 
-      // expect.objectContaining 사용
-      // userId나 categoryId 같은 다른 필드가 있어도 content만 맞으면 통과
+      // 수정: connectionId 포함 확인
       expect(mockCreateIdea).toHaveBeenCalledWith(
         issueId,
         expect.objectContaining({ content: 'New Idea' }),
+        connectionId, // 3번째 인자 확인
       );
       expect(mockInvalidateQueries).toHaveBeenCalledWith({ queryKey });
     });
@@ -113,24 +136,29 @@ describe('useIdeaMutations', () => {
       // Then
       expect(mockCancelQueries).toHaveBeenCalledWith({ queryKey });
 
-      // setQueryData에 함수가 아닌 배열 값이 직접 전달되는 것을 확인
+      // setQueryData 확인
       expect(mockSetQueryData).toHaveBeenCalledWith(
         queryKey,
         expect.arrayContaining([
           expect.objectContaining({
             id: 'idea-1',
-            position: { x: 100, y: 200 }, // 객체로 변환 확인
-            categoryId: 'cat-2', // 카테고리 변경 확인
+            position: { x: 100, y: 200 },
+            categoryId: 'cat-2',
           }),
         ]),
       );
 
-      // API 호출 확인
-      expect(mockUpdateIdea).toHaveBeenCalledWith(issueId, 'idea-1', {
-        positionX: 100,
-        positionY: 200,
-        categoryId: 'cat-2',
-      });
+      // 수정: connectionId 포함 확인 (4번째 인자)
+      expect(mockUpdateIdea).toHaveBeenCalledWith(
+        issueId,
+        'idea-1',
+        {
+          positionX: 100,
+          positionY: 200,
+          categoryId: 'cat-2',
+        },
+        connectionId,
+      );
       await waitFor(() => expect(mockInvalidateQueries).toHaveBeenCalledWith({ queryKey }));
     });
 
@@ -176,12 +204,13 @@ describe('useIdeaMutations', () => {
       // Then
       expect(mockCancelQueries).toHaveBeenCalledWith({ queryKey });
 
-      // 낙관적 삭제 검증 (필터링된 배열이 직접 전달됨)
+      // 낙관적 삭제 검증
       expect(mockSetQueryData).toHaveBeenCalledWith(queryKey, [
         { id: 'idea-2', content: 'Survivor' },
       ]);
 
-      expect(mockDeleteIdea).toHaveBeenCalledWith(issueId, 'idea-1');
+      // 수정: connectionId 포함 확인 (3번째 인자)
+      expect(mockDeleteIdea).toHaveBeenCalledWith(issueId, 'idea-1', connectionId);
       await waitFor(() => expect(mockInvalidateQueries).toHaveBeenCalledWith({ queryKey }));
     });
 
