@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import 'pretendard/dist/web/static/pretendard.css';
 import { Toaster } from 'react-hot-toast';
 import Modal from '@/components/modal/modal';
 import Tooltip from '@/components/tooltip/tooltip';
@@ -7,6 +6,7 @@ import { AuthProvider } from '@/providers/auth-provider';
 import { Providers } from '@/providers/query-provider';
 import ThemeProvider from '@/providers/theme-provider';
 import EmotionRegistry from '@/styles/EmotionRegistry';
+import { pretendard } from '@/styles/fonts';
 import GlobalStyle from '@/styles/globalStyles';
 
 export const metadata: Metadata = {
@@ -23,7 +23,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko">
-      <body>
+      <body className={`${pretendard.variable} ${pretendard.className}`}>
         <EmotionRegistry>
           <AuthProvider>
             <Providers>
