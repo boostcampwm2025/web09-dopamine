@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 import { useIssueId, useIssueIdentity } from '@/app/(with-sidebar)/issue/hooks';
 import { MEMBER_ROLE } from '@/constants/issue';
 import * as MemberS from './member-sidebar-item.styles';
@@ -20,8 +21,11 @@ export default function MemberSidebarItem({
   isConnected,
 }: MemberSidebarItemProps) {
   const issueId = useIssueId();
+  const pathname = usePathname();
+  const isIssuePage = pathname?.startsWith('/issue/');
+  const validIssueId = isIssuePage ? issueId : undefined;
 
-  const { userId } = useIssueIdentity(issueId);
+  const { userId } = useIssueIdentity(validIssueId);
 
   const isCurrentUser = userId === id;
 
