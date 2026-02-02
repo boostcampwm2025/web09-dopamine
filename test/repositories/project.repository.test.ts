@@ -146,6 +146,7 @@ describe('Project Repository 테스트', () => {
         ownerId: userId,
         createdAt: now,
         updatedAt: now,
+        projectMembers: [],
         _count: { projectMembers: 2 },
       },
     ] as any);
@@ -166,6 +167,18 @@ describe('Project Repository 테스트', () => {
         ownerId: true,
         createdAt: true,
         updatedAt: true,
+        projectMembers: {
+          where: { deletedAt: null },
+          select: {
+            user: {
+              select: {
+                id: true,
+                image: true,
+                displayName: true,
+              },
+            },
+          },
+        },
         _count: {
           select: {
             projectMembers: {
@@ -183,6 +196,7 @@ describe('Project Repository 테스트', () => {
         description: '설명',
         ownerId: userId,
         memberCount: 2,
+        members: [],
         createdAt: now,
         updatedAt: now,
       },
