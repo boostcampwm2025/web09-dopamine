@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { useSseConnectionStore } from '@/app/(with-sidebar)/issue/store/use-sse-connection-store';
-import { checkNicknameDuplicate, generateNickname, joinIssue } from '@/lib/api/issue';
+import { generateNickname, joinIssue } from '@/lib/api/issue';
 import { setUserIdForIssue } from '@/lib/storage/issue-user-storage';
 
 export const useIssueMemberMutations = (issueId: string) => {
@@ -36,27 +36,5 @@ export const useNicknameMutations = (issueId: string) => {
     },
   });
 
-  const { mutateAsync } = useMutation({
-    mutationFn: (nickname: string) => checkNicknameDuplicate(issueId, nickname),
-  });
-
-  const checkDuplicate = async (nickname: string) => {
-    if (!nickname.trim()) {
-      toast.error('닉네임을 입력해주세요.');
-      return { isDuplicate: false };
-    }
-
-    try {
-      const result = await mutateAsync(nickname);
-      return result;
-    } catch (error: unknown) {
-      console.error('닉네임 중복 확인 에러:', error);
-      const errorMessage =
-        error instanceof Error ? error.message : '닉네임 중복 확인 중 오류가 발생했습니다.';
-      toast.error(errorMessage);
-      throw error;
-    }
-  };
-
-  return { generate: create, checkDuplicate };
+  return { generate: create };
 };
