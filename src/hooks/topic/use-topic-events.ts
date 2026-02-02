@@ -35,6 +35,12 @@ export function useTopicEvents({
     const eventSource = new EventSource(SSE_REQ_URL);
     eventSourceRef.current = eventSource;
 
+    // 새로고침 시 연결 정리를 위한 beforeunload 핸들러
+    const handleBeforeUnload = () => {
+      eventSource.close();
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
     eventSource.onopen = () => {
       setIsConnected(true);
       setError(null);
@@ -66,6 +72,7 @@ export function useTopicEvents({
     });
 
     return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
       eventSource.close();
       eventSourceRef.current = null;
     };
