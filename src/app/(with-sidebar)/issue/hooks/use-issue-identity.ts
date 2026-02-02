@@ -12,16 +12,22 @@ interface UseIssueIdentityOptions {
 
 export function useIssueIdentity(issueId?: string, options: UseIssueIdentityOptions = {}) {
   const { data: session } = useSession(); // 현재 로그인한 사용자 세션
-  const issueUserId = issueId ? getUserIdForIssue(issueId) ?? '' : ''; // 이슈에 연결된 사용자 ID(익명용)
+
+  // 이슈에 연결된 사용자 ID(익명용)
+  const storedUserId = issueId ? getUserIdForIssue(issueId) : null;
+  const issueUserId = storedUserId ?? '';
 
   // isQuickIssue 옵션이 명시되지 않은 경우, 이슈 데이터를 통해 판단
   const shouldFetchIssue = options.isQuickIssue === undefined;
+  const isQueryEnabled = (options.enabled ?? true) && shouldFetchIssue && !!issueId;
 
   // 이슈 데이터 조회(필요시)
-  const { data: issue } = useIssueQuery(issueId || '', (options.enabled ?? true) && shouldFetchIssue && !!issueId);
+  const { data: issue } = useIssueQuery(issueId || '', isQueryEnabled);
 
   // 최종 isQuickIssue 결정
-  const isQuickIssue = options.isQuickIssue ?? (issueId ? !issue?.topicId : false);
+  const isAnonymousIssue = issueId ? !issue?.topicId : false;
+  const isQuickIssue = options.isQuickIssue ?? isAnonymousIssue;
+
   const sessionUserId = session?.user?.id ?? '';
   const userId = isQuickIssue ? issueUserId : sessionUserId || issueUserId;
 
