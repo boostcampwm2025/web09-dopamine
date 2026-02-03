@@ -4,6 +4,7 @@
   width: 100%;
   height: fit-content;
   background: #f9fafb;
+  min-height: 100vh;
 }
 
 .container {
