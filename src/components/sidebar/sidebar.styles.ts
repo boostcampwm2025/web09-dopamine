@@ -3,6 +3,12 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import styled from '@emotion/styled';
+import {
+  SIDEBAR_TOGGLE_BORDER_RADIUS,
+  SIDEBAR_TOGGLE_HEIGHT,
+  SIDEBAR_TOGGLE_WIDTH,
+  SIDEBAR_WIDTH,
+} from '@/constants/sidebar';
 import { theme } from '@/styles/theme';
 import { IssueStatus } from '@/types/issue';
 
@@ -13,7 +19,7 @@ export const Sidebar = styled.aside`
   gap: 16px;
   justify-self: left;
   height: 100%;
-  width: 256px;
+  width: ${SIDEBAR_WIDTH}px;
   padding: 16px 0px;
   background-color: ${theme.colors.white};
   color: ${theme.colors.gray[400]};
@@ -27,11 +33,11 @@ export const SidebarToggle = styled.button`
   top: 10%;
   right: -20px;
   transform: translateY(-50%);
-  width: 12px;
-  height: 48px;
+  width: ${SIDEBAR_TOGGLE_WIDTH}px;
+  height: ${SIDEBAR_TOGGLE_HEIGHT}px;
   padding: 0;
   border: none;
-  border-radius: 0 4px 4px 0;
+  border-radius: 0 ${SIDEBAR_TOGGLE_BORDER_RADIUS}px ${SIDEBAR_TOGGLE_BORDER_RADIUS}px 0;
   background-color: ${theme.colors.red[500]};
   cursor: pointer;
   z-index: 9999;

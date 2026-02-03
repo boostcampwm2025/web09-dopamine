@@ -1,12 +1,21 @@
 'use client';
 
-import { ReactNode } from 'react';
+import { ReactNode, useState } from 'react';
 import { usePathname } from 'next/navigation';
+import Image from 'next/image';
 import styled from '@emotion/styled';
-import { theme } from '@/styles/theme';
 import IssueHeader from '@/app/(with-sidebar)/issue/_components/header/header';
 import IssueSidebar from '@/app/(with-sidebar)/issue/_components/layout/issue-sidebar';
 import TopicHeader from '@/app/(with-sidebar)/topic/_components/header/topic-header';
+import {
+  SIDEBAR_TOGGLE_BORDER_RADIUS,
+  SIDEBAR_TOGGLE_HEIGHT,
+  SIDEBAR_TOGGLE_WIDTH,
+  SIDEBAR_WRAPPER_COLLAPSED_WIDTH,
+  SIDEBAR_WRAPPER_OPEN_WIDTH,
+  SIDEBAR_WIDTH,
+} from '@/constants/sidebar';
+import { theme } from '@/styles/theme';
 import ProjectHeader from '../project/_components/header/header';
 import ProjectSidebar from '../project/_components/sidebar/project-sidebar';
 
@@ -23,12 +32,14 @@ const BodyContainer = styled.div`
   overflow: hidden;
 `;
 
-/** 사이드바 + (이슈 페이지 시) 오른쪽 토글을 담는 영역 */
-const SidebarWrapper = styled.div<{ $showToggle?: boolean }>`
+const SidebarWrapper = styled.div<{ $showToggle?: boolean; $isOpen?: boolean }>`
   position: relative;
   flex-shrink: 0;
-  width: ${({ $showToggle }) => ($showToggle ? '268px' : '256px')}; /* 256(sidebar) + 12(toggle) when visible */
+  width: ${({ $showToggle, $isOpen }) =>
+    !$showToggle ? `${SIDEBAR_WIDTH}px` : $isOpen ? `${SIDEBAR_WRAPPER_OPEN_WIDTH}px` : `${SIDEBAR_WRAPPER_COLLAPSED_WIDTH}px`};
   height: 100%;
+  overflow: hidden;
+  transition: width 0.2s ease;
 `;
 
 const SidebarToggle = styled.button`
@@ -39,11 +50,11 @@ const SidebarToggle = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 12px;
-  height: 48px;
+  width: ${SIDEBAR_TOGGLE_WIDTH}px;
+  height: ${SIDEBAR_TOGGLE_HEIGHT}px;
   padding: 0;
   border: none;
-  border-radius: 0 4px 4px 0;
+  border-radius: 0 ${SIDEBAR_TOGGLE_BORDER_RADIUS}px ${SIDEBAR_TOGGLE_BORDER_RADIUS}px 0;
   background-color: ${theme.colors.gray[100]};
   color: ${theme.colors.gray[500]};
   cursor: pointer;
@@ -57,12 +68,6 @@ const SidebarToggle = styled.button`
   }
 `;
 
-const ChevronLeft = () => (
-  <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-    <path d="M5 1L1 5L5 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
-);
-
 const ContentArea = styled.div`
   display: flex;
   flex: 1;
@@ -73,6 +78,10 @@ const ContentArea = styled.div`
 
 export default function WithSidebarClient({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+  const isIssuePage = pathname?.startsWith('/issue');
+  const showToggle = isIssuePage;
 
   const getLayout = () => {
     if (pathname?.startsWith('/issue')) {
@@ -109,11 +118,34 @@ export default function WithSidebarClient({ children }: { children: ReactNode })
       {header}
       <BodyContainer>
         {sidebar ? (
-          <SidebarWrapper $showToggle={pathname?.startsWith('/issue')}>
+          <SidebarWrapper
+            $showToggle={showToggle}
+            $isOpen={isSidebarOpen}
+          >
             {sidebar}
-            {pathname?.startsWith('/issue') && (
-              <SidebarToggle type="button" aria-label="사이드바 접기/펼치기">
-                <ChevronLeft />
+            {showToggle && (
+              <SidebarToggle
+                type="button"
+                aria-label={isSidebarOpen ? '사이드바 접기' : '사이드바 펼치기'}
+                onClick={() => setIsSidebarOpen((prev) => !prev)}
+              >
+                {isSidebarOpen ? (
+                  <Image
+                    src="/chevron-left.svg"
+                    alt=""
+                    width={6}
+                    height={10}
+                    aria-hidden
+                  />
+                ) : (
+                  <Image
+                    src="/chevron-right.svg"
+                    alt=""
+                    width={6}
+                    height={10}
+                    aria-hidden
+                  />
+                )}
               </SidebarToggle>
             )}
           </SidebarWrapper>
