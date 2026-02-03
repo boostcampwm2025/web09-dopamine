@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
-import { createTopic, type CreateTopicData } from '@/lib/api/topic';
+import { type CreateTopicData, createTopic, updateTopicTitle } from '@/lib/api/topic';
 
 export const useCreateTopicMutation = () => {
   const queryClient = useQueryClient();
@@ -17,6 +17,28 @@ export const useCreateTopicMutation = () => {
     onError: (error) => {
       console.error('토픽 생성 실패:', error);
       toast.error(error.message || '토픽 생성에 실패했습니다.');
+    },
+  });
+};
+
+export const useUpdateTopicMutation = (topicId: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: { title: string; userId: string }) =>
+      updateTopicTitle(topicId, data.title, data.userId),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['topics', topicId],
+      });
+
+      toast.success('토픽을 수정했습니다!');
+    },
+
+    onError: (error: Error) => {
+      console.error('토픽 수정 실패:', error);
+      toast.error(error.message || '토픽 수정에 실패했습니다.');
     },
   });
 };
