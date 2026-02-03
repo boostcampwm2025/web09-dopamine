@@ -31,7 +31,6 @@ export const CLIENT_ERROR_MESSAGES: Record<string, string> = {
   MEMBER_FETCH_FAILED: '사용자 정보 조회에 실패했습니다.',
   MEMBER_JOIN_FAILED: '이슈 참여에 실패했습니다.',
   NICKNAME_REQUIRED: 'nickname은 필수입니다.',
-  NICKNAME_DUPLICATE: '이미 사용 중인 닉네임입니다. 다른 닉네임을 사용해주세요.',
   NICKNAME_GENERATION_FAILED: '닉네임 생성에 실패했습니다.',
   USER_ID_REQUIRED: 'User ID가 필요합니다.',
   OWNER_PERMISSION_REQUIRED: '방장 권한이 필요합니다.',

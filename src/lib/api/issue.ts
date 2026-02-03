@@ -108,16 +108,6 @@ export function joinIssueAsLoggedInUser(issueId: string, connectionId?: string) 
   });
 }
 
-export function checkNicknameDuplicate(issueId: string, nickname: string) {
-  const encodedNickname = encodeURIComponent(nickname);
-  return getAPIResponseData<{
-    isDuplicate: boolean;
-  }>({
-    url: `/api/issues/${issueId}/members?nickname=${encodedNickname}`,
-    method: 'GET',
-  });
-}
-
 export function generateNickname(issueId: string) {
   return getAPIResponseData<{
     nickname: string;
