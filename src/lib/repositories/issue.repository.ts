@@ -1,4 +1,4 @@
-import { IssueStatus } from '@prisma/client';
+import { IssueRole, IssueStatus } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { PrismaTransaction } from '@/types/prisma';
 
@@ -78,12 +78,48 @@ export async function updateIssueStatus(
   });
 }
 
-export async function updateIssue(issueId: string, title: string) {
+export async function updateIssue(issueId: string, title: string, userId: string) {
+  const issue = await prisma.issue.findUnique({
+    where: { id: issueId },
+    select: {
+      topicId: true,
+      issueMembers: {
+        where: { userId, role: IssueRole.OWNER },
+        select: { id: true },
+      },
+      topic: {
+        select: {
+          project: {
+            select: {
+              projectMembers: {
+                where: { userId },
+                select: { id: true },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!issue) throw new Error('ISSUE_NOT_FOUND');
+
+  let hasPermission = false;
+
+  if (!issue.topicId) {
+    hasPermission = issue.issueMembers.length > 0;
+  } else {
+    const projectMembers = issue.topic?.project?.projectMembers || [];
+    hasPermission = projectMembers.length > 0;
+  }
+
+  if (!hasPermission) {
+    throw new Error('PERMISSION_DENIED');
+  }
+
   return await prisma.issue.update({
     where: { id: issueId },
-    data: {
-      title,
-    },
+    data: { title },
     select: {
       id: true,
       title: true,

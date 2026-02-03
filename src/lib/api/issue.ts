@@ -57,12 +57,12 @@ export function updateIssueStatus(
   });
 }
 
-export function updateIssue(id: string, title: string) {
+export function updateIssue(id: string, title: string, userId: string) {
   return getAPIResponseData<{ id: string }>({
     url: `/api/issues/${id}`,
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ id, title }),
+    body: JSON.stringify({ id, title, userId }),
   });
 }
 

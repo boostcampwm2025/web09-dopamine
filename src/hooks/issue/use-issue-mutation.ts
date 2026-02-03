@@ -129,7 +129,8 @@ export const useUpdateIssueMutation = (issueId: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: { title: string }) => updateIssue(issueId, data.title),
+    mutationFn: (data: { title: string; userId: string }) =>
+      updateIssue(issueId, data.title, data.userId),
 
     onSuccess: () => {
       queryClient.invalidateQueries({

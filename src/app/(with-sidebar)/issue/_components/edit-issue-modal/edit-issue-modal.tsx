@@ -10,9 +10,10 @@ import { useUpdateIssueMutation } from '@/hooks';
 export interface EditIssueProps {
   issueId: string;
   currentTitle?: string;
+  userId: string;
 }
 
-export default function EditIssueModal({ issueId, currentTitle }: EditIssueProps) {
+export default function EditIssueModal({ issueId, currentTitle, userId }: EditIssueProps) {
   const [title, setTitle] = useState(currentTitle || '');
   const { setIsPending, isOpen, closeModal } = useModalStore();
   const { mutate, isPending } = useUpdateIssueMutation(issueId);
@@ -28,7 +29,7 @@ export default function EditIssueModal({ issueId, currentTitle }: EditIssueProps
     }
 
     mutate(
-      { title },
+      { title, userId },
       {
         onSuccess: () => {
           closeModal();

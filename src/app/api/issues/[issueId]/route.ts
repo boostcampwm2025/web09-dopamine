@@ -28,20 +28,15 @@ export async function PATCH(
   { params }: { params: Promise<{ issueId: string }> },
 ): Promise<NextResponse> {
   const { issueId } = await params;
-  const { userId, error } = await getAuthenticatedUserId(req);
-
-  //TODO: 오너와 일치하는지 확인 필요
-  if (!userId) {
-    return error ?? createErrorResponse('UNAUTHORIZED', 401);
-  }
-  const { title } = await req.json();
+  const { title, userId } = await req.json();
 
   try {
-    const issue = await updateIssue(issueId, title);
+    const issue = await updateIssue(issueId, title, userId);
     //TODO: SSE 연결 필요
     return createSuccessResponse(issue);
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('이슈 수정 실패:', error);
-    return createErrorResponse('ISSUE_UPDATE_FAILED', 500);
+    const errorMessage = error instanceof Error ? error.message : 'ISSUE_UPDATE_FAILED';
+    return createErrorResponse(errorMessage, 500);
   }
 }
