@@ -65,7 +65,7 @@ export const SearchBox = styled.div`
 export const InputIcon = styled(Image)`
   position: absolute;
   top: 50%;
-  left: 0;
+  right: 0;
   transform: translateY(-50%);
 `;
 
@@ -83,7 +83,7 @@ export const SrOnly = styled.label`
 `;
 export const SidebarInput = styled.input`
   width: 100%;
-  padding: 8px 8px 8px 24px;
+  padding: 8px 24px 8px 8px;
   border: none;
   outline: none;
 
