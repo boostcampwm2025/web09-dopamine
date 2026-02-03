@@ -10,7 +10,7 @@ export default function EditTopicButton({ topicId, currentTitle, userId }: EditT
 
   const handleEditClick = () => {
     openModal({
-      title: '이슈 수정',
+      title: '토픽 수정',
       content: (
         <EditTopicModal
           topicId={topicId}
