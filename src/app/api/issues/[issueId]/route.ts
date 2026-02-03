@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { SSE_EVENT_TYPES } from '@/constants/sse-events';
 import { findIssueById } from '@/lib/repositories/issue.repository';
 import { issueService } from '@/lib/services/issue.service';
+import { broadcast, broadcastToTopic } from '@/lib/sse/sse-service';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 
 export async function GET(
@@ -32,7 +34,25 @@ export async function PATCH(
 
   try {
     const issue = await issueService.updateIssue({ issueId, title, userId });
-    //TODO: SSE 연결 필요
+
+    broadcast({
+      issueId: issueId,
+      event: {
+        type: SSE_EVENT_TYPES.ISSUE_STATUS_CHANGED,
+        data: { title: issue.title, issueId, topicId: issue?.topicId },
+      },
+    });
+
+    if (issue?.topicId) {
+      broadcastToTopic({
+        topicId: issue.topicId,
+        event: {
+          type: SSE_EVENT_TYPES.ISSUE_STATUS_CHANGED,
+          data: { title: issue.title, issueId, topicId: issue.topicId },
+        },
+      });
+    }
+
     return createSuccessResponse(issue);
   } catch (error: unknown) {
     console.error('이슈 수정 실패:', error);
