@@ -117,6 +117,17 @@ export function generateNickname(issueId: string) {
   });
 }
 
+export function updateIssueMemberNickname(issueId: string, userId: string, nickname: string) {
+  return getAPIResponseData<{
+    success: boolean;
+  }>({
+    url: `/api/issues/${issueId}/members/${userId}`,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ nickname }),
+  });
+}
+
 /* =========================
  * AI / Structuring
  * ========================= */
