@@ -26,6 +26,12 @@
   gap: 24px;
 }
 
+@media (max-width: 900px) {
+  .wordCloudAndVoteBox {
+    flex-direction: column;
+  }
+}
+
 .componentBox {
   background: #ffffff;
   border: 1px solid #e5e7eb;
