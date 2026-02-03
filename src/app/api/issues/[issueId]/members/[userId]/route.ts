@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { issueMemberService } from '@/lib/services/issue-member.service';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
+import { broadcast } from '@/lib/sse/sse-service';
+import { SSE_EVENT_TYPES } from '@/constants/sse-events';
 
 export async function GET(
   req: NextRequest,
@@ -48,6 +50,15 @@ export async function PATCH(
 
     // 닉네임 업데이트
     await issueMemberService.updateNickname(issueId, userId, nickname);
+
+    // SSE 브로드캐스트
+    broadcast({
+      issueId,
+      event: {
+        type: SSE_EVENT_TYPES.MEMBER_UPDATED,
+        data: { userId, nickname },
+      },
+    });
 
     return createSuccessResponse({ success: true });
   } catch (error) {

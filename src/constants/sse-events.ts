@@ -35,6 +35,7 @@ export const SSE_EVENT_TYPES = {
 
   // 멤버
   MEMBER_JOINED: 'member:joined',
+  MEMBER_UPDATED: 'member:updated',
   MEMBER_LEFT: 'member:left',
   MEMBER_PRESENCE: 'online_member:changed',
 } as const;

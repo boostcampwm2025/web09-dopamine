@@ -76,7 +76,11 @@ export async function POST(
         excludeConnectionId: actorConnectionId,
         event: {
           type: SSE_EVENT_TYPES.MEMBER_JOINED,
-          data: {},
+          data: {
+            userId: result.userId,
+            nickname: nickname || (session?.user?.name ?? '익명'),
+            role: 'MEMBER', // 기본적으로 MEMBER로 가입
+          },
         },
       });
     }
