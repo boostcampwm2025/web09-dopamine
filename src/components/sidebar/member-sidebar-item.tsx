@@ -1,9 +1,11 @@
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 import { useIssueId, useIssueIdentity } from '@/app/(with-sidebar)/issue/hooks';
 import { MEMBER_ROLE } from '@/constants/issue';
 import { useMemberNicknameEdit } from './use-member-nickname-edit';
 import * as MemberS from './member-sidebar-item.styles';
 import * as S from './sidebar.styles';
+import { useSession } from 'next-auth/react';
 
 interface MemberSidebarItemProps {
   profile?: string;
@@ -21,7 +23,24 @@ export default function MemberSidebarItem({
   isConnected,
 }: MemberSidebarItemProps) {
   const issueId = useIssueId();
-  const { userId } = useIssueIdentity(issueId);
+  const pathname = usePathname();
+
+  // 이슈 페이지인지 확인
+  const isIssuePage = pathname?.startsWith('/issue/');
+
+  // 이슈 페이지인 경우 useIssueIdentity를 사용하여 userId 식별
+  let userId;
+  if (isIssuePage) {
+    const validIssueId = issueId;
+    userId = useIssueIdentity(validIssueId);
+  }
+
+  // 이슈 페이지가 아닌 경우 useSession을 사용하여 userId 식별
+  else {
+    const { data: session } = useSession();
+    userId = session?.user.id;
+  }
+
   const isCurrentUser = userId === id;
   const isProjectOwner = role === MEMBER_ROLE.OWNER && profile;
   const isIssueOwner = role === MEMBER_ROLE.OWNER && !profile;
