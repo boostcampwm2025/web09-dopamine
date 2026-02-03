@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import * as HS from '../../../(with-sidebar)/issue/_components/header/header.styles';
 import * as S from './project-header.styles';
 
 const ProjectHeader = () => {
@@ -20,13 +21,15 @@ const ProjectHeader = () => {
     <S.HeaderContainer>
       <S.LeftSection>
         <Link href={'/'}>
-          <Image
-            src="/home.svg"
-            alt="홈으로 가기"
-            width={18}
-            height={18}
-            style={{ cursor: 'pointer' }}
-          />
+          <HS.ButtonsWrapper>
+            <Image
+              src="/home.svg"
+              alt="홈으로 가기"
+              width={18}
+              height={18}
+              style={{ cursor: 'pointer' }}
+            />
+          </HS.ButtonsWrapper>
         </Link>
         <S.Title>내 프로젝트</S.Title>
       </S.LeftSection>
