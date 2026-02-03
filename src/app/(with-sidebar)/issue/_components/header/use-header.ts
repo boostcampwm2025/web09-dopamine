@@ -10,7 +10,6 @@ import {
   useIssueQuery,
   useIssueStatusMutations,
 } from '@/hooks/issue';
-import { getIssueMember } from '@/lib/api/issue';
 import { IssueStatus } from '@/types/issue';
 import { useCategoryOperations, useIdeasWithTemp, useIssueIdentity } from '../../hooks';
 
@@ -36,6 +35,8 @@ export function useHeader({ issueId }: UseHeaderParams) {
   const { ideas, hasEditingIdea } = useIdeasWithTemp(issueId);
   const scale = useCanvasStore((state) => state.scale);
   const { categories, handleAddCategory } = useCategoryOperations(issueId, ideas, scale);
+
+  const isEditButtonVisible = topicId ? true : isOwner;
 
   const hiddenStatus = [ISSUE_STATUS.SELECT, ISSUE_STATUS.CLOSE] as IssueStatus[];
   const isVisible = issue && !hiddenStatus.includes(issue.status as IssueStatus);
@@ -156,6 +157,7 @@ export function useHeader({ issueId }: UseHeaderParams) {
     issue,
     isOwner,
     isVisible,
+    isEditButtonVisible,
     handleCloseIssue,
     handleNextStep,
     handleAddCategory,

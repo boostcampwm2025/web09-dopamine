@@ -17,6 +17,7 @@ const Header = () => {
   const {
     issue,
     isVisible,
+    isEditButtonVisible,
     handleCloseIssue,
     handleNextStep,
     handleAddCategory,
@@ -74,10 +75,12 @@ const Header = () => {
           />
         </button>
         {issue?.title}
-        <EditIssueButton
-          issueId={issueId}
-          currentTitle={issue?.title}
-        />
+        {isEditButtonVisible && (
+          <EditIssueButton
+            issueId={issueId}
+            currentTitle={issue?.title}
+          />
+        )}
       </S.LeftSection>
       <S.CenterSection>
         <ProgressBar />
