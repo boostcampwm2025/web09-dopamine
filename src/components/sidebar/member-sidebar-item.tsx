@@ -4,6 +4,7 @@ import { useIssueId, useIssueIdentity } from '@/app/(with-sidebar)/issue/hooks';
 import { MEMBER_ROLE } from '@/constants/issue';
 import * as MemberS from './member-sidebar-item.styles';
 import * as S from './sidebar.styles';
+import { useSession } from 'next-auth/react';
 
 interface MemberSidebarItemProps {
   profile?: string;
@@ -23,10 +24,21 @@ export default function MemberSidebarItem({
   const issueId = useIssueId();
   const pathname = usePathname();
 
-  // URL의 ID가 이슈 ID로 오인되는 것을 방지
+  // 이슈 페이지인지 확인
   const isIssuePage = pathname?.startsWith('/issue/');
-  const validIssueId = isIssuePage ? issueId : undefined;
-  const { userId } = useIssueIdentity(validIssueId);
+
+  // 이슈 페이지인 경우 useIssueIdentity를 사용하여 userId 식별
+  let userId;
+  if (isIssuePage) {
+    const validIssueId = issueId;
+    userId = useIssueIdentity(validIssueId);
+  }
+
+  // 이슈 페이지가 아닌 경우 useSession을 사용하여 userId 식별
+  else {
+    const { data: session } = useSession();
+    userId = session?.user.id;
+  }
 
   const isCurrentUser = userId === id;
 

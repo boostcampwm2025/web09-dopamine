@@ -10,7 +10,7 @@ interface UseIssueIdentityOptions {
   members?: IssueMember[];
 }
 
-export function useIssueIdentity(issueId?: string, options: UseIssueIdentityOptions = {}) {
+export function useIssueIdentity(issueId: string, options: UseIssueIdentityOptions = {}) {
   const { data: session } = useSession(); // 현재 로그인한 사용자 세션
 
   // 이슈에 연결된 사용자 ID(익명용)
