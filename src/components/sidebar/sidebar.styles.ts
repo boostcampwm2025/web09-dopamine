@@ -85,6 +85,13 @@ export const SidebarInput = styled.input`
   width: 100%;
   padding: 8px 8px 8px 24px;
   border: none;
+  outline: none;
+
+  &:focus,
+  &:focus-visible {
+    outline: none;
+    box-shadow: none;
+  }
 `;
 
 export const SidebarTitle = styled.div`
