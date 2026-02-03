@@ -35,7 +35,6 @@ describe('Issue Member & Nickname Mutations', () => {
   // API Mocks
   const mockJoinIssue = issueApi.joinIssue as jest.Mock;
   const mockGenerateNickname = issueApi.generateNickname as jest.Mock;
-  const mockCheckNicknameDuplicate = issueApi.checkNicknameDuplicate as jest.Mock;
 
   // Storage & Toast Mocks
   const mockSetUserId = storage.setUserIdForIssue as jest.Mock;
@@ -114,7 +113,7 @@ describe('Issue Member & Nickname Mutations', () => {
     });
   });
 
-  // 2. 닉네임 생성 및 중복 확인 테스트
+  // 2. 닉네임 생성 테스트
   describe('useNicknameMutations', () => {
     describe('generate (닉네임 생성)', () => {
       test('성공 시 생성된 닉네임을 반환해야 한다', async () => {

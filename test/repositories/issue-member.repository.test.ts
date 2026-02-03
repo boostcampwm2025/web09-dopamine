@@ -63,29 +63,6 @@ describe('Issue Member Repository 테스트', () => {
     });
   });
 
-  it('닉네임으로 이슈 멤버 존재 여부를 확인한다', async () => {
-    // 역할: 닉네임 중복 체크가 정확해야 초대/가입 로직이 안정적으로 동작한다.
-    mockedIssueMember.findFirst.mockResolvedValue({ id: 'member-1' } as any);
-
-    await issueMemberRepository.findMemberByNickname('issue-1', '닉네임');
-
-    expect(mockedIssueMember.findFirst).toHaveBeenCalledWith({
-      where: {
-        issueId: 'issue-1',
-        deletedAt: null,
-        user: {
-          OR: [
-            { displayName: '닉네임' },
-            { name: '닉네임' },
-          ],
-        },
-      },
-      select: {
-        id: true,
-      },
-    });
-  });
-
   it('유저 ID로 이슈 멤버 정보를 조회한다', async () => {
     // 역할: 권한/역할 확인을 위해 사용자 기준 조회 조건이 정확한지 보장한다.
     mockedIssueMember.findFirst.mockResolvedValue({ role: IssueRole.MEMBER } as any);

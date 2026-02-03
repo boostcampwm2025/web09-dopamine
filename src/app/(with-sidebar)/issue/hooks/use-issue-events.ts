@@ -59,6 +59,12 @@ export function useIssueEvents({
     const eventSource = new EventSource(SSE_REQ_URL);
     eventSourceRef.current = eventSource;
 
+    // 새로고침 시 연결 정리를 위한 beforeunload 핸들러
+    const handleBeforeUnload = () => {
+      eventSource.close();
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
     // 연결 성공
     eventSource.onopen = () => {
       setIsConnected(true);
@@ -301,6 +307,7 @@ export function useIssueEvents({
     });
 
     return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
       eventSource.close();
       eventSourceRef.current = null;
       connectionIdRef.current = null;

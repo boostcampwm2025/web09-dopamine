@@ -1,72 +1,15 @@
-'use client';
+import type { Metadata } from 'next';
+import WithSidebarClient from './_components/with-sidebar-client';
 
-import { ReactNode } from 'react';
-import { usePathname } from 'next/navigation';
-import styled from '@emotion/styled';
-import IssueHeader from '@/app/(with-sidebar)/issue/_components/header/header';
-import IssueSidebar from '@/app/(with-sidebar)/issue/_components/layout/issue-sidebar';
-import TopicHeader from '@/app/(with-sidebar)/topic/_components/header/topic-header';
-import ProjectHeader from './project/_components/header/header';
-import ProjectSidebar from './project/_components/sidebar/project-sidebar';
+export const metadata: Metadata = {
+  title: 'Murphy',
+  description: 'Murphy 협업 공간',
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
-const LayoutContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-`;
-
-const BodyContainer = styled.div`
-  display: flex;
-  flex: 1;
-  overflow: hidden;
-`;
-
-const ContentArea = styled.div`
-  display: flex;
-  flex: 1;
-  overflow-y: auto;
-`;
-
-export default function WithSidebarLayout({ children }: { children: ReactNode }) {
-  const pathname = usePathname();
-
-  const getLayout = () => {
-    if (pathname?.startsWith('/issue')) {
-      return {
-        header: <IssueHeader />,
-        sidebar: <IssueSidebar />,
-      };
-    }
-
-    if (pathname?.startsWith('/topic')) {
-      return {
-        header: <TopicHeader />,
-        sidebar: <IssueSidebar />,
-      };
-    }
-
-    if (pathname?.startsWith('/project')) {
-      return {
-        header: <ProjectHeader />,
-        sidebar: <ProjectSidebar />,
-      };
-    }
-
-    return {
-      header: null,
-      sidebar: null,
-    };
-  };
-
-  const { header, sidebar } = getLayout();
-
-  return (
-    <LayoutContainer>
-      {header}
-      <BodyContainer>
-        {sidebar}
-        <ContentArea>{children}</ContentArea>
-      </BodyContainer>
-    </LayoutContainer>
-  );
+export default function WithSidebarLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  return <WithSidebarClient>{children}</WithSidebarClient>;
 }

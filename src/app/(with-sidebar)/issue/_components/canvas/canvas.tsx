@@ -57,6 +57,7 @@ export default function Canvas({
     <>
       <S.CanvasContainer
         ref={canvasRef}
+        data-testid="issue-canvas"
         onWheel={handleWheel}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
