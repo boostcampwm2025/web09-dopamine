@@ -5,8 +5,8 @@ import { ISSUE_STATUS, STEP_FLOW } from '@/constants/issue';
 import {
   createIssueInTopic,
   createQuickIssue,
-  updateIssue,
   updateIssueStatus,
+  updateIssueTitle,
 } from '@/lib/api/issue';
 import { setUserIdForIssue } from '@/lib/storage/issue-user-storage';
 import { IssueStatus } from '@/types/issue';
@@ -125,12 +125,12 @@ export const useCreateIssueInTopicMutation = () => {
   });
 };
 
-export const useUpdateIssueMutation = (issueId: string) => {
+export const useUpdateIssueTitleMutation = (issueId: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (data: { title: string; userId: string }) =>
-      updateIssue(issueId, data.title, data.userId),
+      updateIssueTitle(issueId, data.title, data.userId),
 
     onSuccess: () => {
       queryClient.invalidateQueries({

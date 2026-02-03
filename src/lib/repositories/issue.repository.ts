@@ -103,7 +103,7 @@ export async function findIssueWithPermissionData(issueId: string, userId: strin
   });
 }
 
-export async function updateIssue(issueId: string, title: string) {
+export async function updateIssueTitle(issueId: string, title: string) {
   return await prisma.issue.update({
     where: { id: issueId },
     data: { title },

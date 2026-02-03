@@ -1,13 +1,13 @@
-import { findIssueWithPermissionData, updateIssue } from '../repositories/issue.repository';
+import { findIssueWithPermissionData, updateIssueTitle } from '../repositories/issue.repository';
 
-interface updateIssueProps {
+interface updateIssueTitleProps {
   issueId: string;
   title: string;
   userId: string;
 }
 
 export const issueService = {
-  async updateIssue({ issueId, title, userId }: updateIssueProps) {
+  async updateIssueTitle({ issueId, title, userId }: updateIssueTitleProps) {
     const issue = await findIssueWithPermissionData(issueId, userId);
 
     if (!issue) throw new Error('ISSUE_NOT_FOUND');
@@ -23,6 +23,6 @@ export const issueService = {
       throw new Error('PERMISSION_DENIED');
     }
 
-    return await updateIssue(issueId, title);
+    return await updateIssueTitle(issueId, title);
   },
 };

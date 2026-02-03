@@ -1,11 +1,10 @@
 'use client';
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import * as S from '@/app/(with-sidebar)/issue/_components/issue-join-modal/issue-join-modal.styles';
 import { useModalStore } from '@/components/modal/use-modal-store';
-import { useUpdateIssueMutation } from '@/hooks';
+import { useUpdateIssueTitleMutation } from '@/hooks';
 
 export interface EditIssueProps {
   issueId: string;
@@ -16,7 +15,7 @@ export interface EditIssueProps {
 export default function EditIssueModal({ issueId, currentTitle, userId }: EditIssueProps) {
   const [title, setTitle] = useState(currentTitle || '');
   const { setIsPending, isOpen, closeModal } = useModalStore();
-  const { mutate, isPending } = useUpdateIssueMutation(issueId);
+  const { mutate, isPending } = useUpdateIssueTitleMutation(issueId);
 
   useEffect(() => {
     setIsPending(isPending);

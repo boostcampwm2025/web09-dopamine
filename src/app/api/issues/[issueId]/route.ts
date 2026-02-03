@@ -33,7 +33,7 @@ export async function PATCH(
   const { title, userId } = await req.json();
 
   try {
-    const issue = await issueService.updateIssue({ issueId, title, userId });
+    const issue = await issueService.updateIssueTitle({ issueId, title, userId });
 
     broadcast({
       issueId: issueId,
