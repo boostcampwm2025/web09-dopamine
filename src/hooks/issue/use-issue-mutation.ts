@@ -57,8 +57,8 @@ export const useIssueStatusMutations = (issueId: string) => {
     onError: (err, _variables, context) => {
       if (context?.previousIssue) {
         queryClient.setQueryData(queryKey, context.previousIssue);
-        toast.error(err.message);
       }
+      toast.error(err.message);
     },
 
     onSettled: () => {

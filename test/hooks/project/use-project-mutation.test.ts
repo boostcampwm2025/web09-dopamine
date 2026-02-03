@@ -80,6 +80,24 @@ describe('Project Mutations', () => {
       await waitFor(() => expect(result.current.isError).toBe(true));
       expect(mockToastError).toHaveBeenCalledWith(errorMsg);
     });
+
+    test('에러 메시지가 없는 경우 기본 메시지("프로젝트 생성에 실패했습니다.")를 띄워야 한다', async () => {
+      // Given: 메시지가 빈 에러 객체
+      const error = new Error();
+      error.message = '';
+      mockCreateProject.mockRejectedValue(error);
+
+      const { result } = renderHook(() => useCreateProjectMutation());
+
+      // When
+      act(() => {
+        result.current.mutate({ title: 'Fail' });
+      });
+
+      // Then
+      await waitFor(() => expect(result.current.isError).toBe(true));
+      expect(mockToastError).toHaveBeenCalledWith('프로젝트 생성에 실패했습니다.');
+    });
   });
 
   describe('useDeleteProjectMutation', () => {
@@ -154,6 +172,24 @@ describe('Project Mutations', () => {
       // Then
       await waitFor(() => expect(result.current.isError).toBe(true));
       expect(mockToastError).toHaveBeenCalledWith('수정 실패');
+    });
+
+    test('에러 메시지가 없는 경우 기본 메시지("프로젝트 수정에 실패했습니다.")를 띄워야 한다', async () => {
+      // Given
+      const error = new Error();
+      error.message = '';
+      mockUpdateProject.mockRejectedValue(error);
+
+      const { result } = renderHook(() => useUpdateProjectMutation());
+
+      // When
+      act(() => {
+        result.current.mutate({ id: 'p-1', title: 'Fail' });
+      });
+
+      // Then
+      await waitFor(() => expect(result.current.isError).toBe(true));
+      expect(mockToastError).toHaveBeenCalledWith('프로젝트 수정에 실패했습니다.');
     });
   });
 

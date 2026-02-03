@@ -3,6 +3,7 @@
  */
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
+import { useSseConnectionStore } from '@/app/(with-sidebar)/issue/store/use-sse-connection-store';
 import { ISSUE_STATUS } from '@/constants/issue';
 import {
   useCreateIssueInTopicMutation,
@@ -18,9 +19,6 @@ jest.mock('@/lib/api/issue');
 jest.mock('@/lib/storage/issue-user-storage');
 jest.mock('react-hot-toast');
 
-// @/constants/issue는 모킹하지 않고 실제 값을 사용합니다.
-// 그래야 실제 비즈니스 로직(STEP_FLOW 순서)이 맞는지 검증할 수 있습니다.
-
 // 2. React Query 모킹
 jest.mock('@tanstack/react-query', () => {
   const original = jest.requireActual('@tanstack/react-query');
@@ -30,7 +28,15 @@ jest.mock('@tanstack/react-query', () => {
   };
 });
 
+// 3. Store 모킹 (껍데기 생성)
+jest.mock('@/app/(with-sidebar)/issue/store/use-sse-connection-store', () => ({
+  useSseConnectionStore: jest.fn(),
+}));
+
 describe('Issue Mutations', () => {
+  const issueId = 'issue-123';
+  const connectionId = 'conn-1'; // 테스트용 connectionId
+
   // Mock 함수들
   const mockCreateQuickIssue = issueApi.createQuickIssue as jest.Mock;
   const mockUpdateIssueStatus = issueApi.updateIssueStatus as jest.Mock;
@@ -50,6 +56,23 @@ describe('Issue Mutations', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     (useQueryClient as jest.Mock).mockReturnValue(mockQueryClient);
+
+    // Store 구현 주입: 특정 issueId에 대해 connectionId 반환
+    // (mockImplementation을 사용하여 호출 시점에 값을 반환하도록 설정)
+    (useSseConnectionStore as unknown as jest.Mock).mockImplementation((selector) => {
+      return selector({
+        connectionIds: {
+          [issueId]: connectionId,
+        },
+      });
+    });
+
+    // console.error 모킹 (테스트 로그 오염 방지)
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   // 1. 빠른 시작 (Quick Start)
@@ -91,12 +114,11 @@ describe('Issue Mutations', () => {
 
   // 2. 이슈 상태 관리 (Status Update & Next Step)
   describe('useIssueStatusMutations', () => {
-    const issueId = 'issue-123';
     const queryKey = ['issues', issueId];
 
     describe('handleNextStep (다음 단계 이동)', () => {
       test('BRAINSTORMING 상태에서 다음 단계인 CATEGORIZE로 업데이트해야 한다', async () => {
-        // Given: 현재 상태가 BRAINSTORMING (STEP_FLOW의 첫 번째)
+        // Given
         mockQueryClient.getQueryData.mockReturnValue({
           id: issueId,
           status: ISSUE_STATUS.BRAINSTORMING,
@@ -111,10 +133,15 @@ describe('Issue Mutations', () => {
         });
 
         // Then
-        // STEP_FLOW: [BRAINSTORMING, CATEGORIZE, VOTE, SELECT, CLOSE]
-        // 따라서 다음 단계는 CATEGORIZE여야 함
+        // 5개의 인자를 모두 확인 (issueId, status, undefined, undefined, connectionId)
         await waitFor(() => {
-          expect(mockUpdateIssueStatus).toHaveBeenCalledWith(issueId, ISSUE_STATUS.CATEGORIZE);
+          expect(mockUpdateIssueStatus).toHaveBeenCalledWith(
+            issueId,
+            ISSUE_STATUS.CATEGORIZE,
+            undefined,
+            undefined,
+            connectionId, // 여기가 undefined가 아니어야 함
+          );
         });
 
         // 낙관적 업데이트 확인
@@ -140,8 +167,15 @@ describe('Issue Mutations', () => {
         });
 
         // Then
+        // 5개의 인자 확인
         await waitFor(() => {
-          expect(mockUpdateIssueStatus).toHaveBeenCalledWith(issueId, ISSUE_STATUS.SELECT);
+          expect(mockUpdateIssueStatus).toHaveBeenCalledWith(
+            issueId,
+            ISSUE_STATUS.SELECT,
+            undefined,
+            undefined,
+            connectionId,
+          );
         });
       });
 
@@ -159,6 +193,24 @@ describe('Issue Mutations', () => {
         // Then
         expect(mockUpdateIssueStatus).not.toHaveBeenCalled();
       });
+
+      test('마지막 단계이거나 다음 단계가 없으면 상태 업데이트를 하지 않아야 한다', () => {
+        // Given: 마지막 단계인 CLOSE 상태
+        mockQueryClient.getQueryData.mockReturnValue({
+          id: issueId,
+          status: ISSUE_STATUS.CLOSE,
+        });
+
+        const { result } = renderHook(() => useIssueStatusMutations(issueId));
+
+        // When
+        act(() => {
+          result.current.nextStep();
+        });
+
+        // Then: API 호출이 일어나지 않아야 함
+        expect(mockUpdateIssueStatus).not.toHaveBeenCalled();
+      });
     });
 
     describe('update (낙관적 업데이트)', () => {
@@ -170,7 +222,7 @@ describe('Issue Mutations', () => {
 
         const { result } = renderHook(() => useIssueStatusMutations(issueId));
 
-        // When: nextStep 호출
+        // When: nextStep 호출 (API 호출 유발)
         act(() => {
           result.current.nextStep();
         });
@@ -197,9 +249,76 @@ describe('Issue Mutations', () => {
         // Then
         await waitFor(() => expect(result.current.close.isSuccess).toBe(true));
 
-        expect(mockUpdateIssueStatus).toHaveBeenCalledWith(issueId, ISSUE_STATUS.CLOSE);
+        // 5개의 인자 확인
+        expect(mockUpdateIssueStatus).toHaveBeenCalledWith(
+          issueId,
+          ISSUE_STATUS.CLOSE,
+          undefined,
+          undefined,
+          connectionId,
+        );
         expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({ queryKey });
         expect(mockToastSuccess).toHaveBeenCalledWith('이슈가 종료되었습니다.');
+      });
+    });
+
+    describe('Edge Cases (데이터 불일치 상황)', () => {
+      test('onMutate 시점에 캐시가 사라지면(undefined) 낙관적 업데이트를 수행하지 않아야 한다', async () => {
+        // Given
+        // 1. handleNextStep 호출 시점: 데이터 있음 (진입 성공)
+        mockQueryClient.getQueryData.mockReturnValueOnce({
+          id: issueId,
+          status: ISSUE_STATUS.BRAINSTORMING,
+        });
+
+        // 2. onMutate 내부 호출 시점: 데이터 사라짐 (Cache Miss 시뮬레이션)
+        // 이렇게 하면 onMutate 내부의 if (previousIssue) 블록을 건너뜁니다.
+        mockQueryClient.getQueryData.mockReturnValueOnce(undefined);
+
+        mockUpdateIssueStatus.mockResolvedValue({});
+
+        const { result } = renderHook(() => useIssueStatusMutations(issueId));
+
+        // When
+        act(() => {
+          result.current.nextStep();
+        });
+
+        // Then
+        // update API는 정상적으로 호출되어야 함
+        await waitFor(() => {
+          expect(mockUpdateIssueStatus).toHaveBeenCalled();
+        });
+
+        // 하지만 onMutate 내부의 setQueryData(낙관적 업데이트)는 호출되지 않아야 함
+        expect(mockQueryClient.setQueryData).not.toHaveBeenCalled();
+      });
+
+      test('onMutate 시점에 데이터가 없어 Context가 비어있다면, 실패 시 롤백하지 않아야 한다', async () => {
+        // Given
+        // 1. handleNextStep용 데이터 (성공)
+        mockQueryClient.getQueryData.mockReturnValueOnce({
+          id: issueId,
+          status: ISSUE_STATUS.BRAINSTORMING,
+        });
+
+        // 2. onMutate용 데이터 (없음) -> context.previousIssue가 undefined가 됨
+        mockQueryClient.getQueryData.mockReturnValueOnce(undefined);
+
+        mockUpdateIssueStatus.mockRejectedValue(new Error('Fail'));
+
+        const { result } = renderHook(() => useIssueStatusMutations(issueId));
+
+        // When
+        act(() => {
+          result.current.nextStep();
+        });
+
+        // Then
+        await waitFor(() => expect(mockToastError).toHaveBeenCalledWith('Fail'));
+
+        // Context가 없으므로 롤백(setQueryData)이 실행되지 않아야 함
+        expect(mockQueryClient.setQueryData).not.toHaveBeenCalled();
       });
     });
   });
@@ -226,6 +345,24 @@ describe('Issue Mutations', () => {
         queryKey: ['topics', topicId, 'issues'],
       });
       expect(mockToastSuccess).toHaveBeenCalledWith('이슈가 생성되었습니다!');
+    });
+
+    test('토픽 이슈 생성 실패 시 에러 메시지가 없으면 기본 메시지를 띄워야 한다', async () => {
+      // Given: 메시지 없는 에러 객체
+      const error = new Error();
+      error.message = ''; // 강제로 비움
+      mockCreateIssueInTopic.mockRejectedValue(error);
+
+      const { result } = renderHook(() => useCreateIssueInTopicMutation());
+
+      // When
+      act(() => {
+        result.current.mutate({ topicId: 't-1', title: 'Title' });
+      });
+
+      // Then
+      await waitFor(() => expect(result.current.isError).toBe(true));
+      expect(mockToastError).toHaveBeenCalledWith('이슈 생성에 실패했습니다.');
     });
   });
 });

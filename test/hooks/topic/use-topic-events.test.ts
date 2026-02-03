@@ -1,28 +1,30 @@
 /**
  * @jest-environment jsdom
  */
-import { renderHook, act } from '@testing-library/react';
 import { useQueryClient } from '@tanstack/react-query';
-import { useTopicEvents } from '@/hooks/topic/use-topic-events';
+import { act, renderHook } from '@testing-library/react';
+import toast from 'react-hot-toast';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
+import { useTopicEvents } from '@/hooks/topic/use-topic-events';
 
 // useQueryClient 모킹
 jest.mock('@tanstack/react-query', () => ({
   useQueryClient: jest.fn(),
 }));
+jest.mock('react-hot-toast');
 
 describe('useTopicEvents', () => {
   let mockEventSource: any;
   let mockInvalidateQueries: jest.Mock;
 
   beforeEach(() => {
-    // QueryClient 모킹 설정
+    // 1. QueryClient 모킹
     mockInvalidateQueries = jest.fn();
     (useQueryClient as jest.Mock).mockReturnValue({
       invalidateQueries: mockInvalidateQueries,
     });
 
-    // EventSource 모킹
+    // 2. EventSource 인스턴스 모킹
     mockEventSource = {
       onopen: null,
       onmessage: null,
@@ -32,7 +34,10 @@ describe('useTopicEvents', () => {
       removeEventListener: jest.fn(),
     };
 
-    global.EventSource = jest.fn(() => mockEventSource) as any;
+    // 3. EventSource 생성자 모킹
+    const mockEventSourceConstructor = jest.fn(() => mockEventSource);
+
+    global.EventSource = mockEventSourceConstructor as unknown as typeof EventSource;
   });
 
   afterEach(() => {
@@ -40,9 +45,7 @@ describe('useTopicEvents', () => {
   });
 
   it('연결 성공 시 isConnected가 true로 변경되어야 한다', () => {
-    const { result } = renderHook(() =>
-      useTopicEvents({ topicId: 'test-topic-id' })
-    );
+    const { result } = renderHook(() => useTopicEvents({ topicId: 'test-topic-id' }));
 
     // 초기값 확인
     expect(result.current.isConnected).toBe(false);
@@ -56,9 +59,7 @@ describe('useTopicEvents', () => {
   });
 
   it('에러 발생 시 isConnected가 false로 변경되어야 한다', () => {
-    const { result } = renderHook(() =>
-      useTopicEvents({ topicId: 'test-topic-id' })
-    );
+    const { result } = renderHook(() => useTopicEvents({ topicId: 'test-topic-id' }));
 
     // 먼저 연결 상태로 만듦
     act(() => {
@@ -80,12 +81,12 @@ describe('useTopicEvents', () => {
     // addEventListener 호출 확인
     expect(mockEventSource.addEventListener).toHaveBeenCalledWith(
       SSE_EVENT_TYPES.ISSUE_STATUS_CHANGED,
-      expect.any(Function)
+      expect.any(Function),
     );
 
     // 등록된 이벤트 핸들러 가져오기
     const handler = mockEventSource.addEventListener.mock.calls.find(
-      (call: any) => call[0] === SSE_EVENT_TYPES.ISSUE_STATUS_CHANGED
+      (call: any) => call[0] === SSE_EVENT_TYPES.ISSUE_STATUS_CHANGED,
     )[1];
 
     // 가짜 이벤트 데이터
@@ -144,9 +145,7 @@ describe('useTopicEvents', () => {
   it('언마운트 시 EventSource와 beforeunload 리스너를 정리해야 한다', () => {
     const removeSpy = jest.spyOn(window, 'removeEventListener');
 
-    const { unmount } = renderHook(() =>
-      useTopicEvents({ topicId: 'test-topic-id' }),
-    );
+    const { unmount } = renderHook(() => useTopicEvents({ topicId: 'test-topic-id' }));
 
     unmount();
 
@@ -154,5 +153,33 @@ describe('useTopicEvents', () => {
     expect(removeSpy).toHaveBeenCalledWith('beforeunload', expect.any(Function));
 
     removeSpy.mockRestore();
+  });
+
+  it('기본 메시지("connected") 수신 시 토스트를 띄워야 한다', () => {
+    // 1. 훅 렌더링
+    renderHook(() => useTopicEvents({ topicId: 'test-topic-id' }));
+
+    // 2. 가짜 메시지 이벤트 데이터 생성
+    const mockMessageEvent = {
+      data: JSON.stringify({ type: 'connected' }),
+    };
+
+    // 3. onmessage 핸들러 실행
+    act(() => {
+      mockEventSource.onmessage(mockMessageEvent);
+    });
+
+    // 4. 검증: toast.success가 호출되었는지 확인
+    expect(toast.success).toHaveBeenCalledWith('토픽에 연결되었습니다');
+  });
+
+  it('enabled가 false이면 EventSource를 연결하지 않아야 한다', () => {
+    // EventSource 생성자 호출 기록 초기화
+    (global.EventSource as unknown as jest.Mock).mockClear();
+
+    renderHook(() => useTopicEvents({ topicId: 'test-topic-id', enabled: false }));
+
+    // enabled: false이므로 생성자가 호출되지 않아야 함
+    expect(global.EventSource).not.toHaveBeenCalled();
   });
 });
