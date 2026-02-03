@@ -21,7 +21,7 @@ export const useCreateTopicMutation = () => {
   });
 };
 
-export const useUpdateTopicMutation = (topicId: string) => {
+export const useUpdateTopicTitleMutation = (topicId: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
