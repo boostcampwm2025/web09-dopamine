@@ -82,7 +82,7 @@ export default function WordCloudSection() {
           const normalized = (weight - min) / range;
           return minFontSize + normalized * sizeRange;
         },
-        fontFamily: 'Pretendard, sans-serif',
+        fontFamily: 'var(--font-pretendard), sans-serif',
         fontWeight: '600',
         color: (_word: string, weight: number) => {
           const normalized = (weight - min) / range;

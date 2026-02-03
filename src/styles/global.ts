@@ -8,7 +8,7 @@ export const global = css`
 
   body {
     font-family:
-      'Pretendard',
+      var(--font-pretendard),
       -apple-system,
       BlinkMacSystemFont,
       'Apple SD Gothic Neo',
