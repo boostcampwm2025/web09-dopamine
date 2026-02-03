@@ -3,18 +3,9 @@ import Sidebar from '@/components/sidebar/sidebar';
 import SidebarFilter from '@/components/sidebar/sidebar-filter';
 import SidebarItem from '@/components/sidebar/sidebar-item';
 import * as S from '@/components/sidebar/sidebar.styles';
-import { ISSUE_STATUS } from '@/constants/issue';
 import IssueGraphLink from './issue-graph-link';
 import NewIssueButton from './new-issue-button';
 import { useIssueSidebar } from './use-issue-sidebar';
-
-export const ISSUE_LIST = [
-  { title: 'new issue', href: '#', status: ISSUE_STATUS.BRAINSTORMING },
-  { title: 'categorize', href: '#', status: ISSUE_STATUS.CATEGORIZE },
-  { title: 'voting issue', href: '#', status: ISSUE_STATUS.VOTE },
-  { title: 'selecting issue', href: '#', status: ISSUE_STATUS.SELECT },
-  { title: 'closed issue', href: '#', status: ISSUE_STATUS.CLOSE },
-] as const;
 
 export default function IssueSidebar() {
   const {
@@ -23,7 +14,6 @@ export default function IssueSidebar() {
     isTopicPage,
     topicIssues,
     filteredIssues,
-    filteredStaticIssues,
     filteredMembers,
     onlineMemberIds,
     sortedMembers,
@@ -58,23 +48,14 @@ export default function IssueSidebar() {
             <NewIssueButton />
           </S.SidebarTitle>
           <S.SidebarList>
-            {topicId
-              ? filteredIssues.map((issue) => (
-                  <SidebarItem
-                    key={issue.id}
-                    title={issue.title}
-                    href={`/issue/${issue.id}`}
-                    status={issue.status as any}
-                  />
-                ))
-              : filteredStaticIssues.map((issue) => (
-                  <SidebarItem
-                    key={issue.title}
-                    title={issue.title}
-                    href={issue.href}
-                    status={issue.status}
-                  />
-                ))}
+            {filteredIssues.map((issue) => (
+              <SidebarItem
+                key={issue.id}
+                title={issue.title}
+                href={`/issue/${issue.id}`}
+                status={issue.status as any}
+              />
+            ))}
           </S.SidebarList>
         </>
       )}
