@@ -65,7 +65,7 @@ export default function CategoryCardHeader({
           <Title isMuted={isMuted}>{curTitle}</Title>
         )}
       </HeaderLeft>
-      {!isEditing && (
+      {!isEditing && status === ISSUE_STATUS.CATEGORIZE && (
         <Actions>
           <Btn
             onClick={onStartEdit}
