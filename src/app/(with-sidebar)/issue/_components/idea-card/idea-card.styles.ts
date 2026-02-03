@@ -102,7 +102,7 @@ export const Card = styled.article<{
     }
   }}
 
-  &:hover {
+  &:hover:not(:has([data-comment-window]:hover)) {
     ${({ issueStatus, status }) => {
       if (issueStatus === ISSUE_STATUS.SELECT && status !== 'selected') {
         return `
