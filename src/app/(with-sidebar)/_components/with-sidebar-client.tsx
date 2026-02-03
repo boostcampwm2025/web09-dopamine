@@ -36,20 +36,32 @@ const SidebarToggle = styled.button`
   top: 50%;
   right: 0;
   transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 12px;
   height: 48px;
   padding: 0;
   border: none;
   border-radius: 0 4px 4px 0;
-  background-color: ${theme.colors.gray[300]};
+  background-color: ${theme.colors.gray[100]};
+  color: ${theme.colors.gray[500]};
   cursor: pointer;
   z-index: 10;
-  box-shadow: 1px 0 2px rgba(0, 0, 0, 0.08);
+  border-left: 1px solid ${theme.colors.gray[300]};
+  box-shadow: 1px 0 2px rgba(0, 0, 0, 0.06);
 
   &:hover {
-    background-color: ${theme.colors.gray[400]};
+    background-color: ${theme.colors.gray[200]};
+    color: ${theme.colors.gray[600]};
   }
 `;
+
+const ChevronLeft = () => (
+  <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+    <path d="M5 1L1 5L5 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
 
 const ContentArea = styled.div`
   display: flex;
@@ -100,7 +112,9 @@ export default function WithSidebarClient({ children }: { children: ReactNode })
           <SidebarWrapper $showToggle={pathname?.startsWith('/issue')}>
             {sidebar}
             {pathname?.startsWith('/issue') && (
-              <SidebarToggle type="button" aria-label="사이드바 접기/펼치기" />
+              <SidebarToggle type="button" aria-label="사이드바 접기/펼치기">
+                <ChevronLeft />
+              </SidebarToggle>
             )}
           </SidebarWrapper>
         ) : null}
