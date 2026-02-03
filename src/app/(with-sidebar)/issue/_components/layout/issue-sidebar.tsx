@@ -44,13 +44,15 @@ export default function IssueSidebar() {
         onChange: handleSearchChange,
       }}
       suffix={
-        !isTopicPage && (
-          <SidebarFilter
-            value={searchTarget}
-            onChange={setSearchTarget}
-            items={['issue', 'member']}
-          />
-        )
+        <SidebarFilter
+          value={searchTarget}
+          onChange={(value) => {
+            if (value === 'issue' || value === 'member') {
+              setSearchTarget(value);
+            }
+          }}
+          items={['issue', 'member']}
+        />
       }
     >
       {isMounted && showIssueList && (
