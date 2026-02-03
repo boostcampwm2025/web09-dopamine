@@ -4,18 +4,10 @@ import { usePathname, useRouter } from 'next/navigation';
 import { getChoseong } from 'es-hangul';
 import { MEMBER_ROLE } from '@/constants/issue';
 import { useTopicId, useTopicIssuesQuery } from '@/hooks';
+import { matchSearch } from '@/lib/utils/search';
 import { useIssueData, useIssueId } from '../../hooks';
 import { useIssueStore } from '../../store/use-issue-store';
 import { ISSUE_LIST } from './issue-sidebar';
-
-/**
- * 일반 문자열 및 초성 검색 매칭 여부를 확인하는 유틸리티
- */
-const matchSearch = (text: string, normalizedTerm: string, searchChoseong: string) => {
-  if (text.toLowerCase().includes(normalizedTerm)) return true;
-  if (!searchChoseong) return false;
-  return getChoseong(text).includes(searchChoseong);
-};
 
 export const useIssueSidebar = () => {
   // 클라이언트 마운트 감지
@@ -41,7 +33,7 @@ export const useIssueSidebar = () => {
   // 검색 관련 상태
   const [searchValue, setSearchValue] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
-  const [searchTarget, setSearchTarget] = useState<'issue' | 'member'>('issue');
+  const [searchTarget, setSearchTarget] = useState<'issue' | 'member' | 'topic'>('issue');
 
   // 멤버 정렬: 소유자 > 온라인 > 이름순
   const sortedMembers = useMemo(() => {
