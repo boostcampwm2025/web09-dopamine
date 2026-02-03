@@ -299,6 +299,7 @@ const IssuePage = () => {
                   key={category.id}
                   {...category}
                   issueId={issueId}
+                  status={status}
                   hasActiveComment={hasActiveComment}
                   onPositionChange={handleCategoryPositionChange}
                   checkCollision={checkCategoryOverlap}
