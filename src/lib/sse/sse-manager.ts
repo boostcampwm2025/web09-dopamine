@@ -44,8 +44,28 @@ export class SSEManager {
           map.set(key, new Set());
         }
 
+        // 같은 userId의 기존 연결 종료 (새로고침 등으로 인한 중복 방지)
+        const existingClients = map.get(key)!;
+        const staleClients: ConnectedClient[] = [];
+        for (const client of existingClients) {
+          if (client.userId === userId) {
+            staleClients.push(client);
+          }
+        }
+        for (const staleClient of staleClients) {
+          console.log(
+            `[SSE] ${label} 기존 연결 종료 - ${keyName}: ${key}, User: ${userId}, ConnectionId: ${staleClient.connectionId}`,
+          );
+          existingClients.delete(staleClient);
+          try {
+            staleClient.controller.close();
+          } catch {
+            // 이미 닫힌 경우 무시
+          }
+        }
+
         // 현재 컨트롤러를 연결 목록에 추가
-        map.get(key)!.add({ userId, connectionId, controller });
+        existingClients.add({ userId, connectionId, controller });
 
         console.log(
           `[SSE] ${label} 클라이언트 연결됨 - ${keyName}: ${key}, User: ${userId}, ConnectionId: ${connectionId}`,
@@ -74,6 +94,20 @@ export class SSEManager {
           } catch (error) {
             console.error(`[SSE] ${label} Heartbeat error:`, error);
             clearInterval(heartbeatInterval);
+
+            // 하트비트 실패 시 연결 맵에서도 제거
+            const clients = map.get(key);
+            if (clients) {
+              for (const client of clients) {
+                if (client.controller === controller) {
+                  clients.delete(client);
+                  break;
+                }
+              }
+              if (clients.size === 0) {
+                map.delete(key);
+              }
+            }
           }
         }, 30000);
 

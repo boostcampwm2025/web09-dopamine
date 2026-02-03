@@ -113,13 +113,46 @@ describe('useTopicEvents', () => {
     });
   });
 
-  it('언마운트 시 EventSource를 정리해야 한다', () => {
+  it('마운트 시 beforeunload 리스너를 등록해야 한다', () => {
+    const addSpy = jest.spyOn(window, 'addEventListener');
+
+    renderHook(() => useTopicEvents({ topicId: 'test-topic-id' }));
+
+    expect(addSpy).toHaveBeenCalledWith('beforeunload', expect.any(Function));
+
+    addSpy.mockRestore();
+  });
+
+  it('beforeunload 발생 시 EventSource를 닫아야 한다', () => {
+    const addSpy = jest.spyOn(window, 'addEventListener');
+
+    renderHook(() => useTopicEvents({ topicId: 'test-topic-id' }));
+
+    const handler = addSpy.mock.calls.find(
+      (call) => call[0] === 'beforeunload',
+    )![1] as EventListener;
+
+    act(() => {
+      handler(new Event('beforeunload'));
+    });
+
+    expect(mockEventSource.close).toHaveBeenCalled();
+
+    addSpy.mockRestore();
+  });
+
+  it('언마운트 시 EventSource와 beforeunload 리스너를 정리해야 한다', () => {
+    const removeSpy = jest.spyOn(window, 'removeEventListener');
+
     const { unmount } = renderHook(() =>
-      useTopicEvents({ topicId: 'test-topic-id' })
+      useTopicEvents({ topicId: 'test-topic-id' }),
     );
 
     unmount();
 
     expect(mockEventSource.close).toHaveBeenCalled();
+    expect(removeSpy).toHaveBeenCalledWith('beforeunload', expect.any(Function));
+
+    removeSpy.mockRestore();
   });
 });
