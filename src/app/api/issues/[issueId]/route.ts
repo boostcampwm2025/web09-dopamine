@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { findIssueById, updateIssue } from '@/lib/repositories/issue.repository';
-import { getAuthenticatedUserId } from '@/lib/utils/api-auth';
+import { findIssueById } from '@/lib/repositories/issue.repository';
+import { issueService } from '@/lib/services/issue.service';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 
 export async function GET(
@@ -31,7 +31,7 @@ export async function PATCH(
   const { title, userId } = await req.json();
 
   try {
-    const issue = await updateIssue(issueId, title, userId);
+    const issue = await issueService.updateIssue({ issueId, title, userId });
     //TODO: SSE 연결 필요
     return createSuccessResponse(issue);
   } catch (error: unknown) {

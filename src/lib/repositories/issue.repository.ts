@@ -78,9 +78,9 @@ export async function updateIssueStatus(
   });
 }
 
-export async function updateIssue(issueId: string, title: string, userId: string) {
-  const issue = await prisma.issue.findUnique({
-    where: { id: issueId },
+export async function findIssueWithPermissionData(issueId: string, userId: string) {
+  return await prisma.issue.findUnique({
+    where: { id: issueId, deletedAt: null },
     select: {
       topicId: true,
       issueMembers: {
@@ -101,29 +101,13 @@ export async function updateIssue(issueId: string, title: string, userId: string
       },
     },
   });
+}
 
-  if (!issue) throw new Error('ISSUE_NOT_FOUND');
-
-  let hasPermission = false;
-
-  if (!issue.topicId) {
-    hasPermission = issue.issueMembers.length > 0;
-  } else {
-    const projectMembers = issue.topic?.project?.projectMembers || [];
-    hasPermission = projectMembers.length > 0;
-  }
-
-  if (!hasPermission) {
-    throw new Error('PERMISSION_DENIED');
-  }
-
+export async function updateIssue(issueId: string, title: string) {
   return await prisma.issue.update({
     where: { id: issueId },
     data: { title },
-    select: {
-      id: true,
-      title: true,
-    },
+    select: { id: true, title: true },
   });
 }
 
