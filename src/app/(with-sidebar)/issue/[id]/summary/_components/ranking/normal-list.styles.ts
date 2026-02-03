@@ -60,6 +60,26 @@ export const Content = styled.div`
   min-width: 0;
 `;
 
+export const ContentWrapper = styled.div`
+  display: flex;
+  gap: 8px;
+  justify-items: center;
+`;
+
+export const SelectLabel = styled.span`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1px 6px;
+  font-size: ${theme.font.size.xs};
+  font-weight: ${theme.font.weight.semibold};
+  line-height: 1;
+  color: ${theme.colors.yellow[500]};
+  background-color: ${theme.colors.yellow[100]};
+  border: 1px solid ${theme.colors.yellow[500]};
+  border-radius: ${theme.radius.large};
+`;
+
 export const Title = styled.div`
   font-size: ${theme.font.size.medium};
   font-weight: 500;
