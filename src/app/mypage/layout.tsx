@@ -1,30 +1,15 @@
-'use client';
+import type { Metadata } from 'next';
+import MypageLayoutClient from './_components/mypage-layout-client';
 
-import { ReactNode } from 'react';
-import styled from '@emotion/styled';
-import MypageHeader from '@/app/mypage/_components/header/mypage-header';
-import { theme } from '@/styles/theme';
+export const metadata: Metadata = {
+  title: 'Murphy',
+  description: 'Murphy 마이페이지',
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
-const LayoutContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  background-color: ${theme.colors.gray[50]};
-`;
-
-const BodyContainer = styled.div`
-  display: flex;
-  flex: 1;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
-`;
-
-export default function MypageLayout({ children }: { children: ReactNode }) {
-  return (
-    <LayoutContainer>
-      <MypageHeader />
-      <BodyContainer>{children}</BodyContainer>
-    </LayoutContainer>
-  );
+export default function MypageLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  return <MypageLayoutClient>{children}</MypageLayoutClient>;
 }

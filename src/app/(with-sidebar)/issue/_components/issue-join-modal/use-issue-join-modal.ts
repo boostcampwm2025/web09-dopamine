@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useModalStore } from '@/components/modal/use-modal-store';
 import { useIssueMemberMutations, useNicknameMutations } from '@/hooks/issue';
@@ -10,17 +10,11 @@ export interface IssueJoinModalProps {
 export function useIssueJoinModal({ issueId }: IssueJoinModalProps) {
   const { closeModal, setIsPending, isOpen } = useModalStore();
 
-  const { generate, checkDuplicate } = useNicknameMutations(issueId);
+  const { generate } = useNicknameMutations(issueId);
   const { join } = useIssueMemberMutations(issueId);
   const isLoading = generate.isPending || join.isPending;
 
   const [nickname, setNickname] = useState('');
-  const checkDuplicateRef = useRef(checkDuplicate);
-
-  // checkDuplicate ref 업데이트
-  useEffect(() => {
-    checkDuplicateRef.current = checkDuplicate;
-  }, [checkDuplicate]);
 
   // 모달의 pending 상태를 store에 동기화
   useEffect(() => {
@@ -39,25 +33,11 @@ export function useIssueJoinModal({ issueId }: IssueJoinModalProps) {
   }, []);
 
   const handleJoin = useCallback(async () => {
-    // 입력 검증
     if (!nickname.trim()) {
       toast.error('닉네임을 입력해주세요.');
       return;
     }
 
-    // 닉네임 중복 확인
-    try {
-      const result = await checkDuplicateRef.current(nickname);
-      if (result.isDuplicate) {
-        toast.error('이미 사용 중인 닉네임입니다. 다른 닉네임을 써주세요!');
-        return;
-      }
-    } catch (error) {
-      toast.error('잠시 후 다시 시도해주세요.');
-      return;
-    }
-
-    // 이슈 조인
     join.mutate(nickname, {
       onSuccess: () => {
         closeModal();

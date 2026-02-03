@@ -35,12 +35,20 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ iss
       return createErrorResponse('ISSUE_NOT_FOUND', 400);
     }
 
+    // ID 매핑: UUID -> Index
+    const idMap = new Map<string, string>(); // Index -> UUID
+    const mappedIdeas = ideas.map((idea, index) => {
+      const mappedId = (index + 1).toString();
+      idMap.set(mappedId, idea.id);
+      return { ...idea, mappedId };
+    });
+
     const userContent = `
         [분류 기준 주제]
         ${issue.title}
 
         [아이디어 목록]
-        ${ideas.map((i) => `- (${i.id}) ${i.content}`).join('\n')}`;
+        ${mappedIdeas.map((i) => `- (${i.mappedId}) ${i.content}`).join('\n')}`;
 
     const toolChoice = {
       type: 'function',
@@ -61,8 +69,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ iss
         messages: [
           {
             role: 'system',
-            content:
-              '너는 협업 아이디어를 분류하는 AI다. 아이디어를 의미와 목적이 유사한 것끼리 묶어 카테고리로 분류하라. 사소한 차이로 카테고리를 분리하지 말고, 가능한 한 통합하라. 각 카테고리는 최소 2개 이상의 아이디어를 포함해야 하며, 전체 카테고리 수는 2개 이상 8개 이하로 제한한다.',
+            content: aiRequest.prompt,
           },
           {
             role: 'user',
@@ -87,7 +94,13 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ iss
       return createErrorResponse('AI_RESPONSE_INVALID', 500);
     }
 
-    const categoryPayloads = validationResult.data;
+    // Index -> UUID 복원
+    const categoryPayloads = validationResult.data.map((category) => ({
+      title: category.title,
+      ideaIds: category.ideaIds
+        .map((id) => idMap.get(id)) // Index를 UUID로 변환
+        .filter((id): id is string => !!id), // 유효하지 않은 매핑핑 제거
+    }));
 
     const result = await categorizeService.categorizeAndBroadcast(issueId, categoryPayloads);
 

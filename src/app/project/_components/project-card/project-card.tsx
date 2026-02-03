@@ -185,15 +185,18 @@ export function ProjectCard({
         <S.Divider />
         <S.CardBody>
           <S.MemberAvatars>
-            {members?.slice(0, MAX_VISIBLE_COUNT).map((member) => (
-              <S.MemberAvatar
-                key={member.user.id}
-                src={member.user.image ?? '/profile.svg'}
-                alt={`${member.user.displayName || '사용자'}의 프로필 이미지`}
-                width={32}
-                height={32}
-              />
-            ))}
+            {members?.slice(0, MAX_VISIBLE_COUNT).map((member, index) => {
+              if (!member.user) return null;
+              return (
+                <S.MemberAvatar
+                  key={member.user.id ?? `member-${index}`}
+                  src={member.user.image ?? '/profile.svg'}
+                  alt={`${member.user.displayName || '사용자'}의 프로필 이미지`}
+                  width={32}
+                  height={32}
+                />
+              );
+            })}
             {restCount > 0 && <S.RestCount>+{restCount}</S.RestCount>}
           </S.MemberAvatars>
           <S.AddMember onClick={(e) => openInviteProjectModal(id!, title!, e)}>
