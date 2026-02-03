@@ -1,11 +1,8 @@
-/**
- * @jest-environment node
- */
 import { getServerSession } from 'next-auth';
 import { expectErrorResponse, expectSuccessResponse } from '@test/utils/api-test-helpers';
 import { PATCH } from '@/app/api/users/me/route';
 import { CLIENT_ERROR_MESSAGES } from '@/constants/error-messages';
-import { updateUser } from '@/lib/repositories/user.repository';
+import { updateUserWithIssueMemberNickname } from '@/lib/repositories/user.repository';
 
 // 1. 모킹 설정
 jest.mock('next-auth');
@@ -23,7 +20,7 @@ describe('PATCH /api/users/me', () => {
 
   // Mock 함수 타입 캐스팅
   const mockedGetServerSession = getServerSession as jest.Mock;
-  const mockedUpdateUser = updateUser as jest.Mock;
+  const mockedUpdateUser = updateUserWithIssueMemberNickname as jest.Mock;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -97,10 +94,7 @@ describe('PATCH /api/users/me', () => {
     const data = await expectSuccessResponse(response, 200);
     expect(data.displayName).toBe(trimmedName);
 
-    // Repository가 Trim된 이름으로 호출되었는지 확인
-    expect(mockedUpdateUser).toHaveBeenCalledWith(userId, {
-      displayName: trimmedName,
-    });
+    expect(mockedUpdateUser).toHaveBeenCalledWith(userId, trimmedName);
   });
 
   it('DB 업데이트 중 에러가 발생하면 500 에러를 반환한다', async () => {
