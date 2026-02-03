@@ -4,6 +4,10 @@ import { theme } from '@/styles/theme';
 import { IssueStatus } from '@/types/issue';
 import { CardStatus } from '../../types/idea';
 
+export const Wrapper = styled.div`
+  position: relative;
+`;
+
 export const Badge = styled.div<{ status?: CardStatus }>`
   position: absolute;
   top: -20px;
@@ -102,7 +106,7 @@ export const Card = styled.article<{
     }
   }}
 
-  &:hover:not(:has([data-comment-window]:hover)) {
+  &:hover {
     ${({ issueStatus, status }) => {
       if (issueStatus === ISSUE_STATUS.SELECT && status !== 'selected') {
         return `
