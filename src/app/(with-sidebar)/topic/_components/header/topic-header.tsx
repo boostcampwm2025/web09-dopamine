@@ -3,7 +3,9 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { TitleSkeleton } from '@/components/skeleton/skeleton';
 import { useTopicDetailQuery } from '@/hooks/topic';
+import { useSmartLoading } from '@/hooks/use-smart-loading';
 import * as HS from '../../../issue/_components/header/header.styles';
 import CreateIssueButton from '../create-issue-button/create-issue-button';
 import * as S from './topic-header.styles';
@@ -11,12 +13,13 @@ import * as S from './topic-header.styles';
 export default function TopicHeader() {
   const params = useParams();
   const topicId = params.id as string;
-  const { data: topic } = useTopicDetailQuery(topicId);
+  const { data: topic, isLoading } = useTopicDetailQuery(topicId);
+  const showLoading = useSmartLoading(isLoading);
 
   return (
     <S.HeaderContainer>
       <S.LeftSection>
-        <Link href={`/project/${topic?.projectId}`}>
+        <Link href={`/project/${topic?.projectId || ''}`}>
           <HS.ButtonsWrapper>
             <Image
               src="/leftArrow.svg"
@@ -26,7 +29,7 @@ export default function TopicHeader() {
             />
           </HS.ButtonsWrapper>
         </Link>
-        {topic?.title}
+        {showLoading ? <TitleSkeleton width="180px" /> : topic?.title}
       </S.LeftSection>
       <CreateIssueButton />
     </S.HeaderContainer>

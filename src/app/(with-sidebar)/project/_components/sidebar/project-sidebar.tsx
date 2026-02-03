@@ -5,16 +5,20 @@ import MemberSidebarItem from '@/components/sidebar/member-sidebar-item';
 import Sidebar from '@/components/sidebar/sidebar';
 import SidebarItem from '@/components/sidebar/sidebar-item';
 import * as S from '@/components/sidebar/sidebar.styles';
+import { CircleSkeleton, TextSkeleton } from '@/components/skeleton/skeleton';
 import { useProjectQuery } from '@/hooks/project';
+import { useSmartLoading } from '@/hooks/use-smart-loading';
 import * as ProjectS from './projcet-sidebar.styles';
 
 const ProjectSidebar = () => {
   const params = useParams();
   const projectId = params.id as string;
 
-  const { data: projectData } = useProjectQuery(projectId);
-  const topics = projectData?.topics || [];
-  const members = projectData?.members || [];
+  const { data: projectData, isLoading } = useProjectQuery(projectId);
+  const showLoading = useSmartLoading(isLoading);
+
+  const topics = showLoading ? [] : projectData?.topics || [];
+  const members = showLoading ? [] : projectData?.members || [];
 
   return (
     <Sidebar>
@@ -23,7 +27,19 @@ const ProjectSidebar = () => {
           <S.SidebarTitle>TOPIC LIST</S.SidebarTitle>
           <ProjectS.ScrollableSection>
             <S.SidebarList>
-              {topics.length > 0 ? (
+              {showLoading ? (
+                <>
+                  <div style={{ padding: '10px 16px 10px 24px' }}>
+                    <TextSkeleton width="80%" />
+                  </div>
+                  <div style={{ padding: '10px 16px 10px 24px' }}>
+                    <TextSkeleton width="70%" />
+                  </div>
+                  <div style={{ padding: '10px 16px 10px 24px' }}>
+                    <TextSkeleton width="75%" />
+                  </div>
+                </>
+              ) : (
                 topics.map((topic) => (
                   <SidebarItem
                     isTopic
@@ -32,10 +48,6 @@ const ProjectSidebar = () => {
                     href={`/topic/${topic.id}`}
                   />
                 ))
-              ) : (
-                <div style={{ padding: '16px', color: '#9ca3af', fontSize: '14px' }}>
-                  토픽이 없습니다
-                </div>
               )}
             </S.SidebarList>
           </ProjectS.ScrollableSection>
@@ -47,7 +59,32 @@ const ProjectSidebar = () => {
           <S.SidebarTitle>MEMBER LIST</S.SidebarTitle>
           <ProjectS.ScrollableSection>
             <S.SidebarList>
-              {members.length > 0 ? (
+              {showLoading ? (
+                <>
+                  <div
+                    style={{
+                      padding: '10px 16px 10px 24px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px',
+                    }}
+                  >
+                    <CircleSkeleton size="24px" />
+                    <TextSkeleton width="60%" />
+                  </div>
+                  <div
+                    style={{
+                      padding: '10px 16px 10px 24px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px',
+                    }}
+                  >
+                    <CircleSkeleton size="24px" />
+                    <TextSkeleton width="55%" />
+                  </div>
+                </>
+              ) : (
                 members.map((member) => (
                   <MemberSidebarItem
                     key={member.id}
@@ -57,10 +94,6 @@ const ProjectSidebar = () => {
                     role={member.role}
                   />
                 ))
-              ) : (
-                <div style={{ padding: '16px', color: '#9ca3af', fontSize: '14px' }}>
-                  멤버가 없습니다
-                </div>
               )}
             </S.SidebarList>
           </ProjectS.ScrollableSection>
