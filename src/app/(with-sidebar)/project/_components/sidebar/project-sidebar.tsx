@@ -1,30 +1,45 @@
 'use client';
 
-import { useParams } from 'next/navigation';
 import MemberSidebarItem from '@/components/sidebar/member-sidebar-item';
 import Sidebar from '@/components/sidebar/sidebar';
+import SidebarFilter from '@/components/sidebar/sidebar-filter';
 import SidebarItem from '@/components/sidebar/sidebar-item';
 import * as S from '@/components/sidebar/sidebar.styles';
-import { useProjectQuery } from '@/hooks/project';
 import * as ProjectS from './projcet-sidebar.styles';
+import { useProjectSidebar } from './use-project-sidebar';
 
 const ProjectSidebar = () => {
-  const params = useParams();
-  const projectId = params.id as string;
-
-  const { data: projectData } = useProjectQuery(projectId);
-  const topics = projectData?.topics || [];
-  const members = projectData?.members || [];
+  const {
+    filteredTopics,
+    filteredMembers,
+    searchValue,
+    handleSearchChange,
+    searchTarget,
+    setSearchTarget,
+  } = useProjectSidebar();
 
   return (
-    <Sidebar>
+    <Sidebar
+      inputProps={{
+        value: searchValue,
+        onChange: handleSearchChange,
+        placeholder: '검색어를 입력하세요',
+      }}
+      suffix={
+        <SidebarFilter
+          value={searchTarget}
+          onChange={setSearchTarget}
+          items={['topic', 'member']}
+        />
+      }
+    >
       <ProjectS.SidebarSection>
         <ProjectS.TopicSectionWrapper>
           <S.SidebarTitle>TOPIC LIST</S.SidebarTitle>
           <ProjectS.ScrollableSection>
             <S.SidebarList>
-              {topics.length > 0 ? (
-                topics.map((topic) => (
+              {filteredTopics.length > 0 ? (
+                filteredTopics.map((topic) => (
                   <SidebarItem
                     isTopic
                     key={topic.id}
@@ -47,8 +62,8 @@ const ProjectSidebar = () => {
           <S.SidebarTitle>MEMBER LIST</S.SidebarTitle>
           <ProjectS.ScrollableSection>
             <S.SidebarList>
-              {members.length > 0 ? (
-                members.map((member) => (
+              {filteredMembers.length > 0 ? (
+                filteredMembers.map((member) => (
                   <MemberSidebarItem
                     key={member.id}
                     profile={member.image || '/profile.svg'}
