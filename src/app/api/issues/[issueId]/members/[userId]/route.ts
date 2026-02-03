@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { issueMemberRepository } from '@/lib/repositories/issue-member.repository';
+import { issueMemberService } from '@/lib/services/issue-member.service';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 
 export async function GET(
@@ -9,7 +9,7 @@ export async function GET(
   const { issueId, userId } = await params;
 
   try {
-    const member = await issueMemberRepository.findMemberByUserId(issueId, userId);
+    const member = await issueMemberService.checkNicknameExists(issueId, userId);
 
     if (!member) {
       return createErrorResponse('MEMBER_NOT_FOUND', 404);
@@ -23,5 +23,35 @@ export async function GET(
   } catch (error) {
     console.error('사용자 정보 조회 실패:', error);
     return createErrorResponse('MEMBER_FETCH_FAILED', 500);
+  }
+}
+
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ issueId: string; userId: string }> },
+): Promise<NextResponse> {
+  const { issueId, userId } = await params;
+
+  try {
+    const body = await req.json();
+    const { nickname } = body;
+
+    if (!nickname) {
+      return createErrorResponse('NICKNAME_REQUIRED', 400);
+    }
+
+    // 중복 검사
+    const existingMember = await issueMemberService.checkNicknameExists(issueId, userId);
+    if (existingMember && existingMember.nickname === nickname) {
+      return createErrorResponse('NICKNAME_ALREADY_EXISTS', 400);
+    }
+
+    // 닉네임 업데이트
+    await issueMemberService.updateNickname(issueId, userId, nickname);
+
+    return createSuccessResponse({ success: true });
+  } catch (error) {
+    console.error('닉네임 수정 실패:', error);
+    return createErrorResponse('NICKNAME_UPDATE_FAILED', 500);
   }
 }

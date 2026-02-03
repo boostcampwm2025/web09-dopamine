@@ -101,4 +101,22 @@ export const issueMemberRepository = {
       },
     });
   },
+
+  async updateNickname(issueId: string, userId: string, nickname: string) {
+    const member = await this.findMemberByUserId(issueId, userId);
+
+    if (!member) {
+      throw new Error('MEMBER_NOT_FOUND');
+    }
+
+    return prisma.issueMember.updateMany({
+      where: {
+        issueId,
+        userId,
+      },
+      data: {
+        nickname,
+      },
+    });
+  },
 };
