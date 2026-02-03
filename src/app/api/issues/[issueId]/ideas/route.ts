@@ -1,14 +1,11 @@
-import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import type { FilterType } from '@/app/(with-sidebar)/issue/hooks';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
-import { authOptions } from '@/lib/auth';
 import { ideaRepository } from '@/lib/repositories/idea.repository';
 import { ideaFilterService } from '@/lib/services/idea-filter.service';
 import { broadcast } from '@/lib/sse/sse-service';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 import { getAuthenticatedUserId } from '@/lib/utils/auth-helpers';
-import { getUserIdFromRequest } from '@/lib/utils/cookie';
 
 export async function GET(
   req: NextRequest,

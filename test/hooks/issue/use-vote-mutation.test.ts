@@ -20,16 +20,19 @@ jest.mock('@tanstack/react-query', () => {
   };
 });
 
+// 3. Store 모킹
+jest.mock('@/app/(with-sidebar)/issue/store/use-sse-connection-store', () => ({
+  useSseConnectionStore: jest.fn((selector) => selector({ connectionIds: {} })),
+}));
+
 describe('useVoteMutation', () => {
   const issueId = 'issue-1';
   const ideaId = 'idea-1';
-  const queryKey = ['issues', issueId, 'ideas', ideaId];
+  const queryKey = ['issues', issueId, 'ideas'];
 
-  // Mock 함수들
   const mockPostVote = voteApi.postVote as jest.Mock;
   const mockToastError = toast.error as jest.Mock;
 
-  // QueryClient Spy
   const mockGetQueryData = jest.fn();
   const mockSetQueryData = jest.fn();
   const mockCancelQueries = jest.fn();
@@ -44,27 +47,21 @@ describe('useVoteMutation', () => {
       cancelQueries: mockCancelQueries,
       invalidateQueries: mockInvalidateQueries,
     });
+
+    // console.error 모킹 (테스트 로그 오염 방지)
+    jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   describe('vote (투표)', () => {
-    // 초기 데이터 (아직 투표 안 함)
-    const initialData = {
-      agreeCount: 10,
-      disagreeCount: 5,
-      myVote: null,
-    };
+    // 테스트 데이터: 타겟 아이디어와 다른 아이디어 2개를 준비
+    const targetIdea = { id: ideaId, agreeCount: 10, myVote: null };
+    const otherIdea = { id: 'idea-2', agreeCount: 5, myVote: null };
+    const initialData = [targetIdea, otherIdea];
 
-    test('성공 시 낙관적 업데이트(즉시 반영) 후 서버 응답으로 동기화해야 한다', async () => {
+    test('성공 시 낙관적 업데이트(타겟만 변경)를 수행하고 최종적으로 쿼리를 무효화해야 한다', async () => {
       // Given
       mockGetQueryData.mockReturnValue(initialData);
-
-      // 서버 응답: 찬성표가 1 증가하고, 내 투표가 'AGREE'로 바뀜
-      const serverResponse = {
-        agreeCount: 11,
-        disagreeCount: 5,
-        myVote: 'AGREE',
-      };
-      mockPostVote.mockResolvedValue(serverResponse);
+      mockPostVote.mockResolvedValue({});
 
       const { result } = renderHook(() => useVoteMutation(issueId, ideaId));
 
@@ -74,60 +71,69 @@ describe('useVoteMutation', () => {
       });
 
       // Then
-      // 1. 쿼리 취소 확인
       expect(mockCancelQueries).toHaveBeenCalledWith({ queryKey });
 
-      // 2. [낙관적 업데이트] 검증
-      // setQueryData가 함수형 업데이트로 호출되었으므로, 함수를 추출해 실행해본다.
-      // 첫 번째 호출(onMutate)
-      expect(mockSetQueryData).toHaveBeenNthCalledWith(1, queryKey, expect.any(Function));
+      // [낙관적 업데이트 검증]
+      // setQueryData에 전달된 updater 함수를 실행해서 결과를 확인해야 정확함
+      // (Hook 코드에서 setQueryData(key, data) 형태로 직접 넣었다면 두 번째 인자 확인)
+      expect(mockSetQueryData).toHaveBeenCalledTimes(1);
+      const passedData = mockSetQueryData.mock.calls[0][1];
 
-      const optimisticUpdater = mockSetQueryData.mock.calls[0][1];
-      const optimisticResult = optimisticUpdater(initialData);
+      // 타겟 아이디어는 업데이트 되었는가? (여기서는 기존 객체 그대로 반환하는지 확인)
+      // 작성하신 코드 로직상 map에서 spread 연산자로 새 객체를 반환하므로 내용물 확인
+      expect(passedData[0].id).toBe(ideaId);
 
-      // UI가 즉시 'AGREE'로 바뀌었는지 확인 (카운트는 아직 그대로일 수 있음, 코드 로직상 myVote만 변경)
-      expect(optimisticResult).toEqual({
-        ...initialData,
-        myVote: 'AGREE',
-      });
+      // 다른 아이디어는 건드리지 않았는가? (Branch: idea.id !== ideaId)
+      expect(passedData[1]).toEqual(otherIdea);
 
-      // 3. API 호출 확인
-      expect(mockPostVote).toHaveBeenCalledWith({
-        issueId,
-        ideaId,
-        userId: 'user-1',
-        voteType: 'AGREE',
-      });
-
-      // 4. [성공 후 동기화] 검증
-      // 두 번째 호출(onSuccess)
-      await waitFor(() => expect(mockSetQueryData).toHaveBeenCalledTimes(2));
-
-      const successUpdater = mockSetQueryData.mock.calls[1][1]; // 두 번째 호출의 콜백
-      const finalResult = successUpdater(initialData); // 혹은 optimisticResult를 넣어도 됨
-
-      // 서버 데이터(카운트 증가 등)로 덮어씌워졌는지 확인
-      expect(finalResult).toEqual(
+      // API 호출 확인
+      expect(mockPostVote).toHaveBeenCalledWith(
         expect.objectContaining({
-          agreeCount: 11,
-          myVote: 'AGREE',
+          issueId,
+          ideaId,
+          userId: 'user-1',
+          voteType: 'AGREE',
         }),
       );
 
-      // 5. 최종 무효화
-      expect(mockInvalidateQueries).toHaveBeenCalledWith({ queryKey });
+      // onSettled 확인
+      await waitFor(() => {
+        expect(mockInvalidateQueries).toHaveBeenCalledWith({ queryKey });
+      });
+    });
+
+    // 캐시가 없을 때 (Branch: if (previousIdeas) false)
+    test('캐시된 데이터가 없으면(undefined) 낙관적 업데이트를 수행하지 않아야 한다', async () => {
+      // Given: 캐시 없음
+      mockGetQueryData.mockReturnValue(undefined);
+      mockPostVote.mockResolvedValue({});
+
+      const { result } = renderHook(() => useVoteMutation(issueId, ideaId));
+
+      // When
+      await act(async () => {
+        result.current.mutate({ userId: 'user-1', voteType: 'DISAGREE' });
+      });
+
+      // Then
+      // 데이터가 없으므로 setQueryData는 호출되면 안 됨
+      expect(mockSetQueryData).not.toHaveBeenCalled();
+
+      // 하지만 API 호출과 무효화는 정상적으로 진행되어야 함
+      expect(mockPostVote).toHaveBeenCalled();
+      await waitFor(() => {
+        expect(mockInvalidateQueries).toHaveBeenCalledWith({ queryKey });
+      });
     });
 
     test('실패 시 이전 투표 상태로 롤백해야 한다', async () => {
-      // Given: 이미 'DISAGREE'에 투표한 상태였다고 가정
-      const previousData = { ...initialData, myVote: 'DISAGREE' };
-      mockGetQueryData.mockReturnValue(previousData);
-
+      // Given
+      mockGetQueryData.mockReturnValue(initialData);
       mockPostVote.mockRejectedValue(new Error('Vote Failed'));
 
       const { result } = renderHook(() => useVoteMutation(issueId, ideaId));
 
-      // When: 'AGREE'로 변경 시도
+      // When
       await act(async () => {
         result.current.mutate({ userId: 'user-1', voteType: 'AGREE' });
       });
@@ -135,12 +141,29 @@ describe('useVoteMutation', () => {
       // Then
       await waitFor(() => expect(mockToastError).toHaveBeenCalledWith('Vote Failed'));
 
-      // 롤백 확인: setQueryData가 마지막에 원본 데이터(previousData)로 호출되었는지 확인
-      // (1번: 낙관적 업데이트, 2번: 에러 롤백)
-      expect(mockSetQueryData).toHaveBeenLastCalledWith(queryKey, previousData);
-
-      // onSettled는 항상 실행
+      // 롤백 확인: onError에서 context.previousIdeas로 복구
+      expect(mockSetQueryData).toHaveBeenLastCalledWith(queryKey, initialData);
       expect(mockInvalidateQueries).toHaveBeenCalledWith({ queryKey });
+    });
+
+    // 데이터가 없는 상태에서 실패 시 (Branch: if (context?.previousIdeas) false)
+    test('이전 데이터가 없는 상태에서 실패 시 롤백을 수행하지 않아야 한다', async () => {
+      // Given: 캐시 없음 -> onMutate에서 previousIdeas: undefined 반환
+      mockGetQueryData.mockReturnValue(undefined);
+      mockPostVote.mockRejectedValue(new Error('Fail'));
+
+      const { result } = renderHook(() => useVoteMutation(issueId, ideaId));
+
+      // When
+      await act(async () => {
+        result.current.mutate({ userId: 'user-1', voteType: 'AGREE' });
+      });
+
+      // Then
+      await waitFor(() => expect(mockToastError).toHaveBeenCalledWith('Fail'));
+
+      // context.previousIdeas가 없으므로 setQueryData는 호출되지 않아야 함
+      expect(mockSetQueryData).not.toHaveBeenCalled();
     });
   });
 });

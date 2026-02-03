@@ -1,16 +1,16 @@
-import { GET, POST } from '@/app/api/issues/[issueId]/ideas/route';
 import { getServerSession } from 'next-auth';
-import { ideaRepository } from '@/lib/repositories/idea.repository';
-import { ideaFilterService } from '@/lib/services/idea-filter.service';
 import {
-  createMockSession,
   createMockGetRequest,
   createMockParams,
   createMockRequest,
+  createMockSession,
   expectErrorResponse,
   expectSuccessResponse,
   setupAuthMock,
 } from '@test/utils/api-test-helpers';
+import { GET, POST } from '@/app/api/issues/[issueId]/ideas/route';
+import { ideaRepository } from '@/lib/repositories/idea.repository';
+import { ideaFilterService } from '@/lib/services/idea-filter.service';
 
 jest.mock('next-auth', () => ({
   getServerSession: jest.fn(),
@@ -41,8 +41,8 @@ describe('GET /api/issues/[issueId]/ideas', () => {
 
   it('성공적으로 아이디어 목록을 조회한다', async () => {
     const mockIdeas = [
-      { id: 'idea-1', content: 'Idea 1', agreeCount: 5, disagreeCount: 2 },
-      { id: 'idea-2', content: 'Idea 2', agreeCount: 3, disagreeCount: 1 },
+      { id: 'idea-1', content: 'Idea 1', agreeCount: 5, disagreeCount: 2, commentCount: 0 },
+      { id: 'idea-2', content: 'Idea 2', agreeCount: 3, disagreeCount: 1, commentCount: 0 },
     ];
 
     mockedFindByIssueId.mockResolvedValue(mockIdeas as any);
@@ -53,13 +53,8 @@ describe('GET /api/issues/[issueId]/ideas', () => {
     const response = await GET(req, params);
     const data = await expectSuccessResponse(response, 200);
 
-    expect(data).toEqual(
-      mockIdeas.map((idea) => ({
-        ...idea,
-        commentCount: 0,
-      })),
-    );
-    expect(mockedFindByIssueId).toHaveBeenCalledWith(issueId);
+    expect(data).toEqual(mockIdeas);
+    expect(mockedFindByIssueId).toHaveBeenCalledWith(issueId, 'user-1');
   });
 
   it('필터가 적용된 아이디어 ID 목록을 반환한다', async () => {

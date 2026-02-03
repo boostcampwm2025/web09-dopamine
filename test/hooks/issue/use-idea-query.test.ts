@@ -1,7 +1,7 @@
 /**
  * @jest-environment jsdom
  */
-import { useIdeaQuery, useIssueIdeaQuery } from '@/hooks';
+import { useIssueIdeaQuery } from '@/hooks';
 import * as ideaApi from '@/lib/api/idea';
 import { renderHook, waitFor } from '../../utils/test-utils';
 
@@ -10,71 +10,62 @@ jest.mock('@/lib/api/idea');
 
 describe('Idea Queries', () => {
   const issueId = 'issue-1';
-  const userId = 'user-1';
 
   // Mock 함수들
-  const mockGetIdea = ideaApi.getIdea as jest.Mock;
   const mockFetchIdeas = ideaApi.fetchIdeas as jest.Mock;
 
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  describe('useIdeaQuery (단일 아이디어 조회)', () => {
-    test('정상적인 ID인 경우 API를 호출하고 데이터를 반환해야 한다', async () => {
-      // Given
-      const ideaId = 'idea-123';
-      const mockData = { id: ideaId, content: 'Idea Content' };
-      mockGetIdea.mockResolvedValue(mockData);
-
-      // When
-      const { result } = renderHook(() => useIdeaQuery(issueId, ideaId, userId));
-
-      // Then
-      await waitFor(() => expect(result.current.isSuccess).toBe(true));
-
-      expect(result.current.data).toEqual(mockData);
-      expect(mockGetIdea).toHaveBeenCalledWith(issueId, ideaId, userId);
-    });
-
-    test('임시 ID("temp-")인 경우 API를 호출하지 않아야 한다 (Enabled: false)', () => {
-      // Given
-      const tempId = 'temp-12345'; // 클라이언트에서 생성한 임시 ID
-
-      // When
-      const { result } = renderHook(() => useIdeaQuery(issueId, tempId, userId));
-
-      // Then
-      // 데이터 로딩 시도조차 하지 않아야 함 (fetchStatus: idle)
-      expect(result.current.fetchStatus).toBe('idle');
-      expect(mockGetIdea).not.toHaveBeenCalled();
-    });
-  });
-
   describe('useIssueIdeaQuery (아이디어 목록 조회 및 변환)', () => {
     test('DB 데이터를 받아와서 IdeaWithPosition 형태로 올바르게 변환해야 한다', async () => {
-      // Given: 다양한 케이스의 DB 원본 데이터 시뮬레이션
+      // Given: 다양한 케이스를 포함한 Mock 데이터 구성
       const mockDbIdeas = [
+        // Case 1: 모든 데이터가 완벽하게 있는 경우
         {
           id: '1',
+          userId: 'user-1',
           content: 'Full Info',
           positionX: 100,
           positionY: 200,
-          user: { displayName: 'NickName', name: 'RealName' }, // 1순위: displayName
+          nickname: 'NickName',
+          categoryId: 'cat-1',
+          agreeCount: 0,
+          disagreeCount: 0,
+          commentCount: 0,
+          isSelected: false,
+          myVote: null,
         },
+        // Case 2: 좌표가 둘 다 없는 경우 & isSelected가 true인 경우
         {
           id: '2',
-          content: 'No DisplayName',
-          positionX: 50,
-          positionY: 50,
-          user: { displayName: null, name: 'RealName' }, // 2순위: name
+          userId: 'user-2',
+          content: 'No Position',
+          positionX: null,
+          positionY: null,
+          nickname: 'AnotherUser',
+          categoryId: null,
+          agreeCount: 5,
+          disagreeCount: 1,
+          commentCount: 2,
+          isSelected: true,
+          myVote: 'AGREE',
         },
+        // Case 3: isSelected가 없고(undefined), 좌표가 하나만 있는 경우
         {
           id: '3',
-          content: 'No User Info',
-          positionX: null, // 위치 정보 없음
-          positionY: null,
-          user: null, // 3순위: '익명'
+          userId: 'user-3',
+          content: 'Edge Case',
+          positionX: 100, // X는 있는데
+          positionY: null, // Y가 없음 -> 결과는 position: null 이어야 함
+          nickname: 'EdgeUser',
+          categoryId: null,
+          agreeCount: 0,
+          disagreeCount: 0,
+          commentCount: 0,
+          isSelected: undefined, // 값이 없음 -> 결과는 false 이어야 함 (?? false 커버)
+          myVote: null,
         },
       ];
 
@@ -88,32 +79,32 @@ describe('Idea Queries', () => {
 
       const ideas = result.current.data;
 
-      // 1. 첫 번째 아이디어 검증 (닉네임, 위치 객체)
+      // 1. 첫 번째 아이디어 검증 (정상)
       expect(ideas?.[0]).toEqual(
         expect.objectContaining({
           id: '1',
-          author: 'NickName', // displayName 우선
-          position: { x: 100, y: 200 }, // 객체로 변환됨
-          editable: false,
+          position: { x: 100, y: 200 },
+          isSelected: false,
         }),
       );
 
-      // 2. 두 번째 아이디어 검증 (실명)
+      // 2. 두 번째 아이디어 검증 (좌표 둘 다 없음)
       expect(ideas?.[1]).toEqual(
         expect.objectContaining({
           id: '2',
-          author: 'RealName', // name 차순
-          position: { x: 50, y: 50 },
+          position: null,
+          isSelected: true,
         }),
       );
 
-      // 3. 세 번째 아이디어 검증 (익명, 위치 null)
+      // 세 번째 아이디어 검증 (Edge Case)
       expect(ideas?.[2]).toEqual(
         expect.objectContaining({
           id: '3',
-          author: '익명', // 유저 정보 없으면 익명
-          position: null, // 좌표 없으면 null
-          editable: false,
+          // 좌표가 하나라도 비면 null이어야 함
+          position: null,
+          // isSelected가 undefined면 기본값 false여야 함
+          isSelected: false,
         }),
       );
     });

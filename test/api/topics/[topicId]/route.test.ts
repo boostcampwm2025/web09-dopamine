@@ -1,11 +1,11 @@
-import { GET } from '@/app/api/topics/[topicId]/route';
-import { findTopicById } from '@/lib/repositories/topic.repository';
 import {
   createMockGetRequest,
   createMockParams,
   expectErrorResponse,
   expectSuccessResponse,
 } from '@test/utils/api-test-helpers';
+import { GET } from '@/app/api/topics/[topicId]/route';
+import { findTopicById } from '@/lib/repositories/topic.repository';
 
 jest.mock('@/lib/repositories/topic.repository');
 
@@ -16,6 +16,19 @@ describe('GET /api/topics/[topicId]', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    jest.spyOn(console, 'error').mockImplementation(() => {}); // 500 에러 로그 숨김
+  });
+
+  it('topicId가 없으면 400 에러를 반환한다', async () => {
+    // Given: 빈 문자열 ID
+    const req = createMockGetRequest();
+    const params = createMockParams({ topicId: '' });
+
+    // When
+    const response = await GET(req, params);
+
+    // Then
+    await expectErrorResponse(response, 400, 'TOPIC_ID_REQUIRED');
   });
 
   it('성공적으로 토픽을 조회한다', async () => {
