@@ -1,5 +1,5 @@
-import { User } from "next-auth";
-import getAPIResponseData from "../utils/api-response";
+import { User } from 'next-auth';
+import getAPIResponseData from '../utils/api-response';
 
 export function withdraw(): Promise<void> {
   return getAPIResponseData<void>({
@@ -14,5 +14,12 @@ export function updateDisplayName(displayName: string): Promise<User & { display
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ displayName }),
+  });
+}
+
+export function getProviders() {
+  return getAPIResponseData<string[]>({
+    url: '/api/auth/providers',
+    method: 'GET',
   });
 }
