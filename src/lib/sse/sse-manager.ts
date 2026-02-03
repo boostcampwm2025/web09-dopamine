@@ -1,4 +1,3 @@
-import { SSE_EVENT_TYPES } from '@/constants/sse-events';
 import { BroadcastingEvent, CreateStreamParams } from '@/types/sse';
 import { broadcastMemberPresence } from '../utils/broadcast-helpers';
 

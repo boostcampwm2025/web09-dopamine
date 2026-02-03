@@ -3,6 +3,7 @@
  */
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
+import { useSseConnectionStore } from '@/app/(with-sidebar)/issue/store/use-sse-connection-store';
 import { selectedIdeaQueryKey, useSelectedIdeaMutation } from '@/hooks';
 import * as issueApi from '@/lib/api/issue';
 import { act, renderHook, waitFor } from '../../utils/test-utils';
@@ -21,8 +22,14 @@ jest.mock('@tanstack/react-query', () => {
   };
 });
 
+// 3. Store 모킹 (껍데기 생성)
+jest.mock('@/app/(with-sidebar)/issue/store/use-sse-connection-store', () => ({
+  useSseConnectionStore: jest.fn(),
+}));
+
 describe('useSelectedIdeaMutation', () => {
   const issueId = 'issue-1';
+  const connectionId = 'conn-1'; // 테스트용 connectionId
   const queryKey = ['selected-idea', issueId]; // 테스트용 키
 
   // Mock 함수들
@@ -47,6 +54,15 @@ describe('useSelectedIdeaMutation', () => {
 
     // 쿼리 키 유틸 설정
     mockSelectedIdeaQueryKey.mockReturnValue(queryKey);
+
+    // Store 구현 주입: 특정 issueId에 대해 connectionId 반환
+    (useSseConnectionStore as unknown as jest.Mock).mockImplementation((selector) => {
+      return selector({
+        connectionIds: {
+          [issueId]: connectionId,
+        },
+      });
+    });
   });
 
   test('성공 시(낙관적 업데이트) 캐시에 선택된 아이디어 ID를 즉시 반영해야 한다', async () => {
@@ -69,8 +85,8 @@ describe('useSelectedIdeaMutation', () => {
     // 2. 낙관적 업데이트 확인 (API 응답 전 즉시 반영)
     expect(mockSetQueryData).toHaveBeenCalledWith(queryKey, newSelectedId);
 
-    // 3. API 호출 확인
-    expect(mockSelectIdeaAPI).toHaveBeenCalledWith(issueId, newSelectedId);
+    // 3. API 호출 확인 (connectionId 포함 3개 인자 확인)
+    expect(mockSelectIdeaAPI).toHaveBeenCalledWith(issueId, newSelectedId, connectionId);
   });
 
   test('실패 시 이전 선택 상태로 롤백해야 한다', async () => {
@@ -91,9 +107,6 @@ describe('useSelectedIdeaMutation', () => {
     await waitFor(() => expect(mockToastError).toHaveBeenCalledWith('Update Failed'));
 
     // 2. 롤백 확인
-    // setQueryData는 두 번 호출됨:
-    // 첫 번째: 낙관적 업데이트 ('new-idea-id')
-    // 두 번째: 에러 발생 후 롤백 ('old-idea-id')
     expect(mockSetQueryData).toHaveBeenLastCalledWith(queryKey, previousId);
   });
 
@@ -110,10 +123,8 @@ describe('useSelectedIdeaMutation', () => {
     });
 
     // Then
-    // undefined일 경우 setQueryData가 롤백용으로 호출되지 않아야 함. (낙관적 업데이트용 1번만 호출)
     await waitFor(() => expect(mockToastError).toHaveBeenCalled());
     expect(mockSetQueryData).toHaveBeenCalledTimes(1); // 낙관적 업데이트 1회만
     expect(mockSetQueryData).toHaveBeenCalledWith(queryKey, 'new-id');
-    // 롤백으로 다시 호출되지 않았음을 의미
   });
 });
