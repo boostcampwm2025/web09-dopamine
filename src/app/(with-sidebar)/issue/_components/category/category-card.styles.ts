@@ -26,7 +26,7 @@ export const StyledCategoryCard = styled.section<{
   display: flex;
   flex-direction: column;
   min-height: 200px;
-  gap: 11px;
+  gap: 25px;
   background: ${({ isMuted, theme }) =>
     isMuted ? color(theme, 'surfaceMuted', '#fafafa') : color(theme, 'surface', '#f0fdf4')};
   border: 2px dashed
