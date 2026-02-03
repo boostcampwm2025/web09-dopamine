@@ -14,12 +14,6 @@ export const issueMemberRepository = {
       });
 
       if (existingMember) {
-        if (existingMember.nickname !== nickname) {
-          await tx.issueMember.update({
-            where: { id: existingMember.id },
-            data: { nickname },
-          });
-        }
         return { userId, didJoin: false };
       }
 
