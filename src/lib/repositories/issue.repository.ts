@@ -78,6 +78,19 @@ export async function updateIssueStatus(
   });
 }
 
+export async function updateIssue(issueId: string, title: string) {
+  return await prisma.issue.update({
+    where: { id: issueId },
+    data: {
+      title,
+    },
+    select: {
+      id: true,
+      title: true,
+    },
+  });
+}
+
 export async function findIssuesWithMapDataByTopicId(topicId: string) {
   const issues = await prisma.issue.findMany({
     where: {
