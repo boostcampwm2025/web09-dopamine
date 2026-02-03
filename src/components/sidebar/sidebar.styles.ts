@@ -8,6 +8,7 @@ import { IssueStatus } from '@/types/issue';
 
 export const Sidebar = styled.aside`
   display: flex;
+  position: relative;
   flex-flow: column nowrap;
   gap: 16px;
   justify-self: left;
@@ -17,7 +18,28 @@ export const Sidebar = styled.aside`
   background-color: ${theme.colors.white};
   color: ${theme.colors.gray[400]};
   box-shadow: 2px 0 2px -1px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
+  overflow-x: visible;
+  overflow-y: hidden;
+`;
+
+export const SidebarToggle = styled.button`
+  position: absolute;
+  top: 10%;
+  right: -20px;
+  transform: translateY(-50%);
+  width: 12px;
+  height: 48px;
+  padding: 0;
+  border: none;
+  border-radius: 0 4px 4px 0;
+  background-color: ${theme.colors.red[500]};
+  cursor: pointer;
+  z-index: 9999;
+  box-shadow: 1px 0 2px rgba(0, 0, 0, 0.08);
+
+  &:hover {
+    background-color: ${theme.colors.gray[400]};
+  }
 `;
 
 export const InputWrapper = styled.div`
