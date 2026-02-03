@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import { useTooltipStore } from '@/components/tooltip/use-tooltip-store';
 import { ISSUE_STATUS } from '@/constants/issue';
+import EditIssueButton from '../edit-issue-button/edit-issue-button';
 import ProgressBar from '../progress-bar/progress-bar';
 import HeaderButton from './header-button';
 import * as S from './header.styles';
@@ -73,6 +74,10 @@ const Header = () => {
           />
         </button>
         {issue?.title}
+        <EditIssueButton
+          issueId={issueId}
+          currentTitle={issue?.title}
+        />
       </S.LeftSection>
       <S.CenterSection>
         <ProgressBar />
