@@ -32,11 +32,6 @@ export default function ProjectCreateModal() {
           closeModal();
           router.refresh();
         },
-        onError: (error: unknown) => {
-          const errorMessage =
-            error instanceof Error ? error.message : '프로젝트 생성에 실패했습니다.';
-          toast.error(errorMessage);
-        },
       },
     );
   }, [projectName, description, mutate, router]);

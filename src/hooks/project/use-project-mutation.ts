@@ -14,9 +14,10 @@ export const useCreateProjectMutation = () => {
       queryClient.invalidateQueries({ queryKey: ['projects'] });
     },
 
-    onError: (error) => {
+    onError: (error: unknown) => {
+      const errorMessage = error instanceof Error ? error.message : '프로젝트 생성에 실패했습니다.';
       console.error('프로젝트 생성 실패:', error);
-      toast.error(error.message || '프로젝트 생성에 실패했습니다.');
+      toast.error(errorMessage);
     },
   });
 };
