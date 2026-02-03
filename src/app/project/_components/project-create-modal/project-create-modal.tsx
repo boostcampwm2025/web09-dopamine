@@ -27,13 +27,14 @@ export default function ProjectCreateModal() {
     mutate(
       { title: projectName, description: description || undefined },
       {
-        onSuccess: (newProject) => {
+        onSuccess: () => {
           toast.success('프로젝트가 생성되었습니다!');
           closeModal();
-          router.push(`/project/${newProject.id}`);
+          router.refresh();
         },
         onError: (error: unknown) => {
-          const errorMessage = error instanceof Error ? error.message : '프로젝트 생성에 실패했습니다.';
+          const errorMessage =
+            error instanceof Error ? error.message : '프로젝트 생성에 실패했습니다.';
           toast.error(errorMessage);
         },
       },
