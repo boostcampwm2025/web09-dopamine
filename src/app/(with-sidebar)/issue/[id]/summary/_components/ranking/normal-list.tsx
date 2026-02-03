@@ -61,7 +61,9 @@ export default function NormalList({ normalRankings }: NormalListProps) {
                 {item.content}
               </S.Title>
               <S.MetaRow>
-                <S.Author>{item.user?.nickname || item.user?.displayName || item.user?.name || '익명'}</S.Author>
+                <S.Author>
+                  {item.user?.nickname || item.user?.displayName || item.user?.name || '익명'}
+                </S.Author>
                 <S.Divider />
                 <span>{item.category?.title || '미분류'}</span>
               </S.MetaRow>
