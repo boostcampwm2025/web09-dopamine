@@ -10,9 +10,7 @@ import { useIssueSidebar } from './use-issue-sidebar';
 export default function IssueSidebar() {
   const {
     isMounted,
-    topicId,
     isTopicPage,
-    topicIssues,
     filteredIssues,
     filteredMembers,
     onlineMemberIds,
@@ -24,6 +22,7 @@ export default function IssueSidebar() {
     isSummaryPage,
     goToIssueMap,
     searchTarget,
+    isQuickIssue,
     setSearchTarget,
   } = useIssueSidebar();
 
@@ -34,10 +33,12 @@ export default function IssueSidebar() {
         onChange: handleSearchChange,
       }}
       suffix={
-        <SidebarFilter
-          value={searchTarget}
-          onChange={setSearchTarget}
-        />
+        !isQuickIssue ? (
+          <SidebarFilter
+            value={searchTarget}
+            onChange={setSearchTarget}
+          />
+        ) : null
       }
     >
       {isMounted && showIssueList && (
