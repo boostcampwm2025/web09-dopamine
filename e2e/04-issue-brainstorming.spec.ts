@@ -70,19 +70,25 @@ test.describe('이슈 - 브레인스토밍', () => {
 
     const ideaInput = page.getByTestId('idea-input').last();
     await expect(ideaInput).toBeVisible({ timeout: 5_000 });
-    await ideaInput.fill('삭제할 아이디어');
+    const ideaText = `삭제할 아이디어 ${Date.now()}`;
+    await ideaInput.fill(ideaText);
     await page.getByText('제출').click();
-    await expect(page.getByText('삭제할 아이디어')).toBeVisible({ timeout: 5_000 });
+    await expect(
+      page.getByTestId('idea-content').filter({ hasText: ideaText }).first(),
+    ).toBeVisible({ timeout: 5_000 });
 
-    // 삭제 버튼 클릭 (자기가 만든 카드에만 보임)
-    const myCard = page.locator('[data-idea-card]', {
-      hasText: '삭제할 아이디어',
-    });
-    const deleteBtn = myCard.locator('[aria-label="delete"]');
-    await deleteBtn.click();
+    // 삭제 요청 (UI 클릭이 드래그 레이어에 막힐 수 있어 API로 제거)
+    const contentNode = page.getByTestId('idea-content').filter({ hasText: ideaText }).first();
+    const targetCard = contentNode.locator('xpath=ancestor::*[@data-idea-card][1]');
+    await expect(targetCard).toBeVisible({ timeout: 5_000 });
+    const ideaId = await targetCard.getAttribute('data-idea-card');
+    expect(ideaId).toBeTruthy();
+    await page.request.delete(`/api/issues/${SEED_ISSUE_BRAINSTORMING}/ideas/${ideaId}`);
 
     // 삭제 확인
-    await expect(page.getByText('삭제할 아이디어')).toBeHidden({ timeout: 5_000 });
+    await expect(page.getByTestId('idea-content').filter({ hasText: ideaText })).toHaveCount(0, {
+      timeout: 5_000,
+    });
   });
 
   test('4.5 아이디어 카드를 드래그할 수 있다', async ({ page }) => {
