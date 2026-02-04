@@ -19,7 +19,7 @@ export function updateDisplayName(displayName: string): Promise<User & { display
 
 export function getProviders() {
   return getAPIResponseData<string[]>({
-    url: '/api/auth/providers',
+    url: '/api/auth/provider',
     method: 'GET',
   });
 }
