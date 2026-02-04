@@ -46,20 +46,27 @@ describe('Issue Member Repository 테스트', () => {
   });
 
   it('이슈 ID로 삭제되지 않은 멤버 목록을 조회한다', async () => {
-    // 역할: UI 멤버 리스트에 탈퇴/삭제 멤버가 섞이지 않도록 필터링 조건을 검증한다.
-    mockedIssueMember.findMany.mockResolvedValue([{ role: IssueRole.MEMBER }] as any);
+    const issueId = 'issue-1';
 
-    await issueMemberRepository.findMembersByIssueId('issue-1');
+    // 실행
+    await issueMemberRepository.findMembersByIssueId(issueId);
 
+    // 검증
     expect(mockedIssueMember.findMany).toHaveBeenCalledWith({
       where: {
-        issueId: 'issue-1',
+        issueId: issueId,
         deletedAt: null,
       },
       select: {
         userId: true,
-        role: true,
         nickname: true,
+        role: true,
+        // 💡 추가된 부분: 유저의 프로필 이미지를 가져오는 select 문 반영
+        user: {
+          select: {
+            image: true,
+          },
+        },
       },
     });
   });
