@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import * as S from '@/app/(with-sidebar)/issue/_components/edit-issue-button/edit-issue-button.style';
+import * as S from '@/app/(with-sidebar)/issue/_components/edit-issue-button/edit-issue-button.styles';
 import { useModalStore } from '@/components/modal/use-modal-store';
 import EditTopicModal, { EditTopicProps } from '../edit-topic-modal/edit-topic-modal';
 
