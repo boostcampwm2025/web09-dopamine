@@ -91,21 +91,14 @@ export const voteService = {
           const { myVote } = await applyVoteTransition(tx, ideaId, userId, transition);
 
           // 4. vote 기준으로 카운트 재계산
-          const [agreeCount, disagreeCount] = await Promise.all([
-            tx.vote.count({
-              where: { ideaId, type: 'AGREE', isActive: true },
-            }),
-            tx.vote.count({
-              where: { ideaId, type: 'DISAGREE', isActive: true },
-            }),
-          ]);
+          const { agreeCount, disagreeCount } = await voteRepository.getVoteCounts(ideaId, tx);
 
           // 5. idea 업데이트
-          const idea = await tx.idea.update({
-            where: { id: ideaId },
-            data: { agreeCount, disagreeCount },
-            select: { agreeCount: true, disagreeCount: true },
-          });
+          const idea = await voteRepository.updateIdeaCounts(
+            ideaId,
+            { agreeCount, disagreeCount },
+            tx,
+          );
 
           return { ...idea, myVote };
         });

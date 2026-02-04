@@ -31,6 +31,20 @@ export const voteRepository = {
     });
   },
 
+  // 아이디어의 동의/반대 카운트 조회
+  async getVoteCounts(ideaId: string, tx: Prisma.TransactionClient) {
+    const [agreeCount, disagreeCount] = await Promise.all([
+      tx.vote.count({
+        where: { ideaId, type: VoteType.AGREE, isActive: true },
+      }),
+      tx.vote.count({
+        where: { ideaId, type: VoteType.DISAGREE, isActive: true },
+      }),
+    ]);
+
+    return { agreeCount, disagreeCount };
+  },
+
   // 아이디어 테이블의 카운트 업데이트 (atomic increment/decrement)
   updateIdeaCounts(ideaId: string, data: Prisma.IdeaUpdateInput, tx: Prisma.TransactionClient) {
     return tx.idea.update({
