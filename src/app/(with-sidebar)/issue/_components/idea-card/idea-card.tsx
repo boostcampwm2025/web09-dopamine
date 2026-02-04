@@ -117,7 +117,8 @@ export default function IdeaCard(props: IdeaCardProps) {
 
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: props.id || 'idea-unknown',
-    disabled: !props.id || !canDrag, // 카테고리 단계에서만 드래그 가능
+    // id가 없거나 거나 카테고리 단계가 아니거나 편집 중이면 드래그 불가
+    disabled: !props.id || isEditing || !canDrag,
     data: {
       editValue: editValue,
     },
@@ -162,18 +163,18 @@ export default function IdeaCard(props: IdeaCardProps) {
   const cardStyle =
     !inCategory && props.position
       ? {
-          position: 'absolute' as const,
-          left: props.position.x,
-          top: props.position.y,
-          cursor: canDrag ? (isDragging ? 'grabbing' : 'grab') : 'default',
-          userSelect: 'none' as const,
-          zIndex: isDragging ? theme.zIndex.selected : zIndex,
-          // dnd-kit transform 적용 (Canvas scale과 호환됨!)
-          transform: CSS.Transform.toString(transform),
-          opacity: isDragging ? 0 : undefined,
-          // 브로드캐스팅으로 다른 사용자 이동 시 애니메이션
-          transition: props.disableAnimation ? 'none' : 'left 0.4s ease-out, top 0.4s ease-out',
-        }
+        position: 'absolute' as const,
+        left: props.position.x,
+        top: props.position.y,
+        cursor: isDragging ? 'grabbing' : 'grab',
+        userSelect: 'none' as const,
+        zIndex: isDragging ? theme.zIndex.selected : zIndex,
+        // dnd-kit transform 적용 (Canvas scale과 호환됨!)
+        transform: CSS.Transform.toString(transform),
+        opacity: isDragging ? 0 : undefined,
+        // 브로드캐스팅으로 다른 사용자 이동 시 애니메이션
+        transition: props.disableAnimation ? 'none' : 'left 0.4s ease-out, top 0.4s ease-out',
+      }
       : {};
 
   return (
@@ -183,6 +184,7 @@ export default function IdeaCard(props: IdeaCardProps) {
       issueStatus={issueStatus}
       status={status}
       isDragging={isDragging}
+      isEditing={isEditing}
       inCategory={inCategory}
       isCommentOpen={isCommentOpen}
       isHotIdea={props.isHotIdea}
@@ -192,8 +194,8 @@ export default function IdeaCard(props: IdeaCardProps) {
       {...(inCategory
         ? {}
         : Object.fromEntries(
-            Object.entries(listeners || {}).filter(([key]) => key !== 'onPointerDown'),
-          ))}
+          Object.entries(listeners || {}).filter(([key]) => key !== 'onPointerDown'),
+        ))}
       style={cardStyle}
     >
       <IdeaCardBadge
