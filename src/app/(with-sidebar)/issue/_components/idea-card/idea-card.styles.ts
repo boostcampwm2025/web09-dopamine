@@ -70,7 +70,6 @@ export const Card = styled.article<{
       ? `
     z-index: ${theme.zIndex.selected};
     border: 2px solid ${theme.colors.red[500]};
-    box-shadow: 0 8px 24px rgba(220, 38, 38, 0.3);
     ${status === 'default' || !status ? `background: ${theme.colors.red[50]};` : ''}
   `
       : ''}
