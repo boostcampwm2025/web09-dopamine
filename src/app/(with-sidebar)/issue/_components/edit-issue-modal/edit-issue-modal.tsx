@@ -64,13 +64,11 @@ export default function EditIssueModal({ issueId, currentTitle, userId }: EditIs
               value={title}
               onChange={onChangeTitle}
               placeholder="제목을 입력하세요 (15자 이내)"
-              maxLength={15}
+              maxLength={20}
               autoFocus
               disabled={isPending}
             />
-            <S.CharCount $isOverLimit={title.length > 15}>
-              {title.length}/15
-            </S.CharCount>
+            <S.CharCount $isOverLimit={title.length > 15}>{title.length}/15</S.CharCount>
           </S.Input>
         </S.InputWrapper>
       </S.InfoContainer>

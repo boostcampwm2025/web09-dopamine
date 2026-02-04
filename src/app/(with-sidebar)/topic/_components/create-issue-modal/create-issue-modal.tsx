@@ -66,7 +66,7 @@ export default function CreateIssueModal() {
               placeholder="제목을 입력하세요"
               autoFocus
               disabled={isPending}
-              maxLength={15}
+              maxLength={20}
             />
             <S.CharCount $isOverLimit={issueTitle.length > 15}>{issueTitle.length}/15</S.CharCount>
           </S.Input>

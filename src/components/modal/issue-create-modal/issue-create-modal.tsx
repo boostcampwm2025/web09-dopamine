@@ -60,7 +60,7 @@ export default function CreateIssueModal() {
                 value={title}
                 onChange={(e) => setTitle(e.target.value.slice(0, 15))}
                 placeholder="예시) 서비스 홍보 방안 (15자 이내)"
-                maxLength={15}
+                maxLength={20}
               />
               <S.CharCount $isOverLimit={title.length > 15}>{title.length}/15</S.CharCount>
             </S.Input>
