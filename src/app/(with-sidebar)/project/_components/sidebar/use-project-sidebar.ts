@@ -9,7 +9,7 @@ export const useProjectSidebar = () => {
   const params = useParams();
   const projectId = params.id as string;
 
-  const { data: projectData } = useProjectQuery(projectId);
+  const { data: projectData, refetch, isFetching, isLoading } = useProjectQuery(projectId);
   const topics = projectData?.topics || [];
   const members = projectData?.members || [];
 
@@ -37,8 +37,14 @@ export const useProjectSidebar = () => {
     const normalizedTerm = searchValue.toLowerCase();
     const searchChoseong = getChoseong(searchValue);
 
-    return members.filter((member) => matchSearch(member.name || '익명', normalizedTerm, searchChoseong));
+    return members.filter((member) =>
+      matchSearch(member.name || '익명', normalizedTerm, searchChoseong),
+    );
   }, [members, searchTarget, searchValue]);
+
+  const handleRefresh = useCallback(() => {
+    refetch();
+  }, [refetch]);
 
   return {
     filteredTopics,
@@ -47,5 +53,8 @@ export const useProjectSidebar = () => {
     handleSearchChange,
     searchTarget,
     setSearchTarget,
+    handleRefresh,
+    isRefreshing: isFetching,
+    isLoading,
   };
 };

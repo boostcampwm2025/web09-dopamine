@@ -108,6 +108,18 @@ export const SidebarTitle = styled.div`
     font-weight: ${theme.font.weight.medium};
     margin-left: 8px;
   }
+
+  & button {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: center;
+    justify-content: center;
+    &:hover {
+      opacity: 0.7;
+    }
+  }
 `;
 
 export const SidebarList = styled.ul`
