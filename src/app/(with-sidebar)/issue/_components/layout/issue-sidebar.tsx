@@ -60,21 +60,21 @@ export default function IssueSidebar() {
           <S.SidebarList>
             {topicId
               ? filteredIssues.map((issue) => (
-                  <SidebarItem
-                    key={issue.id}
-                    title={issue.title}
-                    href={`/issue/${issue.id}`}
-                    status={issue.status as any}
-                  />
-                ))
+                <SidebarItem
+                  key={issue.id}
+                  title={issue.title}
+                  href={`/issue/${issue.id}`}
+                  status={issue.status as any}
+                />
+              ))
               : filteredStaticIssues.map((issue) => (
-                  <SidebarItem
-                    key={issue.title}
-                    title={issue.title}
-                    href={issue.href}
-                    status={issue.status}
-                  />
-                ))}
+                <SidebarItem
+                  key={issue.title}
+                  title={issue.title}
+                  href={issue.href}
+                  status={issue.status}
+                />
+              ))}
           </S.SidebarList>
         </>
       )}
@@ -98,6 +98,7 @@ export default function IssueSidebar() {
                   id={user.id}
                   name={user.nickname}
                   role={user.role}
+                  profile={user.profile || undefined}
                   isConnected={isOnline}
                 />
               );
