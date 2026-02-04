@@ -144,9 +144,9 @@ describe('api/issues/[issueId]', () => {
       expect(mockedBroadcastToTopic).not.toHaveBeenCalled();
     });
 
-    it('이슈 수정 서비스에서 에러 발생 시 500 에러를 반환한다', async () => {
+    it('이슈를 찾을 수 없는 경우 404 에러를 반환한다', async () => {
       // Given
-      mockedUpdateIssueTitle.mockRejectedValue(new Error('Update failed'));
+      mockedUpdateIssueTitle.mockRejectedValue(new Error('ISSUE_NOT_FOUND'));
 
       const req = new Request(`http://localhost/api/issues/${mockIssueId}`, {
         method: 'PATCH',
@@ -158,7 +158,59 @@ describe('api/issues/[issueId]', () => {
       const response = await PATCH(req, params);
 
       // Then
-      await expectErrorResponse(response, 500, 'Update failed');
+      await expectErrorResponse(response, 404, 'ISSUE_NOT_FOUND');
+    });
+
+    it('수정 권한이 없는 경우 403 에러를 반환한다', async () => {
+      // Given
+      mockedUpdateIssueTitle.mockRejectedValue(new Error('PERMISSION_DENIED'));
+
+      const req = new Request(`http://localhost/api/issues/${mockIssueId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ title: updatedTitle, userId: mockUserId }),
+      }) as any;
+      const params = createMockParams({ issueId: mockIssueId });
+
+      // When
+      const response = await PATCH(req, params);
+
+      // Then
+      await expectErrorResponse(response, 403, 'PERMISSION_DENIED');
+    });
+
+    it('정의되지 않은 에러 발생 시 해당 메시지와 함께 500 에러를 반환한다', async () => {
+      // Given
+      const internalErrorMessage = 'DB_CONNECTION_ERROR';
+      mockedUpdateIssueTitle.mockRejectedValue(new Error(internalErrorMessage));
+
+      const req = new Request(`http://localhost/api/issues/${mockIssueId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ title: updatedTitle, userId: mockUserId }),
+      }) as any;
+      const params = createMockParams({ issueId: mockIssueId });
+
+      // When
+      const response = await PATCH(req, params);
+
+      // Then
+      await expectErrorResponse(response, 500, internalErrorMessage);
+    });
+
+    it('에러 객체가 아닌 예외 발생 시 기본 메시지와 함께 500 에러를 반환한다', async () => {
+      // Given: Error 인스턴스가 아닌 문자열 등을 throw 하는 상황
+      mockedUpdateIssueTitle.mockRejectedValue('Unknown String Error');
+
+      const req = new Request(`http://localhost/api/issues/${mockIssueId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ title: updatedTitle, userId: mockUserId }),
+      }) as any;
+      const params = createMockParams({ issueId: mockIssueId });
+
+      // When
+      const response = await PATCH(req, params);
+
+      // Then
+      await expectErrorResponse(response, 500, 'ISSUE_UPDATE_FAILED');
     });
   });
 });

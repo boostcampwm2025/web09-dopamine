@@ -56,7 +56,16 @@ export async function PATCH(
     return createSuccessResponse(issue);
   } catch (error: unknown) {
     console.error('이슈 수정 실패:', error);
-    const errorMessage = error instanceof Error ? error.message : 'ISSUE_UPDATE_FAILED';
-    return createErrorResponse(errorMessage, 500);
+    if (error instanceof Error) {
+      if (error.message === 'ISSUE_NOT_FOUND') {
+        return createErrorResponse('ISSUE_NOT_FOUND', 404);
+      }
+      if (error.message === 'PERMISSION_DENIED') {
+        return createErrorResponse('PERMISSION_DENIED', 403);
+      }
+      return createErrorResponse(error.message, 500);
+    }
+
+    return createErrorResponse('ISSUE_UPDATE_FAILED', 500);
   }
 }

@@ -106,6 +106,7 @@ export function ProjectCard({
           {
             onSuccess: () => {
               toast.success('프로젝트가 삭제되었습니다.');
+              router.refresh();
             },
             onError: () => {
               toast.error('프로젝트 삭제에 실패했습니다.');

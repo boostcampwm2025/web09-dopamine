@@ -11,6 +11,7 @@ export const HeaderContainer = styled.div`
   grid-template-columns: 1fr 2fr 1.2fr;
   align-items: center;
   border-bottom: 1px solid ${theme.colors.gray[100]};
+  min-width: 1420px;
 `;
 
 export const LeftSection = styled.div`
@@ -21,6 +22,11 @@ export const LeftSection = styled.div`
   color: black;
   align-items: center;
   justify-self: start;
+`;
+
+export const ButtonsWrapper = styled.div`
+  display: flex;
+  align-items: center;
 `;
 
 export const CenterSection = styled.div`

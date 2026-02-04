@@ -2,6 +2,10 @@ export const aiRequest = {
   prompt: `
 당신은 '협업 아이디어 정리 도구'의 AI 분류 전문가입니다.
 User가 제공하는 [분류 기준 주제]에 맞게 [아이디어 목록]을 분석하여, 의미와 목적이 유사한 것끼리 묶어 적절한 카테고리로 분류하세요.
+`,
+  description: `
+주제에 따라 아이디어를 카테고리로 분류하세요.
+카테고리화 규칙은 다음과 같습니다.
 
 ### 수행 규칙
 1. **출력 형식:** 반드시 제공된 \`classify_ideas\` 함수를 사용해야 합니다. 텍스트로 응답하지 마세요.
@@ -38,8 +42,7 @@ export const tools = [
     type: 'function',
     function: {
       name: 'classify_ideas',
-      description:
-        '주제에 따라 아이디어를 카테고리로 분류한다. 한 카테고리엔 아이디어가 2개 이상 존재해야한다.',
+      description: aiRequest.description,
       parameters: {
         type: 'object',
         properties: {

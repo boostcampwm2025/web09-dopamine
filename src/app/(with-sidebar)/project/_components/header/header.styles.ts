@@ -45,4 +45,5 @@ export const Profile = styled.div`
   font-weight: ${theme.font.weight.semibold};
   align-items: center;
   cursor: pointer;
+  min-width: 92px;
 `;

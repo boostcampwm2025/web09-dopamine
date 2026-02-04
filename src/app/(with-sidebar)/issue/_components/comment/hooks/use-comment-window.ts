@@ -88,6 +88,11 @@ export function useCommentWindow({
       try {
         await createMutation.mutateAsync({ userId, content: trimmed });
         setInputValue('');
+        if (target) {
+          requestAnimationFrame(() => {
+            target.focus();
+          });
+        }
       } catch {
         // tanstack error state에 의해 에러 처리
       }

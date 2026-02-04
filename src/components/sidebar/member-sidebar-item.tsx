@@ -1,8 +1,11 @@
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 import { useIssueId, useIssueIdentity } from '@/app/(with-sidebar)/issue/hooks';
 import { MEMBER_ROLE } from '@/constants/issue';
 import * as MemberS from './member-sidebar-item.styles';
 import * as S from './sidebar.styles';
+import { useSession } from 'next-auth/react';
+import { StringifyOptions } from 'querystring';
 
 interface MemberSidebarItemProps {
   profile?: string;
@@ -20,10 +23,26 @@ export default function MemberSidebarItem({
   isConnected,
 }: MemberSidebarItemProps) {
   const issueId = useIssueId();
+  const pathname = usePathname();
 
-  const { userId } = useIssueIdentity(issueId);
+  // 이슈 페이지인지 확인
+  const isIssuePage = pathname?.startsWith('/issue/');
 
-  const isCurrentUser = userId === id;
+  // Hook을 최상위에서 unconditional하게 호출
+  const identity = useIssueIdentity(issueId || '');
+
+  const { data: session } = useSession();
+
+  // 조건에 따라 userId 결정
+  let currentUserId: string | undefined;
+
+  if (isIssuePage) {
+    currentUserId = identity.userId;
+  } else {
+    currentUserId = session!.user.id;
+  }
+
+  const isCurrentUser = currentUserId === id;
 
   const isProjectOwner = role === MEMBER_ROLE.OWNER && profile;
   const isIssueOwner = role === MEMBER_ROLE.OWNER && !profile;

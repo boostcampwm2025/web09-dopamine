@@ -20,6 +20,7 @@ const Header = () => {
     issue,
     isVisible,
     isEditButtonVisible,
+    topicId,
     handleCloseIssue,
     handleNextStep,
     handleAddCategory,
@@ -69,12 +70,14 @@ const Header = () => {
     <S.HeaderContainer>
       <S.LeftSection>
         <button onClick={handleGoback}>
-          <Image
-            src="/leftArrow.svg"
-            alt="뒤로가기"
-            width={18}
-            height={18}
-          />
+          <S.ButtonsWrapper>
+            <Image
+              src={topicId ? '/leftArrow.svg' : '/home.svg'}
+              alt={topicId ? '뒤로가기' : '홈으로'}
+              width={18}
+              height={18}
+            />
+          </S.ButtonsWrapper>
         </button>
         {issue?.title}
         {isEditButtonVisible && (
