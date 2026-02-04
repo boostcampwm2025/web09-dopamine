@@ -4,6 +4,10 @@ import { theme } from '@/styles/theme';
 import { IssueStatus } from '@/types/issue';
 import { CardStatus } from '../../types/idea';
 
+export const Wrapper = styled.div`
+  position: relative;
+`;
+
 export const Badge = styled.div<{ status?: CardStatus }>`
   position: absolute;
   top: -20px;

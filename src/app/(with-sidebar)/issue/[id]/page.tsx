@@ -8,8 +8,10 @@ import { useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import Canvas from '@/app/(with-sidebar)/issue/_components/canvas/canvas';
 import CategoryCard from '@/app/(with-sidebar)/issue/_components/category/category-card';
+import CommentWindow from '@/app/(with-sidebar)/issue/_components/comment/comment-window';
 import FilterPanel from '@/app/(with-sidebar)/issue/_components/filter-panel/filter-panel';
 import IdeaCard from '@/app/(with-sidebar)/issue/_components/idea-card/idea-card';
+import { Wrapper } from '@/app/(with-sidebar)/issue/_components/idea-card/idea-card.styles';
 import { useCanvasStore } from '@/app/(with-sidebar)/issue/store/use-canvas-store';
 import { ErrorPage } from '@/components/error/error';
 import LoadingOverlay from '@/components/loading-overlay/loading-overlay';
@@ -305,24 +307,37 @@ const IssuePage = () => {
                   onRemove={() => handleDeleteCategory(category.id)}
                   onDropIdea={(ideaId) => handleMoveIdeaToCategory(ideaId, category.id)}
                 >
-                  {categoryIdeas.map((idea) => (
-                    <IdeaCard
-                      key={idea.id}
-                      {...idea}
-                      author={idea.author}
-                      userId={idea.userId}
-                      issueId={issueId}
-                      position={null}
-                      isSelected={idea.id === selectedIdeaId}
-                      status={getIdeaStatus(idea.id)}
-                      isHotIdea={activeDiscussionIdeaIds.has(idea.id)}
-                      isVoteButtonVisible={isVoteButtonVisible}
-                      isVoteDisabled={isVoteDisabled}
-                      onSave={(content) => handleSaveIdea(idea.id, content)}
-                      onDelete={() => handleDeleteIdea(idea.id)}
-                      onClick={() => handleSelectIdea(idea.id)}
-                    />
-                  ))}
+                  {categoryIdeas.map((idea) => {
+                    const isCommentOpen = activeCommentId === idea.id;
+
+                    return (
+                      <Wrapper key={idea.id}>
+                        <IdeaCard
+                          {...idea}
+                          author={idea.author}
+                          userId={idea.userId}
+                          issueId={issueId}
+                          position={null}
+                          isSelected={idea.id === selectedIdeaId}
+                          status={getIdeaStatus(idea.id)}
+                          isHotIdea={activeDiscussionIdeaIds.has(idea.id)}
+                          isVoteButtonVisible={isVoteButtonVisible}
+                          isVoteDisabled={isVoteDisabled}
+                          onSave={(content) => handleSaveIdea(idea.id, content)}
+                          onDelete={() => handleDeleteIdea(idea.id)}
+                          onClick={() => handleSelectIdea(idea.id)}
+                        />
+                        {isCommentOpen && (
+                          <CommentWindow
+                            issueId={issueId}
+                            ideaId={idea.id}
+                            userId={currentUserId}
+                            onClose={closeComment}
+                          />
+                        )}
+                      </Wrapper>
+                    );
+                  })}
                 </CategoryCard>
               );
             })}
@@ -355,31 +370,31 @@ const IssuePage = () => {
           <DragOverlay dropAnimation={null}>
             {activeId
               ? (() => {
-                const activeIdea = ideas.find((idea) => idea.id === activeId);
-                if (!activeIdea) return null;
+                  const activeIdea = ideas.find((idea) => idea.id === activeId);
+                  if (!activeIdea) return null;
 
-                return (
-                  <div
-                    style={{
-                      transform: `scale(${scale})`,
-                      transformOrigin: '0 0', // 왼쪽 위 기준으로 scale
-                    }}
-                  >
-                    <IdeaCard
-                      {...activeIdea}
-                      issueId={issueId}
-                      content={overlayEditValue ?? activeIdea.content}
-                      position={null}
-                      isSelected={activeIdea.id === selectedIdeaId}
-                      author={activeIdea.author}
-                      userId={activeIdea.userId}
-                      status={getIdeaStatus(activeIdea.id)}
-                      isVoteButtonVisible={isVoteButtonVisible}
-                      isVoteDisabled={isVoteDisabled}
-                    />
-                  </div>
-                );
-              })()
+                  return (
+                    <div
+                      style={{
+                        transform: `scale(${scale})`,
+                        transformOrigin: '0 0', // 왼쪽 위 기준으로 scale
+                      }}
+                    >
+                      <IdeaCard
+                        {...activeIdea}
+                        issueId={issueId}
+                        content={overlayEditValue ?? activeIdea.content}
+                        position={null}
+                        isSelected={activeIdea.id === selectedIdeaId}
+                        author={activeIdea.author}
+                        userId={activeIdea.userId}
+                        status={getIdeaStatus(activeIdea.id)}
+                        isVoteButtonVisible={isVoteButtonVisible}
+                        isVoteDisabled={isVoteDisabled}
+                      />
+                    </div>
+                  );
+                })()
               : null}
           </DragOverlay>
         )}

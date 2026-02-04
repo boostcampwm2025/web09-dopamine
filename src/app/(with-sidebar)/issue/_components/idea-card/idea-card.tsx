@@ -10,7 +10,6 @@ import { useIssueData, useIssueIdentity } from '../../hooks';
 import { useCommentWindowStore } from '../../store/use-comment-window-store';
 import { useIdeaCardStackStore } from '../../store/use-idea-card-stack-store';
 import type { CardStatus, Position } from '../../types/idea';
-import CommentWindow from '../comment/comment-window';
 import IdeaCardBadge from './idea-card-badge';
 import IdeaCardFooter from './idea-card-footer';
 import IdeaCardHeader from './idea-card-header';
@@ -239,14 +238,6 @@ export default function IdeaCard(props: IdeaCardProps) {
         onAgree={handleAgree}
         onDisagree={handleDisagree}
       />
-      {isCommentOpen && !isDragging && (
-        <CommentWindow
-          issueId={issueId}
-          ideaId={props.id}
-          userId={currentUserId}
-          onClose={closeComment}
-        />
-      )}
     </S.Card>
   );
 }
