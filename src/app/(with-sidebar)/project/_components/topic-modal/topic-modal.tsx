@@ -1,7 +1,7 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useParams } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { useModalStore } from '@/components/modal/use-modal-store';
 import { useCreateTopicMutation } from '@/hooks/topic';
@@ -12,11 +12,18 @@ interface TopicModalProps {
 }
 
 export default function TopicModal({ projectId }: TopicModalProps) {
-  const router = useRouter();
   const params = useParams();
-  const { setIsPending, isOpen, closeModal } = useModalStore();
+  const setIsPending = useModalStore((state) => state.setIsPending);
+  const isOpen = useModalStore((state) => state.isOpen);
+  const closeModal = useModalStore((state) => state.closeModal);
   const [topicName, setTopicName] = useState('');
+  const topicNameRef = useRef(topicName);
   const { mutate, isPending } = useCreateTopicMutation();
+
+  // topicName의 최신 값을 ref에 동기화
+  useEffect(() => {
+    topicNameRef.current = topicName;
+  }, [topicName]);
 
   const resolvedProjectId = projectId ?? (params.id as string | undefined);
 
@@ -25,7 +32,9 @@ export default function TopicModal({ projectId }: TopicModalProps) {
   }, [isPending, setIsPending]);
 
   const handleSubmit = useCallback(async () => {
-    if (!topicName.trim()) {
+    const currentTopicName = topicNameRef.current;
+
+    if (!currentTopicName.trim()) {
       toast.error('토픽 이름을 입력해주세요.');
       return;
     }
@@ -36,16 +45,15 @@ export default function TopicModal({ projectId }: TopicModalProps) {
     }
 
     mutate(
-      { title: topicName, projectId: resolvedProjectId },
+      { title: currentTopicName, projectId: resolvedProjectId },
       {
         onSuccess: () => {
           toast.success('토픽이 생성되었습니다!');
           closeModal();
-          router.refresh();
         },
       },
     );
-  }, [topicName, resolvedProjectId, mutate, closeModal, router]);
+  }, [resolvedProjectId, mutate, closeModal]);
 
   useEffect(() => {
     if (isOpen) {
