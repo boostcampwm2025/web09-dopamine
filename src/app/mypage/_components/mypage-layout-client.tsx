@@ -17,7 +17,8 @@ const BodyContainer = styled.div`
   flex: 1;
   justify-content: center;
   align-items: center;
-  overflow: hidden;
+  overflow-y: auto;
+  scrollbar-width: none;
 `;
 
 export default function MypageLayoutClient({ children }: { children: ReactNode }) {
