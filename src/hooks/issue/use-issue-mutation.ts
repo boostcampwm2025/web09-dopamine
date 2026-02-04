@@ -1,3 +1,4 @@
+import { useRouter } from 'next/navigation';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { useSseConnectionStore } from '@/app/(with-sidebar)/issue/store/use-sse-connection-store';
@@ -5,6 +6,7 @@ import { ISSUE_STATUS, STEP_FLOW } from '@/constants/issue';
 import {
   createIssueInTopic,
   createQuickIssue,
+  deleteIssue,
   updateIssueStatus,
   updateIssueTitle,
 } from '@/lib/api/issue';
@@ -141,6 +143,40 @@ export const useUpdateIssueTitleMutation = (issueId: string) => {
 
     onError: (error: Error) => {
       toast.error(error.message || '이슈 수정에 실패했습니다.');
+    },
+  });
+};
+
+export const useDeleteIssueMutation = (issueId: string) => {
+  const queryClient = useQueryClient();
+  const router = useRouter();
+
+  return useMutation({
+    mutationFn: (userId: string) => deleteIssue(issueId, userId),
+
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({
+        queryKey: ['issues', issueId],
+      });
+
+      if (data.topicId) {
+        queryClient.invalidateQueries({
+          queryKey: ['topics', data.topicId, 'issues'],
+        });
+      }
+
+      toast.success('이슈를 삭제했습니다.');
+
+      if (data.topicId) {
+        router.push(`/topic/${data.topicId}`);
+      } else {
+        router.push('/');
+      }
+    },
+
+    onError: (error: Error) => {
+      console.error('이슈 삭제 실패:', error);
+      toast.error(error.message || '이슈 삭제에 실패했습니다.');
     },
   });
 };
