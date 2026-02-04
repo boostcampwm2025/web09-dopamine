@@ -111,7 +111,7 @@ export default function IdeaCard(props: IdeaCardProps) {
   // 드래그 로직
 
   // dnd-kit useDraggable
-  const canDrag = issueStatus === ISSUE_STATUS.CATEGORIZE;
+  const canDrag = issueStatus === ISSUE_STATUS.BRAINSTORMING || issueStatus === ISSUE_STATUS.CATEGORIZE;
 
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: props.id || 'idea-unknown',
