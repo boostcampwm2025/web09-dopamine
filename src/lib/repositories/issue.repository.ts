@@ -129,6 +129,43 @@ export async function updateIssueTitle(issueId: string, title: string) {
   });
 }
 
+export async function softDeleteIssue(issueId: string) {
+  const now = new Date();
+
+  return await prisma.$transaction(async (tx) => {
+    // 아이디어 삭제
+    await tx.idea.updateMany({
+      where: { issueId, deletedAt: null },
+      data: { deletedAt: now },
+    });
+
+    // 카테고리 삭제
+    await tx.category.updateMany({
+      where: { issueId, deletedAt: null },
+      data: { deletedAt: now },
+    });
+
+    // 이슈 멤버 삭제
+    await tx.issueMember.updateMany({
+      where: { issueId, deletedAt: null },
+      data: { deletedAt: now },
+    });
+
+    // 이슈 노드 삭제
+    await tx.issueNode.updateMany({
+      where: { issueId, deletedAt: null },
+      data: { deletedAt: now },
+    });
+
+    // 이슈 삭제
+    return await tx.issue.update({
+      where: { id: issueId },
+      data: { deletedAt: now },
+      select: { id: true, topicId: true },
+    });
+  });
+}
+
 export async function findIssuesWithMapDataByTopicId(topicId: string) {
   const issues = await prisma.issue.findMany({
     where: {

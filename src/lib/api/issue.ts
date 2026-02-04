@@ -57,12 +57,26 @@ export function updateIssueStatus(
   });
 }
 
-export function updateIssueTitle(id: string, title: string, userId: string) {
+export function updateIssueTitle(
+  issueId: string,
+  title: string,
+  userId: string,
+  connectionId?: string,
+) {
   return getAPIResponseData<{ id: string }>({
-    url: `/api/issues/${id}`,
+    url: `/api/issues/${issueId}`,
     method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ id, title, userId }),
+    headers: withSseHeader({ 'Content-Type': 'application/json' }, connectionId),
+    body: JSON.stringify({ title, userId }),
+  });
+}
+
+export function deleteIssue(issueId: string, userId: string, connectionId?: string) {
+  return getAPIResponseData<{ id: string; topicId: string | null }>({
+    url: `/api/issues/${issueId}`,
+    method: 'DELETE',
+    headers: withSseHeader({ 'Content-Type': 'application/json' }, connectionId),
+    body: JSON.stringify({ userId }),
   });
 }
 

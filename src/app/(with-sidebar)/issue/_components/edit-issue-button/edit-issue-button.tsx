@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { useModalStore } from '@/components/modal/use-modal-store';
 import EditIssueModal, { EditIssueProps } from '../edit-issue-modal/edit-issue-modal';
-import * as S from './edit-issue-button.style';
+import * as S from './edit-issue-button.styles';
 
 export default function EditIssueButton({ issueId, currentTitle, userId }: EditIssueProps) {
   const { openModal } = useModalStore();

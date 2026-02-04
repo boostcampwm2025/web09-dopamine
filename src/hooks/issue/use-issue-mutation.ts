@@ -1,3 +1,4 @@
+import { useRouter } from 'next/navigation';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { useSseConnectionStore } from '@/app/(with-sidebar)/issue/store/use-sse-connection-store';
@@ -5,6 +6,7 @@ import { ISSUE_STATUS, STEP_FLOW } from '@/constants/issue';
 import {
   createIssueInTopic,
   createQuickIssue,
+  deleteIssue,
   updateIssueStatus,
   updateIssueTitle,
 } from '@/lib/api/issue';
@@ -132,8 +134,8 @@ export const useUpdateIssueTitleMutation = (issueId: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: { title: string; userId: string }) =>
-      updateIssueTitle(issueId, data.title, data.userId),
+    mutationFn: (data: { title: string; userId: string; connectionId?: string }) =>
+      updateIssueTitle(issueId, data.title, data.userId, data.connectionId),
 
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -144,6 +146,36 @@ export const useUpdateIssueTitleMutation = (issueId: string) => {
 
     onError: (error: Error) => {
       toast.error(error.message || '이슈 수정에 실패했습니다.');
+    },
+  });
+};
+
+export const useDeleteIssueMutation = (issueId: string) => {
+  const queryClient = useQueryClient();
+  const router = useRouter();
+
+  return useMutation({
+    mutationFn: (data: { userId: string; connectionId?: string }) =>
+      deleteIssue(issueId, data.userId, data.connectionId),
+
+    onSuccess: async (data) => {
+      await queryClient.cancelQueries({ queryKey: ['issues', issueId] });
+      queryClient.removeQueries({ queryKey: ['issues', issueId] });
+
+      if (data.topicId) {
+        queryClient.invalidateQueries({
+          queryKey: ['topics', data.topicId],
+        });
+      }
+
+      toast.success('이슈를 삭제했습니다.');
+
+      router.push(data.topicId ? `/topic/${data.topicId}` : '/');
+    },
+
+    onError: (error: Error) => {
+      console.error('이슈 삭제 실패:', error);
+      toast.error(error.message || '이슈 삭제에 실패했습니다.');
     },
   });
 };
