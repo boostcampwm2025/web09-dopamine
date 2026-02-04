@@ -78,17 +78,6 @@ export function useIdeaCard(props: UseIdeaCardProps) {
     setStatus(statusOverride);
   }, [isSelected, statusOverride]);
 
-  // 브레인스토밍 단계가 아닐 때, 생성 중인 카드가 있다면 제거합니다.
-  useEffect(() => {
-    if (
-      issueStatus &&
-      issueStatus !== ISSUE_STATUS.BRAINSTORMING &&
-      isEditing
-    ) {
-      onDelete?.();
-    }
-  }, [issueStatus, isEditing, onDelete]);
-
   const handleAgree = () => {
     mutate({ userId, voteType: VOTE_TYPE.AGREE });
   };
