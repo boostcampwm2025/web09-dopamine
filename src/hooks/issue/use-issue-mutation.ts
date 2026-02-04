@@ -116,6 +116,9 @@ export const useCreateIssueInTopicMutation = () => {
       queryClient.invalidateQueries({
         queryKey: ['topics', variables.topicId, 'issues'],
       });
+      queryClient.invalidateQueries({
+        queryKey: ['topics', variables.topicId, 'nodes'],
+      });
       toast.success('이슈가 생성되었습니다!');
     },
 
