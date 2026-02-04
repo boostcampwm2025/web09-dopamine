@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import CloseIssueModal from '@/app/(with-sidebar)/issue/_components/close-issue-modal/close-issue-modal';
@@ -29,6 +30,7 @@ export function useIssueEvents({
   enabled = true,
   topicId,
 }: UseIssueEventsParams): UseIssueEventsReturn {
+  const router = useRouter();
   const queryClient = useQueryClient();
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState<Event | null>(null);
@@ -233,6 +235,22 @@ export function useIssueEvents({
       if (targetTopicId) {
         queryClient.invalidateQueries({ queryKey: ['topics', targetTopicId, 'issues'] });
       }
+    });
+
+    eventSource.addEventListener(SSE_EVENT_TYPES.ISSUE_DELETED, (event) => {
+      const data = JSON.parse((event as MessageEvent).data);
+      queryClient.invalidateQueries({ queryKey: ['issues', issueId] });
+
+      const targetTopicId = data.topicId || topicId;
+      if (targetTopicId) {
+        queryClient.invalidateQueries({ queryKey: ['topics', targetTopicId, 'issues'] });
+        queryClient.invalidateQueries({ queryKey: ['topics', targetTopicId, 'nodes'] });
+        queryClient.invalidateQueries({ queryKey: ['topics', targetTopicId, 'connections'] });
+      }
+
+      toast.error('이슈가 삭제되었습니다.');
+      const redirectPath = targetTopicId ? `/topic/${targetTopicId}` : '/';
+      router.push(redirectPath);
     });
 
     // 멤버 이벤트 핸들러

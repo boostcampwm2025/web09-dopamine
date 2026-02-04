@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
@@ -22,6 +23,7 @@ export function useTopicEvents({
   topicId,
   enabled = true,
 }: UseTopicEventsParams): UseTopicEventsReturn {
+  const router = useRouter();
   const queryClient = useQueryClient();
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState<Event | null>(null);
@@ -31,7 +33,7 @@ export function useTopicEvents({
 
   useEffect(() => {
     if (!enabled || !topicId) return;
-    
+
     const eventSource = new EventSource(SSE_REQ_URL);
     eventSourceRef.current = eventSource;
 
@@ -69,6 +71,21 @@ export function useTopicEvents({
       if (data.issueId) {
         queryClient.invalidateQueries({ queryKey: ['issues', data.issueId] });
       }
+    });
+
+    eventSource.addEventListener(SSE_EVENT_TYPES.ISSUE_DELETED, (event) => {
+      const data = JSON.parse((event as MessageEvent).data);
+
+      queryClient.invalidateQueries({ queryKey: ['topics', topicId, 'issues'] });
+      queryClient.invalidateQueries({ queryKey: ['topics', topicId, 'nodes'] });
+      queryClient.invalidateQueries({ queryKey: ['topics', topicId, 'connections'] });
+
+      if (data.issueId) {
+        queryClient.invalidateQueries({ queryKey: ['issues', data.issueId] });
+      }
+
+      toast.error('이슈가 삭제되었습니다.');
+      router.refresh();
     });
 
     return () => {

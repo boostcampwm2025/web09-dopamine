@@ -81,6 +81,25 @@ export async function DELETE(
 
     const issue = await issueService.deleteIssue(issueId, userId);
 
+    broadcast({
+      issueId,
+      event: {
+        type: SSE_EVENT_TYPES.ISSUE_DELETED,
+        data: { issueId, topicId: issue?.topicId },
+      },
+    });
+
+    // 토픽 맵을 보고 있는 유저들에게 브로드캐스트 (노드 제거)
+    if (issue?.topicId) {
+      broadcastToTopic({
+        topicId: issue.topicId,
+        event: {
+          type: SSE_EVENT_TYPES.ISSUE_DELETED,
+          data: { issueId, topicId: issue.topicId },
+        },
+      });
+    }
+
     return createSuccessResponse(issue);
   } catch (error: unknown) {
     console.error('이슈 삭제 실패:', error);
