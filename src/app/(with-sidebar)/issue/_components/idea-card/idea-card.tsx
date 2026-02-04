@@ -42,20 +42,6 @@ interface IdeaCardProps {
   disableAnimation?: boolean; // 드래그 중일 때는 애니메이션 비활성화
 }
 
-export type DragItemPayload = {
-  id: string;
-  fromColumn: string;
-  content?: string;
-  author?: string;
-  isSelected?: boolean;
-  isVoteButtonVisible?: boolean;
-  isVoteDisabled?: boolean;
-  agreeCount?: number;
-  disagreeCount?: number;
-  needDiscussion?: boolean;
-  editable?: boolean;
-};
-
 export default function IdeaCard(props: IdeaCardProps) {
   const issueId = props.issueId ?? '';
   const { mutate: selectIdea } = useSelectedIdeaMutation(issueId);

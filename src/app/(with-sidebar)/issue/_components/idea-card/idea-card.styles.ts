@@ -105,6 +105,13 @@ export const Card = styled.article<{
     }
   }}
 
+  ${({ issueStatus }) =>
+    issueStatus && issueStatus !== ISSUE_STATUS.BRAINSTORMING
+      ? `
+        box-shadow: none !important;
+      `
+      : ''}
+
   &:hover {
     ${({ issueStatus, status }) => {
       if (issueStatus === ISSUE_STATUS.SELECT && status !== 'selected') {
