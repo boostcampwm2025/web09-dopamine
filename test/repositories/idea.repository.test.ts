@@ -53,6 +53,7 @@ describe('Idea Repository 테스트', () => {
         positionX: 10,
         positionY: 20,
         createdAt: new Date('2024-01-01'),
+        isSelected: false,
         category: { id: 'category-1', title: '카테고리' },
         comments: [{ id: 'comment-1' }],
         votes: [{ type: 'AGREE' }],
@@ -78,6 +79,7 @@ describe('Idea Repository 테스트', () => {
         positionX: true,
         positionY: true,
         createdAt: true,
+        isSelected: true,
         category: {
           select: {
             id: true,
@@ -121,6 +123,7 @@ describe('Idea Repository 테스트', () => {
         commentCount: 1,
         positionX: 10,
         positionY: 20,
+        isSelected: false,
         myVote: 'AGREE',
         createdAt: new Date('2024-01-01'),
       },
@@ -358,11 +361,7 @@ describe('Idea Repository 테스트', () => {
     // 역할: 기본 클라이언트에서도 대량 업데이트가 동일하게 수행되는지 확인한다.
     mockedIdea.updateMany.mockResolvedValue({ count: 2 } as any);
 
-    await ideaRepository.updateManyCategoriesByIds(
-      ['idea-1', 'idea-2'],
-      'issue-1',
-      'category-1',
-    );
+    await ideaRepository.updateManyCategoriesByIds(['idea-1', 'idea-2'], 'issue-1', 'category-1');
 
     expect(mockedIdea.updateMany).toHaveBeenCalledWith({
       where: { id: { in: ['idea-1', 'idea-2'] }, issueId: 'issue-1' },

@@ -1,13 +1,13 @@
-import { POST } from '@/app/api/issues/[issueId]/categorize/route';
-import { ideaRepository } from '@/lib/repositories/idea.repository';
-import { findIssueById } from '@/lib/repositories/issue.repository';
-import { categorizeService } from '@/lib/services/categorize.service';
 import {
   createMockParams,
   createMockRequest,
   expectErrorResponse,
   expectSuccessResponse,
 } from '@test/utils/api-test-helpers';
+import { POST } from '@/app/api/issues/[issueId]/categorize/route';
+import { ideaRepository } from '@/lib/repositories/idea.repository';
+import { findIssueById } from '@/lib/repositories/issue.repository';
+import { categorizeService } from '@/lib/services/categorize.service';
 
 jest.mock('@/lib/repositories/idea.repository');
 jest.mock('@/lib/repositories/issue.repository');
@@ -18,13 +18,15 @@ jest.mock('@/lib/utils/broadcast-helpers');
 // fetch 모킹
 global.fetch = jest.fn();
 
-const mockedFindIdAndContentByIssueId = ideaRepository.findIdAndContentByIssueId as jest.MockedFunction<
-  typeof ideaRepository.findIdAndContentByIssueId
->;
+const mockedFindIdAndContentByIssueId =
+  ideaRepository.findIdAndContentByIssueId as jest.MockedFunction<
+    typeof ideaRepository.findIdAndContentByIssueId
+  >;
 const mockedFindIssueById = findIssueById as jest.MockedFunction<typeof findIssueById>;
-const mockedCategorizeAndBroadcast = categorizeService.categorizeAndBroadcast as jest.MockedFunction<
-  typeof categorizeService.categorizeAndBroadcast
->;
+const mockedCategorizeAndBroadcast =
+  categorizeService.categorizeAndBroadcast as jest.MockedFunction<
+    typeof categorizeService.categorizeAndBroadcast
+  >;
 const mockedFetch = global.fetch as jest.MockedFunction<typeof fetch>;
 
 describe('POST /api/issues/[issueId]/categorize', () => {
@@ -35,7 +37,12 @@ describe('POST /api/issues/[issueId]/categorize', () => {
   });
 
   it('아이디어가 없으면 400 에러를 반환한다', async () => {
-    const mockIssue = { title: 'Test Issue', topicId: 'topic-1', status: 'SELECT', projectId: null };
+    const mockIssue = {
+      title: 'Test Issue',
+      topicId: 'topic-1',
+      status: 'SELECT',
+      projectId: null,
+    };
 
     mockedFindIdAndContentByIssueId.mockResolvedValue([]);
     mockedFindIssueById.mockResolvedValue(mockIssue as any);
@@ -61,7 +68,12 @@ describe('POST /api/issues/[issueId]/categorize', () => {
   });
 
   it('AI 응답이 유효하지 않으면 500 에러를 반환한다', async () => {
-    const mockIssue = { title: 'Test Issue', topicId: 'topic-1', status: 'SELECT', projectId: null };
+    const mockIssue = {
+      title: 'Test Issue',
+      topicId: 'topic-1',
+      status: 'SELECT',
+      projectId: null,
+    };
     const mockIdeas = [{ id: 'idea-1', content: 'Idea 1' }];
 
     mockedFindIdAndContentByIssueId.mockResolvedValue(mockIdeas as any);
@@ -78,7 +90,12 @@ describe('POST /api/issues/[issueId]/categorize', () => {
   });
 
   it('성공적으로 카테고리화를 수행한다', async () => {
-    const mockIssue = { title: 'Test Issue', topicId: 'topic-1', status: 'SELECT', projectId: null };
+    const mockIssue = {
+      title: 'Test Issue',
+      topicId: 'topic-1',
+      status: 'SELECT',
+      projectId: null,
+    };
     const mockIdeas = [
       { id: 'idea-1', content: 'Idea 1' },
       { id: 'idea-2', content: 'Idea 2' },
@@ -96,8 +113,8 @@ describe('POST /api/issues/[issueId]/categorize', () => {
               function: {
                 arguments: {
                   categories: [
-                    { categoryName: 'Category 1', ideaIds: ['idea-1'] },
-                    { categoryName: 'Category 2', ideaIds: ['idea-2'] },
+                    { categoryName: 'Category 1', ideaIds: ['1'] },
+                    { categoryName: 'Category 2', ideaIds: ['2'] },
                   ],
                 },
               },
@@ -124,7 +141,12 @@ describe('POST /api/issues/[issueId]/categorize', () => {
   });
 
   it('중복된 카테고리 이름이 포함된 AI 응답을 처리한다', async () => {
-    const mockIssue = { title: 'Test Issue', topicId: 'topic-1', status: 'SELECT', projectId: null };
+    const mockIssue = {
+      title: 'Test Issue',
+      topicId: 'topic-1',
+      status: 'SELECT',
+      projectId: null,
+    };
     const mockIdeas = [
       { id: 'idea-1', content: 'Idea 1' },
       { id: 'idea-2', content: 'Idea 2' },
@@ -143,8 +165,9 @@ describe('POST /api/issues/[issueId]/categorize', () => {
               function: {
                 arguments: {
                   categories: [
-                    { categoryName: 'Category A', ideaIds: ['idea-1'] },
-                    { categoryName: 'Category A', ideaIds: ['idea-2'] }, // 중복된 이름
+                    // 수정: AI는 매핑된 ID("1", "2")를 반환한다고 가정해야 함
+                    { categoryName: 'Category A', ideaIds: ['1'] },
+                    { categoryName: 'Category A', ideaIds: ['2'] },
                   ],
                 },
               },
