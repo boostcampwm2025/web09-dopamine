@@ -36,6 +36,7 @@ export default function CreateIssueModal() {
       {
         onSuccess: () => {
           closeModal();
+          router.refresh();
         },
       },
     );
