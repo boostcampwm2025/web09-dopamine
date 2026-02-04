@@ -104,11 +104,6 @@ export const SidebarTitle = styled.div`
   font-weight: ${theme.font.weight.bold};
   letter-spacing: 1px;
 
-  & span {
-    font-weight: ${theme.font.weight.medium};
-    margin-left: 8px;
-  }
-
   & button {
     width: 20px;
     height: 20px;
