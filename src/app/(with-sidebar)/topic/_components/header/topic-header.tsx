@@ -9,6 +9,7 @@ import { useTopicDetailQuery } from '@/hooks/topic';
 import { useSmartLoading } from '@/hooks/use-smart-loading';
 import * as HS from '../../../issue/_components/header/header.styles';
 import CreateIssueButton from '../create-issue-button/create-issue-button';
+import EditTopicButton from '../edit-topic-button/edit-topic-button';
 import * as S from './topic-header.styles';
 
 export default function TopicHeader() {
@@ -41,9 +42,15 @@ export default function TopicHeader() {
             />
           </HS.ButtonsWrapper>
         </Link>
+        
         <S.Divider />
 
-        {showLoading ? <TitleSkeleton width="180px" /> : topic?.title}
+        {showLoading ? <TitleSkeleton width="180px" /> : <>{topic?.title}
+        <EditTopicButton
+          topicId={topicId}
+          currentTitle={topic?.title}
+          userId={session?.user.id!}
+        /></>}
       </S.LeftSection>
       <S.RightSection>
         <CreateIssueButton />
