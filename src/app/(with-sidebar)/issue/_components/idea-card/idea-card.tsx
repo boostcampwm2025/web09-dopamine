@@ -35,9 +35,9 @@ interface IdeaCardProps {
   isHotIdea?: boolean;
   onVoteChange?: (agreeCount: number, disagreeCount: number) => void;
   categoryId?: string | null;
-  onSave?: (content: string) => void;
-  onDelete?: () => void;
-  onClick?: () => void;
+  onSave?: (id: string, content: string) => void;
+  onDelete?: (id: string) => void;
+  onClick?: (id: string) => void;
   onPositionChange?: (id: string, position: Position) => void;
   disableAnimation?: boolean; // 드래그 중일 때는 애니메이션 비활성화
 }
