@@ -10,6 +10,7 @@ import { CircleSkeleton, TextSkeleton } from '@/components/skeleton/skeleton';
 import { useProjectQuery } from '@/hooks/project';
 import { useSmartLoading } from '@/hooks/use-smart-loading';
 import * as ProjectS from './projcet-sidebar.styles';
+import { useSession } from 'next-auth/react';
 import { useProjectSidebar } from './use-project-sidebar';
 
 const ProjectSidebar = () => {
@@ -23,6 +24,7 @@ const ProjectSidebar = () => {
   } = useProjectSidebar();
   const params = useParams();
   const projectId = params.id as string;
+  const { data: session } = useSession(); // 현재 로그인한 사용자 세션
 
   const { data: projectData, isLoading } = useProjectQuery(projectId);
   const showLoading = useSmartLoading(isLoading);
@@ -119,6 +121,7 @@ const ProjectSidebar = () => {
                     id={member.id}
                     name={member.name || '익명'}
                     role={member.role}
+                    currentUserId={session?.user.id}
                   />
                 ))
               ) : (

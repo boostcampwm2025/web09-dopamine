@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 import { theme } from '@/styles/theme';
 
-export const MemberItemButton = styled.button<{ hasOnClick?: boolean }>`
+export const MemberItemButton = styled.div<{ hasOnClick?: boolean }>`
   display: flex;
   flex-flow: row nowrap;
   align-items: center;

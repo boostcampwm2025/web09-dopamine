@@ -4,8 +4,8 @@ import { usePathname, useRouter } from 'next/navigation';
 import { getChoseong } from 'es-hangul';
 import { MEMBER_ROLE } from '@/constants/issue';
 import { useTopicId, useTopicIssuesQuery } from '@/hooks';
+import { useIssueData, useIssueId, useIssueIdentity } from '../../hooks';
 import { matchSearch } from '@/lib/utils/search';
-import { useIssueData, useIssueId } from '../../hooks';
 import { useIssueStore } from '../../store/use-issue-store';
 
 export const useIssueSidebar = () => {
@@ -25,6 +25,11 @@ export const useIssueSidebar = () => {
   // 토픽 페이지에서는 이슈 데이터 가져오지 않음
   const { isQuickIssue, members } = useIssueData(issueId, !isTopicPage);
   const { onlineMemberIds } = useIssueStore();
+
+  const { userId: currentUserId } = useIssueIdentity(issueId, {
+    enabled: !isTopicPage,
+    isQuickIssue: isTopicPage ? false : undefined,
+  });
 
   // 토픽의 이슈 목록 가져오기
   const { data: topicIssues = [] } = useTopicIssuesQuery(topicId);
@@ -136,6 +141,7 @@ export const useIssueSidebar = () => {
 
     // 데이터
     topicId,
+    issueId,
     isTopicPage,
     topicIssues,
     filteredIssues,
@@ -158,5 +164,6 @@ export const useIssueSidebar = () => {
     goToIssueMap,
     searchTarget,
     setSearchTarget,
+    currentUserId,
   };
 };
