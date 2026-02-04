@@ -25,6 +25,7 @@ export async function GET(
       id: member.userId,
       nickname: member.nickname,
       role: member.role,
+      profile: member.user?.image,
       isConnected: true, // 지금은 기본값, 나중에 SSE 붙이면 여기서 합치면 됨
     }));
 

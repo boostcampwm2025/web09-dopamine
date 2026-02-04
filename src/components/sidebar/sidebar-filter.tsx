@@ -1,12 +1,21 @@
 import { useState, useRef, useEffect } from 'react';
 import * as S from './sidebar-filter.styles';
 
+export type FilterType = 'issue' | 'member' | 'topic';
+
 interface SidebarFilterProps {
-  value: 'issue' | 'member';
-  onChange: (value: 'issue' | 'member') => void;
+  value: FilterType;
+  onChange: (value: FilterType) => void;
+  items?: FilterType[];
 }
 
-export default function SidebarFilter({ value, onChange }: SidebarFilterProps) {
+const LABEL_MAP: Record<FilterType, string> = {
+  issue: '이슈',
+  member: '멤버',
+  topic: '토픽',
+};
+
+export default function SidebarFilter({ value, onChange, items = ['issue', 'member'] }: SidebarFilterProps) {
   const [isOpen, setIsOpen] = useState(false);
   const filterRef = useRef<HTMLDivElement>(null);
 
@@ -22,7 +31,7 @@ export default function SidebarFilter({ value, onChange }: SidebarFilterProps) {
     };
   }, []);
 
-  const handleSelect = (newValue: 'issue' | 'member') => {
+  const handleSelect = (newValue: FilterType) => {
     onChange(newValue);
     setIsOpen(false);
   };
@@ -30,16 +39,15 @@ export default function SidebarFilter({ value, onChange }: SidebarFilterProps) {
   return (
     <S.Container ref={filterRef}>
       <S.Trigger onClick={() => setIsOpen(!isOpen)}>
-        {value === 'issue' ? '이슈' : '멤버'}
+        {LABEL_MAP[value]}
       </S.Trigger>
       {isOpen && (
         <S.Menu>
-          <S.MenuItem isActive={value === 'issue'}>
-            <button onClick={() => handleSelect('issue')}>이슈</button>
-          </S.MenuItem>
-          <S.MenuItem isActive={value === 'member'}>
-            <button onClick={() => handleSelect('member')}>멤버</button>
-          </S.MenuItem>
+          {items.map((item) => (
+            <S.MenuItem key={item} isActive={value === item}>
+              <button onClick={() => handleSelect(item)}>{LABEL_MAP[item]}</button>
+            </S.MenuItem>
+          ))}
         </S.Menu>
       )}
     </S.Container>

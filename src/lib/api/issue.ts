@@ -76,6 +76,7 @@ export function getIssueMembers(issueId: string) {
       id: string;
       nickname: string;
       role: string;
+      profile?: string | null;
       isConnected: boolean;
     }>
   >({
@@ -123,6 +124,17 @@ export function generateNickname(issueId: string) {
   }>({
     url: `/api/issues/${issueId}/members/nickname`,
     method: 'POST',
+  });
+}
+
+export function updateIssueMemberNickname(issueId: string, userId: string, nickname: string) {
+  return getAPIResponseData<{
+    success: boolean;
+  }>({
+    url: `/api/issues/${issueId}/members/${userId}`,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ nickname }),
   });
 }
 

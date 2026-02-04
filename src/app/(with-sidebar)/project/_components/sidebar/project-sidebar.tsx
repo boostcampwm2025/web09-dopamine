@@ -3,14 +3,24 @@
 import { useParams } from 'next/navigation';
 import MemberSidebarItem from '@/components/sidebar/member-sidebar-item';
 import Sidebar from '@/components/sidebar/sidebar';
+import SidebarFilter from '@/components/sidebar/sidebar-filter';
 import SidebarItem from '@/components/sidebar/sidebar-item';
 import * as S from '@/components/sidebar/sidebar.styles';
 import { CircleSkeleton, TextSkeleton } from '@/components/skeleton/skeleton';
 import { useProjectQuery } from '@/hooks/project';
 import { useSmartLoading } from '@/hooks/use-smart-loading';
 import * as ProjectS from './projcet-sidebar.styles';
+import { useProjectSidebar } from './use-project-sidebar';
 
 const ProjectSidebar = () => {
+  const {
+    filteredTopics,
+    filteredMembers,
+    searchValue,
+    handleSearchChange,
+    searchTarget,
+    setSearchTarget,
+  } = useProjectSidebar();
   const params = useParams();
   const projectId = params.id as string;
 
@@ -21,7 +31,20 @@ const ProjectSidebar = () => {
   const members = showLoading ? [] : projectData?.members || [];
 
   return (
-    <Sidebar>
+    <Sidebar
+      inputProps={{
+        value: searchValue,
+        onChange: handleSearchChange,
+        placeholder: '검색어를 입력하세요',
+      }}
+      suffix={
+        <SidebarFilter
+          value={searchTarget}
+          onChange={setSearchTarget}
+          items={['topic', 'member']}
+        />
+      }
+    >
       <ProjectS.SidebarSection>
         <ProjectS.TopicSectionWrapper>
           <S.SidebarTitle>TOPIC LIST</S.SidebarTitle>
@@ -39,8 +62,8 @@ const ProjectSidebar = () => {
                     <TextSkeleton width="75%" />
                   </div>
                 </>
-              ) : (
-                topics.map((topic) => (
+              ) : filteredTopics.length > 0 ? (
+                filteredTopics.map((topic) => (
                   <SidebarItem
                     isTopic
                     key={topic.id}
@@ -48,6 +71,10 @@ const ProjectSidebar = () => {
                     href={`/topic/${topic.id}`}
                   />
                 ))
+              ) : (
+                <div style={{ padding: '16px', color: '#9ca3af', fontSize: '14px' }}>
+                  토픽이 없습니다
+                </div>
               )}
             </S.SidebarList>
           </ProjectS.ScrollableSection>
@@ -84,8 +111,8 @@ const ProjectSidebar = () => {
                     <TextSkeleton width="55%" />
                   </div>
                 </>
-              ) : (
-                members.map((member) => (
+              ) : filteredMembers.length > 0 ? (
+                filteredMembers.map((member) => (
                   <MemberSidebarItem
                     key={member.id}
                     profile={member.image || '/profile.svg'}
@@ -94,6 +121,10 @@ const ProjectSidebar = () => {
                     role={member.role}
                   />
                 ))
+              ) : (
+                <div style={{ padding: '16px', color: '#9ca3af', fontSize: '14px' }}>
+                  멤버가 없습니다
+                </div>
               )}
             </S.SidebarList>
           </ProjectS.ScrollableSection>

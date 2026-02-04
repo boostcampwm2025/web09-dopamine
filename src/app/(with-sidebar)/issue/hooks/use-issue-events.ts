@@ -240,6 +240,10 @@ export function useIssueEvents({
       queryClient.invalidateQueries({ queryKey: ['issues', issueId, 'members'] });
     });
 
+    eventSource.addEventListener(SSE_EVENT_TYPES.MEMBER_UPDATED, () => {
+      queryClient.invalidateQueries({ queryKey: ['issues', issueId, 'members'] });
+    });
+
     eventSource.addEventListener(SSE_EVENT_TYPES.MEMBER_LEFT, () => {
       queryClient.invalidateQueries({ queryKey: ['issues', issueId, 'members'] });
     });

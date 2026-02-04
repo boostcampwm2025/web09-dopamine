@@ -2,6 +2,7 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useIssueId, useIssueIdentity } from '@/app/(with-sidebar)/issue/hooks';
 import { MEMBER_ROLE } from '@/constants/issue';
+import { useMemberNicknameEdit } from './use-member-nickname-edit';
 import * as MemberS from './member-sidebar-item.styles';
 import * as S from './sidebar.styles';
 import { useSession } from 'next-auth/react';
@@ -47,6 +48,20 @@ export default function MemberSidebarItem({
   const isProjectOwner = role === MEMBER_ROLE.OWNER && profile;
   const isIssueOwner = role === MEMBER_ROLE.OWNER && !profile;
 
+  const {
+    isEditing,
+    editName,
+    setEditName,
+    startEditing,
+    cancelEditing,
+    saveEditing,
+    handleKeyDown,
+  } = useMemberNicknameEdit({
+    issueId,
+    userId: id,
+    initialName: name,
+  });
+
   return (
     <S.SidebarListItem>
       <MemberS.MemberItemButton>
@@ -68,9 +83,50 @@ export default function MemberSidebarItem({
               style={{ borderRadius: '50%' }}
             />
           )}
-          <span>{name}</span>
-          {isCurrentUser && <MemberS.CurrentUserLabel>me</MemberS.CurrentUserLabel>}
-          {isProjectOwner && (
+
+          {isEditing ? (
+            <MemberS.EditInput
+              value={editName}
+              onChange={(e) => setEditName(e.target.value)}
+              onClick={(e) => e.stopPropagation()}
+              onKeyDown={handleKeyDown}
+              onBlur={() => cancelEditing()}
+              autoFocus
+            />
+          ) : (
+            <span>{name}</span>
+          )}
+
+          {!isIssuePage && isCurrentUser && (
+            <MemberS.CurrentUserLabel>me</MemberS.CurrentUserLabel>
+          )}
+
+          {isCurrentUser && isIssuePage && (
+            <MemberS.ActionContainer>
+              {isEditing ? (
+                <>
+                  <MemberS.IconButton
+                    onClick={saveEditing}
+                    onMouseDown={(e) => e.preventDefault()}
+                    title="저장"
+                  >
+                    저장
+                  </MemberS.IconButton>
+                </>
+              ) : (
+                <MemberS.IconButton onClick={startEditing} title="닉네임 수정">
+                  <Image
+                    src="/edit-gray.svg"
+                    alt="닉네임 수정"
+                    width={14}
+                    height={14}
+                  />
+                </MemberS.IconButton>
+              )}
+            </MemberS.ActionContainer>
+          )}
+
+          {(isProjectOwner && !isEditing) && (
             <MemberS.OwnerBadge>
               <Image
                 src="/yellow-crown.svg"

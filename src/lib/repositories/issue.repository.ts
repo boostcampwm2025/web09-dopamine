@@ -6,6 +6,24 @@ type PrismaClientOrTx = PrismaTransaction | typeof prisma;
 
 export async function createIssue(tx: PrismaTransaction, title: string, topicId?: string) {
   if (topicId) {
+    const lastNode = await tx.issueNode.findFirst({
+      where: {
+        deletedAt: null,
+        issue: {
+          topicId,
+          deletedAt: null,
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        positionX: true,
+        positionY: true,
+      },
+    });
+
+    const baseX = lastNode ? lastNode.positionX + 280 : 500;
+    const baseY = lastNode ? lastNode.positionY : 400;
+
     // 이슈랑 이슈노드 함께 만들기
     return tx.issue.create({
       data: {
@@ -13,8 +31,8 @@ export async function createIssue(tx: PrismaTransaction, title: string, topicId?
         topicId,
         issueNode: {
           create: {
-            positionX: 500,
-            positionY: 400,
+            positionX: baseX,
+            positionY: baseY,
           },
         },
       },
