@@ -25,15 +25,17 @@ const DEFAULT_HANDLE_STYLE = {
 function colorSelector(status: IssueStatus) {
   switch (status) {
     case 'BRAINSTORMING':
+      return theme.colors.yellow[500];
     case 'CATEGORIZE':
-      return theme.colors.blue[500]; // BLUE
+      return theme.colors.blue[500];
     case 'VOTE':
+      return theme.colors.red[500];
     case 'SELECT':
-      return theme.colors.green[500]; // GREEN
+      return theme.colors.green[500];
     case 'CLOSE':
-      return theme.colors.gray[500]; // GRAY
+      return theme.colors.gray[500];
     default:
-      return theme.colors.gray[500]; // DEFAULT GRAY
+      return theme.colors.gray[500];
   }
 }
 
