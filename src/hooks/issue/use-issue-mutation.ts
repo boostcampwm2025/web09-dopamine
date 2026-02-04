@@ -162,17 +162,11 @@ export const useDeleteIssueMutation = (issueId: string) => {
         queryClient.invalidateQueries({
           queryKey: ['topics', data.topicId, 'issues'],
         });
-        queryClient.invalidateQueries({ queryKey: ['topics', data.topicId, 'nodes'] });
-        queryClient.invalidateQueries({ queryKey: ['topics', data.topicId, 'connections'] });
       }
 
       toast.success('이슈를 삭제했습니다.');
 
-      if (data.topicId) {
-        router.push(`/topic/${data.topicId}`);
-      } else {
-        router.push('/');
-      }
+      router.push(data.topicId ? `/topic/${data.topicId}` : '/');
     },
 
     onError: (error: Error) => {

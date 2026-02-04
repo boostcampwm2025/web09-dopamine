@@ -78,16 +78,14 @@ export function useTopicEvents({
     eventSource.addEventListener(SSE_EVENT_TYPES.ISSUE_DELETED, (event) => {
       const data = JSON.parse((event as MessageEvent).data);
 
-      queryClient.invalidateQueries({ queryKey: ['topics', topicId, 'issues'] });
-      queryClient.invalidateQueries({ queryKey: ['topics', topicId, 'nodes'] });
-      queryClient.invalidateQueries({ queryKey: ['topics', topicId, 'connections'] });
+      if (data.actorId === session?.user.id) {
+        return;
+      }
+
+      queryClient.invalidateQueries({ queryKey: ['topics', topicId] });
 
       if (data.issueId) {
         queryClient.invalidateQueries({ queryKey: ['issues', data.issueId] });
-      }
-
-      if (data.actorId === session?.user.id) {
-        return;
       }
 
       toast.error('이슈가 삭제되었습니다.');
