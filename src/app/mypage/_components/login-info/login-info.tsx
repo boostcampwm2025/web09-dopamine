@@ -8,12 +8,8 @@ export default function LoginInfo() {
 
   useEffect(() => {
     const fetchProviders = async () => {
-      try {
-        const providers = await getProviders();
-        setProviders(providers);
-      } catch (err) {
-        console.error(err);
-      }
+      const providers = await getProviders();
+      setProviders(providers);
     };
 
     fetchProviders();
