@@ -15,7 +15,7 @@ export default function CloseIssueModal({ issueId, isOwner = false }: CloseIssue
     issueId,
     isOwner,
   });
-  const { setIsPending, isOpen } = useModalStore();
+  const { setIsPending } = useModalStore();
   const closeAndGoSummaryRef = useRef<(() => Promise<void>) | undefined>(undefined);
 
   useEffect(() => {
