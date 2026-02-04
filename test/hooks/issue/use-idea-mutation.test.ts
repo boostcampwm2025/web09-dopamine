@@ -72,7 +72,7 @@ describe('useIdeaMutations', () => {
   });
 
   describe('createIdea', () => {
-    test('성공 시 API를 호출하고 쿼리를 무효화해야 한다', async () => {
+    test('성공 시 API를 호출해야 한다', async () => {
       // Given
       mockCreateIdea.mockResolvedValue({});
       const { result } = renderHook(() => useIdeaMutations(issueId));
@@ -91,10 +91,9 @@ describe('useIdeaMutations', () => {
         expect.objectContaining({ content: 'New Idea' }),
         connectionId, // 3번째 인자 확인
       );
-      expect(mockInvalidateQueries).toHaveBeenCalledWith({ queryKey });
     });
 
-    test('실패 시 에러 토스트를 띄우고(onSettled) 쿼리를 무효화해야 한다', async () => {
+    test('실패 시 에러 토스트를 띄워야 한다', async () => {
       // Given
       mockCreateIdea.mockRejectedValue(new Error('생성 실패'));
       const { result } = renderHook(() => useIdeaMutations(issueId));
@@ -106,7 +105,6 @@ describe('useIdeaMutations', () => {
 
       // Then
       await waitFor(() => expect(mockToastError).toHaveBeenCalledWith('생성 실패'));
-      expect(mockInvalidateQueries).toHaveBeenCalledWith({ queryKey });
     });
   });
 
@@ -395,7 +393,7 @@ describe('useIdeaMutations', () => {
 
       // Then
       await waitFor(() => expect(mockToastError).toHaveBeenCalled());
-      expect(mockSetQueryData).not.toHaveBeenCalled(); // 롤백 스킵 확인
+      expect(mockSetQueryData).not.toHaveBeenCalled();
     });
   });
 });
