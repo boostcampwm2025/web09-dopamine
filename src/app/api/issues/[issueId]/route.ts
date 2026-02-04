@@ -69,3 +69,32 @@ export async function PATCH(
     return createErrorResponse('ISSUE_UPDATE_FAILED', 500);
   }
 }
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ issueId: string }> },
+) {
+  const { issueId } = await params;
+
+  try {
+    const { userId } = await req.json();
+
+    const issue = await issueService.deleteIssue(issueId, userId);
+
+    return createSuccessResponse(issue);
+  } catch (error: unknown) {
+    console.error('이슈 삭제 실패:', error);
+
+    if (error instanceof Error) {
+      if (error.message === 'ISSUE_NOT_FOUND') {
+        return createErrorResponse('ISSUE_NOT_FOUND', 404);
+      }
+      if (error.message === 'PERMISSION_DENIED') {
+        return createErrorResponse('PERMISSION_DENIED', 403);
+      }
+      return createErrorResponse(error.message, 500);
+    }
+
+    return createErrorResponse('ISSUE_DELETE_FAILED', 500);
+  }
+}
