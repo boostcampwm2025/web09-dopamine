@@ -8,6 +8,21 @@ interface UpdateTopicTitleProps {
 }
 
 export const topicService = {
+  async checkTopicAccess(topicId: string, userId: string): Promise<void> {
+    const topic = await findTopicWithPermissionData(topicId, userId);
+
+    if (!topic) {
+      throw new Error('TOPIC_NOT_FOUND');
+    }
+
+    const projectMembers = topic.project?.projectMembers || [];
+    const isProjectMember = projectMembers.length > 0;
+
+    if (!isProjectMember) {
+      throw new Error('FORBIDDEN');
+    }
+  },
+
   async getIssuesMapData(topicId: string) {
     const data = await findIssuesWithMapDataByTopicId(topicId);
 
@@ -33,19 +48,7 @@ export const topicService = {
   },
 
   async updateTopicTitle({ topicId, title, userId }: UpdateTopicTitleProps) {
-    const topic = await findTopicWithPermissionData(topicId, userId);
-
-    if (!topic) {
-      throw new Error('TOPIC_NOT_FOUND');
-    }
-
-    const projectMembers = topic.project?.projectMembers || [];
-    const isProjectMember = projectMembers.length > 0;
-
-    if (!isProjectMember) {
-      throw new Error('PERMISSION_DENIED');
-    }
-
+    await this.checkTopicAccess(topicId, userId);
     return await updateTopicTitle(topicId, title);
   },
 };
