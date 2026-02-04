@@ -8,6 +8,7 @@ jest.mock('@/lib/prisma', () => ({
     issueMember: {
       findMany: jest.fn(),
       findFirst: jest.fn(),
+      updateMany: jest.fn(),
     },
   },
 }));
@@ -79,6 +80,25 @@ describe('Issue Member Repository 테스트', () => {
         userId: true,
         nickname: true,
         role: true,
+      },
+    });
+  });
+
+  it('이슈 멤버의 닉네임을 수정한다', async () => {
+    // 역할: 닉네임 수정 기능이 예상대로 DB 업데이트를 수행하는지 검증한다.
+    // 먼저 멤버가 존재하는지 확인하는 로직이 있으므로 findFirst 모킹 필요
+    mockedIssueMember.findFirst.mockResolvedValue({ role: IssueRole.MEMBER } as any);
+    mockedIssueMember.updateMany.mockResolvedValue({ count: 1 });
+
+    await issueMemberRepository.updateNickname('issue-1', 'user-1', 'New Nickname');
+
+    expect(mockedIssueMember.updateMany).toHaveBeenCalledWith({
+      where: {
+        issueId: 'issue-1',
+        userId: 'user-1',
+      },
+      data: {
+        nickname: 'New Nickname',
       },
     });
   });

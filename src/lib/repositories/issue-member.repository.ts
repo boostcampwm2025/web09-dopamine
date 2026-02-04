@@ -14,12 +14,6 @@ export const issueMemberRepository = {
       });
 
       if (existingMember) {
-        if (existingMember.nickname !== nickname) {
-          await tx.issueMember.update({
-            where: { id: existingMember.id },
-            data: { nickname },
-          });
-        }
         return { userId, didJoin: false };
       }
 
@@ -82,6 +76,11 @@ export const issueMemberRepository = {
         userId: true,
         role: true,
         nickname: true,
+        user: {
+          select: {
+            image: true,
+          },
+        },
       },
     });
   },
@@ -98,6 +97,24 @@ export const issueMemberRepository = {
         userId: true,
         nickname: true,
         role: true,
+      },
+    });
+  },
+
+  async updateNickname(issueId: string, userId: string, nickname: string) {
+    const member = await this.findMemberByUserId(issueId, userId);
+
+    if (!member) {
+      throw new Error('MEMBER_NOT_FOUND');
+    }
+
+    return prisma.issueMember.updateMany({
+      where: {
+        issueId,
+        userId,
+      },
+      data: {
+        nickname,
       },
     });
   },

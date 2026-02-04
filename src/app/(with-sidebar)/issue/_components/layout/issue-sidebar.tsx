@@ -80,6 +80,7 @@ export default function IssueSidebar() {
                   id={user.id}
                   name={user.nickname}
                   role={user.role}
+                  profile={user.profile || undefined}
                   isConnected={isOnline}
                 />
               );
