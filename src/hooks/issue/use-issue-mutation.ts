@@ -131,8 +131,8 @@ export const useUpdateIssueTitleMutation = (issueId: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: { title: string; userId: string }) =>
-      updateIssueTitle(issueId, data.title, data.userId),
+    mutationFn: (data: { title: string; userId: string; connectionId?: string }) =>
+      updateIssueTitle(issueId, data.title, data.userId, data.connectionId),
 
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -152,7 +152,8 @@ export const useDeleteIssueMutation = (issueId: string) => {
   const router = useRouter();
 
   return useMutation({
-    mutationFn: (userId: string) => deleteIssue(issueId, userId),
+    mutationFn: (data: { userId: string; connectionId?: string }) =>
+      deleteIssue(issueId, data.userId, data.connectionId),
 
     onSuccess: async (data) => {
       await queryClient.cancelQueries({ queryKey: ['issues', issueId] });

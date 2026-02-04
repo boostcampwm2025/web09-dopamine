@@ -5,6 +5,7 @@ import toast from 'react-hot-toast';
 import * as S from '@/app/(with-sidebar)/issue/_components/issue-join-modal/issue-join-modal.styles';
 import { useModalStore } from '@/components/modal/use-modal-store';
 import { useDeleteIssueMutation, useUpdateIssueTitleMutation } from '@/hooks';
+import { useSseConnectionStore } from '../../store/use-sse-connection-store';
 import * as MS from './edit-issue-modal.styles';
 
 export interface EditIssueProps {
@@ -18,6 +19,7 @@ export default function EditIssueModal({ issueId, currentTitle, userId }: EditIs
   const { setIsPending, isOpen, closeModal } = useModalStore();
   const { mutate: updateIssue, isPending: isUpdatePending } = useUpdateIssueTitleMutation(issueId);
   const { mutate: deleteIssue, isPending: isDeletePending } = useDeleteIssueMutation(issueId);
+  const connectionId = useSseConnectionStore((state) => state.connectionIds[issueId]);
 
   const isPending = isUpdatePending || isDeletePending;
 
@@ -36,7 +38,7 @@ export default function EditIssueModal({ issueId, currentTitle, userId }: EditIs
     }
 
     updateIssue(
-      { title, userId },
+      { title, userId, connectionId },
       {
         onSuccess: () => {
           closeModal();
@@ -53,11 +55,14 @@ export default function EditIssueModal({ issueId, currentTitle, userId }: EditIs
     ) {
       return;
     }
-    deleteIssue(userId, {
-      onSuccess: () => {
-        closeModal();
+    deleteIssue(
+      { userId, connectionId },
+      {
+        onSuccess: () => {
+          closeModal();
+        },
       },
-    });
+    );
   }, [deleteIssue]);
 
   useEffect(() => {
