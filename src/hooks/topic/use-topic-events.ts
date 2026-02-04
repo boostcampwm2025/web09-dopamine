@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
@@ -24,7 +23,6 @@ export function useTopicEvents({
   topicId,
   enabled = true,
 }: UseTopicEventsParams): UseTopicEventsReturn {
-  const router = useRouter();
   const { data: session } = useSession();
   const queryClient = useQueryClient();
   const [isConnected, setIsConnected] = useState(false);
@@ -89,7 +87,6 @@ export function useTopicEvents({
       }
 
       toast.error('이슈가 삭제되었습니다.');
-      router.refresh();
     });
 
     return () => {

@@ -3,7 +3,7 @@ import { getTopicConnections, getTopicIssues, getTopicNodes } from '@/lib/api/is
 import { getTopic } from '@/lib/api/topic';
 import type { IssueConnection, IssueMapData, IssueNode } from '@/types/issue';
 
-// 초기 데이터는 서버 컴포넌트에서 주입하고, 필요 시 API로 갱신
+// 초기 데이터는 서버 컴포넌트에서 주입하고, invalidateQueries로 갱신
 export const useTopicQuery = (
   topicId: string,
   initialIssues: IssueMapData[],
@@ -14,21 +14,18 @@ export const useTopicQuery = (
     queryKey: ['topics', topicId, 'issues'],
     queryFn: () => getTopicIssues(topicId),
     initialData: initialIssues,
-    staleTime: Infinity, // 서버에서 받은 데이터를 신뢰
   });
 
   const nodesQuery = useQuery({
     queryKey: ['topics', topicId, 'nodes'],
     queryFn: () => getTopicNodes(topicId),
     initialData: initialNodes,
-    staleTime: Infinity,
   });
 
   const connectionsQuery = useQuery({
     queryKey: ['topics', topicId, 'connections'],
     queryFn: () => getTopicConnections(topicId),
     initialData: initialConnections,
-    staleTime: Infinity,
   });
 
   return {
