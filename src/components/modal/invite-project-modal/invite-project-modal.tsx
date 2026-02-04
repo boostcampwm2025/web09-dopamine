@@ -148,7 +148,7 @@ export default function InviteProjectModal({ id, title }: InviteModalProps) {
               </S.ResetButton>
             )}
           </S.EmailInputTitle>
-          <S.Input
+          <S.InputContent
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}
