@@ -62,9 +62,7 @@ export default function CreateIssueModal() {
                 placeholder="예시) 서비스 홍보 방안 (15자 이내)"
                 maxLength={15}
               />
-              <S.CharCount $isOverLimit={title.length > 15}>
-                {title.length}/15
-              </S.CharCount>
+              <S.CharCount $isOverLimit={title.length > 15}>{title.length}/15</S.CharCount>
             </S.Input>
           </S.InputWrapper>
           <S.InputWrapper>
