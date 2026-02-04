@@ -25,6 +25,10 @@ export default function CreateIssueModal() {
       toast.error('이슈 제목과 닉네임을 입력해주세요.');
       return;
     }
+    if (title.length > 15) {
+      toast.error('이슈 제목은 15자 이내로 입력해주세요.');
+      return;
+    }
 
     mutate(
       { title, nickname: ownerNickname },
@@ -51,19 +55,27 @@ export default function CreateIssueModal() {
         <S.InfoContainer>
           <S.InputWrapper>
             <S.InputTitle>이슈 제목</S.InputTitle>
-            <S.Input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="예시) 서비스 홍보 방안"
-            />
+            <S.Input>
+              <S.InputField
+                value={title}
+                onChange={(e) => setTitle(e.target.value.slice(0, 15))}
+                placeholder="예시) 서비스 홍보 방안 (15자 이내)"
+                maxLength={15}
+              />
+              <S.CharCount $isOverLimit={title.length > 15}>
+                {title.length}/15
+              </S.CharCount>
+            </S.Input>
           </S.InputWrapper>
           <S.InputWrapper>
             <S.InputTitle>표시될 닉네임</S.InputTitle>
-            <S.Input
-              value={ownerNickname}
-              onChange={(e) => setOwnerNickname(e.target.value)}
-              placeholder="예시) 생각하는 단무지"
-            />
+            <S.Input>
+              <S.InputField
+                value={ownerNickname}
+                onChange={(e) => setOwnerNickname(e.target.value)}
+                placeholder="예시) 생각하는 단무지"
+              />
+            </S.Input>
           </S.InputWrapper>
         </S.InfoContainer>
       </S.Container>
