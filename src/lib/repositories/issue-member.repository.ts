@@ -76,6 +76,11 @@ export const issueMemberRepository = {
         userId: true,
         role: true,
         nickname: true,
+        user: {
+          select: {
+            image: true,
+          },
+        },
       },
     });
   },

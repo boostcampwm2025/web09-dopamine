@@ -67,6 +67,7 @@ export function getIssueMembers(issueId: string) {
       id: string;
       nickname: string;
       role: string;
+      profile?: string | null;
       isConnected: boolean;
     }>
   >({
