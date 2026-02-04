@@ -4,6 +4,7 @@
   width: 100%;
   height: fit-content;
   background: #f9fafb;
+  min-height: 100vh;
 }
 
 .container {
@@ -23,6 +24,12 @@
   display: flex;
   width: 100%;
   gap: 24px;
+}
+
+@media (max-width: 900px) {
+  .wordCloudAndVoteBox {
+    flex-direction: column;
+  }
 }
 
 .componentBox {

@@ -18,8 +18,7 @@ export const Item = styled.div<{ highlighted?: boolean; isTop?: boolean; isSelec
   gap: 12px;
   padding: 14px 16px;
   border-bottom: 1px solid ${theme.colors.gray[100]};
-  background: ${({ highlighted, isSelected }) =>
-    isSelected ? theme.colors.yellow[50] : highlighted ? theme.colors.gray[50] : 'transparent'};
+  background: ${({ highlighted }) => (highlighted ? theme.colors.gray[50] : 'transparent')};
   border-radius: ${({ isTop }) =>
     isTop ? theme.radius.medium + ' ' + theme.radius.medium + ' 0 0' : '0'};
   &:last-of-type {
@@ -49,9 +48,8 @@ export const RankBadge = styled.div<{ highlighted?: boolean; isSelected?: boolea
   font-weight: 600;
   font-size: ${theme.font.size.medium};
   color: ${({ highlighted }) => (highlighted ? theme.colors.white : theme.colors.gray[400])};
-  background: ${({ highlighted, isSelected }) =>
-    isSelected ? theme.colors.yellow[400] :
-      highlighted ? theme.colors.green[600] : theme.colors.gray[100]};
+  background: ${({ highlighted }) =>
+    highlighted ? theme.colors.green[600] : theme.colors.gray[100]};
 `;
 
 export const Content = styled.div`
@@ -60,6 +58,26 @@ export const Content = styled.div`
   flex-direction: column;
   gap: 6px;
   min-width: 0;
+`;
+
+export const ContentWrapper = styled.div`
+  display: flex;
+  gap: 8px;
+  justify-items: center;
+`;
+
+export const SelectLabel = styled.span`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1px 6px;
+  font-size: ${theme.font.size.xs};
+  font-weight: ${theme.font.weight.semibold};
+  line-height: 1;
+  color: ${theme.colors.yellow[500]};
+  background-color: ${theme.colors.yellow[100]};
+  border: 1px solid ${theme.colors.yellow[500]};
+  border-radius: ${theme.radius.large};
 `;
 
 export const Title = styled.div`
