@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef } from 'react';
 import type { MouseEventHandler, PointerEventHandler } from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
+import { ISSUE_STATUS } from '@/constants/issue';
 import { useSelectedIdeaMutation } from '@/hooks/issue';
 import { theme } from '@/styles/theme';
 import { useIssueData, useIssueIdentity } from '../../hooks';
@@ -110,9 +111,11 @@ export default function IdeaCard(props: IdeaCardProps) {
   // 드래그 로직
 
   // dnd-kit useDraggable
+  const canDrag = issueStatus === ISSUE_STATUS.BRAINSTORMING || issueStatus === ISSUE_STATUS.CATEGORIZE;
+
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: props.id || 'idea-unknown',
-    disabled: !props.id, // id가 없으면 드래그 불가
+    disabled: !props.id || !canDrag, // 카테고리 단계에서만 드래그 가능
     data: {
       editValue: editValue,
     },
@@ -160,7 +163,7 @@ export default function IdeaCard(props: IdeaCardProps) {
           position: 'absolute' as const,
           left: props.position.x,
           top: props.position.y,
-          cursor: isDragging ? 'grabbing' : 'grab',
+          cursor: canDrag ? (isDragging ? 'grabbing' : 'grab') : 'default',
           userSelect: 'none' as const,
           zIndex: isDragging ? theme.zIndex.selected : zIndex,
           // dnd-kit transform 적용 (Canvas scale과 호환됨!)
