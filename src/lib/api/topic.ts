@@ -1,5 +1,4 @@
 import getAPIResponseData from '../utils/api-response';
-import { withSseHeader } from '../utils/with-sse-header';
 
 export type Topic = {
   id: string;
@@ -43,10 +42,9 @@ export function updateTopicTitle(topicId: string, title: string, userId: string)
   });
 }
 
-export function deleteTopic(topicId: string, connectionId?: string) {
+export function deleteTopic(topicId: string) {
   return getAPIResponseData<{ id: string; projectId: string }>({
     url: `/api/topics/${topicId}`,
     method: 'DELETE',
-    headers: withSseHeader(undefined, connectionId),
   });
 }
