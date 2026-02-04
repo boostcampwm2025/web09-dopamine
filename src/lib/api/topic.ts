@@ -1,4 +1,5 @@
 import getAPIResponseData from '../utils/api-response';
+import { withSseHeader } from '../utils/with-sse-header';
 
 export type Topic = {
   id: string;
@@ -39,5 +40,14 @@ export function updateTopicTitle(topicId: string, title: string, userId: string)
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ title, userId }),
+  });
+}
+
+export function deleteTopic(topicId: string, userId: string, connectionId?: string) {
+  return getAPIResponseData<{ id: string; projectId: string }>({
+    url: `/api/topics/${topicId}`,
+    method: 'DELETE',
+    headers: withSseHeader({ 'Content-Type': 'application/json' }, connectionId),
+    body: JSON.stringify({ userId }),
   });
 }

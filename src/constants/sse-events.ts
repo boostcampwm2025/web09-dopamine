@@ -2,6 +2,9 @@ export const SSE_EVENT_TYPES = {
   // 연결
   CONNECTED: 'connected',
 
+  // 토픽
+  TOPIC_DELETED: 'topic:deleted',
+
   // 아이디어
   IDEA_CREATED: 'idea:created',
   IDEA_MOVED: 'idea:moved',

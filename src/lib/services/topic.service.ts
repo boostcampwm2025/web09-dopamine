@@ -1,5 +1,9 @@
 import { findIssuesWithMapDataByTopicId } from '../repositories/issue.repository';
-import { findTopicWithPermissionData, updateTopicTitle } from '../repositories/topic.repository';
+import {
+  findTopicWithPermissionData,
+  softDeleteTopic,
+  updateTopicTitle,
+} from '../repositories/topic.repository';
 
 interface UpdateTopicTitleProps {
   topicId: string;
@@ -47,5 +51,22 @@ export const topicService = {
     }
 
     return await updateTopicTitle(topicId, title);
+  },
+
+  async deleteTopic(topicId: string, userId: string) {
+    const topic = await findTopicWithPermissionData(topicId, userId);
+
+    if (!topic) {
+      throw new Error('TOPIC_NOT_FOUND');
+    }
+
+    const projectMembers = topic.project?.projectMembers || [];
+    const isProjectMember = projectMembers.length > 0;
+
+    if (!isProjectMember) {
+      throw new Error('PERMISSION_DENIED');
+    }
+
+    return await softDeleteTopic(topicId);
   },
 };

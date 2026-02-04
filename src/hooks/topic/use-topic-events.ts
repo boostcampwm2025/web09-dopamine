@@ -92,6 +92,17 @@ export function useTopicEvents({
       router.refresh();
     });
 
+    eventSource.addEventListener(SSE_EVENT_TYPES.TOPIC_DELETED, (event) => {
+      const data = JSON.parse((event as MessageEvent).data);
+
+      if (data.topicId) {
+        queryClient.invalidateQueries({ queryKey: ['topics', data.topicId] });
+      }
+
+      toast.error('토픽이 삭제되었습니다.');
+      router.push(`/project/${data.projectId}`);
+    });
+
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
       eventSource.close();
