@@ -42,12 +42,6 @@ export async function PATCH(
       return createErrorResponse('NICKNAME_REQUIRED', 400);
     }
 
-    // 중복 검사
-    const existingMember = await issueMemberService.checkNicknameExists(issueId, userId);
-    if (existingMember && existingMember.nickname === nickname) {
-      return createErrorResponse('NICKNAME_ALREADY_EXISTS', 400);
-    }
-
     // 닉네임 업데이트
     await issueMemberService.updateNickname(issueId, userId, nickname);
 
