@@ -4,7 +4,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { useSseConnectionStore } from '@/app/(with-sidebar)/issue/store/use-sse-connection-store';
-import { useIssueMemberMutations, useNicknameMutations } from '@/hooks';
+import { useIssueMemberMutations, useNicknameMutations, useUpdateNicknameMutation } from '@/hooks';
 import * as issueApi from '@/lib/api/issue';
 import * as storage from '@/lib/storage/issue-user-storage';
 import { act, renderHook, waitFor } from '../../utils/test-utils';
@@ -59,7 +59,7 @@ describe('Issue Member & Nickname Mutations', () => {
     });
 
     // console.error 모킹
-    jest.spyOn(console, 'error').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => { });
   });
 
   afterEach(() => {
@@ -147,6 +147,73 @@ describe('Issue Member & Nickname Mutations', () => {
         await waitFor(() => expect(result.current.generate.isError).toBe(true));
         expect(mockToastError).toHaveBeenCalledWith('생성 실패');
       });
+    });
+  });
+
+  // 3. 닉네임 수정 테스트
+  describe('useUpdateNicknameMutation', () => {
+    const userId = 'user-1';
+    const mockUpdateNickname = issueApi.updateIssueMemberNickname as jest.Mock;
+
+    test('수정 성공 시 성공 토스트를 띄우고 쿼리를 무효화해야 한다', async () => {
+      // Given
+      const mockToastSuccess = toast.success as jest.Mock;
+      mockUpdateNickname.mockResolvedValue({ success: true });
+
+      const { result } = renderHook(() => useUpdateNicknameMutation(issueId, userId));
+
+      // When
+      act(() => {
+        result.current.update.mutate('NewNickname');
+      });
+
+      // Then
+      await waitFor(() => expect(result.current.update.isSuccess).toBe(true));
+
+      // 1. API 호출 확인
+      expect(mockUpdateNickname).toHaveBeenCalledWith(issueId, userId, 'NewNickname');
+
+      // 2. 쿼리 무효화 확인
+      expect(mockInvalidateQueries).toHaveBeenCalledWith({
+        queryKey: ['issues', issueId, 'members'],
+      });
+
+      // 3. 토스트 메시지 확인
+      expect(mockToastSuccess).toHaveBeenCalledWith('닉네임이 수정되었습니다.');
+    });
+
+    test('이미 존재하는 닉네임인 경우 해당 에러 메시지를 띄워야 한다', async () => {
+      // Given
+      const error = new Error('NICKNAME_ALREADY_EXISTS');
+      mockUpdateNickname.mockRejectedValue(error);
+
+      const { result } = renderHook(() => useUpdateNicknameMutation(issueId, userId));
+
+      // When
+      act(() => {
+        result.current.update.mutate('DuplicateNick');
+      });
+
+      // Then
+      await waitFor(() => expect(result.current.update.isError).toBe(true));
+      expect(mockToastError).toHaveBeenCalledWith('이미 존재하는 닉네임입니다.');
+    });
+
+    test('기타 에러 발생 시 실패 메시지를 띄워야 한다', async () => {
+      // Given
+      const error = new Error('Unknown Error');
+      mockUpdateNickname.mockRejectedValue(error);
+
+      const { result } = renderHook(() => useUpdateNicknameMutation(issueId, userId));
+
+      // When
+      act(() => {
+        result.current.update.mutate('ErrorNick');
+      });
+
+      // Then
+      await waitFor(() => expect(result.current.update.isError).toBe(true));
+      expect(mockToastError).toHaveBeenCalledWith('닉네임 수정에 실패했습니다.');
     });
   });
 });

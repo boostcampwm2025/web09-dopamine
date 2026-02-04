@@ -332,12 +332,13 @@ model Vote {
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
+  isActive  Boolean?  @default(true)
 
   // Relations
   idea Idea @relation(fields: [ideaId], references: [id], onDelete: Cascade)
   user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 
-  @@unique([ideaId, userId, deletedAt])
+  @@unique([ideaId, userId, isActive])
   @@index([ideaId])
   @@index([userId])
   @@map("votes")

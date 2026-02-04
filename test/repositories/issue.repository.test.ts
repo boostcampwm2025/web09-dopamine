@@ -76,18 +76,38 @@ describe('Issue Repository', () => {
             closedAt: null,
           }),
         },
+        issueNode: {
+          findFirst: jest.fn().mockResolvedValue({
+            positionX: 720,
+            positionY: 300,
+          }),
+        },
       } as unknown as PrismaTransaction;
 
       await createIssue(mockTx, 'Test Issue', 'topic-123');
 
+      expect(mockTx.issueNode.findFirst).toHaveBeenCalledWith({
+        where: {
+          deletedAt: null,
+          issue: {
+            topicId: 'topic-123',
+            deletedAt: null,
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+        select: {
+          positionX: true,
+          positionY: true,
+        },
+      });
       expect(mockTx.issue.create).toHaveBeenCalledWith({
         data: {
           title: 'Test Issue',
           topicId: 'topic-123',
           issueNode: {
             create: {
-              positionX: 500,
-              positionY: 400,
+              positionX: 1000,
+              positionY: 300,
             },
           },
         },

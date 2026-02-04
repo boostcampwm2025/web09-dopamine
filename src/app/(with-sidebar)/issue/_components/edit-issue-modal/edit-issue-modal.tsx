@@ -5,6 +5,7 @@ import toast from 'react-hot-toast';
 import * as S from '@/app/(with-sidebar)/issue/_components/issue-join-modal/issue-join-modal.styles';
 import { useModalStore } from '@/components/modal/use-modal-store';
 import { useDeleteIssueMutation, useUpdateIssueTitleMutation } from '@/hooks';
+import { useSseConnectionStore } from '../../store/use-sse-connection-store';
 import * as MS from './edit-issue-modal.styles';
 
 export interface EditIssueProps {
@@ -18,6 +19,7 @@ export default function EditIssueModal({ issueId, currentTitle, userId }: EditIs
   const { setIsPending, isOpen, closeModal } = useModalStore();
   const { mutate: updateIssue, isPending: isUpdatePending } = useUpdateIssueTitleMutation(issueId);
   const { mutate: deleteIssue, isPending: isDeletePending } = useDeleteIssueMutation(issueId);
+  const connectionId = useSseConnectionStore((state) => state.connectionIds[issueId]);
 
   const isPending = isUpdatePending || isDeletePending;
 
@@ -34,9 +36,13 @@ export default function EditIssueModal({ issueId, currentTitle, userId }: EditIs
       toast.error('이슈 제목을 입력해주세요.');
       return;
     }
+    if (title.length > 15) {
+      toast.error('이슈 제목은 15자 이내로 입력해주세요.');
+      return;
+    }
 
     updateIssue(
-      { title, userId },
+      { title, userId, connectionId },
       {
         onSuccess: () => {
           closeModal();
@@ -53,11 +59,14 @@ export default function EditIssueModal({ issueId, currentTitle, userId }: EditIs
     ) {
       return;
     }
-    deleteIssue(userId, {
-      onSuccess: () => {
-        closeModal();
+    deleteIssue(
+      { userId, connectionId },
+      {
+        onSuccess: () => {
+          closeModal();
+        },
       },
-    });
+    );
   }, [deleteIssue]);
 
   useEffect(() => {
@@ -69,7 +78,8 @@ export default function EditIssueModal({ issueId, currentTitle, userId }: EditIs
   }, [isOpen, handleUpdate]);
 
   const onChangeTitle = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setTitle(e.target.value);
+    const value = e.target.value.slice(0, 15);
+    setTitle(value);
   };
 
   return (
@@ -77,13 +87,17 @@ export default function EditIssueModal({ issueId, currentTitle, userId }: EditIs
       <S.InfoContainer>
         <S.InputWrapper>
           <S.InputTitle>이슈 제목</S.InputTitle>
-          <S.Input
-            value={title}
-            onChange={onChangeTitle}
-            placeholder="제목을 입력하세요"
-            autoFocus
-            disabled={isPending}
-          />
+          <S.Input>
+            <S.InputField
+              value={title}
+              onChange={onChangeTitle}
+              placeholder="제목을 입력하세요 (15자 이내)"
+              maxLength={20}
+              autoFocus
+              disabled={isPending}
+            />
+            <S.CharCount $isOverLimit={title.length > 15}>{title.length}/15</S.CharCount>
+          </S.Input>
         </S.InputWrapper>
         <MS.DeleteButton onClick={handleDelete}>삭제하기</MS.DeleteButton>
       </S.InfoContainer>

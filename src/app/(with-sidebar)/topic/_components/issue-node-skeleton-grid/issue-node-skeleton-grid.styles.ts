@@ -7,7 +7,7 @@ export const SkeletonGridContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  background: transparent;
+  background: ${theme.colors.gray[50]};
   position: relative;
 `;
 

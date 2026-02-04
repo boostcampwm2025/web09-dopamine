@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 import { theme } from '@/styles/theme';
 
-export const MemberItemButton = styled.button<{ hasOnClick?: boolean }>`
+export const MemberItemButton = styled.div<{ hasOnClick?: boolean }>`
   display: flex;
   flex-flow: row nowrap;
   align-items: center;
@@ -62,4 +62,41 @@ export const OwnerText = styled.span`
   font-size: ${theme.font.size.xs};
   font-weight: ${theme.font.weight.bold};
   color: ${theme.colors.yellow[700]};
+`;
+
+export const EditInput = styled.input`
+  padding: 4px 8px;
+  font-size: ${theme.font.size.medium};
+  border: 1px solid ${theme.colors.gray[300]};
+  border-radius: ${theme.radius.small};
+  width: 120px;
+
+  &:focus {
+    outline: none;
+    border-color: ${theme.colors.green[600]};
+  }
+`;
+
+export const IconButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: ${theme.colors.gray[500]};
+  border-radius: ${theme.radius.small};
+
+  &:hover {
+    background-color: ${theme.colors.gray[200]};
+    color: ${theme.colors.gray[900]};
+  }
+`;
+
+export const ActionContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
 `;

@@ -14,7 +14,7 @@ export default function SidebarItem({ isTopic, title, href, status }: SidebarIte
     <S.SidebarListItem>
       <S.ListItemLink href={href}>
         {isTopic && <S.Bullet />}
-        <span>{title}</span>
+        <span>{title.length > 12 ? title.slice(0, 10) + '...' : title}</span>
         {status && <S.StatusLabel status={status}>{STATUS_LABEL[status]}</S.StatusLabel>}
       </S.ListItemLink>
     </S.SidebarListItem>

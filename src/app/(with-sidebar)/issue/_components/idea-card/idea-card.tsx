@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef } from 'react';
 import type { MouseEventHandler, PointerEventHandler } from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
+import { ISSUE_STATUS } from '@/constants/issue';
 import { useSelectedIdeaMutation } from '@/hooks/issue';
 import { theme } from '@/styles/theme';
 import { useIssueData, useIssueIdentity } from '../../hooks';
@@ -35,9 +36,9 @@ interface IdeaCardProps {
   isHotIdea?: boolean;
   onVoteChange?: (agreeCount: number, disagreeCount: number) => void;
   categoryId?: string | null;
-  onSave?: (content: string) => void;
-  onDelete?: () => void;
-  onClick?: () => void;
+  onSave?: (id: string, content: string) => void;
+  onDelete?: (id: string) => void;
+  onClick?: (id: string) => void;
   onPositionChange?: (id: string, position: Position) => void;
   disableAnimation?: boolean; // 드래그 중일 때는 애니메이션 비활성화
 }
@@ -46,8 +47,10 @@ export default function IdeaCard(props: IdeaCardProps) {
   const issueId = props.issueId ?? '';
   const { mutate: selectIdea } = useSelectedIdeaMutation(issueId);
   const { status: issueStatus, isQuickIssue } = useIssueData(props.issueId);
-  const { bringToFront, getZIndex } = useIdeaCardStackStore(props.issueId);
-  const zIndex = props.id ? getZIndex(props.id) : 0;
+  const bringToFront = useIdeaCardStackStore(props.issueId, (state) => state.bringToFront);
+  const zIndex = useIdeaCardStackStore(props.issueId, (state) =>
+    props.id ? state.getZIndex(props.id) : 0,
+  );
 
   // 현재 사용자가 이 아이디어의 작성자인지 확인
   const { userId: currentUserId } = useIssueIdentity(props.issueId, { isQuickIssue });
@@ -110,9 +113,12 @@ export default function IdeaCard(props: IdeaCardProps) {
   // 드래그 로직
 
   // dnd-kit useDraggable
+  const canDrag = issueStatus === ISSUE_STATUS.BRAINSTORMING || issueStatus === ISSUE_STATUS.CATEGORIZE;
+
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: props.id || 'idea-unknown',
-    disabled: !props.id, // id가 없으면 드래그 불가
+    // id가 없거나 거나 카테고리 단계가 아니거나 편집 중이면 드래그 불가
+    disabled: !props.id || isEditing || !canDrag,
     data: {
       editValue: editValue,
     },
@@ -157,18 +163,18 @@ export default function IdeaCard(props: IdeaCardProps) {
   const cardStyle =
     !inCategory && props.position
       ? {
-          position: 'absolute' as const,
-          left: props.position.x,
-          top: props.position.y,
-          cursor: isDragging ? 'grabbing' : 'grab',
-          userSelect: 'none' as const,
-          zIndex: isDragging ? theme.zIndex.selected : zIndex,
-          // dnd-kit transform 적용 (Canvas scale과 호환됨!)
-          transform: CSS.Transform.toString(transform),
-          opacity: isDragging ? 0 : undefined,
-          // 브로드캐스팅으로 다른 사용자 이동 시 애니메이션
-          transition: props.disableAnimation ? 'none' : 'left 0.4s ease-out, top 0.4s ease-out',
-        }
+        position: 'absolute' as const,
+        left: props.position.x,
+        top: props.position.y,
+        cursor: isDragging ? 'grabbing' : 'grab',
+        userSelect: 'none' as const,
+        zIndex: isDragging ? theme.zIndex.selected : zIndex,
+        // dnd-kit transform 적용 (Canvas scale과 호환됨!)
+        transform: CSS.Transform.toString(transform),
+        opacity: isDragging ? 0 : undefined,
+        // 브로드캐스팅으로 다른 사용자 이동 시 애니메이션
+        transition: props.disableAnimation ? 'none' : 'left 0.4s ease-out, top 0.4s ease-out',
+      }
       : {};
 
   return (
@@ -178,6 +184,7 @@ export default function IdeaCard(props: IdeaCardProps) {
       issueStatus={issueStatus}
       status={status}
       isDragging={isDragging}
+      isEditing={isEditing}
       inCategory={inCategory}
       isCommentOpen={isCommentOpen}
       isHotIdea={props.isHotIdea}
@@ -187,8 +194,8 @@ export default function IdeaCard(props: IdeaCardProps) {
       {...(inCategory
         ? {}
         : Object.fromEntries(
-            Object.entries(listeners || {}).filter(([key]) => key !== 'onPointerDown'),
-          ))}
+          Object.entries(listeners || {}).filter(([key]) => key !== 'onPointerDown'),
+        ))}
       style={cardStyle}
     >
       <IdeaCardBadge

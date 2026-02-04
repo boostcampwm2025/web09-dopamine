@@ -4,17 +4,9 @@ import { usePathname, useRouter } from 'next/navigation';
 import { getChoseong } from 'es-hangul';
 import { MEMBER_ROLE } from '@/constants/issue';
 import { useTopicId, useTopicIssuesQuery } from '@/hooks';
-import { useIssueData, useIssueId } from '../../hooks';
+import { useIssueData, useIssueId, useIssueIdentity } from '../../hooks';
+import { matchSearch } from '@/lib/utils/search';
 import { useIssueStore } from '../../store/use-issue-store';
-
-/**
- * 일반 문자열 및 초성 검색 매칭 여부를 확인하는 유틸리티
- */
-const matchSearch = (text: string, normalizedTerm: string, searchChoseong: string) => {
-  if (text.toLowerCase().includes(normalizedTerm)) return true;
-  if (!searchChoseong) return false;
-  return getChoseong(text).includes(searchChoseong);
-};
 
 export const useIssueSidebar = () => {
   // 클라이언트 마운트 감지
@@ -34,13 +26,18 @@ export const useIssueSidebar = () => {
   const { isQuickIssue, members } = useIssueData(issueId, !isTopicPage);
   const { onlineMemberIds } = useIssueStore();
 
+  const { userId: currentUserId } = useIssueIdentity(issueId, {
+    enabled: !isTopicPage,
+    isQuickIssue: isTopicPage ? false : undefined,
+  });
+
   // 토픽의 이슈 목록 가져오기
   const { data: topicIssues = [] } = useTopicIssuesQuery(topicId);
 
   // 검색 관련 상태
   const [searchValue, setSearchValue] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
-  const [searchTarget, setSearchTarget] = useState<'issue' | 'member'>('issue');
+  const [searchTarget, setSearchTarget] = useState<'issue' | 'member' | 'topic'>('issue');
 
   // 멤버 정렬: 소유자 > 온라인 > 이름순
   const sortedMembers = useMemo(() => {
@@ -144,6 +141,7 @@ export const useIssueSidebar = () => {
 
     // 데이터
     topicId,
+    issueId,
     isTopicPage,
     topicIssues,
     filteredIssues,
@@ -166,5 +164,6 @@ export const useIssueSidebar = () => {
     goToIssueMap,
     searchTarget,
     setSearchTarget,
+    currentUserId,
   };
 };

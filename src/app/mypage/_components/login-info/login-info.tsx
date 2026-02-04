@@ -1,13 +1,19 @@
-import { User } from 'next-auth';
+import { useEffect, useState } from 'react';
+import { getProviders } from '@/lib/api/auth';
 import { getProviderInfo } from '@/lib/utils/provider-info';
 import * as S from './login-info.styles';
 
-interface LoginInfoProps {
-  user?: User;
-}
+export default function LoginInfo() {
+  const [providers, setProviders] = useState<string[]>([]);
 
-export default function LoginInfo({ user }: LoginInfoProps) {
-  const { name, icon, color } = getProviderInfo(user?.email, user?.image);
+  useEffect(() => {
+    const fetchProviders = async () => {
+      const providers = await getProviders();
+      setProviders(providers);
+    };
+
+    fetchProviders();
+  }, []);
 
   return (
     <S.Container>
@@ -26,14 +32,19 @@ export default function LoginInfo({ user }: LoginInfoProps) {
         </svg>
         <S.Title>로그인 정보</S.Title>
       </S.Header>
+      {providers.map((provider, i) => {
+        const { name, icon, color } = getProviderInfo(provider);
 
-      <S.LoginCard>
-        <S.LoginInfoWrapper>
-          <S.ProviderIcon style={{ color }}>{icon}</S.ProviderIcon>
-          <S.ProviderText>{name}로 로그인 중</S.ProviderText>
-        </S.LoginInfoWrapper>
-        <S.StatusBadge>CONNECTED</S.StatusBadge>
-      </S.LoginCard>
+        return (
+          <S.LoginCard key={provider ?? i}>
+            <S.LoginInfoWrapper>
+              <S.ProviderIcon style={{ color }}>{icon}</S.ProviderIcon>
+              <S.ProviderText>{name}</S.ProviderText>
+            </S.LoginInfoWrapper>
+            <S.StatusBadge>CONNECTED</S.StatusBadge>
+          </S.LoginCard>
+        );
+      })}
     </S.Container>
   );
 }

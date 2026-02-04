@@ -118,6 +118,9 @@ export const useCreateIssueInTopicMutation = () => {
       queryClient.invalidateQueries({
         queryKey: ['topics', variables.topicId, 'issues'],
       });
+      queryClient.invalidateQueries({
+        queryKey: ['topics', variables.topicId, 'nodes'],
+      });
       toast.success('이슈가 생성되었습니다!');
     },
 
@@ -131,8 +134,8 @@ export const useUpdateIssueTitleMutation = (issueId: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: { title: string; userId: string }) =>
-      updateIssueTitle(issueId, data.title, data.userId),
+    mutationFn: (data: { title: string; userId: string; connectionId?: string }) =>
+      updateIssueTitle(issueId, data.title, data.userId, data.connectionId),
 
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -152,7 +155,8 @@ export const useDeleteIssueMutation = (issueId: string) => {
   const router = useRouter();
 
   return useMutation({
-    mutationFn: (userId: string) => deleteIssue(issueId, userId),
+    mutationFn: (data: { userId: string; connectionId?: string }) =>
+      deleteIssue(issueId, data.userId, data.connectionId),
 
     onSuccess: async (data) => {
       await queryClient.cancelQueries({ queryKey: ['issues', issueId] });
@@ -160,7 +164,7 @@ export const useDeleteIssueMutation = (issueId: string) => {
 
       if (data.topicId) {
         queryClient.invalidateQueries({
-          queryKey: ['topics', data.topicId, 'issues'],
+          queryKey: ['topics', data.topicId],
         });
       }
 

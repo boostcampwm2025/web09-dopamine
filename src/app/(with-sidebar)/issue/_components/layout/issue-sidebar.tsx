@@ -24,6 +24,8 @@ export default function IssueSidebar() {
     searchTarget,
     isQuickIssue,
     setSearchTarget,
+    currentUserId,
+    issueId,
   } = useIssueSidebar();
 
   return (
@@ -80,7 +82,10 @@ export default function IssueSidebar() {
                   id={user.id}
                   name={user.nickname}
                   role={user.role}
+                  profile={user.profile || undefined}
                   isConnected={isOnline}
+                  currentUserId={currentUserId}
+                  issueId={issueId}
                 />
               );
             })}

@@ -2,6 +2,7 @@ import { useRouter } from 'next/navigation';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { type CreateTopicData, createTopic, deleteTopic, updateTopicTitle } from '@/lib/api/topic';
+import type { ProjectwithTopic } from '@/types/project';
 
 export const useCreateTopicMutation = () => {
   const queryClient = useQueryClient();
@@ -9,9 +10,30 @@ export const useCreateTopicMutation = () => {
   return useMutation({
     mutationFn: (data: CreateTopicData) => createTopic(data.title, data.projectId),
 
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['topics'] });
-      queryClient.invalidateQueries({ queryKey: ['project'] });
+    onSuccess: (data, variables) => {
+      queryClient.setQueryData<ProjectwithTopic>(['project', variables.projectId], (prev) => {
+        if (!prev) {
+          return prev;
+        }
+
+        const exists = prev.topics.some((topic) => topic.id === data.id);
+        if (exists) {
+          return prev;
+        }
+
+        return {
+          ...prev,
+          topics: [
+            {
+              id: data.id,
+              title: data.title,
+              issueCount: 0,
+            },
+            ...prev.topics,
+          ],
+        };
+      });
+
       return data;
     },
 

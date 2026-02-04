@@ -77,13 +77,15 @@ export default function EditTopicModal({ topicId, currentTitle, userId }: EditTo
       <S.InfoContainer>
         <S.InputWrapper>
           <S.InputTitle>토픽 제목</S.InputTitle>
-          <S.Input
-            value={title}
-            onChange={onChangeTitle}
-            placeholder="제목을 입력하세요"
-            autoFocus
-            disabled={isPending}
-          />
+          <S.Input>
+            <S.InputField
+              value={title}
+              onChange={onChangeTitle}
+              placeholder="제목을 입력하세요"
+              autoFocus
+              disabled={isPending}
+            />
+          </S.Input>
         </S.InputWrapper>
         <MS.DeleteButton onClick={handleDelete}>삭제하기</MS.DeleteButton>
       </S.InfoContainer>
