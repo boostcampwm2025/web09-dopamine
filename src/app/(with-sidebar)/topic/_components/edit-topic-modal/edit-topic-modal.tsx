@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import * as S from '@/app/(with-sidebar)/issue/_components/issue-join-modal/issue-join-modal.styles';
 import { useModalStore } from '@/components/modal/use-modal-store';
+import { MAX_TOPIC_TITLE_LENGTH } from '@/constants/topic';
 import { useUpdateTopicTitleMutation } from '@/hooks';
 
 export interface EditTopicProps {
@@ -27,6 +28,11 @@ export default function EditTopicModal({ topicId, currentTitle, userId }: EditTo
       return;
     }
 
+    if (title.length > MAX_TOPIC_TITLE_LENGTH) {
+      toast.error(`토픽 제목은 ${MAX_TOPIC_TITLE_LENGTH}자 이내로 입력해주세요.`);
+      return;
+    }
+
     mutate(
       { title, userId },
       {
@@ -46,7 +52,8 @@ export default function EditTopicModal({ topicId, currentTitle, userId }: EditTo
   }, [isOpen, handleUpdate]);
 
   const onChangeTitle = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setTitle(e.target.value);
+    const value = e.target.value.slice(0, MAX_TOPIC_TITLE_LENGTH);
+    setTitle(value);
   };
 
   return (
@@ -58,10 +65,14 @@ export default function EditTopicModal({ topicId, currentTitle, userId }: EditTo
             <S.InputField
               value={title}
               onChange={onChangeTitle}
-              placeholder="제목을 입력하세요"
+              placeholder={`제목을 입력하세요. (${MAX_TOPIC_TITLE_LENGTH}자 이내)`}
+              maxLength={MAX_TOPIC_TITLE_LENGTH}
               autoFocus
               disabled={isPending}
             />
+            <S.CharCount $isOverLimit={title.length > MAX_TOPIC_TITLE_LENGTH}>
+              {title.length}/{MAX_TOPIC_TITLE_LENGTH}
+            </S.CharCount>
           </S.Input>
         </S.InputWrapper>
       </S.InfoContainer>
