@@ -19,11 +19,8 @@ const Header = () => {
   const {
     issue,
     isVisible,
-<<<<<<< feat/update-delete-topic-and-issue
     isEditButtonVisible,
-=======
     topicId,
->>>>>>> dev
     handleCloseIssue,
     handleNextStep,
     handleAddCategory,
