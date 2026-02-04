@@ -26,13 +26,15 @@ export default function IssueJoinModal({ issueId }: IssueJoinModalProps) {
       <S.InfoContainer>
         <S.InputWrapper>
           <S.InputTitle>표시될 닉네임</S.InputTitle>
-          <S.Input
-            value={nickname}
-            onChange={(e) => setNickname(e.target.value)}
-            placeholder="예) 생각하는 단무지"
-            disabled={isLoading}
-            autoFocus
-          />
+          <S.Input>
+            <S.InputField
+              value={nickname}
+              onChange={(e) => setNickname(e.target.value)}
+              placeholder="예) 생각하는 단무지"
+              disabled={isLoading}
+              autoFocus
+            />
+          </S.Input>
         </S.InputWrapper>
       </S.InfoContainer>
     </S.Container>

@@ -36,6 +36,10 @@ export default function EditIssueModal({ issueId, currentTitle, userId }: EditIs
       toast.error('이슈 제목을 입력해주세요.');
       return;
     }
+    if (title.length > 15) {
+      toast.error('이슈 제목은 15자 이내로 입력해주세요.');
+      return;
+    }
 
     updateIssue(
       { title, userId, connectionId },
@@ -74,7 +78,8 @@ export default function EditIssueModal({ issueId, currentTitle, userId }: EditIs
   }, [isOpen, handleUpdate]);
 
   const onChangeTitle = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setTitle(e.target.value);
+    const value = e.target.value.slice(0, 15);
+    setTitle(value);
   };
 
   return (
@@ -82,13 +87,17 @@ export default function EditIssueModal({ issueId, currentTitle, userId }: EditIs
       <S.InfoContainer>
         <S.InputWrapper>
           <S.InputTitle>이슈 제목</S.InputTitle>
-          <S.Input
-            value={title}
-            onChange={onChangeTitle}
-            placeholder="제목을 입력하세요"
-            autoFocus
-            disabled={isPending}
-          />
+          <S.Input>
+            <S.InputField
+              value={title}
+              onChange={onChangeTitle}
+              placeholder="제목을 입력하세요 (15자 이내)"
+              maxLength={20}
+              autoFocus
+              disabled={isPending}
+            />
+            <S.CharCount $isOverLimit={title.length > 15}>{title.length}/15</S.CharCount>
+          </S.Input>
         </S.InputWrapper>
         <MS.DeleteButton onClick={handleDelete}>삭제하기</MS.DeleteButton>
       </S.InfoContainer>

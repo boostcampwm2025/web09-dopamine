@@ -17,6 +17,27 @@ export const CancelButton = styled.button`
   }
 `;
 
+export const InputContent = styled.input`
+  width: 100%;
+  padding: 12px 12px;
+  border: 1px solid ${theme.colors.gray[300]};
+  border-radius: ${theme.radius.small};
+  font-size: ${theme.font.size.medium};
+  color: ${theme.colors.gray[900]};
+  outline: none;
+  transition: border-color 0.2s;
+
+  &:focus {
+    border-color: ${theme.colors.gray[500]};
+  }
+
+  &:disabled {
+    background-color: ${theme.colors.gray[100]};
+    color: ${theme.colors.gray[500]};
+    cursor: not-allowed;
+  }
+`;
+
 export const Textarea = styled.textarea`
   width: 100%;
   padding: 12px 8px;

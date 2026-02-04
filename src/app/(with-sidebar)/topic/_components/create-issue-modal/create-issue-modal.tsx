@@ -69,13 +69,17 @@ export default function CreateIssueModal() {
       <S.InfoContainer>
         <S.InputWrapper>
           <S.InputTitle>이슈 제목</S.InputTitle>
-          <S.Input
-            value={issueTitle}
-            onChange={onChangeTitle}
-            placeholder="제목을 입력하세요"
-            autoFocus
-            disabled={isPending}
-          />
+          <S.Input>
+            <S.InputField
+              value={issueTitle}
+              onChange={onChangeTitle}
+              placeholder="제목을 입력하세요"
+              autoFocus
+              disabled={isPending}
+              maxLength={20}
+            />
+            <S.CharCount $isOverLimit={issueTitle.length > 15}>{issueTitle.length}/15</S.CharCount>
+          </S.Input>
         </S.InputWrapper>
       </S.InfoContainer>
     </S.Container>
