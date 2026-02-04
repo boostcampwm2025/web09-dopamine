@@ -161,7 +161,7 @@ export const useDeleteIssueMutation = (issueId: string) => {
 
       if (data.topicId) {
         queryClient.invalidateQueries({
-          queryKey: ['topics', data.topicId, 'issues'],
+          queryKey: ['topics', data.topicId],
         });
       }
 
