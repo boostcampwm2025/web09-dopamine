@@ -91,7 +91,7 @@ export default function WithSidebarClient({ children }: { children: ReactNode })
   const getLayout = () => {
     if (pathname?.startsWith('/issue')) {
       return {
-        header: <IssueHeader />,
+        header: <IssueHeader key={pathname} />,
         sidebar: <IssueSidebar />,
       };
     }
