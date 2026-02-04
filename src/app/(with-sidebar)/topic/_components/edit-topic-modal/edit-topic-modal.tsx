@@ -1,66 +1,61 @@
 'use client';
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import * as S from '@/app/(with-sidebar)/issue/_components/issue-join-modal/issue-join-modal.styles';
 import { useModalStore } from '@/components/modal/use-modal-store';
-import { useCreateIssueInTopicMutation, useTopicId } from '@/hooks';
+import { useUpdateTopicTitleMutation } from '@/hooks';
 
-export default function CreateIssueModal() {
-  const router = useRouter();
-  const [issueTitle, setIssueTitle] = useState('');
+export interface EditTopicProps {
+  topicId: string;
+  currentTitle?: string;
+  userId: string;
+}
+
+export default function EditTopicModal({ topicId, currentTitle, userId }: EditTopicProps) {
+  const [title, setTitle] = useState(currentTitle || '');
   const { setIsPending, isOpen, closeModal } = useModalStore();
-  const { mutate, isPending } = useCreateIssueInTopicMutation();
+  const { mutate, isPending } = useUpdateTopicTitleMutation(topicId);
 
   useEffect(() => {
     setIsPending(isPending);
   }, [isPending, setIsPending]);
 
-  // 토픽 ID 가져오기 (토픽 페이지면 URL에서, 이슈 페이지면 이슈 데이터에서)
-  const { topicId } = useTopicId();
-
-  const handleCreate = useCallback(async () => {
-    if (!topicId) {
-      toast.error('토픽 정보를 찾을 수 없습니다.');
-      return;
-    }
-
-    if (!issueTitle.trim()) {
-      toast.error('이슈 제목을 입력해주세요.');
+  const handleUpdate = useCallback(async () => {
+    if (!title.trim()) {
+      toast.error('토픽 제목을 입력해주세요.');
       return;
     }
 
     mutate(
-      { topicId, title: issueTitle },
+      { title, userId },
       {
         onSuccess: () => {
           closeModal();
-          router.refresh();
         },
       },
     );
-  }, [issueTitle, topicId, mutate]);
+  }, [title, mutate]);
 
   useEffect(() => {
     if (isOpen) {
       useModalStore.setState({
-        onSubmit: handleCreate,
+        onSubmit: handleUpdate,
       });
     }
-  }, [isOpen, handleCreate]);
+  }, [isOpen, handleUpdate]);
 
   const onChangeTitle = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setIssueTitle(e.target.value);
+    setTitle(e.target.value);
   };
 
   return (
     <S.Container>
       <S.InfoContainer>
         <S.InputWrapper>
-          <S.InputTitle>이슈 제목</S.InputTitle>
+          <S.InputTitle>토픽 제목</S.InputTitle>
           <S.Input
-            value={issueTitle}
+            value={title}
             onChange={onChangeTitle}
             placeholder="제목을 입력하세요"
             autoFocus

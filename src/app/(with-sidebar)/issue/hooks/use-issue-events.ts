@@ -214,8 +214,18 @@ export function useIssueEvents({
       }
     });
 
-    // 이슈 상태 이벤트 핸들러
+    // 이슈 변경 이벤트 핸들러
     eventSource.addEventListener(SSE_EVENT_TYPES.ISSUE_STATUS_CHANGED, (event) => {
+      const data = JSON.parse((event as MessageEvent).data);
+      queryClient.invalidateQueries({ queryKey: ['issues', issueId] });
+      // 사이드바 이슈 목록도 갱신
+      const targetTopicId = data.topicId || topicId;
+      if (targetTopicId) {
+        queryClient.invalidateQueries({ queryKey: ['topics', targetTopicId, 'issues'] });
+      }
+    });
+
+    eventSource.addEventListener(SSE_EVENT_TYPES.ISSUE_TITLE_CHANGED, (event) => {
       const data = JSON.parse((event as MessageEvent).data);
       queryClient.invalidateQueries({ queryKey: ['issues', issueId] });
       // 사이드바 이슈 목록도 갱신
@@ -252,9 +262,7 @@ export function useIssueEvents({
       queryClient.setQueryData<IdeaWithPosition[]>(['issues', issueId, 'ideas'], (old) => {
         if (!Array.isArray(old)) return old;
         return old.map((idea) =>
-          idea.id === data.ideaId
-            ? { ...idea, isSelected: true }
-            : { ...idea, isSelected: false },
+          idea.id === data.ideaId ? { ...idea, isSelected: true } : { ...idea, isSelected: false },
         );
       });
     });

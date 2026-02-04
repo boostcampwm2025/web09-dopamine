@@ -1,4 +1,4 @@
-import { IssueStatus } from '@prisma/client';
+import { IssueRole, IssueStatus } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { PrismaTransaction } from '@/types/prisma';
 
@@ -75,6 +75,39 @@ export async function updateIssueStatus(
       id: true,
       status: true,
     },
+  });
+}
+
+export async function findIssueWithPermissionData(issueId: string, userId: string) {
+  return await prisma.issue.findUnique({
+    where: { id: issueId, deletedAt: null },
+    select: {
+      topicId: true,
+      issueMembers: {
+        where: { userId, role: IssueRole.OWNER },
+        select: { id: true },
+      },
+      topic: {
+        select: {
+          project: {
+            select: {
+              projectMembers: {
+                where: { userId },
+                select: { id: true },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+}
+
+export async function updateIssueTitle(issueId: string, title: string) {
+  return await prisma.issue.update({
+    where: { id: issueId },
+    data: { title },
+    select: { id: true, title: true, topicId: true },
   });
 }
 

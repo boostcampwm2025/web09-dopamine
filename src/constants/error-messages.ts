@@ -7,6 +7,10 @@ export const CLIENT_ERROR_MESSAGES: Record<string, string> = {
   UNKNOWN_ERROR: '알 수 없는 오류가 발생했습니다.',
   UNAUTHORIZED_USER: '로그인이 필요합니다.',
 
+  // 토픽
+  TOPIC_NOT_FOUND: '존재하지 않는 토픽입니다.',
+  TOPIC_UPDATE_FAILED: '토픽 수정에 실패했습니다.',
+
   // 카테고리
   CATEGORY_NOT_FOUND: '카테고리를 찾을 수 없습니다.',
   CATEGORY_CREATE_FAILED: '카테고리 생성에 실패했습니다.',
@@ -18,6 +22,7 @@ export const CLIENT_ERROR_MESSAGES: Record<string, string> = {
   ISSUE_NOT_FOUND: '존재하지 않는 이슈입니다.',
   ISSUE_FETCH_FAILED: '이슈 조회에 실패했습니다.',
   ISSUE_CREATE_FAILED: '이슈 생성에 실패했습니다.',
+  ISSUE_UPDATE_FAILED: '이슈 수정에 실패했습니다.',
   ISSUE_STATUS_UPDATE_FAILED: '이슈 상태 변경에 실패했습니다.',
   INVALID_ISSUE_STATUS: '유효하지 않은 이슈 상태입니다.',
   NICKNAME_AND_TITLE_REQUIRED: 'nickname과 title은 필수입니다.',

@@ -1,10 +1,14 @@
 'use client';
 
+import { useParams } from 'next/navigation';
 import MemberSidebarItem from '@/components/sidebar/member-sidebar-item';
 import Sidebar from '@/components/sidebar/sidebar';
 import SidebarFilter from '@/components/sidebar/sidebar-filter';
 import SidebarItem from '@/components/sidebar/sidebar-item';
 import * as S from '@/components/sidebar/sidebar.styles';
+import { CircleSkeleton, TextSkeleton } from '@/components/skeleton/skeleton';
+import { useProjectQuery } from '@/hooks/project';
+import { useSmartLoading } from '@/hooks/use-smart-loading';
 import * as ProjectS from './projcet-sidebar.styles';
 import { useProjectSidebar } from './use-project-sidebar';
 
@@ -17,6 +21,14 @@ const ProjectSidebar = () => {
     searchTarget,
     setSearchTarget,
   } = useProjectSidebar();
+  const params = useParams();
+  const projectId = params.id as string;
+
+  const { data: projectData, isLoading } = useProjectQuery(projectId);
+  const showLoading = useSmartLoading(isLoading);
+
+  const topics = showLoading ? [] : projectData?.topics || [];
+  const members = showLoading ? [] : projectData?.members || [];
 
   return (
     <Sidebar
@@ -38,7 +50,19 @@ const ProjectSidebar = () => {
           <S.SidebarTitle>TOPIC LIST</S.SidebarTitle>
           <ProjectS.ScrollableSection>
             <S.SidebarList>
-              {filteredTopics.length > 0 ? (
+              {showLoading ? (
+                <>
+                  <div style={{ padding: '10px 16px 10px 24px' }}>
+                    <TextSkeleton width="80%" />
+                  </div>
+                  <div style={{ padding: '10px 16px 10px 24px' }}>
+                    <TextSkeleton width="70%" />
+                  </div>
+                  <div style={{ padding: '10px 16px 10px 24px' }}>
+                    <TextSkeleton width="75%" />
+                  </div>
+                </>
+              ) : filteredTopics.length > 0 ? (
                 filteredTopics.map((topic) => (
                   <SidebarItem
                     isTopic
@@ -62,7 +86,32 @@ const ProjectSidebar = () => {
           <S.SidebarTitle>MEMBER LIST</S.SidebarTitle>
           <ProjectS.ScrollableSection>
             <S.SidebarList>
-              {filteredMembers.length > 0 ? (
+              {showLoading ? (
+                <>
+                  <div
+                    style={{
+                      padding: '10px 16px 10px 24px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px',
+                    }}
+                  >
+                    <CircleSkeleton size="24px" />
+                    <TextSkeleton width="60%" />
+                  </div>
+                  <div
+                    style={{
+                      padding: '10px 16px 10px 24px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px',
+                    }}
+                  >
+                    <CircleSkeleton size="24px" />
+                    <TextSkeleton width="55%" />
+                  </div>
+                </>
+              ) : filteredMembers.length > 0 ? (
                 filteredMembers.map((member) => (
                   <MemberSidebarItem
                     key={member.id}

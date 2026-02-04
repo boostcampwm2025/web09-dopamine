@@ -7,7 +7,6 @@ import { useTopicId, useTopicIssuesQuery } from '@/hooks';
 import { matchSearch } from '@/lib/utils/search';
 import { useIssueData, useIssueId } from '../../hooks';
 import { useIssueStore } from '../../store/use-issue-store';
-import { ISSUE_LIST } from './issue-sidebar';
 
 export const useIssueSidebar = () => {
   // 클라이언트 마운트 감지
@@ -70,10 +69,13 @@ export const useIssueSidebar = () => {
     };
   }, [searchTerm]);
 
+  // 빠른 이슈에서는 항상 멤버만 검색, 그 외에는 searchTarget 따름
+  const effectiveSearchTarget = isQuickIssue ? 'member' : searchTarget;
+
   // 멤버 검색 필터링
   const filteredMembers = useMemo(() => {
     // 멤버 검색 모드가 아니면 전체 반환
-    if (searchTarget !== 'member') return sortedMembers;
+    if (effectiveSearchTarget !== 'member') return sortedMembers;
 
     const { trimmed, normalized, searchChoseong } = searchParams;
     if (!trimmed) return sortedMembers;
@@ -81,29 +83,20 @@ export const useIssueSidebar = () => {
     return sortedMembers.filter((member) =>
       matchSearch(member.nickname || '익명', normalized, searchChoseong),
     );
-  }, [searchParams, sortedMembers, searchTarget]);
+  }, [searchParams, sortedMembers, effectiveSearchTarget]);
 
   // 이슈 검색 필터링
   const filteredIssues = useMemo(() => {
     // 이슈 검색 모드가 아니면 전체 반환
-    if (searchTarget !== 'issue') return topicIssues;
+    if (effectiveSearchTarget !== 'issue') return topicIssues;
 
     const { trimmed, normalized, searchChoseong } = searchParams;
     if (!trimmed) return topicIssues;
 
-    return topicIssues.filter((issue) => matchSearch(issue.title || '', normalized, searchChoseong));
-  }, [searchParams, topicIssues, searchTarget]);
-
-  // 정적 이슈 리스트 필터링
-  const filteredStaticIssues = useMemo(() => {
-    // 이슈 검색 모드가 아니면 전체 반환
-    if (searchTarget !== 'issue') return ISSUE_LIST;
-
-    const { trimmed, normalized, searchChoseong } = searchParams;
-    if (!trimmed) return ISSUE_LIST;
-
-    return ISSUE_LIST.filter((issue) => matchSearch(issue.title || '', normalized, searchChoseong));
-  }, [searchParams, searchTarget]);
+    return topicIssues.filter((issue) =>
+      matchSearch(issue.title || '', normalized, searchChoseong),
+    );
+  }, [searchParams, topicIssues, effectiveSearchTarget]);
 
   // 검색어 입력 핸들러
   const handleSearchChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
@@ -146,10 +139,11 @@ export const useIssueSidebar = () => {
     isTopicPage,
     topicIssues,
     filteredIssues,
-    filteredStaticIssues,
     filteredMembers,
     onlineMemberIds,
     sortedMembers,
+
+    isQuickIssue,
 
     // 검색
     searchValue,

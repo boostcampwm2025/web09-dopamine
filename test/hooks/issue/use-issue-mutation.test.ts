@@ -9,6 +9,7 @@ import {
   useCreateIssueInTopicMutation,
   useIssueStatusMutations,
   useQuickStartMutation,
+  useUpdateIssueTitleMutation,
 } from '@/hooks';
 import * as issueApi from '@/lib/api/issue';
 import * as storage from '@/lib/storage/issue-user-storage';
@@ -39,6 +40,7 @@ describe('Issue Mutations', () => {
 
   // Mock 함수들
   const mockCreateQuickIssue = issueApi.createQuickIssue as jest.Mock;
+  const mockUpdateIssueTitle = issueApi.updateIssueTitle as jest.Mock;
   const mockUpdateIssueStatus = issueApi.updateIssueStatus as jest.Mock;
   const mockCreateIssueInTopic = issueApi.createIssueInTopic as jest.Mock;
   const mockSetUserIdForIssue = storage.setUserIdForIssue as jest.Mock;
@@ -363,6 +365,69 @@ describe('Issue Mutations', () => {
       // Then
       await waitFor(() => expect(result.current.isError).toBe(true));
       expect(mockToastError).toHaveBeenCalledWith('이슈 생성에 실패했습니다.');
+    });
+  });
+  // 4. 이슈 제목 수정
+  describe('useUpdateIssueTitleMutation', () => {
+    test('성공 시 이슈 상세 캐시를 무효화하고 성공 토스트를 띄워야 한다', async () => {
+      // Given
+      mockUpdateIssueTitle.mockResolvedValue({});
+      const { result } = renderHook(() => useUpdateIssueTitleMutation(issueId));
+      const updateData = { title: '수정된 이슈 제목', userId: 'user-999' };
+
+      // When
+      act(() => {
+        result.current.mutate(updateData);
+      });
+
+      // Then
+      await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+      // API 호출 인자 확인
+      expect(mockUpdateIssueTitle).toHaveBeenCalledWith(
+        issueId,
+        updateData.title,
+        updateData.userId,
+      );
+
+      // 캐시 무효화 및 토스트 확인
+      expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({
+        queryKey: ['issues', issueId],
+      });
+      expect(mockToastSuccess).toHaveBeenCalledWith('이슈를 수정했습니다!');
+    });
+
+    test('수정 실패 시 에러 메시지를 토스트로 띄워야 한다', async () => {
+      // Given
+      const errorMsg = '권한이 없습니다.';
+      mockUpdateIssueTitle.mockRejectedValue(new Error(errorMsg));
+
+      const { result } = renderHook(() => useUpdateIssueTitleMutation(issueId));
+
+      // When
+      act(() => {
+        result.current.mutate({ title: '실패 테스트', userId: 'wrong-user' });
+      });
+
+      // Then
+      await waitFor(() => expect(result.current.isError).toBe(true));
+      expect(mockToastError).toHaveBeenCalledWith(errorMsg);
+    });
+
+    test('에러 메시지가 없는 실패 상황에서 기본 메시지를 띄워야 한다', async () => {
+      // Given: 메시지가 없는 Error 객체
+      mockUpdateIssueTitle.mockRejectedValue(new Error());
+
+      const { result } = renderHook(() => useUpdateIssueTitleMutation(issueId));
+
+      // When
+      act(() => {
+        result.current.mutate({ title: '실패 테스트', userId: 'user-1' });
+      });
+
+      // Then
+      await waitFor(() => expect(result.current.isError).toBe(true));
+      expect(mockToastError).toHaveBeenCalledWith('이슈 수정에 실패했습니다.');
     });
   });
 });

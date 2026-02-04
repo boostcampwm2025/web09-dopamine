@@ -1,5 +1,10 @@
 import { prisma } from '@/lib/prisma';
-import { createTopic, findTopicById } from '@/lib/repositories/topic.repository';
+import {
+  createTopic,
+  findTopicById,
+  findTopicWithPermissionData,
+  updateTopicTitle,
+} from '@/lib/repositories/topic.repository';
 import { PrismaTransaction } from '@/types/prisma';
 
 jest.mock('@/lib/prisma', () => ({
@@ -7,6 +12,7 @@ jest.mock('@/lib/prisma', () => ({
     topic: {
       create: jest.fn(),
       findUnique: jest.fn(),
+      update: jest.fn(),
     },
     $transaction: jest.fn(),
   },
@@ -16,6 +22,9 @@ const mockedTopic = prisma.topic as jest.Mocked<typeof prisma.topic>;
 const mockedTransaction = prisma.$transaction as jest.Mock;
 
 describe('Topic Repository 테스트', () => {
+  const topicId = 'topic-1';
+  const userId = 'user-1';
+
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -60,6 +69,38 @@ describe('Topic Repository 테스트', () => {
 
     expect(mockedTopic.findUnique).toHaveBeenCalledWith({
       where: { id: 'topic-1' },
+    });
+  });
+  describe('findTopicWithPermissionData', () => {
+    it('삭제되지 않은 토픽과 유저의 프로젝트 멤버 여부를 조회해야 한다', async () => {
+      await findTopicWithPermissionData(topicId, userId);
+
+      expect(prisma.topic.findUnique).toHaveBeenCalledWith({
+        where: { id: topicId, deletedAt: null },
+        select: expect.objectContaining({
+          project: {
+            select: {
+              projectMembers: {
+                where: { userId },
+                select: { id: true },
+              },
+            },
+          },
+        }),
+      });
+    });
+  });
+
+  describe('updateTopicTitle', () => {
+    it('토픽 제목을 업데이트하고 필요한 필드를 반환해야 한다', async () => {
+      const newTitle = 'New Title';
+      await updateTopicTitle(topicId, newTitle);
+
+      expect(prisma.topic.update).toHaveBeenCalledWith({
+        where: { id: topicId },
+        data: { title: newTitle },
+        select: { id: true, title: true },
+      });
     });
   });
 });
