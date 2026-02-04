@@ -1,10 +1,12 @@
-import { Issue, IssueStatus } from '@prisma/client';
+import { IssueRole, IssueStatus } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import {
   createIssue,
   findIssueById,
+  findIssueWithPermissionData,
   findIssuesWithMapDataByTopicId,
   updateIssueStatus,
+  updateIssueTitle,
 } from '@/lib/repositories/issue.repository';
 import { PrismaTransaction } from '@/types/prisma';
 
@@ -15,6 +17,7 @@ jest.mock('@/lib/prisma', () => ({
       findFirst: jest.fn(),
       findMany: jest.fn(),
       update: jest.fn(),
+      findUnique: jest.fn(),
     },
     issueConnection: {
       findMany: jest.fn(),
@@ -312,6 +315,86 @@ describe('Issue Repository', () => {
         },
       });
       expect(result).toEqual({ issues: [{ id: 'issue-1' }], connections: [{ id: 'conn-1' }] });
+    });
+  });
+  describe('findIssueWithPermissionData', () => {
+    const mockIssueId = 'issue-123';
+    const mockUserId = 'user-456';
+
+    it('이슈 ID와 유저 ID로 권한 관련 데이터를 조회한다', async () => {
+      // Given
+      const mockQueryResult = {
+        topicId: 'topic-1',
+        issueMembers: [{ id: 'mem-1' }], // Owner 여부
+        topic: {
+          project: {
+            projectMembers: [{ id: 'pm-1' }], // 프로젝트 멤버 여부
+          },
+        },
+      };
+
+      (prisma.issue.findUnique as jest.Mock).mockResolvedValue(mockQueryResult);
+
+      // When
+      const result = await findIssueWithPermissionData(mockIssueId, mockUserId);
+
+      // Then
+      expect(prisma.issue.findUnique).toHaveBeenCalledWith({
+        where: { id: mockIssueId, deletedAt: null },
+        select: {
+          topicId: true,
+          issueMembers: {
+            where: { userId: mockUserId, role: IssueRole.OWNER },
+            select: { id: true },
+          },
+          topic: {
+            select: {
+              project: {
+                select: {
+                  projectMembers: {
+                    where: { userId: mockUserId },
+                    select: { id: true },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+      expect(result).toEqual(mockQueryResult);
+    });
+
+    it('이슈가 없거나 삭제된 경우 null을 반환한다', async () => {
+      (prisma.issue.findUnique as jest.Mock).mockResolvedValue(null);
+
+      const result = await findIssueWithPermissionData('invalid-id', 'user-1');
+
+      expect(result).toBeNull();
+    });
+  });
+  describe('updateIssueTitle', () => {
+    const mockIssueId = 'issue-123';
+    const newTitle = '변경된 제목';
+
+    it('이슈의 제목을 성공적으로 수정한다', async () => {
+      // Given
+      const mockUpdatedResult = {
+        id: mockIssueId,
+        title: newTitle,
+        topicId: 'topic-789',
+      };
+      mockedPrismaIssue.update.mockResolvedValue(mockUpdatedResult as any);
+
+      // When
+      const result = await updateIssueTitle(mockIssueId, newTitle);
+
+      // Then
+      expect(mockedPrismaIssue.update).toHaveBeenCalledWith({
+        where: { id: mockIssueId },
+        data: { title: newTitle },
+        select: { id: true, title: true, topicId: true },
+      });
+      expect(result).toEqual(mockUpdatedResult);
     });
   });
 });

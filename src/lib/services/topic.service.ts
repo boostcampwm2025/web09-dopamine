@@ -1,4 +1,11 @@
 import { findIssuesWithMapDataByTopicId } from '../repositories/issue.repository';
+import { findTopicWithPermissionData, updateTopicTitle } from '../repositories/topic.repository';
+
+interface UpdateTopicTitleProps {
+  topicId: string;
+  title: string;
+  userId: string;
+}
 
 export const topicService = {
   async getIssuesMapData(topicId: string) {
@@ -23,5 +30,22 @@ export const topicService = {
         })),
       connections: data.connections,
     };
+  },
+
+  async updateTopicTitle({ topicId, title, userId }: UpdateTopicTitleProps) {
+    const topic = await findTopicWithPermissionData(topicId, userId);
+
+    if (!topic) {
+      throw new Error('TOPIC_NOT_FOUND');
+    }
+
+    const projectMembers = topic.project?.projectMembers || [];
+    const isProjectMember = projectMembers.length > 0;
+
+    if (!isProjectMember) {
+      throw new Error('PERMISSION_DENIED');
+    }
+
+    return await updateTopicTitle(topicId, title);
   },
 };

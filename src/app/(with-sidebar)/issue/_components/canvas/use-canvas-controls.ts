@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useStaticClick } from '../../hooks';
 import { useCanvasStore } from '../../store/use-canvas-store';
 
@@ -25,8 +25,12 @@ export function useCanvasControls({
   const isBackgroundClickRef = useRef(false);
   const { handlePointerDown, handleClick } = useStaticClick(onCanvasClick);
 
-  const handleWheel = useCallback(
-    (e: React.WheelEvent) => {
+  // passive 이벤트 리스너 문제를 해결하기 위해 직접 등록
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const handleWheel = (e: WheelEvent) => {
       if (e.ctrlKey || e.metaKey) {
         e.preventDefault();
         const delta = -e.deltaY * 0.001;
@@ -38,9 +42,14 @@ export function useCanvasControls({
           y: offset.y - e.deltaY,
         });
       }
-    },
-    [scale, offset, setScale, setOffset],
-  );
+    };
+
+    canvas.addEventListener('wheel', handleWheel, { passive: false });
+
+    return () => {
+      canvas.removeEventListener('wheel', handleWheel);
+    };
+  }, [canvasRef, scale, offset, setScale, setOffset]);
 
   const handleMouseDown = useCallback(
     (e: React.MouseEvent) => {
@@ -134,7 +143,6 @@ export function useCanvasControls({
     scale,
     offset,
     isPanning,
-    handleWheel,
     handleMouseDown,
     handleMouseMove,
     handleMouseUp,

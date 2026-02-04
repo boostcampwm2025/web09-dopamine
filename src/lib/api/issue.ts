@@ -57,6 +57,15 @@ export function updateIssueStatus(
   });
 }
 
+export function updateIssueTitle(id: string, title: string, userId: string) {
+  return getAPIResponseData<{ id: string }>({
+    url: `/api/issues/${id}`,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id, title, userId }),
+  });
+}
+
 /* =========================
  * Issue Members
  * ========================= */
