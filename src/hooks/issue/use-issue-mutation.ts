@@ -154,10 +154,9 @@ export const useDeleteIssueMutation = (issueId: string) => {
   return useMutation({
     mutationFn: (userId: string) => deleteIssue(issueId, userId),
 
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({
-        queryKey: ['issues', issueId],
-      });
+    onSuccess: async (data) => {
+      await queryClient.cancelQueries({ queryKey: ['issues', issueId] });
+      queryClient.removeQueries({ queryKey: ['issues', issueId] });
 
       if (data.topicId) {
         queryClient.invalidateQueries({
