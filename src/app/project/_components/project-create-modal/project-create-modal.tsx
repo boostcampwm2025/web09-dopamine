@@ -49,7 +49,7 @@ export default function ProjectCreateModal() {
       <S.InfoContainer>
         <S.InputWrapper>
           <S.InputTitle>프로젝트 이름</S.InputTitle>
-          <S.Input
+          <S.InputContent
             value={projectName}
             onChange={(e) => setProjectName(e.target.value)}
             placeholder="이름을 입력하세요"

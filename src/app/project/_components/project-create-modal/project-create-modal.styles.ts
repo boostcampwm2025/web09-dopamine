@@ -17,7 +17,7 @@ export const CancelButton = styled.button`
   }
 `;
 
-export const Input = styled.input`
+export const InputContent = styled.input`
   width: 100%;
   padding: 12px 12px;
   border: 1px solid ${theme.colors.gray[300]};
