@@ -36,9 +36,9 @@ interface IdeaCardProps {
   isHotIdea?: boolean;
   onVoteChange?: (agreeCount: number, disagreeCount: number) => void;
   categoryId?: string | null;
-  onSave?: (content: string) => void;
-  onDelete?: () => void;
-  onClick?: () => void;
+  onSave?: (id: string, content: string) => void;
+  onDelete?: (id: string) => void;
+  onClick?: (id: string) => void;
   onPositionChange?: (id: string, position: Position) => void;
   disableAnimation?: boolean; // 드래그 중일 때는 애니메이션 비활성화
 }
@@ -47,8 +47,10 @@ export default function IdeaCard(props: IdeaCardProps) {
   const issueId = props.issueId ?? '';
   const { mutate: selectIdea } = useSelectedIdeaMutation(issueId);
   const { status: issueStatus, isQuickIssue } = useIssueData(props.issueId);
-  const { bringToFront, getZIndex } = useIdeaCardStackStore(props.issueId);
-  const zIndex = props.id ? getZIndex(props.id) : 0;
+  const bringToFront = useIdeaCardStackStore(props.issueId, (state) => state.bringToFront);
+  const zIndex = useIdeaCardStackStore(props.issueId, (state) =>
+    props.id ? state.getZIndex(props.id) : 0,
+  );
 
   // 현재 사용자가 이 아이디어의 작성자인지 확인
   const { userId: currentUserId } = useIssueIdentity(props.issueId, { isQuickIssue });

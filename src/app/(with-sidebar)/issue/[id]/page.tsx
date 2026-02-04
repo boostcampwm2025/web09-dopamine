@@ -324,9 +324,9 @@ const IssuePage = () => {
                           isHotIdea={activeDiscussionIdeaIds.has(idea.id)}
                           isVoteButtonVisible={isVoteButtonVisible}
                           isVoteDisabled={isVoteDisabled}
-                          onSave={(content) => handleSaveIdea(idea.id, content)}
-                          onDelete={() => handleDeleteIdea(idea.id)}
-                          onClick={() => handleSelectIdea(idea.id)}
+                          onSave={handleSaveIdea}
+                          onDelete={handleDeleteIdea}
+                          onClick={handleSelectIdea}
                         />
                         {isCommentOpen && (
                           <CommentWindow
@@ -358,8 +358,8 @@ const IssuePage = () => {
                   isVoteButtonVisible={isVoteButtonVisible}
                   isVoteDisabled={isVoteDisabled}
                   onPositionChange={handleIdeaPositionChange}
-                  onSave={(content) => handleSaveIdea(idea.id, content)}
-                  onDelete={() => handleDeleteIdea(idea.id)}
+                  onSave={handleSaveIdea}
+                  onDelete={handleDeleteIdea}
                   disableAnimation={!!draggingPositions[idea.id]}
                 />
               ))}

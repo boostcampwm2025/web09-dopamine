@@ -14,14 +14,14 @@ interface UseIdeaCardProps {
   isSelected?: boolean;
   status?: CardStatus;
   editable?: boolean;
-  onSave?: (content: string) => void;
+  onSave?: (id: string, content: string) => void;
   categoryId?: string | null;
   inCategory: boolean;
   issueStatus?: IssueStatus;
   bringToFront: (id: string) => void;
   getListeners?: () => { onPointerDown?: PointerEventHandler } | undefined;
-  onDelete?: () => void;
-  onClick?: () => void;
+  onDelete?: (id: string) => void;
+  onClick?: (id: string) => void;
   selectIdea: (id: string) => void;
 }
 
@@ -101,7 +101,7 @@ export function useIdeaCard(props: UseIdeaCardProps) {
     }
     setDisplayContent(trimmed);
     setIsEditing(false);
-    if (onSave) onSave(trimmed);
+    if (onSave) onSave(id, trimmed);
   }, [editValue, onSave]);
 
   const handleKeyDownEdit = useCallback(
@@ -131,7 +131,7 @@ export function useIdeaCard(props: UseIdeaCardProps) {
 
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onDelete?.();
+    onDelete?.(id);
   };
 
   const handleCardClick = () => {
@@ -139,7 +139,7 @@ export function useIdeaCard(props: UseIdeaCardProps) {
       return;
     }
     if (onClick) {
-      onClick();
+      onClick(id);
       return;
     }
     selectIdea(id);

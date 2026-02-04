@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import * as S from '@/app/(with-sidebar)/issue/_components/issue-join-modal/issue-join-modal.styles';
@@ -10,8 +10,16 @@ import { useCreateIssueInTopicMutation, useTopicId } from '@/hooks';
 export default function CreateIssueModal() {
   const router = useRouter();
   const [issueTitle, setIssueTitle] = useState('');
-  const { setIsPending, isOpen, closeModal } = useModalStore();
+  const issueTitleRef = useRef(issueTitle);
+  const setIsPending = useModalStore((state) => state.setIsPending);
+  const isOpen = useModalStore((state) => state.isOpen);
+  const closeModal = useModalStore((state) => state.closeModal);
   const { mutate, isPending } = useCreateIssueInTopicMutation();
+
+  // issueTitle의 최신 값을 ref에 동기화
+  useEffect(() => {
+    issueTitleRef.current = issueTitle;
+  }, [issueTitle]);
 
   useEffect(() => {
     setIsPending(isPending);
@@ -21,18 +29,20 @@ export default function CreateIssueModal() {
   const { topicId } = useTopicId();
 
   const handleCreate = useCallback(async () => {
+    const currentIssueTitle = issueTitleRef.current;
+
     if (!topicId) {
       toast.error('토픽 정보를 찾을 수 없습니다.');
       return;
     }
 
-    if (!issueTitle.trim()) {
+    if (!currentIssueTitle.trim()) {
       toast.error('이슈 제목을 입력해주세요.');
       return;
     }
 
     mutate(
-      { topicId, title: issueTitle },
+      { topicId, title: currentIssueTitle },
       {
         onSuccess: () => {
           closeModal();
@@ -40,7 +50,7 @@ export default function CreateIssueModal() {
         },
       },
     );
-  }, [issueTitle, topicId, mutate]);
+  }, [topicId, mutate, closeModal, router]);
 
   useEffect(() => {
     if (isOpen) {
