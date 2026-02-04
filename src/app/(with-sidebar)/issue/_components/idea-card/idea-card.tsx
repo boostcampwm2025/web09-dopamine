@@ -10,7 +10,6 @@ import { useIssueData, useIssueIdentity } from '../../hooks';
 import { useCommentWindowStore } from '../../store/use-comment-window-store';
 import { useIdeaCardStackStore } from '../../store/use-idea-card-stack-store';
 import type { CardStatus, Position } from '../../types/idea';
-import CommentWindow from '../comment/comment-window';
 import IdeaCardBadge from './idea-card-badge';
 import IdeaCardFooter from './idea-card-footer';
 import IdeaCardHeader from './idea-card-header';
@@ -42,20 +41,6 @@ interface IdeaCardProps {
   onPositionChange?: (id: string, position: Position) => void;
   disableAnimation?: boolean; // 드래그 중일 때는 애니메이션 비활성화
 }
-
-export type DragItemPayload = {
-  id: string;
-  fromColumn: string;
-  content?: string;
-  author?: string;
-  isSelected?: boolean;
-  isVoteButtonVisible?: boolean;
-  isVoteDisabled?: boolean;
-  agreeCount?: number;
-  disagreeCount?: number;
-  needDiscussion?: boolean;
-  editable?: boolean;
-};
 
 export default function IdeaCard(props: IdeaCardProps) {
   const issueId = props.issueId ?? '';
@@ -239,14 +224,6 @@ export default function IdeaCard(props: IdeaCardProps) {
         onAgree={handleAgree}
         onDisagree={handleDisagree}
       />
-      {isCommentOpen && !isDragging && (
-        <CommentWindow
-          issueId={issueId}
-          ideaId={props.id}
-          userId={currentUserId}
-          onClose={closeComment}
-        />
-      )}
     </S.Card>
   );
 }

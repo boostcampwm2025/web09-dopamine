@@ -34,9 +34,9 @@ export default function CreateIssueModal() {
     mutate(
       { topicId, title: issueTitle },
       {
-        onSuccess: (data) => {
+        onSuccess: () => {
           closeModal();
-          router.push(`/issue/${data.issueId}`);
+          router.refresh();
         },
       },
     );

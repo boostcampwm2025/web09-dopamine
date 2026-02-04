@@ -158,6 +158,7 @@ export function useHeader({ issueId }: UseHeaderParams) {
     isOwner,
     isVisible,
     isEditButtonVisible,
+    topicId,
     handleCloseIssue,
     handleNextStep,
     handleAddCategory,

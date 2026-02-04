@@ -4,6 +4,10 @@ import { theme } from '@/styles/theme';
 import { IssueStatus } from '@/types/issue';
 import { CardStatus } from '../../types/idea';
 
+export const Wrapper = styled.div`
+  position: relative;
+`;
+
 export const Badge = styled.div<{ status?: CardStatus }>`
   position: absolute;
   top: -20px;
@@ -70,7 +74,6 @@ export const Card = styled.article<{
       ? `
     z-index: ${theme.zIndex.selected};
     border: 2px solid ${theme.colors.red[500]};
-    box-shadow: 0 8px 24px rgba(220, 38, 38, 0.3);
     ${status === 'default' || !status ? `background: ${theme.colors.red[50]};` : ''}
   `
       : ''}
@@ -90,17 +93,24 @@ export const Card = styled.article<{
         return `
         border: 2px solid ${theme.colors.yellow[500]};
         background: ${theme.colors.yellow[50]};
-        box-shadow: '0 4px 10px rgba(250, 204, 21, 0.86)';
+        box-shadow: 0 4px 10px rgba(250, 204, 21, 0.86);
         `;
       case 'default':
       default:
         return `
         border: 1px solid ${theme.colors.gray[200]};
         background: ${theme.colors.white};
-        box-shadow: '0 4px 10px rgba(31, 41, 55, 0.06)';
+        box-shadow: 0 4px 10px rgba(31, 41, 55, 0.06);
         `;
     }
   }}
+
+  ${({ issueStatus }) =>
+    issueStatus && issueStatus !== ISSUE_STATUS.BRAINSTORMING
+      ? `
+        box-shadow: none !important;
+      `
+      : ''}
 
   &:hover {
     ${({ issueStatus, status }) => {

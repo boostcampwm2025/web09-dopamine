@@ -10,8 +10,11 @@ import {
   Input,
   Title,
 } from './category-card.styles';
+import { IssueStatus } from '@/types/issue';
+import { ISSUE_STATUS } from '@/constants/issue';
 
 interface CategoryCardHeaderProps {
+  status: IssueStatus;
   curTitle: string;
   draftTitle: string;
   isEditing: boolean;
@@ -26,6 +29,7 @@ interface CategoryCardHeaderProps {
 }
 
 export default function CategoryCardHeader({
+  status,
   curTitle,
   draftTitle,
   isEditing,
@@ -61,7 +65,7 @@ export default function CategoryCardHeader({
           <Title isMuted={isMuted}>{curTitle}</Title>
         )}
       </HeaderLeft>
-      {!isEditing && (
+      {!isEditing && status === ISSUE_STATUS.CATEGORIZE && (
         <Actions>
           <Btn
             onClick={onStartEdit}
