@@ -1,9 +1,9 @@
 import Image from 'next/image';
+import { StringifyOptions } from 'querystring';
 import { MEMBER_ROLE } from '@/constants/issue';
-import { useMemberNicknameEdit } from './use-member-nickname-edit';
 import * as MemberS from './member-sidebar-item.styles';
 import * as S from './sidebar.styles';
-import { StringifyOptions } from 'querystring';
+import { useMemberNicknameEdit } from './use-member-nickname-edit';
 
 interface MemberSidebarItemProps {
   profile?: string;
@@ -78,12 +78,10 @@ export default function MemberSidebarItem({
               autoFocus
             />
           ) : (
-            <span>{name}</span>
+            <span>{name.length > 7 ? name.slice(0, 6) + '...' : name}</span>
           )}
 
-          {!isIssuePage && isCurrentUser && (
-            <MemberS.CurrentUserLabel>me</MemberS.CurrentUserLabel>
-          )}
+          {!isIssuePage && isCurrentUser && <MemberS.CurrentUserLabel>me</MemberS.CurrentUserLabel>}
 
           {isCurrentUser && isIssuePage && (
             <MemberS.ActionContainer>
@@ -98,7 +96,10 @@ export default function MemberSidebarItem({
                   </MemberS.IconButton>
                 </>
               ) : (
-                <MemberS.IconButton onClick={startEditing} title="닉네임 수정">
+                <MemberS.IconButton
+                  onClick={startEditing}
+                  title="닉네임 수정"
+                >
                   <Image
                     src="/edit-gray.svg"
                     alt="닉네임 수정"
@@ -110,7 +111,7 @@ export default function MemberSidebarItem({
             </MemberS.ActionContainer>
           )}
 
-          {(isProjectOwner && !isEditing) && (
+          {isProjectOwner && !isEditing && (
             <MemberS.OwnerBadge>
               <Image
                 src="/yellow-crown.svg"
