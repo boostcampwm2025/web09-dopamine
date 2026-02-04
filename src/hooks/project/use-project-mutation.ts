@@ -15,7 +15,8 @@ export const useCreateProjectMutation = () => {
     },
 
     onError: (error: unknown) => {
-      const errorMessage = error instanceof Error ? error.message : '프로젝트 생성에 실패했습니다.';
+      const errorMessage =
+        error instanceof Error && error.message ? error.message : '프로젝트 생성에 실패했습니다.';
       console.error('프로젝트 생성 실패:', error);
       toast.error(errorMessage);
     },
