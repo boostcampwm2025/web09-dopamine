@@ -112,7 +112,7 @@ export default function MemberSidebarItem({
               ) : (
                 <MemberS.IconButton onClick={startEditing} title="닉네임 수정">
                   <Image
-                    src="/edit.svg"
+                    src="/edit-gray.svg"
                     alt="닉네임 수정"
                     width={14}
                     height={14}
