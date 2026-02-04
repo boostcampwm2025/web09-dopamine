@@ -2,9 +2,10 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
+import * as MS from '@/app/(with-sidebar)/issue/_components/edit-issue-modal/edit-issue-modal.styles';
 import * as S from '@/app/(with-sidebar)/issue/_components/issue-join-modal/issue-join-modal.styles';
 import { useModalStore } from '@/components/modal/use-modal-store';
-import { useUpdateTopicTitleMutation } from '@/hooks';
+import { useDeleteTopicMutation, useUpdateTopicTitleMutation } from '@/hooks';
 
 export interface EditTopicProps {
   topicId: string;
@@ -15,10 +16,17 @@ export interface EditTopicProps {
 export default function EditTopicModal({ topicId, currentTitle, userId }: EditTopicProps) {
   const [title, setTitle] = useState(currentTitle || '');
   const { setIsPending, isOpen, closeModal } = useModalStore();
-  const { mutate, isPending } = useUpdateTopicTitleMutation(topicId);
+  const { mutate: updateIssue, isPending: isUpdatePending } = useUpdateTopicTitleMutation(topicId);
+  const { mutate: deleteTopic, isPending: isDeletePending } = useDeleteTopicMutation(topicId);
+
+  const isPending = isUpdatePending || isDeletePending;
 
   useEffect(() => {
     setIsPending(isPending);
+
+    return () => {
+      setIsPending(false);
+    };
   }, [isPending, setIsPending]);
 
   const handleUpdate = useCallback(async () => {
@@ -27,7 +35,7 @@ export default function EditTopicModal({ topicId, currentTitle, userId }: EditTo
       return;
     }
 
-    mutate(
+    updateIssue(
       { title, userId },
       {
         onSuccess: () => {
@@ -35,7 +43,22 @@ export default function EditTopicModal({ topicId, currentTitle, userId }: EditTo
         },
       },
     );
-  }, [title, mutate]);
+  }, [title, updateIssue]);
+
+  const handleDelete = useCallback(async () => {
+    if (
+      !confirm(
+        '토픽을 삭제하시겠습니까? 토픽을 삭제하면 토픽에 속한 모든 이슈, 카테고리, 아이디어, 멤버의 데이터가 삭제됩니다.',
+      )
+    ) {
+      return;
+    }
+    deleteTopic(undefined, {
+      onSuccess: () => {
+        closeModal();
+      },
+    });
+  }, [deleteTopic]);
 
   useEffect(() => {
     if (isOpen) {
@@ -62,6 +85,7 @@ export default function EditTopicModal({ topicId, currentTitle, userId }: EditTo
             disabled={isPending}
           />
         </S.InputWrapper>
+        <MS.DeleteButton onClick={handleDelete}>삭제하기</MS.DeleteButton>
       </S.InfoContainer>
     </S.Container>
   );
