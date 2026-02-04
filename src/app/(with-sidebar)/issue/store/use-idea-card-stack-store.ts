@@ -69,9 +69,18 @@ const createIdeaCardStackStore = (issueId: string) => {
 
 const storeCache = new Map<string, ReturnType<typeof createIdeaCardStackStore>>();
 
-export const useIdeaCardStackStore = (issueId: string = 'default') => {
+export function useIdeaCardStackStore(issueId?: string): IdeaCardStackState;
+export function useIdeaCardStackStore<T>(
+  issueId: string,
+  selector: (state: IdeaCardStackState) => T,
+): T;
+export function useIdeaCardStackStore<T>(
+  issueId: string = 'default',
+  selector?: (state: IdeaCardStackState) => T,
+) {
   if (!storeCache.has(issueId)) {
     storeCache.set(issueId, createIdeaCardStackStore(issueId));
   }
-  return storeCache.get(issueId)!();
-};
+  const store = storeCache.get(issueId)!;
+  return selector ? store(selector) : store();
+}

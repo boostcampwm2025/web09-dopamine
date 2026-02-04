@@ -19,7 +19,9 @@ export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) 
   } = useIdeasWithTemp(issueId);
 
   // z-index 관리
-  const { addCard, removeCard, setInitialCardData } = useIdeaCardStackStore(issueId);
+  const addCard = useIdeaCardStackStore(issueId, (state) => state.addCard);
+  const removeCard = useIdeaCardStackStore(issueId, (state) => state.removeCard);
+  const setInitialCardData = useIdeaCardStackStore(issueId, (state) => state.setInitialCardData);
 
   // 서버 mutation
   const { createIdea, updateIdea, removeIdea } = useIdeaMutations(issueId);

@@ -46,8 +46,10 @@ export default function IdeaCard(props: IdeaCardProps) {
   const issueId = props.issueId ?? '';
   const { mutate: selectIdea } = useSelectedIdeaMutation(issueId);
   const { status: issueStatus, isQuickIssue } = useIssueData(props.issueId);
-  const { bringToFront, getZIndex } = useIdeaCardStackStore(props.issueId);
-  const zIndex = props.id ? getZIndex(props.id) : 0;
+  const bringToFront = useIdeaCardStackStore(props.issueId, (state) => state.bringToFront);
+  const zIndex = useIdeaCardStackStore(props.issueId, (state) =>
+    props.id ? state.getZIndex(props.id) : 0,
+  );
 
   // 현재 사용자가 이 아이디어의 작성자인지 확인
   const { userId: currentUserId } = useIssueIdentity(props.issueId, { isQuickIssue });
