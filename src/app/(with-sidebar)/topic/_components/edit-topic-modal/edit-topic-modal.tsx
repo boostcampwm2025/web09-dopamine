@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import * as MS from '@/app/(with-sidebar)/issue/_components/edit-issue-modal/edit-issue-modal.styles';
 import * as S from '@/app/(with-sidebar)/issue/_components/issue-join-modal/issue-join-modal.styles';
+import { useSseConnectionStore } from '@/app/(with-sidebar)/issue/store/use-sse-connection-store';
 import { useModalStore } from '@/components/modal/use-modal-store';
 import { useDeleteTopicMutation, useUpdateTopicTitleMutation } from '@/hooks';
 
@@ -18,6 +19,7 @@ export default function EditTopicModal({ topicId, currentTitle, userId }: EditTo
   const { setIsPending, isOpen, closeModal } = useModalStore();
   const { mutate: updateIssue, isPending: isUpdatePending } = useUpdateTopicTitleMutation(topicId);
   const { mutate: deleteTopic, isPending: isDeletePending } = useDeleteTopicMutation(topicId);
+  const connectionId = useSseConnectionStore((state) => state.connectionIds[topicId]);
 
   const isPending = isUpdatePending || isDeletePending;
 
@@ -53,7 +55,7 @@ export default function EditTopicModal({ topicId, currentTitle, userId }: EditTo
     ) {
       return;
     }
-    deleteTopic(undefined, {
+    deleteTopic(connectionId, {
       onSuccess: () => {
         closeModal();
       },
