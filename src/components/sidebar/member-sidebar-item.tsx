@@ -97,7 +97,11 @@ export default function MemberSidebarItem({
             <span>{name}</span>
           )}
 
-          {isCurrentUser && (
+          {!isIssuePage && isCurrentUser && (
+            <MemberS.CurrentUserLabel>me</MemberS.CurrentUserLabel>
+          )}
+
+          {isCurrentUser && isIssuePage && (
             <MemberS.ActionContainer>
               {isEditing ? (
                 <>
