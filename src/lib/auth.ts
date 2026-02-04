@@ -49,6 +49,8 @@ export const authOptions: NextAuthOptions = {
       if (session.user && token.sub) {
         session.user.id = token.sub;
         session.user.displayName = token.displayName;
+        // 프로필 이미지가 없으면 기본 이미지 경로 설정
+        session.user.image = session.user.image || '/profile.svg';
       }
       return session;
     },
