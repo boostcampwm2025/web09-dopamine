@@ -43,3 +43,5 @@ export const ISSUE_STATUS_DESCRIPTION: Record<IssueStatus, string> = {
 };
 
 export const DEFAULT_SELF_LABEL = '나';
+
+export const MAX_ISSUE_TITLE_LENGTH = 20;
