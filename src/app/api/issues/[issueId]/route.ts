@@ -3,6 +3,7 @@ import { SSE_EVENT_TYPES } from '@/constants/sse-events';
 import { findIssueById } from '@/lib/repositories/issue.repository';
 import { issueService } from '@/lib/services/issue.service';
 import { broadcast, broadcastToTopic } from '@/lib/sse/sse-service';
+import { getIssueUserId } from '@/lib/utils/api-auth';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 
 export async function GET(
@@ -30,8 +31,14 @@ export async function PATCH(
   { params }: { params: Promise<{ issueId: string }> },
 ): Promise<NextResponse> {
   const { issueId } = await params;
-  const { title, userId } = await req.json();
+  const { title } = await req.json();
   const actorConnectionId = req.headers.get('x-sse-connection-id') || undefined;
+
+  const userId = await getIssueUserId(issueId);
+
+  if (!userId) {
+    return createErrorResponse('USER_NOT_FOUND', 401);
+  }
 
   try {
     const issue = await issueService.updateIssueTitle({ issueId, title, userId });
@@ -79,9 +86,13 @@ export async function DELETE(
   const { issueId } = await params;
   const actorConnectionId = req.headers.get('x-sse-connection-id') || undefined;
 
-  try {
-    const { userId } = await req.json();
+  const userId = await getIssueUserId(issueId);
 
+  if (!userId) {
+    return createErrorResponse('USER_NOT_FOUND', 401);
+  }
+
+  try {
     const issue = await issueService.deleteIssue(issueId, userId);
 
     broadcast({

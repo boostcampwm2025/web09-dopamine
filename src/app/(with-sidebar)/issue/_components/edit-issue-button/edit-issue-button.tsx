@@ -5,7 +5,7 @@ import { useModalStore } from '@/components/modal/use-modal-store';
 import EditIssueModal, { EditIssueProps } from '../edit-issue-modal/edit-issue-modal';
 import * as S from './edit-issue-button.styles';
 
-export default function EditIssueButton({ issueId, currentTitle, userId }: EditIssueProps) {
+export default function EditIssueButton({ issueId, currentTitle }: EditIssueProps) {
   const { openModal } = useModalStore();
 
   const handleEditClick = () => {
@@ -15,7 +15,6 @@ export default function EditIssueButton({ issueId, currentTitle, userId }: EditI
         <EditIssueModal
           issueId={issueId}
           currentTitle={currentTitle}
-          userId={userId}
         />
       ),
       closeOnOverlayClick: true,

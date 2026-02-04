@@ -6,6 +6,7 @@ export const CLIENT_ERROR_MESSAGES: Record<string, string> = {
   VALIDATION_FAILED: '입력한 값이 올바르지 않습니다. 다시 확인해주세요.',
   UNKNOWN_ERROR: '알 수 없는 오류가 발생했습니다.',
   UNAUTHORIZED_USER: '로그인이 필요합니다.',
+  USER_NOT_FOUND: '유저 정보를 찾을 수 없습니다',
 
   // 토픽
   TOPIC_NOT_FOUND: '존재하지 않는 토픽입니다.',
