@@ -31,12 +31,14 @@ export async function PATCH(
 ): Promise<NextResponse> {
   const { issueId } = await params;
   const { title, userId } = await req.json();
+  const actorConnectionId = req.headers.get('x-sse-connection-id') || undefined;
 
   try {
     const issue = await issueService.updateIssueTitle({ issueId, title, userId });
 
     broadcast({
       issueId: issueId,
+      excludeConnectionId: actorConnectionId,
       event: {
         type: SSE_EVENT_TYPES.ISSUE_STATUS_CHANGED,
         data: { title: issue.title, issueId, topicId: issue?.topicId },
@@ -75,6 +77,7 @@ export async function DELETE(
   { params }: { params: Promise<{ issueId: string }> },
 ) {
   const { issueId } = await params;
+  const actorConnectionId = req.headers.get('x-sse-connection-id') || undefined;
 
   try {
     const { userId } = await req.json();
@@ -83,6 +86,7 @@ export async function DELETE(
 
     broadcast({
       issueId,
+      excludeConnectionId: actorConnectionId,
       event: {
         type: SSE_EVENT_TYPES.ISSUE_DELETED,
         data: { issueId, topicId: issue?.topicId },
@@ -93,9 +97,10 @@ export async function DELETE(
     if (issue?.topicId) {
       broadcastToTopic({
         topicId: issue.topicId,
+        excludeConnectionId: actorConnectionId,
         event: {
           type: SSE_EVENT_TYPES.ISSUE_DELETED,
-          data: { issueId, topicId: issue.topicId },
+          data: { issueId, topicId: issue.topicId, actorId: userId },
         },
       });
     }
