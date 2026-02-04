@@ -37,6 +37,8 @@ export async function PATCH(
   { params }: { params: Promise<{ topicId: string }> },
 ) {
   const { topicId } = await params;
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) return createErrorResponse('UNAUTHORIZED', 401);
 
   try {
     const { title } = await req.json();
@@ -44,6 +46,7 @@ export async function PATCH(
     const topic = await topicService.updateTopicTitle({
       topicId,
       title,
+      userId: session.user.id,
     });
 
     return createSuccessResponse(topic);
@@ -57,9 +60,6 @@ export async function PATCH(
       if (error.message === 'PERMISSION_DENIED') {
         return createErrorResponse('PERMISSION_DENIED', 403);
       }
-      if (error.message === 'UNAUTHORIZED') {
-        return createErrorResponse('UNAUTHORIZED', 401);
-      }
       return createErrorResponse(error.message, 500);
     }
 
@@ -72,9 +72,11 @@ export async function DELETE(
   { params }: { params: Promise<{ topicId: string }> },
 ) {
   const { topicId } = await params;
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) return createErrorResponse('UNAUTHORIZED', 401);
 
   try {
-    const topic = await topicService.deleteTopic(topicId);
+    const topic = await topicService.deleteTopic(topicId, session.user.id);
 
     return createSuccessResponse(topic);
   } catch (error: unknown) {
@@ -86,9 +88,6 @@ export async function DELETE(
       }
       if (error.message === 'PERMISSION_DENIED') {
         return createErrorResponse('PERMISSION_DENIED', 403);
-      }
-      if (error.message === 'UNAUTHORIZED') {
-        return createErrorResponse('UNAUTHORIZED', 401);
       }
       return createErrorResponse(error.message, 500);
     }

@@ -1,5 +1,3 @@
-import { getServerSession } from 'next-auth';
-import { authOptions } from '../auth';
 import { findIssuesWithMapDataByTopicId } from '../repositories/issue.repository';
 import {
   findTopicWithPermissionData,
@@ -10,6 +8,7 @@ import {
 interface UpdateTopicTitleProps {
   topicId: string;
   title: string;
+  userId: string;
 }
 
 export const topicService = {
@@ -37,15 +36,7 @@ export const topicService = {
     };
   },
 
-  async updateTopicTitle({ topicId, title }: UpdateTopicTitleProps) {
-    const session = await getServerSession(authOptions);
-
-    if (!session?.user?.id) {
-      throw new Error('UNAUTHORIZED');
-    }
-
-    const userId = session.user.id;
-
+  async updateTopicTitle({ topicId, title, userId }: UpdateTopicTitleProps) {
     const topic = await findTopicWithPermissionData(topicId, userId);
 
     if (!topic) {
@@ -62,15 +53,7 @@ export const topicService = {
     return await updateTopicTitle(topicId, title);
   },
 
-  async deleteTopic(topicId: string) {
-    const session = await getServerSession(authOptions);
-
-    if (!session?.user?.id) {
-      throw new Error('UNAUTHORIZED');
-    }
-
-    const userId = session.user.id;
-
+  async deleteTopic(topicId: string, userId: string) {
     const topic = await findTopicWithPermissionData(topicId, userId);
 
     if (!topic) {
