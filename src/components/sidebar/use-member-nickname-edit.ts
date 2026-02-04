@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useUpdateNicknameMutation } from '@/hooks/issue/use-issue-member-mutation';
 
 interface UseMemberNicknameEditProps {
-  issueId: string;
+  issueId?: string;
   userId: string;
   initialName: string;
 }
@@ -10,7 +10,10 @@ interface UseMemberNicknameEditProps {
 export const useMemberNicknameEdit = ({ issueId, userId, initialName }: UseMemberNicknameEditProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(initialName);
-  const { update } = useUpdateNicknameMutation(issueId, userId);
+
+  // issueId가 없으면 빈 문자열을 전달하여 훅이 에러나지 않게 함 (실제 실행은 안되게 막음)
+  const safeIssueId = issueId || '';
+  const { update } = useUpdateNicknameMutation(safeIssueId, userId);
 
   const startEditing = (e?: React.MouseEvent) => {
     e?.stopPropagation();
@@ -30,6 +33,9 @@ export const useMemberNicknameEdit = ({ issueId, userId, initialName }: UseMembe
       setIsEditing(false);
       return;
     }
+
+    if (!issueId) return;
+
     update.mutate(editName, {
       onSuccess: () => {
         setIsEditing(false);
