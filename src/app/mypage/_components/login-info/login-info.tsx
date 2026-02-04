@@ -39,7 +39,7 @@ export default function LoginInfo() {
           <S.LoginCard key={provider ?? i}>
             <S.LoginInfoWrapper>
               <S.ProviderIcon style={{ color }}>{icon}</S.ProviderIcon>
-              <S.ProviderText>{name}로 로그인 중</S.ProviderText>
+              <S.ProviderText>{name}</S.ProviderText>
             </S.LoginInfoWrapper>
             <S.StatusBadge>CONNECTED</S.StatusBadge>
           </S.LoginCard>
