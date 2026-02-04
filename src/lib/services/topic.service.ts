@@ -10,7 +10,6 @@ import {
 interface UpdateTopicTitleProps {
   topicId: string;
   title: string;
-  userId: string;
 }
 
 export const topicService = {
@@ -38,7 +37,15 @@ export const topicService = {
     };
   },
 
-  async updateTopicTitle({ topicId, title, userId }: UpdateTopicTitleProps) {
+  async updateTopicTitle({ topicId, title }: UpdateTopicTitleProps) {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.id) {
+      throw new Error('UNAUTHORIZED');
+    }
+
+    const userId = session.user.id;
+
     const topic = await findTopicWithPermissionData(topicId, userId);
 
     if (!topic) {

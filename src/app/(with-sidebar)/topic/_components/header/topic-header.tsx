@@ -42,15 +42,20 @@ export default function TopicHeader() {
             />
           </HS.ButtonsWrapper>
         </Link>
-        
+
         <S.Divider />
 
-        {showLoading ? <TitleSkeleton width="180px" /> : <>{topic?.title}
-        <EditTopicButton
-          topicId={topicId}
-          currentTitle={topic?.title}
-          userId={session?.user.id!}
-        /></>}
+        {showLoading ? (
+          <TitleSkeleton width="180px" />
+        ) : (
+          <>
+            {topic?.title}
+            <EditTopicButton
+              topicId={topicId}
+              currentTitle={topic?.title}
+            />
+          </>
+        )}
       </S.LeftSection>
       <S.RightSection>
         <CreateIssueButton />

@@ -1,4 +1,6 @@
+import { getServerSession } from 'next-auth';
 import { NextRequest } from 'next/server';
+import { authOptions } from '@/lib/auth';
 import { findTopicById } from '@/lib/repositories/topic.repository';
 import { topicService } from '@/lib/services/topic.service';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
@@ -37,12 +39,11 @@ export async function PATCH(
   const { topicId } = await params;
 
   try {
-    const { title, userId } = await req.json();
+    const { title } = await req.json();
 
     const topic = await topicService.updateTopicTitle({
       topicId,
       title,
-      userId,
     });
 
     return createSuccessResponse(topic);
@@ -55,6 +56,9 @@ export async function PATCH(
       }
       if (error.message === 'PERMISSION_DENIED') {
         return createErrorResponse('PERMISSION_DENIED', 403);
+      }
+      if (error.message === 'UNAUTHORIZED') {
+        return createErrorResponse('UNAUTHORIZED', 401);
       }
       return createErrorResponse(error.message, 500);
     }

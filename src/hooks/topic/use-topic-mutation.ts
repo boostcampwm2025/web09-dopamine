@@ -48,8 +48,7 @@ export const useUpdateTopicTitleMutation = (topicId: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: { title: string; userId: string }) =>
-      updateTopicTitle(topicId, data.title, data.userId),
+    mutationFn: (data: { title: string }) => updateTopicTitle(topicId, data.title),
 
     onSuccess: () => {
       queryClient.invalidateQueries({

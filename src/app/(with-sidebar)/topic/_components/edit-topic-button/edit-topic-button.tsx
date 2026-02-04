@@ -5,7 +5,7 @@ import * as S from '@/app/(with-sidebar)/issue/_components/edit-issue-button/edi
 import { useModalStore } from '@/components/modal/use-modal-store';
 import EditTopicModal, { EditTopicProps } from '../edit-topic-modal/edit-topic-modal';
 
-export default function EditTopicButton({ topicId, currentTitle, userId }: EditTopicProps) {
+export default function EditTopicButton({ topicId, currentTitle }: EditTopicProps) {
   const { openModal } = useModalStore();
 
   const handleEditClick = () => {
@@ -15,7 +15,6 @@ export default function EditTopicButton({ topicId, currentTitle, userId }: EditT
         <EditTopicModal
           topicId={topicId}
           currentTitle={currentTitle}
-          userId={userId}
         />
       ),
       closeOnOverlayClick: true,
