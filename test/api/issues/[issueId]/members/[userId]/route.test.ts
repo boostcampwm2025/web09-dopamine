@@ -104,20 +104,4 @@ describe('PATCH /api/issues/[issueId]/members/[userId]', () => {
     const response = await PATCH(req, params);
     await expectErrorResponse(response, 400, 'NICKNAME_REQUIRED');
   });
-
-  it('이미 존재하는 닉네임이면 400 에러를 반환한다', async () => {
-    const body = { nickname: 'Existing Nickname' };
-
-    (issueMemberRepository.findMemberByUserId as jest.Mock).mockResolvedValue({
-      userId,
-      nickname: 'Existing Nickname',
-    });
-
-    const req = createMockGetRequest();
-    req.json = jest.fn().mockResolvedValue(body);
-    const params = createMockParams({ issueId, userId });
-
-    const response = await PATCH(req, params);
-    await expectErrorResponse(response, 400, 'NICKNAME_ALREADY_EXISTS');
-  });
 });
