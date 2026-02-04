@@ -32,7 +32,7 @@ export function useHeader({ issueId }: UseHeaderParams) {
   const { handleAIStructure } = useAIStructuringMutation(issueId);
 
   const isOwner = currentMember?.role === MEMBER_ROLE.OWNER;
-  const { ideas, hasEditingIdea } = useIdeasWithTemp(issueId);
+  const { ideas, hasEditingIdea, tempIdea, deleteTempIdea } = useIdeasWithTemp(issueId);
   const scale = useCanvasStore((state) => state.scale);
   const { categories, handleAddCategory } = useCategoryOperations(issueId, ideas, scale);
 
@@ -87,6 +87,10 @@ export function useHeader({ issueId }: UseHeaderParams) {
       }
     }
     if (issue?.status === ISSUE_STATUS.CATEGORIZE) {
+      if (tempIdea) {
+        deleteTempIdea();
+      }
+
       if (categories.length === 0) {
         toast.error('카테고리가 없습니다.');
         throw new Error('카테고리가 없습니다.');
