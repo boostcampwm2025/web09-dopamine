@@ -4,6 +4,8 @@ import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import { useTooltipStore } from '@/components/tooltip/use-tooltip-store';
 import { ISSUE_STATUS } from '@/constants/issue';
+import { useIssueIdentity } from '../../hooks';
+import EditIssueButton from '../edit-issue-button/edit-issue-button';
 import ProgressBar from '../progress-bar/progress-bar';
 import HeaderButton from './header-button';
 import * as S from './header.styles';
@@ -12,10 +14,12 @@ import { useHeader } from './use-header';
 const Header = () => {
   const params = useParams<{ id: string }>();
   const issueId = params.id || 'default';
+  const { userId } = useIssueIdentity(issueId);
 
   const {
     issue,
     isVisible,
+    isEditButtonVisible,
     topicId,
     handleCloseIssue,
     handleNextStep,
@@ -76,6 +80,13 @@ const Header = () => {
           </S.ButtonsWrapper>
         </button>
         {issue?.title}
+        {isEditButtonVisible && (
+          <EditIssueButton
+            issueId={issueId}
+            currentTitle={issue?.title}
+            userId={userId}
+          />
+        )}
       </S.LeftSection>
       <S.CenterSection>
         <ProgressBar />
