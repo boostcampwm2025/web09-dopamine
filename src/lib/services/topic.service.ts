@@ -1,3 +1,5 @@
+import { getServerSession } from 'next-auth';
+import { authOptions } from '../auth';
 import { findIssuesWithMapDataByTopicId } from '../repositories/issue.repository';
 import {
   findTopicWithPermissionData,
@@ -53,7 +55,15 @@ export const topicService = {
     return await updateTopicTitle(topicId, title);
   },
 
-  async deleteTopic(topicId: string, userId: string) {
+  async deleteTopic(topicId: string) {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.id) {
+      throw new Error('UNAUTHORIZED');
+    }
+
+    const userId = session.user.id;
+
     const topic = await findTopicWithPermissionData(topicId, userId);
 
     if (!topic) {

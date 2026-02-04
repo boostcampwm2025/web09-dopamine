@@ -73,9 +73,7 @@ export async function DELETE(
   const actorConnectionId = req.headers.get('x-sse-connection-id') || undefined;
 
   try {
-    const { userId } = await req.json();
-
-    const topic = await topicService.deleteTopic(topicId, userId);
+    const topic = await topicService.deleteTopic(topicId);
 
     broadcastToTopic({
       topicId,
@@ -96,6 +94,9 @@ export async function DELETE(
       }
       if (error.message === 'PERMISSION_DENIED') {
         return createErrorResponse('PERMISSION_DENIED', 403);
+      }
+      if (error.message === 'UNAUTHORIZED') {
+        return createErrorResponse('UNAUTHORIZED', 401);
       }
       return createErrorResponse(error.message, 500);
     }

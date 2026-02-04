@@ -49,7 +49,7 @@ export const useDeleteTopicMutation = (topicId: string) => {
   const router = useRouter();
 
   return useMutation({
-    mutationFn: (userId: string) => deleteTopic(topicId, userId),
+    mutationFn: () => deleteTopic(topicId),
 
     onSuccess: async (data) => {
       await queryClient.cancelQueries({ queryKey: ['topics', topicId] });

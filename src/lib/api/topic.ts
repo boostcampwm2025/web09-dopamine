@@ -43,11 +43,10 @@ export function updateTopicTitle(topicId: string, title: string, userId: string)
   });
 }
 
-export function deleteTopic(topicId: string, userId: string, connectionId?: string) {
+export function deleteTopic(topicId: string, connectionId?: string) {
   return getAPIResponseData<{ id: string; projectId: string }>({
     url: `/api/topics/${topicId}`,
     method: 'DELETE',
-    headers: withSseHeader({ 'Content-Type': 'application/json' }, connectionId),
-    body: JSON.stringify({ userId }),
+    headers: withSseHeader(undefined, connectionId),
   });
 }
