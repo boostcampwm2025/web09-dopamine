@@ -8,6 +8,7 @@ import { ISSUE_STATUS } from '@/constants/issue';
 import { useSelectedIdeaMutation } from '@/hooks/issue';
 import { theme } from '@/styles/theme';
 import { useIssueData, useIssueIdentity } from '../../hooks';
+import { useIdeaEditingStore } from '../../store/use-idea-editing-store';
 import { useCommentWindowStore } from '../../store/use-comment-window-store';
 import { useIdeaCardStackStore } from '../../store/use-idea-card-stack-store';
 import type { CardStatus, Position } from '../../types/idea';
@@ -92,6 +93,16 @@ export default function IdeaCard(props: IdeaCardProps) {
     onClick: props.onClick,
     selectIdea,
   });
+
+  const setEditing = useIdeaEditingStore(props.issueId, (state) => state.setEditing);
+
+  useEffect(() => {
+    if (!props.id || !props.id.startsWith('temp-')) return; // 임시 아이디어만 편집 상태 추적
+    setEditing(props.id, isEditing);
+    return () => {
+      setEditing(props.id, false);
+    };
+  }, [props.id, isEditing, setEditing]);
 
   // 댓글 윈도우 상태 관리
   const activeCommentId = useCommentWindowStore((s) => s.activeCommentId);
