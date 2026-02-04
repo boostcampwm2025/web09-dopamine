@@ -22,6 +22,7 @@ export const findTopicById = async (topicId: string) => {
   return await prisma.topic.findUnique({
     where: {
       id: topicId,
+      deletedAt: null,
     },
   });
 };
