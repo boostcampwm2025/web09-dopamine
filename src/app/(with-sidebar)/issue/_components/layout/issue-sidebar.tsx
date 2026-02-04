@@ -61,33 +61,35 @@ export default function IssueSidebar() {
         </>
       )}
 
-      {isMounted && showMemberList && (
-        <>
-          <S.SidebarTitle>
-            MEMBER LIST
-            {!isSummaryPage && (
-              <span>
-                ({onlineMemberIds.length}/{sortedMembers.length})
-              </span>
-            )}
-          </S.SidebarTitle>
-          <S.SidebarList>
-            {filteredMembers.map((user) => {
-              const isOnline = isSummaryPage ? undefined : onlineMemberIds.includes(user.id);
-              return (
-                <MemberSidebarItem
-                  key={user.id}
-                  id={user.id}
-                  name={user.nickname}
-                  role={user.role}
-                  profile={user.profile || undefined}
-                  isConnected={isOnline}
-                />
-              );
-            })}
-          </S.SidebarList>
-        </>
-      )}
-    </Sidebar>
+      {
+        isMounted && showMemberList && (
+          <>
+            <S.SidebarTitle>
+              MEMBER LIST
+              {!isSummaryPage && (
+                <span>
+                  ({onlineMemberIds.length}/{sortedMembers.length})
+                </span>
+              )}
+            </S.SidebarTitle>
+            <S.SidebarList>
+              {filteredMembers.map((user) => {
+                const isOnline = isSummaryPage ? undefined : onlineMemberIds.includes(user.id);
+                return (
+                  <MemberSidebarItem
+                    key={user.id}
+                    id={user.id}
+                    name={user.nickname}
+                    role={user.role}
+                    profile={user.profile || undefined}
+                    isConnected={isOnline}
+                  />
+                );
+              })}
+            </S.SidebarList>
+          </>
+        )
+      }
+    </Sidebar >
   );
 }

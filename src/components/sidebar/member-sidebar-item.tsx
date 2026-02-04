@@ -97,19 +97,11 @@ export default function MemberSidebarItem({
             <span>{name}</span>
           )}
 
-          {isProjectOwner && (
-            <MemberS.OwnerBadge>
-              <Image
-                src="/yellow-crown.svg"
-                alt="팀장"
-                width={14}
-                height={14}
-              />
-              <MemberS.OwnerText>팀장</MemberS.OwnerText>
-            </MemberS.OwnerBadge>
+          {!isIssuePage && isCurrentUser && (
+            <MemberS.CurrentUserLabel>me</MemberS.CurrentUserLabel>
           )}
 
-          {(isCurrentUser && isIssuePage) && (
+          {isCurrentUser && isIssuePage && (
             <MemberS.ActionContainer>
               {isEditing ? (
                 <>
@@ -134,6 +126,17 @@ export default function MemberSidebarItem({
             </MemberS.ActionContainer>
           )}
 
+          {(isProjectOwner && !isEditing) && (
+            <MemberS.OwnerBadge>
+              <Image
+                src="/yellow-crown.svg"
+                alt="팀장"
+                width={14}
+                height={14}
+              />
+              <MemberS.OwnerText>팀장</MemberS.OwnerText>
+            </MemberS.OwnerBadge>
+          )}
         </MemberS.NameContainer>
         {isConnected !== undefined && <MemberS.StatusLabel isConnected={isConnected} />}
       </MemberS.MemberItemButton>
