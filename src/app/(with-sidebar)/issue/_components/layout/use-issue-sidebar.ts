@@ -4,18 +4,9 @@ import { usePathname, useRouter } from 'next/navigation';
 import { getChoseong } from 'es-hangul';
 import { MEMBER_ROLE } from '@/constants/issue';
 import { useTopicId, useTopicIssuesQuery } from '@/hooks';
-import { useIssueData, useIssueId } from '../../hooks';
+import { useIssueData, useIssueId, useIssueIdentity } from '../../hooks';
+import { matchSearch } from '@/lib/utils/search';
 import { useIssueStore } from '../../store/use-issue-store';
-import { ISSUE_LIST } from './issue-sidebar';
-
-/**
- * 일반 문자열 및 초성 검색 매칭 여부를 확인하는 유틸리티
- */
-const matchSearch = (text: string, normalizedTerm: string, searchChoseong: string) => {
-  if (text.toLowerCase().includes(normalizedTerm)) return true;
-  if (!searchChoseong) return false;
-  return getChoseong(text).includes(searchChoseong);
-};
 
 export const useIssueSidebar = () => {
   // 클라이언트 마운트 감지
@@ -35,13 +26,18 @@ export const useIssueSidebar = () => {
   const { isQuickIssue, members } = useIssueData(issueId, !isTopicPage);
   const { onlineMemberIds } = useIssueStore();
 
+  const { userId: currentUserId } = useIssueIdentity(issueId, {
+    enabled: !isTopicPage,
+    isQuickIssue: isTopicPage ? false : undefined,
+  });
+
   // 토픽의 이슈 목록 가져오기
   const { data: topicIssues = [] } = useTopicIssuesQuery(topicId);
 
   // 검색 관련 상태
   const [searchValue, setSearchValue] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
-  const [searchTarget, setSearchTarget] = useState<'issue' | 'member'>('issue');
+  const [searchTarget, setSearchTarget] = useState<'issue' | 'member' | 'topic'>('issue');
 
   // 멤버 정렬: 소유자 > 온라인 > 이름순
   const sortedMembers = useMemo(() => {
@@ -78,10 +74,13 @@ export const useIssueSidebar = () => {
     };
   }, [searchTerm]);
 
+  // 빠른 이슈에서는 항상 멤버만 검색, 그 외에는 searchTarget 따름
+  const effectiveSearchTarget = isQuickIssue ? 'member' : searchTarget;
+
   // 멤버 검색 필터링
   const filteredMembers = useMemo(() => {
     // 멤버 검색 모드가 아니면 전체 반환
-    if (searchTarget !== 'member') return sortedMembers;
+    if (effectiveSearchTarget !== 'member') return sortedMembers;
 
     const { trimmed, normalized, searchChoseong } = searchParams;
     if (!trimmed) return sortedMembers;
@@ -89,29 +88,20 @@ export const useIssueSidebar = () => {
     return sortedMembers.filter((member) =>
       matchSearch(member.nickname || '익명', normalized, searchChoseong),
     );
-  }, [searchParams, sortedMembers, searchTarget]);
+  }, [searchParams, sortedMembers, effectiveSearchTarget]);
 
   // 이슈 검색 필터링
   const filteredIssues = useMemo(() => {
     // 이슈 검색 모드가 아니면 전체 반환
-    if (searchTarget !== 'issue') return topicIssues;
+    if (effectiveSearchTarget !== 'issue') return topicIssues;
 
     const { trimmed, normalized, searchChoseong } = searchParams;
     if (!trimmed) return topicIssues;
 
-    return topicIssues.filter((issue) => matchSearch(issue.title || '', normalized, searchChoseong));
-  }, [searchParams, topicIssues, searchTarget]);
-
-  // 정적 이슈 리스트 필터링
-  const filteredStaticIssues = useMemo(() => {
-    // 이슈 검색 모드가 아니면 전체 반환
-    if (searchTarget !== 'issue') return ISSUE_LIST;
-
-    const { trimmed, normalized, searchChoseong } = searchParams;
-    if (!trimmed) return ISSUE_LIST;
-
-    return ISSUE_LIST.filter((issue) => matchSearch(issue.title || '', normalized, searchChoseong));
-  }, [searchParams, searchTarget]);
+    return topicIssues.filter((issue) =>
+      matchSearch(issue.title || '', normalized, searchChoseong),
+    );
+  }, [searchParams, topicIssues, effectiveSearchTarget]);
 
   // 검색어 입력 핸들러
   const handleSearchChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
@@ -151,13 +141,15 @@ export const useIssueSidebar = () => {
 
     // 데이터
     topicId,
+    issueId,
     isTopicPage,
     topicIssues,
     filteredIssues,
-    filteredStaticIssues,
     filteredMembers,
     onlineMemberIds,
     sortedMembers,
+
+    isQuickIssue,
 
     // 검색
     searchValue,
@@ -172,5 +164,6 @@ export const useIssueSidebar = () => {
     goToIssueMap,
     searchTarget,
     setSearchTarget,
+    currentUserId,
   };
 };

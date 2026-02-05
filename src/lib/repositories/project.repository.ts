@@ -109,6 +109,18 @@ export const getProjectsByUserMembership = async (userId: string) => {
       ownerId: true,
       createdAt: true,
       updatedAt: true,
+      projectMembers: {
+        where: { deletedAt: null },
+        select: {
+          user: {
+            select: {
+              id: true,
+              image: true,
+              displayName: true,
+            },
+          },
+        },
+      },
       _count: {
         select: {
           projectMembers: {
@@ -129,6 +141,7 @@ export const getProjectsByUserMembership = async (userId: string) => {
     title: project.title,
     description: project.description,
     ownerId: project.ownerId,
+    members: project.projectMembers,
     memberCount: project._count.projectMembers,
     createdAt: project.createdAt,
     updatedAt: project.updatedAt,
@@ -311,4 +324,17 @@ export const updateProject = async (
       description,
     },
   });
+};
+
+// 사용자가 프로젝트의 멤버인지 확인
+export const isProjectMember = async (projectId: string, userId: string): Promise<boolean> => {
+  const member = await prisma.projectMember.findFirst({
+    where: {
+      projectId,
+      userId,
+      deletedAt: null,
+    },
+  });
+
+  return !!member;
 };

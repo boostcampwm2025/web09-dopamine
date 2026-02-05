@@ -7,7 +7,28 @@ import {
   deleteIdea as deleteIdeaAPI,
   updateIdea as updateIdeaAPI,
 } from '@/lib/api/idea';
-import type { CreateIdeaRequest } from '@/types/idea';
+import type { CreateIdeaRequest, Idea } from '@/types/idea';
+
+// Idea 타입을 IdeaWithPosition으로 변환하는 헬퍼 함수
+function transformIdeaToIdeaWithPosition(idea: Idea): IdeaWithPosition {
+  return {
+    id: idea.id,
+    userId: idea.userId,
+    content: idea.content,
+    author: idea.issueMember?.nickname ?? idea.user?.displayName ?? idea.user?.name ?? '알 수 없음',
+    categoryId: idea.categoryId,
+    position:
+      idea.positionX !== null && idea.positionY !== null
+        ? { x: idea.positionX, y: idea.positionY }
+        : null,
+    agreeCount: idea.agreeCount ?? 0,
+    disagreeCount: idea.disagreeCount ?? 0,
+    myVote: idea.myVote ?? null,
+    commentCount: idea.comments?.length ?? 0,
+    isSelected: false,
+    editable: false,
+  };
+}
 
 export const useIdeaMutations = (issueId: string) => {
   const queryClient = useQueryClient();
@@ -19,13 +40,16 @@ export const useIdeaMutations = (issueId: string) => {
       return createIdeaAPI(issueId, data, connectionId);
     },
 
-    onError: (err) => {
-      toast.error(err.message);
+    onSuccess: (newIdea) => {
+      // 서버 응답을 IdeaWithPosition으로 변환하여 캐시에 추가
+      const transformedIdea = transformIdeaToIdeaWithPosition(newIdea);
+      queryClient.setQueryData<IdeaWithPosition[]>(['issues', issueId, 'ideas'], (old = []) => {
+        return [...old, transformedIdea];
+      });
     },
 
-    // 성공하든, 실패하든 무조건 실행
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['issues', issueId, 'ideas'] });
+    onError: (err) => {
+      toast.error(err.message);
     },
   });
 

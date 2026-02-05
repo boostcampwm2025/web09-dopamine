@@ -8,6 +8,7 @@ import toast from 'react-hot-toast';
 import { useInviteProjectModal } from '@/components/modal/invite-project-modal/use-invite-project-modal';
 import { useModalStore } from '@/components/modal/use-modal-store';
 import { useDeleteProjectMutation, useLeaveProjectMutation } from '@/hooks/project';
+import { ProjectMember } from '@/types/project';
 import ProjectCreateModal from '../project-create-modal/project-create-modal';
 import * as S from './project-card.styles';
 
@@ -18,15 +19,17 @@ interface ProjectCardProps {
   memberCount?: number;
   isCreateCard?: boolean;
   ownerId?: string | null;
+  members?: ProjectMember[];
 }
 
 export function ProjectCard({
   id,
   title,
   icon,
-  memberCount,
+  memberCount = 0,
   isCreateCard = false,
   ownerId,
+  members,
 }: ProjectCardProps) {
   const { data: session } = useSession();
   const { openModal } = useModalStore();
@@ -36,6 +39,9 @@ export function ProjectCard({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const suppressNextClickRef = useRef(false);
+
+  const MAX_VISIBLE_COUNT = 5;
+  const restCount = memberCount - MAX_VISIBLE_COUNT;
 
   const isOwner = session?.user?.id === ownerId;
   const { openInviteProjectModal } = useInviteProjectModal();
@@ -100,6 +106,7 @@ export function ProjectCard({
           {
             onSuccess: () => {
               toast.success('프로젝트가 삭제되었습니다.');
+              router.refresh();
             },
             onError: () => {
               toast.error('프로젝트 삭제에 실패했습니다.');
@@ -179,9 +186,19 @@ export function ProjectCard({
         <S.Divider />
         <S.CardBody>
           <S.MemberAvatars>
-            <S.MemberAvatar />
-            <S.MemberAvatar />
-            <S.MemberAvatar />
+            {members?.slice(0, MAX_VISIBLE_COUNT).map((member, index) => {
+              if (!member.user) return null;
+              return (
+                <S.MemberAvatar
+                  key={member.user.id ?? `member-${index}`}
+                  src={member.user.image ?? '/profile.svg'}
+                  alt={`${member.user.displayName || '사용자'}의 프로필 이미지`}
+                  width={32}
+                  height={32}
+                />
+              );
+            })}
+            {restCount > 0 && <S.RestCount>+{restCount}</S.RestCount>}
           </S.MemberAvatars>
           <S.AddMember onClick={(e) => openInviteProjectModal(id!, title!, e)}>
             + 초대하기

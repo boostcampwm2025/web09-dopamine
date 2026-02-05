@@ -23,94 +23,31 @@ export const categorizeService = {
     const result = await prisma.$transaction(async (tx) => {
       const now = new Date();
 
+      // 기존 카테고리 soft delete + 아이디어 카테고리 리셋
       await categoryRepository.softDeleteByIssueId(issueId, now, tx);
-
       await ideaRepository.resetCategoriesByIssueId(issueId, tx);
 
-      // 카테고리 제목 중복을 제거하고, 동일한 제목에 속한 아이디어들을 하나로 병합하기 위해 Map 사용
-      const uniqueCategoriesMap = new Map<string, string[]>();
-      categoryPayloads.forEach((payload) => {
-        const title = payload.title.trim();
-        if (!title) return;
-        const existingIdeaIds = uniqueCategoriesMap.get(title) || [];
-        uniqueCategoriesMap.set(title, [...existingIdeaIds, ...payload.ideaIds]);
-      });
+      // 모든 아이디어 조회
+      const allIdeas = await ideaRepository.findUncategorizedByIssueId(issueId, tx);
 
-      // 중복 제거된 카테고리
-      const dedupedPayloads = Array.from(uniqueCategoriesMap.entries()).map(([title, ideaIds]) => ({
-        title,
-        ideaIds: Array.from(new Set(ideaIds)),
-      }));
+      // 카테고리 전처리 (미분류 처리 + 중복 제거 + 빈 카테고리 필터링)
+      const dedupedPayloads = _processCategoryPayloads(categoryPayloads, allIdeas);
 
+      // 카테고리 생성 및 아이디어 카테고리 업데이트
       const createdCategories = await categoryRepository.createManyForIssue(
         issueId,
         dedupedPayloads,
         tx as Prisma.TransactionClient,
       );
 
+      // 반환값 구성을 위한 매핑
       const ideaCategoryMap = new Map<string, string>();
-      const categoryToIdeaIds = new Map<string, string[]>();
-      dedupedPayloads.forEach((category, index) => {
-        const categoryId = createdCategories[index]?.id;
-        if (!categoryId) return;
-        category.ideaIds.forEach((ideaId) => {
+      dedupedPayloads.forEach((payload, index) => {
+        const categoryId = createdCategories[index].id;
+        payload.ideaIds.forEach((ideaId) => {
           ideaCategoryMap.set(ideaId, categoryId);
-          // 카테고리별 아이디어를 묶어 updateMany 호출 횟수를 줄인다.
-          const ideaIds = categoryToIdeaIds.get(categoryId);
-          if (ideaIds) {
-            ideaIds.push(ideaId);
-          } else {
-            categoryToIdeaIds.set(categoryId, [ideaId]);
-          }
         });
       });
-
-      await Promise.all(
-        Array.from(categoryToIdeaIds.entries()).map(([categoryId, ideaIds]) =>
-          ideaRepository.updateManyCategoriesByIds(ideaIds, issueId, categoryId, tx),
-        ),
-      );
-
-      // 미분류 아이디어 처리
-      const uncategorizedIdeas = await ideaRepository.findUncategorizedByIssueId(issueId, tx);
-      const uncategorizedIdeaIds = uncategorizedIdeas.map((idea) => idea.id);
-
-      if (uncategorizedIdeaIds.length > 0) {
-        // "기타" 카테고리가 이미 존재하는지 확인
-        const existingOtherCategory = createdCategories.find((c) => c.title === '기타');
-
-        let targetCategoryId: string;
-
-        if (existingOtherCategory) {
-          targetCategoryId = existingOtherCategory.id;
-        } else {
-          // "기타" 카테고리 생성
-          const uncategorizedCategory = await categoryRepository.create(
-            {
-              issueId,
-              title: '기타',
-              positionX: 100 + createdCategories.length * 600,
-              positionY: 100,
-            },
-            tx,
-          );
-          targetCategoryId = uncategorizedCategory.id;
-          createdCategories.push(uncategorizedCategory);
-        }
-
-        // 미분류 아이디어들을 "기타" 카테고리에 할당
-        await ideaRepository.updateManyCategoriesByIds(
-          uncategorizedIdeaIds,
-          issueId,
-          targetCategoryId,
-          tx,
-        );
-
-        // ideaCategoryMap 업데이트
-        uncategorizedIdeaIds.forEach((ideaId) => {
-          ideaCategoryMap.set(ideaId, targetCategoryId);
-        });
-      }
 
       return {
         categories: createdCategories,
@@ -138,3 +75,40 @@ export const categorizeService = {
     return result;
   },
 };
+
+/**
+ * 카테고리 데이터 전처리
+ * 1. 미분류 아이디어 '기타' 카테고리 할당
+ * 2. 카테고리 제목 중복 병합
+ * 3. 빈 카테고리 필터링
+ */
+function _processCategoryPayloads(
+  payloads: CategoryPayload[],
+  allIdeas: { id: string }[],
+) {
+  // 1. 미분류 아이디어 처리
+  const allIdeaIds = new Set(allIdeas.map((i) => i.id));
+  const boundIdeaIds = new Set(payloads.flatMap((p) => p.ideaIds));
+  const uncategorizedIdeaIds = [...allIdeaIds].filter((id) => !boundIdeaIds.has(id));
+
+  if (uncategorizedIdeaIds.length > 0) {
+    payloads.push({ title: '기타', ideaIds: uncategorizedIdeaIds });
+  }
+
+  // 2. 중복 제거
+  const uniqueCategoriesMap = new Map<string, string[]>();
+  payloads.forEach((payload) => {
+    const title = payload.title.trim();
+    if (!title) return;
+    const existingIdeaIds = uniqueCategoriesMap.get(title) || [];
+    uniqueCategoriesMap.set(title, [...existingIdeaIds, ...payload.ideaIds]);
+  });
+
+  // 3. 반환 (빈 카테고리 제외)
+  return Array.from(uniqueCategoriesMap.entries())
+    .map(([title, ideaIds]) => ({
+      title,
+      ideaIds: Array.from(new Set(ideaIds)),
+    }))
+    .filter((category) => category.ideaIds.length > 0);
+}

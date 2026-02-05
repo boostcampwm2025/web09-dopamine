@@ -1,24 +1,31 @@
-import { Issue, IssueStatus } from '@prisma/client';
+import { IssueRole, IssueStatus } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import {
   createIssue,
   findIssueById,
+  findIssueWithPermissionData,
   findIssuesWithMapDataByTopicId,
+  softDeleteIssue,
   updateIssueStatus,
+  updateIssueTitle,
 } from '@/lib/repositories/issue.repository';
 import { PrismaTransaction } from '@/types/prisma';
 
 jest.mock('@/lib/prisma', () => ({
   prisma: {
+    $transaction: jest.fn(),
     issue: {
       create: jest.fn(),
       findFirst: jest.fn(),
       findMany: jest.fn(),
       update: jest.fn(),
+      findUnique: jest.fn(),
     },
-    issueConnection: {
-      findMany: jest.fn(),
-    },
+    idea: { updateMany: jest.fn() },
+    category: { updateMany: jest.fn() },
+    issueMember: { updateMany: jest.fn() },
+    issueNode: { updateMany: jest.fn() },
+    issueConnection: { findMany: jest.fn() },
   },
 }));
 
@@ -73,18 +80,38 @@ describe('Issue Repository', () => {
             closedAt: null,
           }),
         },
+        issueNode: {
+          findFirst: jest.fn().mockResolvedValue({
+            positionX: 720,
+            positionY: 300,
+          }),
+        },
       } as unknown as PrismaTransaction;
 
       await createIssue(mockTx, 'Test Issue', 'topic-123');
 
+      expect(mockTx.issueNode.findFirst).toHaveBeenCalledWith({
+        where: {
+          deletedAt: null,
+          issue: {
+            topicId: 'topic-123',
+            deletedAt: null,
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+        select: {
+          positionX: true,
+          positionY: true,
+        },
+      });
       expect(mockTx.issue.create).toHaveBeenCalledWith({
         data: {
           title: 'Test Issue',
           topicId: 'topic-123',
           issueNode: {
             create: {
-              positionX: 500,
-              positionY: 400,
+              positionX: 1000,
+              positionY: 300,
             },
           },
         },
@@ -312,6 +339,132 @@ describe('Issue Repository', () => {
         },
       });
       expect(result).toEqual({ issues: [{ id: 'issue-1' }], connections: [{ id: 'conn-1' }] });
+    });
+  });
+  describe('findIssueWithPermissionData', () => {
+    const mockIssueId = 'issue-123';
+    const mockUserId = 'user-456';
+
+    it('이슈 ID와 유저 ID로 권한 관련 데이터를 조회한다', async () => {
+      // Given
+      const mockQueryResult = {
+        topicId: 'topic-1',
+        issueMembers: [{ id: 'mem-1' }], // Owner 여부
+        topic: {
+          project: {
+            projectMembers: [{ id: 'pm-1' }], // 프로젝트 멤버 여부
+          },
+        },
+      };
+
+      (prisma.issue.findUnique as jest.Mock).mockResolvedValue(mockQueryResult);
+
+      // When
+      const result = await findIssueWithPermissionData(mockIssueId, mockUserId);
+
+      // Then
+      expect(prisma.issue.findUnique).toHaveBeenCalledWith({
+        where: { id: mockIssueId, deletedAt: null },
+        select: {
+          topicId: true,
+          issueMembers: {
+            where: { userId: mockUserId, role: IssueRole.OWNER },
+            select: { id: true },
+          },
+          topic: {
+            select: {
+              project: {
+                select: {
+                  projectMembers: {
+                    where: { userId: mockUserId },
+                    select: { id: true },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+      expect(result).toEqual(mockQueryResult);
+    });
+
+    it('이슈가 없거나 삭제된 경우 null을 반환한다', async () => {
+      (prisma.issue.findUnique as jest.Mock).mockResolvedValue(null);
+
+      const result = await findIssueWithPermissionData('invalid-id', 'user-1');
+
+      expect(result).toBeNull();
+    });
+  });
+  describe('updateIssueTitle', () => {
+    const mockIssueId = 'issue-123';
+    const newTitle = '변경된 제목';
+
+    it('이슈의 제목을 성공적으로 수정한다', async () => {
+      // Given
+      const mockUpdatedResult = {
+        id: mockIssueId,
+        title: newTitle,
+        topicId: 'topic-789',
+      };
+      mockedPrismaIssue.update.mockResolvedValue(mockUpdatedResult as any);
+
+      // When
+      const result = await updateIssueTitle(mockIssueId, newTitle);
+
+      // Then
+      expect(mockedPrismaIssue.update).toHaveBeenCalledWith({
+        where: { id: mockIssueId },
+        data: { title: newTitle },
+        select: { id: true, title: true, topicId: true },
+      });
+      expect(result).toEqual(mockUpdatedResult);
+    });
+  });
+
+  describe('softDeleteIssue', () => {
+    const mockIssueId = 'issue-123';
+
+    it('트랜잭션을 사용하여 이슈와 관련된 모든 데이터(Idea, Category, Member, Node)를 soft delete한다', async () => {
+      const mockTx = {
+        idea: { updateMany: jest.fn().mockResolvedValue({ count: 2 }) },
+        category: { updateMany: jest.fn().mockResolvedValue({ count: 1 }) },
+        issueMember: { updateMany: jest.fn().mockResolvedValue({ count: 3 }) },
+        issueNode: { updateMany: jest.fn().mockResolvedValue({ count: 1 }) },
+        issue: {
+          update: jest.fn().mockResolvedValue({ id: mockIssueId, topicId: 'topic-1' }),
+        },
+      };
+
+      (prisma.$transaction as jest.Mock).mockImplementation(async (callback) => {
+        return await callback(mockTx);
+      });
+
+      const result = await softDeleteIssue(mockIssueId);
+
+      const expectedUpdateMany = {
+        where: { issueId: mockIssueId, deletedAt: null },
+        data: { deletedAt: expect.any(Date) },
+      };
+
+      expect(mockTx.idea.updateMany).toHaveBeenCalledWith(expectedUpdateMany);
+      expect(mockTx.category.updateMany).toHaveBeenCalledWith(expectedUpdateMany);
+      expect(mockTx.issueMember.updateMany).toHaveBeenCalledWith(expectedUpdateMany);
+      expect(mockTx.issueNode.updateMany).toHaveBeenCalledWith(expectedUpdateMany);
+
+      expect(mockTx.issue.update).toHaveBeenCalledWith({
+        where: { id: mockIssueId },
+        data: { deletedAt: expect.any(Date) },
+        select: { id: true, topicId: true },
+      });
+
+      expect(result.id).toBe(mockIssueId);
+    });
+
+    it('트랜잭션 도중 에러가 발생하면 상위로 에러를 던져야 한다', async () => {
+      (prisma.$transaction as jest.Mock).mockRejectedValue(new Error('Transaction Failed'));
+
+      await expect(softDeleteIssue(mockIssueId)).rejects.toThrow('Transaction Failed');
     });
   });
 });

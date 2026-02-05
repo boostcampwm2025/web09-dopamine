@@ -1,16 +1,16 @@
 'use client';
 
 import { memo, useMemo } from 'react';
-import { ReactFlow, MarkerType } from '@xyflow/react';
+import { MarkerType, ReactFlow } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { EDGE_STYLE } from '@/constants/topic';
+import { theme } from '@/styles/theme';
 import { IssueConnection, IssueMapData, IssueNode } from '@/types/issue';
 import TopicEdge from '../issue-connection/Issue-edge';
 import TopicConnectionLine from '../issue-connection/issue-connection-line';
 import { IssueHoverProvider } from '../issue-hover-context';
 import TopicNode from '../issue-node/issue-node';
 import { useTopicCanvas } from './use-topic-canvas';
-import { useTopicEvents } from '@/hooks/topic/use-topic-events';
 
 interface TopicCanvasProps {
   topicId: string;
@@ -34,9 +34,6 @@ const defaultEdgeOptions = {
 };
 
 function TopicCanvas({ topicId, issues, nodes: issueNodes, connections }: TopicCanvasProps) {
-  // 토픽 실시간 이벤트 수신
-  useTopicEvents({ topicId });
-
   const {
     nodes,
     edges,
@@ -79,7 +76,13 @@ function TopicCanvas({ topicId, issues, nodes: issueNodes, connections }: TopicC
   );
 
   return (
-    <div style={{ width: '100vw', height: '100vh' }}>
+    <div
+      style={{
+        width: '100vw',
+        flex: 1,
+        backgroundColor: theme.colors.gray[50],
+      }}
+    >
       <IssueHoverProvider value={hoverContextValue}>
         <ReactFlow
           nodes={nodes}

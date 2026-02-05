@@ -1,6 +1,6 @@
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { updateUser } from '@/lib/repositories/user.repository';
+import { updateUserWithIssueMemberNickname } from '@/lib/repositories/user.repository';
 import { createSuccessResponse, createErrorResponse } from '@/lib/utils/api-helpers';
 import { CLIENT_ERROR_MESSAGES } from '@/constants/error-messages';
 
@@ -21,7 +21,7 @@ export async function PATCH(request: Request) {
       return createErrorResponse('BAD_REQUEST', 400, CLIENT_ERROR_MESSAGES.INVALID_DISPLAYNAME);
     }
 
-    const user = await updateUser(session.user.id, { displayName: normalized });
+    const user = await updateUserWithIssueMemberNickname(session.user.id, normalized);
 
     return createSuccessResponse(user);
   } catch (error) {

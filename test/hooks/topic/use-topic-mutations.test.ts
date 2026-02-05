@@ -151,6 +151,29 @@ describe('useTopicMutations Hook', () => {
 
       await waitFor(() => expect(mockInvalidateQueries).toHaveBeenCalled());
     });
+
+    test('실패 시 이전 데이터로 롤백해야 한다', async () => {
+      // Given
+      const previousConnections = [{ id: 'conn-1' }, { id: 'conn-2' }];
+      mockGetQueryData.mockReturnValue(previousConnections);
+      mockDeleteConnection.mockRejectedValue(new Error('Delete Fail'));
+
+      const { result } = renderHook(() => useTopicMutations(topicId));
+
+      // When
+      await act(async () => {
+        result.current.deleteConnection('conn-2');
+      });
+
+      // Then
+      await waitFor(() => expect(mockToastError).toHaveBeenCalled());
+
+      // 롤백 확인
+      expect(mockSetQueryData).toHaveBeenLastCalledWith(
+        ['topics', topicId, 'connections'],
+        previousConnections,
+      );
+    });
   });
 
   describe('updateNodePosition (노드 이동)', () => {
@@ -204,6 +227,70 @@ describe('useTopicMutations Hook', () => {
         ['topics', topicId, 'nodes'],
         previousNodes,
       );
+    });
+  });
+
+  describe('Edge Cases (예외 및 데이터 누락 상황)', () => {
+    // 1. 캐시가 없는 경우 (Cache Miss)
+    test('createConnection: 캐시가 없으면(undefined) 낙관적 업데이트를 수행하지 않아야 한다', async () => {
+      // Given
+      mockGetQueryData.mockReturnValue(undefined); // 데이터 없음
+      mockCreateConnection.mockResolvedValue({});
+
+      const { result } = renderHook(() => useTopicMutations(topicId));
+
+      // When
+      await act(async () => {
+        result.current.createConnection({
+          sourceIssueId: 'a',
+          targetIssueId: 'b',
+          sourceHandle: null,
+          targetHandle: null,
+        });
+      });
+
+      // Then
+      expect(mockSetQueryData).not.toHaveBeenCalled(); // 낙관적 업데이트 건너뜀
+      expect(mockCreateConnection).toHaveBeenCalled(); // API는 호출됨
+    });
+
+    test('updateNodePosition: 캐시가 없으면 낙관적 업데이트를 수행하지 않아야 한다', async () => {
+      mockGetQueryData.mockReturnValue(undefined);
+      mockUpdateNodePosition.mockResolvedValue({});
+
+      const { result } = renderHook(() => useTopicMutations(topicId));
+
+      await act(async () => {
+        result.current.updateNodePosition({ nodeId: 'n-1', positionX: 10, positionY: 10 });
+      });
+
+      expect(mockSetQueryData).not.toHaveBeenCalled();
+      expect(mockUpdateNodePosition).toHaveBeenCalled();
+    });
+
+    // 2. 컨텍스트가 없는 경우 (No Context for Rollback)
+    test('이전 데이터(Context)가 없으면 실패 시에도 롤백을 수행하지 않아야 한다', async () => {
+      // Given: 캐시가 없어서 onMutate에서 return { previousConnections: undefined } 된 상황
+      mockGetQueryData.mockReturnValue(undefined);
+      mockCreateConnection.mockRejectedValue(new Error('Fail'));
+
+      const { result } = renderHook(() => useTopicMutations(topicId));
+
+      // When
+      await act(async () => {
+        result.current.createConnection({
+          sourceIssueId: 'a',
+          targetIssueId: 'b',
+          sourceHandle: null,
+          targetHandle: null,
+        });
+      });
+
+      // Then
+      await waitFor(() => expect(mockToastError).toHaveBeenCalled());
+
+      // context가 비었으므로 setQueryData(롤백)는 실행되지 않아야 함
+      expect(mockSetQueryData).not.toHaveBeenCalled();
     });
   });
 });

@@ -4,17 +4,24 @@ import styled from '@emotion/styled';
 import { theme } from '@/styles/theme';
 
 export const Container = styled.div<{ fullScreen?: boolean }>`
-  min-height: ${(props) => (props.fullScreen ? '100vh' : '100%')};
-  height: ${(props) => (props.fullScreen ? 'auto' : '100%')};
-  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 1rem;
   background-color: ${theme.colors.green[50]};
   ${(props) =>
-    !props.fullScreen &&
-    `
+    props.fullScreen
+      ? `
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: ${theme.zIndex.modal};
+  `
+      : `
+    min-height: 100%;
+    height: 100%;
+    width: 100%;
     background:
       linear-gradient(90deg, ${theme.colors.gray[50]} 1px, transparent 1px),
       linear-gradient(${theme.colors.gray[50]} 1px, transparent 1px);

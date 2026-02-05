@@ -29,12 +29,15 @@ export const SSE_EVENT_TYPES = {
 
   // 이슈 상태
   ISSUE_STATUS_CHANGED: 'issue:status_changed',
+  ISSUE_TITLE_CHANGED: 'issue:title_changed',
+  ISSUE_DELETED: 'issue:deleted',
   CLOSE_MODAL_OPENED: 'close_modal:opened',
   CLOSE_MODAL_CLOSED: 'close_modal:closed',
   CLOSE_MODAL_MEMO_UPDATED: 'close_modal:memo_updated',
 
   // 멤버
   MEMBER_JOINED: 'member:joined',
+  MEMBER_UPDATED: 'member:updated',
   MEMBER_LEFT: 'member:left',
   MEMBER_PRESENCE: 'online_member:changed',
 } as const;

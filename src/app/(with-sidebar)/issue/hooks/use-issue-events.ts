@@ -1,14 +1,16 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import CloseIssueModal from '@/app/(with-sidebar)/issue/_components/close-issue-modal/close-issue-modal';
 import { useModalStore } from '@/components/modal/use-modal-store';
-import { MEMBER_ROLE } from '@/constants/issue';
+import { ISSUE_STATUS, MEMBER_ROLE } from '@/constants/issue';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
 import { selectedIdeaQueryKey, useIssueMemberQuery } from '@/hooks/issue';
 import { deleteCloseModal } from '@/lib/api/issue';
 import { useIssueStore } from '../store/use-issue-store';
 import { useSseConnectionStore } from '../store/use-sse-connection-store';
+import { useIdeasWithTemp } from './use-ideas-with-temp';
 import type { IdeaWithPosition } from '../types/idea';
 
 interface UseIssueEventsParams {
@@ -29,6 +31,7 @@ export function useIssueEvents({
   enabled = true,
   topicId,
 }: UseIssueEventsParams): UseIssueEventsReturn {
+  const router = useRouter();
   const queryClient = useQueryClient();
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState<Event | null>(null);
@@ -39,6 +42,7 @@ export function useIssueEvents({
   const { setIsAIStructuring } = useIssueStore((state) => state.actions);
   const { setOnlineMemberIds } = useIssueStore((state) => state.actions);
   const setConnectionId = useSseConnectionStore((state) => state.setConnectionId);
+  const { deleteTempIdea } = useIdeasWithTemp(issueId);
 
   const { data: members = [] } = useIssueMemberQuery(issueId, enabled);
   const currentMember = members.find((member) => member.id === userId);
@@ -58,6 +62,12 @@ export function useIssueEvents({
     // EventSource 생성
     const eventSource = new EventSource(SSE_REQ_URL);
     eventSourceRef.current = eventSource;
+
+    // 새로고침 시 연결 정리를 위한 beforeunload 핸들러
+    const handleBeforeUnload = () => {
+      eventSource.close();
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
 
     // 연결 성공
     eventSource.onopen = () => {
@@ -208,8 +218,21 @@ export function useIssueEvents({
       }
     });
 
-    // 이슈 상태 이벤트 핸들러
+    // 이슈 변경 이벤트 핸들러
     eventSource.addEventListener(SSE_EVENT_TYPES.ISSUE_STATUS_CHANGED, (event) => {
+      const data = JSON.parse((event as MessageEvent).data);
+      queryClient.invalidateQueries({ queryKey: ['issues', issueId] });
+      if (data.status === ISSUE_STATUS.CATEGORIZE) {
+        deleteTempIdea();
+      }
+      // 사이드바 이슈 목록도 갱신
+      const targetTopicId = data.topicId || topicId;
+      if (targetTopicId) {
+        queryClient.invalidateQueries({ queryKey: ['topics', targetTopicId, 'issues'] });
+      }
+    });
+
+    eventSource.addEventListener(SSE_EVENT_TYPES.ISSUE_TITLE_CHANGED, (event) => {
       const data = JSON.parse((event as MessageEvent).data);
       queryClient.invalidateQueries({ queryKey: ['issues', issueId] });
       // 사이드바 이슈 목록도 갱신
@@ -219,8 +242,28 @@ export function useIssueEvents({
       }
     });
 
+    eventSource.addEventListener(SSE_EVENT_TYPES.ISSUE_DELETED, (event) => {
+      const data = JSON.parse((event as MessageEvent).data);
+      queryClient.invalidateQueries({ queryKey: ['issues', issueId] });
+
+      const targetTopicId = data.topicId || topicId;
+      if (targetTopicId) {
+        queryClient.invalidateQueries({ queryKey: ['topics', targetTopicId, 'issues'] });
+        queryClient.invalidateQueries({ queryKey: ['topics', targetTopicId, 'nodes'] });
+        queryClient.invalidateQueries({ queryKey: ['topics', targetTopicId, 'connections'] });
+      }
+
+      toast.error('이슈가 삭제되었습니다.');
+      const redirectPath = targetTopicId ? `/topic/${targetTopicId}` : '/';
+      router.push(redirectPath);
+    });
+
     // 멤버 이벤트 핸들러
     eventSource.addEventListener(SSE_EVENT_TYPES.MEMBER_JOINED, () => {
+      queryClient.invalidateQueries({ queryKey: ['issues', issueId, 'members'] });
+    });
+
+    eventSource.addEventListener(SSE_EVENT_TYPES.MEMBER_UPDATED, () => {
       queryClient.invalidateQueries({ queryKey: ['issues', issueId, 'members'] });
     });
 
@@ -242,9 +285,7 @@ export function useIssueEvents({
       queryClient.setQueryData<IdeaWithPosition[]>(['issues', issueId, 'ideas'], (old) => {
         if (!Array.isArray(old)) return old;
         return old.map((idea) =>
-          idea.id === data.ideaId
-            ? { ...idea, isSelected: true }
-            : { ...idea, isSelected: false },
+          idea.id === data.ideaId ? { ...idea, isSelected: true } : { ...idea, isSelected: false },
         );
       });
     });
@@ -301,6 +342,7 @@ export function useIssueEvents({
     });
 
     return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
       eventSource.close();
       eventSourceRef.current = null;
       connectionIdRef.current = null;

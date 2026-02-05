@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
 import { useIdeaCardStackStore } from '@/app/(with-sidebar)/issue/store/use-idea-card-stack-store';
 import type { IdeaWithPosition, Position } from '@/app/(with-sidebar)/issue/types/idea';
@@ -12,14 +12,18 @@ export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) 
   // 통합된 아이디어 목록 (서버 + temp)
   const {
     ideas,
+    tempIdea,
     hasEditingIdea,
     addTempIdea,
     deleteTempIdea,
     isError: isIdeasError,
   } = useIdeasWithTemp(issueId);
+  const ideasRef = useRef(ideas);
 
   // z-index 관리
-  const { addCard, removeCard, setInitialCardData } = useIdeaCardStackStore(issueId);
+  const addCard = useIdeaCardStackStore(issueId, (state) => state.addCard);
+  const removeCard = useIdeaCardStackStore(issueId, (state) => state.removeCard);
+  const setInitialCardData = useIdeaCardStackStore(issueId, (state) => state.setInitialCardData);
 
   // 서버 mutation
   const { createIdea, updateIdea, removeIdea } = useIdeaMutations(issueId);
@@ -38,8 +42,18 @@ export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) 
     const ideaIds = ideas.map((idea) => idea.id);
     setInitialCardData(ideaIds);
   }, [ideas, setInitialCardData]);
+  useEffect(() => {
+    ideasRef.current = ideas;
+  }, [ideas]);
 
-  const handleCreateIdea = async (position: Position) => {
+  // 단계가 바뀌면 로컬 temp 아이디어 제거 (SSE 누락 대비)
+  useEffect(() => {
+    if (status !== ISSUE_STATUS.BRAINSTORMING && tempIdea) {
+      deleteTempIdea();
+    }
+  }, [status, tempIdea, deleteTempIdea]);
+
+  const handleCreateIdea = useCallback(async (position: Position) => {
     if (!isCreateIdeaActive) return;
 
     if (hasEditingIdea) {
@@ -62,13 +76,20 @@ export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) 
 
     addTempIdea(newIdea);
     addCard(newIdea.id);
-  };
+  }, [
+    addCard,
+    addTempIdea,
+    currentUserId,
+    currentUserNickname,
+    hasEditingIdea,
+    isCreateIdeaActive,
+  ]);
 
   // 아이디어 저장
-  const handleSaveIdea = (id: string, content: string) => {
+  const handleSaveIdea = useCallback((id: string, content: string) => {
     if (!id.startsWith('temp-')) return;
 
-    const idea = ideas.find((i) => i.id === id);
+    const idea = ideasRef.current.find((i) => i.id === id);
     if (!idea) return;
 
     // mutation 성공 시에만 로컬 상태 업데이트
@@ -89,58 +110,67 @@ export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) 
         },
       },
     );
-  };
+  }, [createIdea, currentUserId, deleteTempIdea, removeCard]);
 
   // 아이디어 삭제
-  const handleDeleteIdea = (id: string) => {
-    if (id.startsWith('temp-')) {
-      deleteTempIdea();
-      removeCard(id);
-      return;
-    }
+  const handleDeleteIdea = useCallback(
+    (id: string) => {
+      if (id.startsWith('temp-')) {
+        deleteTempIdea();
+        removeCard(id);
+        return;
+      }
 
-    removeIdea(id);
-  };
+      removeIdea(id);
+    },
+    [deleteTempIdea, removeCard, removeIdea],
+  );
 
-  const handleSelectIdea = (id: string) => {
+  const handleSelectIdea = useCallback((id: string) => {
     selectIdea(id);
-  };
+  }, [selectIdea]);
 
-  const handleIdeaPositionChange = (id: string, position: Position) => {
-    // 작성중인 카드는 못움직이게 함
-    if (id.startsWith('temp-')) return;
+  const handleIdeaPositionChange = useCallback(
+    (id: string, position: Position) => {
+      // 작성중인 카드는 못움직이게 함
+      if (id.startsWith('temp-')) return;
 
-    // TanStack Query의 낙관적 업데이트가 자동으로 처리
-    updateIdea({ ideaId: id, positionX: position.x, positionY: position.y, categoryId: null });
-  };
+      // TanStack Query의 낙관적 업데이트가 자동으로 처리
+      updateIdea({ ideaId: id, positionX: position.x, positionY: position.y, categoryId: null });
+    },
+    [updateIdea],
+  );
 
-  const handleMoveIdeaToCategory = (ideaId: string, targetCategoryId: string | null) => {
-    // temp 아이디어는 이 단계에서 존재하지 않는 것이 정상
-    if (ideaId.startsWith('temp-')) return;
+  const handleMoveIdeaToCategory = useCallback(
+    (ideaId: string, targetCategoryId: string | null) => {
+      // temp 아이디어는 이 단계에서 존재하지 않는 것이 정상
+      if (ideaId.startsWith('temp-')) return;
 
-    // 카테고리화 이후 단계(VOTE, SELECT, CLOSE)에서는 카테고리 간 이동 불가
-    if (
-      status === ISSUE_STATUS.VOTE ||
-      status === ISSUE_STATUS.SELECT ||
-      status === ISSUE_STATUS.CLOSE
-    ) {
-      toast.error('카테고리화 이후에는 아이디어를 이동할 수 없습니다.');
-      return;
-    }
+      // 카테고리화 이후 단계(VOTE, SELECT, CLOSE)에서는 카테고리 간 이동 불가
+      if (
+        status === ISSUE_STATUS.VOTE ||
+        status === ISSUE_STATUS.SELECT ||
+        status === ISSUE_STATUS.CLOSE
+      ) {
+        toast.error('카테고리화 이후에는 아이디어를 이동할 수 없습니다.');
+        return;
+      }
 
-    const idea = ideas.find((i) => i.id === ideaId);
-    if (!idea) return;
+      const idea = ideas.find((i) => i.id === ideaId);
+      if (!idea) return;
 
-    const positionX = targetCategoryId === null ? (idea.position?.x ?? 100) : null;
-    const positionY = targetCategoryId === null ? (idea.position?.y ?? 100) : null;
+      const positionX = targetCategoryId === null ? (idea.position?.x ?? 100) : null;
+      const positionY = targetCategoryId === null ? (idea.position?.y ?? 100) : null;
 
-    updateIdea({
-      ideaId,
-      categoryId: targetCategoryId,
-      positionX,
-      positionY,
-    });
-  };
+      updateIdea({
+        ideaId,
+        categoryId: targetCategoryId,
+        positionX,
+        positionY,
+      });
+    },
+    [ideas, status, updateIdea],
+  );
 
   return {
     ideas,

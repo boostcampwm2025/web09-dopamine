@@ -15,7 +15,7 @@ export default function CloseIssueModal({ issueId, isOwner = false }: CloseIssue
     issueId,
     isOwner,
   });
-  const { setIsPending, isOpen } = useModalStore();
+  const { setIsPending } = useModalStore();
   const closeAndGoSummaryRef = useRef<(() => Promise<void>) | undefined>(undefined);
 
   useEffect(() => {
@@ -52,7 +52,7 @@ export default function CloseIssueModal({ issueId, isOwner = false }: CloseIssue
       </S.InfoBox>
 
       <div>
-        <S.MemoLabel htmlFor="close-issue-memo">메모</S.MemoLabel>
+        <S.MemoLabel htmlFor="close-issue-memo">메모 (선택)</S.MemoLabel>
         <S.MemoInputWrapper>
           <S.MemoInput
             id="close-issue-memo"

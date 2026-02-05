@@ -48,3 +48,30 @@ export async function updateUser(userId: string, data: { displayName?: string })
   });
 }
 
+export async function updateUserWithIssueMemberNickname(userId: string, displayName: string) {
+  return prisma.$transaction(async (tx) => {
+    const updatedUser = await tx.user.update({
+      where: { id: userId },
+      data: { displayName },
+      select: { displayName: true },
+    });
+
+    await tx.issueMember.updateMany({
+      where: { userId, deletedAt: null },
+      data: { nickname: displayName },
+    });
+
+    return updatedUser;
+  });
+}
+
+export async function getUserProviders(userId: string) {
+  const accounts = await prisma.account.findMany({
+    where: {
+      userId: userId,
+    },
+    select: { provider: true },
+  });
+
+  return accounts.map((a) => a.provider);
+}

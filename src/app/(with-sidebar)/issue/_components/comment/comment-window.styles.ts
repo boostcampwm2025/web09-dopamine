@@ -18,7 +18,6 @@ export const Window = styled.section`
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  pointer-events: auto;
   z-index: ${theme.zIndex.important};
 `;
 

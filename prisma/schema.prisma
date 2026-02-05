@@ -216,7 +216,6 @@ model IssueMember {
   issue Issue @relation(fields: [issueId], references: [id], onDelete: Cascade)
   user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([issueId, nickname]) // 닉네임 중복 방지
   @@unique([issueId, userId]) // 유저 중복 방지
   @@index([userId])
   @@index([issueId])
@@ -333,12 +332,13 @@ model Vote {
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
+  isActive  Boolean?  @default(true)
 
   // Relations
   idea Idea @relation(fields: [ideaId], references: [id], onDelete: Cascade)
   user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 
-  @@unique([ideaId, userId, deletedAt])
+  @@unique([ideaId, userId, isActive])
   @@index([ideaId])
   @@index([userId])
   @@map("votes")

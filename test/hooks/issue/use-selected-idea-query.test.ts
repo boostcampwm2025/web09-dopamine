@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 import { selectedIdeaQueryKey, useSelectedIdeaQuery } from '@/hooks';
-import { renderHook } from '../../utils/test-utils';
+import { act, renderHook } from '../../utils/test-utils';
 
 describe('useSelectedIdeaQuery', () => {
   const issueId = 'issue-123';
@@ -40,6 +40,20 @@ describe('useSelectedIdeaQuery', () => {
       expect(result.current.data).toBe(null);
       expect(result.current.isLoading).toBe(false); // initialData가 있으므로 로딩 아님
       expect(result.current.isSuccess).toBe(true); // 데이터(null)가 있으므로 성공 상태
+    });
+
+    test('수동으로 refetch를 호출하면 queryFn이 실행되고 null을 반환해야 한다', async () => {
+      // Given
+      const { result } = renderHook(() => useSelectedIdeaQuery(issueId));
+
+      // When: enabled: false여도 refetch()를 호출하면 강제로 queryFn이 실행됨
+      // act를 사용하여 비동기 상태 업데이트 처리
+      await act(async () => {
+        const response = await result.current.refetch();
+
+        // Then: queryFn이 실행되어 반환한 값(null) 확인
+        expect(response.data).toBeNull();
+      });
     });
   });
 });

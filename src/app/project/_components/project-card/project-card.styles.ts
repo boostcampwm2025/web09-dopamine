@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import styled from '@emotion/styled';
 import { theme } from '@/styles/theme';
 
@@ -7,6 +8,7 @@ const BaseCard = styled.div`
   padding: 24px;
   cursor: pointer;
   transition: all 0.2s ease;
+  min-height: 240px;
 
   &:hover {
     box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.05);
@@ -75,18 +77,24 @@ export const CardBody = styled.div`
 
 export const MemberAvatars = styled.div`
   display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
 `;
 
-export const MemberAvatar = styled.div`
-  width: 32px;
-  height: 32px;
+export const MemberAvatar = styled(Image)`
   border-radius: 50%;
-  background-color: ${theme.colors.gray[200]};
   border: 2px solid white;
 
   &:not(:first-of-type) {
     margin-left: -8px;
   }
+`;
+
+export const RestCount = styled.span`
+  font-size: ${theme.font.size.medium};
+  font-weight: ${theme.font.weight.regular};
+  color: ${theme.colors.gray[400]};
+  margin-left: 4px;
 `;
 
 export const AddMember = styled.button`

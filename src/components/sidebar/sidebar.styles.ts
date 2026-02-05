@@ -3,21 +3,49 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import styled from '@emotion/styled';
+import {
+  SIDEBAR_TOGGLE_BORDER_RADIUS,
+  SIDEBAR_TOGGLE_HEIGHT,
+  SIDEBAR_TOGGLE_WIDTH,
+  SIDEBAR_WIDTH,
+} from '@/constants/sidebar';
 import { theme } from '@/styles/theme';
 import { IssueStatus } from '@/types/issue';
 
 export const Sidebar = styled.aside`
   display: flex;
+  position: relative;
   flex-flow: column nowrap;
   gap: 16px;
   justify-self: left;
   height: 100%;
-  width: 256px;
+  width: ${SIDEBAR_WIDTH}px;
   padding: 16px 0px;
   background-color: ${theme.colors.white};
   color: ${theme.colors.gray[400]};
   box-shadow: 2px 0 2px -1px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
+  overflow-x: visible;
+  overflow-y: hidden;
+`;
+
+export const SidebarToggle = styled.button`
+  position: absolute;
+  top: 10%;
+  right: -20px;
+  transform: translateY(-50%);
+  width: ${SIDEBAR_TOGGLE_WIDTH}px;
+  height: ${SIDEBAR_TOGGLE_HEIGHT}px;
+  padding: 0;
+  border: none;
+  border-radius: 0 ${SIDEBAR_TOGGLE_BORDER_RADIUS}px ${SIDEBAR_TOGGLE_BORDER_RADIUS}px 0;
+  background-color: ${theme.colors.red[500]};
+  cursor: pointer;
+  z-index: 9999;
+  box-shadow: 1px 0 2px rgba(0, 0, 0, 0.08);
+
+  &:hover {
+    background-color: ${theme.colors.gray[400]};
+  }
 `;
 
 export const InputWrapper = styled.div`
@@ -37,7 +65,7 @@ export const SearchBox = styled.div`
 export const InputIcon = styled(Image)`
   position: absolute;
   top: 50%;
-  left: 0;
+  right: 0;
   transform: translateY(-50%);
 `;
 
@@ -55,8 +83,15 @@ export const SrOnly = styled.label`
 `;
 export const SidebarInput = styled.input`
   width: 100%;
-  padding: 8px 8px 8px 24px;
+  padding: 8px 24px 8px 8px;
   border: none;
+  outline: none;
+
+  &:focus,
+  &:focus-visible {
+    outline: none;
+    box-shadow: none;
+  }
 `;
 
 export const SidebarTitle = styled.div`
@@ -69,9 +104,16 @@ export const SidebarTitle = styled.div`
   font-weight: ${theme.font.weight.bold};
   letter-spacing: 1px;
 
-  & span {
-    font-weight: ${theme.font.weight.medium};
-    margin-left: 8px;
+  & button {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: center;
+    justify-content: center;
+    &:hover {
+      opacity: 0.7;
+    }
   }
 `;
 

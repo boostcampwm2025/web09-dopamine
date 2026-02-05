@@ -27,14 +27,10 @@ export default function ProjectCreateModal() {
     mutate(
       { title: projectName, description: description || undefined },
       {
-        onSuccess: (newProject) => {
+        onSuccess: () => {
           toast.success('프로젝트가 생성되었습니다!');
           closeModal();
-          router.push(`/project/${newProject.id}`);
-        },
-        onError: (error: unknown) => {
-          const errorMessage = error instanceof Error ? error.message : '프로젝트 생성에 실패했습니다.';
-          toast.error(errorMessage);
+          router.refresh();
         },
       },
     );
@@ -53,7 +49,7 @@ export default function ProjectCreateModal() {
       <S.InfoContainer>
         <S.InputWrapper>
           <S.InputTitle>프로젝트 이름</S.InputTitle>
-          <S.Input
+          <S.InputContent
             value={projectName}
             onChange={(e) => setProjectName(e.target.value)}
             placeholder="이름을 입력하세요"

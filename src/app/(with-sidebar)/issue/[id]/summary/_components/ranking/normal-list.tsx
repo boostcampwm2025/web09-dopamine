@@ -46,22 +46,28 @@ export default function NormalList({ normalRankings }: NormalListProps) {
               {item.rank}
             </S.RankBadge>
             <S.Content>
-              <S.Title
-                title={item.content}
-                role="button"
-                tabIndex={0}
-                onClick={() => setDialogContent(item.content)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    setDialogContent(item.content);
-                  }
-                }}
-              >
-                {item.content}
-              </S.Title>
+              <S.ContentWrapper>
+                <S.Title
+                  title={item.content}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => setDialogContent(item.content)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setDialogContent(item.content);
+                    }
+                  }}
+                >
+                  {item.content}
+                </S.Title>
+                {item.isSelected && <S.SelectLabel>채택된 아이디어</S.SelectLabel>}
+              </S.ContentWrapper>
+
               <S.MetaRow>
-                <S.Author>{item.user?.nickname || item.user?.displayName || item.user?.name || '익명'}</S.Author>
+                <S.Author>
+                  {item.user?.nickname || item.user?.displayName || item.user?.name || '익명'}
+                </S.Author>
                 <S.Divider />
                 <span>{item.category?.title || '미분류'}</span>
               </S.MetaRow>

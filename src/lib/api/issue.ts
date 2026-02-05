@@ -57,6 +57,23 @@ export function updateIssueStatus(
   });
 }
 
+export function updateIssueTitle(issueId: string, title: string, connectionId?: string) {
+  return getAPIResponseData<{ id: string }>({
+    url: `/api/issues/${issueId}`,
+    method: 'PATCH',
+    headers: withSseHeader({ 'Content-Type': 'application/json' }, connectionId),
+    body: JSON.stringify({ title }),
+  });
+}
+
+export function deleteIssue(issueId: string, connectionId?: string) {
+  return getAPIResponseData<{ id: string; topicId: string | null }>({
+    url: `/api/issues/${issueId}`,
+    method: 'DELETE',
+    headers: withSseHeader(undefined, connectionId),
+  });
+}
+
 /* =========================
  * Issue Members
  * ========================= */
@@ -67,6 +84,7 @@ export function getIssueMembers(issueId: string) {
       id: string;
       nickname: string;
       role: string;
+      profile?: string | null;
       isConnected: boolean;
     }>
   >({
@@ -108,22 +126,23 @@ export function joinIssueAsLoggedInUser(issueId: string, connectionId?: string) 
   });
 }
 
-export function checkNicknameDuplicate(issueId: string, nickname: string) {
-  const encodedNickname = encodeURIComponent(nickname);
-  return getAPIResponseData<{
-    isDuplicate: boolean;
-  }>({
-    url: `/api/issues/${issueId}/members?nickname=${encodedNickname}`,
-    method: 'GET',
-  });
-}
-
 export function generateNickname(issueId: string) {
   return getAPIResponseData<{
     nickname: string;
   }>({
     url: `/api/issues/${issueId}/members/nickname`,
     method: 'POST',
+  });
+}
+
+export function updateIssueMemberNickname(issueId: string, userId: string, nickname: string) {
+  return getAPIResponseData<{
+    success: boolean;
+  }>({
+    url: `/api/issues/${issueId}/members/${userId}`,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ nickname }),
   });
 }
 

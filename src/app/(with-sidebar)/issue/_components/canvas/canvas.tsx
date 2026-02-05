@@ -37,7 +37,6 @@ export default function Canvas({
     scale,
     offset,
     isPanning,
-    handleWheel,
     handleMouseDown,
     handleMouseMove,
     handleMouseUp,
@@ -57,7 +56,7 @@ export default function Canvas({
     <>
       <S.CanvasContainer
         ref={canvasRef}
-        onWheel={handleWheel}
+        data-testid="issue-canvas"
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}

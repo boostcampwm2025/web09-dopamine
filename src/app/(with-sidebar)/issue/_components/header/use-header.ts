@@ -4,8 +4,12 @@ import toast from 'react-hot-toast';
 import { useCanvasStore } from '@/app/(with-sidebar)/issue/store/use-canvas-store';
 import { ISSUE_STATUS, MEMBER_ROLE } from '@/constants/issue';
 import { useTopicId } from '@/hooks';
-import { useAIStructuringMutation, useIssueMemberQuery, useIssueQuery, useIssueStatusMutations } from '@/hooks/issue';
-import { getIssueMember } from '@/lib/api/issue';
+import {
+  useAIStructuringMutation,
+  useIssueMemberQuery,
+  useIssueQuery,
+  useIssueStatusMutations,
+} from '@/hooks/issue';
 import { IssueStatus } from '@/types/issue';
 import { useCategoryOperations, useIdeasWithTemp, useIssueIdentity } from '../../hooks';
 
@@ -28,9 +32,11 @@ export function useHeader({ issueId }: UseHeaderParams) {
   const { handleAIStructure } = useAIStructuringMutation(issueId);
 
   const isOwner = currentMember?.role === MEMBER_ROLE.OWNER;
-  const { ideas, hasEditingIdea } = useIdeasWithTemp(issueId);
+  const { ideas } = useIdeasWithTemp(issueId);
   const scale = useCanvasStore((state) => state.scale);
   const { categories, handleAddCategory } = useCategoryOperations(issueId, ideas, scale);
+
+  const isEditButtonVisible = topicId ? true : isOwner;
 
   const hiddenStatus = [ISSUE_STATUS.SELECT, ISSUE_STATUS.CLOSE] as IssueStatus[];
   const isVisible = issue && !hiddenStatus.includes(issue.status as IssueStatus);
@@ -75,10 +81,6 @@ export function useHeader({ issueId }: UseHeaderParams) {
         toast.error('최소 1개 이상의 아이디어를 제출해야합니다.');
         throw new Error('아이디어가 존재하지 않습니다.');
       }
-      if (hasEditingIdea) {
-        toast.error('입력 중인 아이디어가 있습니다.');
-        throw new Error('입력 중인 아이디어가 있습니다.');
-      }
     }
     if (issue?.status === ISSUE_STATUS.CATEGORIZE) {
       if (categories.length === 0) {
@@ -103,7 +105,7 @@ export function useHeader({ issueId }: UseHeaderParams) {
     }
 
     return true;
-  }, [issue?.status, ideas, hasEditingIdea, categories]);
+  }, [issue?.status, ideas, categories]);
 
   // 다음 단계로 이동
   const handleNextStep = useCallback(() => {
@@ -133,7 +135,7 @@ export function useHeader({ issueId }: UseHeaderParams) {
 
   // URL 공유
   const handleCopyURL = () => {
-    const textToCopy = `${process.env.NEXT_PUBLIC_BASE_URL}/issue/${issueId}`;
+    const textToCopy = `${window.location.origin}/issue/${issueId}`;
     copyToClipboard(textToCopy);
   };
 
@@ -151,6 +153,8 @@ export function useHeader({ issueId }: UseHeaderParams) {
     issue,
     isOwner,
     isVisible,
+    isEditButtonVisible,
+    topicId,
     handleCloseIssue,
     handleNextStep,
     handleAddCategory,

@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import { useTooltipStore } from '@/components/tooltip/use-tooltip-store';
 import { ISSUE_STATUS } from '@/constants/issue';
+import EditIssueButton from '../edit-issue-button/edit-issue-button';
 import ProgressBar from '../progress-bar/progress-bar';
 import HeaderButton from './header-button';
 import * as S from './header.styles';
@@ -16,6 +17,8 @@ const Header = () => {
   const {
     issue,
     isVisible,
+    isEditButtonVisible,
+    topicId,
     handleCloseIssue,
     handleNextStep,
     handleAddCategory,
@@ -65,14 +68,22 @@ const Header = () => {
     <S.HeaderContainer>
       <S.LeftSection>
         <button onClick={handleGoback}>
-          <Image
-            src="/leftArrow.svg"
-            alt="뒤로가기"
-            width={18}
-            height={18}
-          />
+          <S.ButtonsWrapper>
+            <Image
+              src={topicId ? '/leftArrow.svg' : '/home.svg'}
+              alt={topicId ? '뒤로가기' : '홈으로'}
+              width={18}
+              height={18}
+            />
+          </S.ButtonsWrapper>
         </button>
         {issue?.title}
+        {isEditButtonVisible && (
+          <EditIssueButton
+            issueId={issueId}
+            currentTitle={issue?.title}
+          />
+        )}
       </S.LeftSection>
       <S.CenterSection>
         <ProgressBar />
@@ -96,12 +107,6 @@ const Header = () => {
         )}
 
         {renderActionButtons()}
-
-        <HeaderButton
-          imageSrc="/timer.svg"
-          imageSize={16}
-          alt="타이머"
-        />
         <HeaderButton
           imageSrc="/share.svg"
           alt="공유하기"

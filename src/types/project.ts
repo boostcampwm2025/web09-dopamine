@@ -8,7 +8,12 @@ export interface Project {
   deletedAt?: string | null;
 }
 
+export interface ProjectMember {
+  user: { id: string; image: string | null; displayName: string | null };
+}
+
 export interface ProjectListItem extends Project {
+  members: ProjectMember[];
   memberCount: number;
 }
 

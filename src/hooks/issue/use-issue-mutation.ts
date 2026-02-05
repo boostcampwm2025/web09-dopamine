@@ -1,8 +1,15 @@
+import { useRouter } from 'next/navigation';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { useSseConnectionStore } from '@/app/(with-sidebar)/issue/store/use-sse-connection-store';
 import { ISSUE_STATUS, STEP_FLOW } from '@/constants/issue';
-import { createIssueInTopic, createQuickIssue, updateIssueStatus } from '@/lib/api/issue';
+import {
+  createIssueInTopic,
+  createQuickIssue,
+  deleteIssue,
+  updateIssueStatus,
+  updateIssueTitle,
+} from '@/lib/api/issue';
 import { setUserIdForIssue } from '@/lib/storage/issue-user-storage';
 import { IssueStatus } from '@/types/issue';
 
@@ -57,8 +64,8 @@ export const useIssueStatusMutations = (issueId: string) => {
     onError: (err, _variables, context) => {
       if (context?.previousIssue) {
         queryClient.setQueryData(queryKey, context.previousIssue);
-        toast.error(err.message);
       }
+      toast.error(err.message);
     },
 
     onSettled: () => {
@@ -111,11 +118,63 @@ export const useCreateIssueInTopicMutation = () => {
       queryClient.invalidateQueries({
         queryKey: ['topics', variables.topicId, 'issues'],
       });
+      queryClient.invalidateQueries({
+        queryKey: ['topics', variables.topicId, 'nodes'],
+      });
       toast.success('이슈가 생성되었습니다!');
     },
 
     onError: (error: Error) => {
       toast.error(error.message || '이슈 생성에 실패했습니다.');
+    },
+  });
+};
+
+export const useUpdateIssueTitleMutation = (issueId: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: { title: string; connectionId?: string }) =>
+      updateIssueTitle(issueId, data.title, data.connectionId),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['issues', issueId],
+      });
+      toast.success('이슈를 수정했습니다!');
+    },
+
+    onError: (error: Error) => {
+      toast.error(error.message || '이슈 수정에 실패했습니다.');
+    },
+  });
+};
+
+export const useDeleteIssueMutation = (issueId: string) => {
+  const queryClient = useQueryClient();
+  const router = useRouter();
+
+  return useMutation({
+    mutationFn: (data: { connectionId?: string }) => deleteIssue(issueId, data.connectionId),
+
+    onSuccess: async (data) => {
+      await queryClient.cancelQueries({ queryKey: ['issues', issueId] });
+      queryClient.removeQueries({ queryKey: ['issues', issueId] });
+
+      if (data.topicId) {
+        queryClient.invalidateQueries({
+          queryKey: ['topics', data.topicId],
+        });
+      }
+
+      toast.success('이슈를 삭제했습니다.');
+
+      router.push(data.topicId ? `/topic/${data.topicId}` : '/');
+    },
+
+    onError: (error: Error) => {
+      console.error('이슈 삭제 실패:', error);
+      toast.error(error.message || '이슈 삭제에 실패했습니다.');
     },
   });
 };

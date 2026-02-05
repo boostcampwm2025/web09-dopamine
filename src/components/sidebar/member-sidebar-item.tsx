@@ -1,9 +1,9 @@
 import Image from 'next/image';
-import { useIssueId } from '@/app/(with-sidebar)/issue/hooks';
+import { StringifyOptions } from 'querystring';
 import { MEMBER_ROLE } from '@/constants/issue';
-import { getUserIdForIssue } from '@/lib/storage/issue-user-storage';
 import * as MemberS from './member-sidebar-item.styles';
 import * as S from './sidebar.styles';
+import { useMemberNicknameEdit } from './use-member-nickname-edit';
 
 interface MemberSidebarItemProps {
   profile?: string;
@@ -11,6 +11,9 @@ interface MemberSidebarItemProps {
   name: string;
   role: typeof MEMBER_ROLE.OWNER | typeof MEMBER_ROLE.MEMBER;
   isConnected?: boolean;
+  currentUserId?: string;
+  issueId?: string;
+  isQuickIssue?: boolean;
 }
 
 export default function MemberSidebarItem({
@@ -19,13 +22,33 @@ export default function MemberSidebarItem({
   profile,
   role,
   isConnected,
+  currentUserId,
+  issueId,
+  isQuickIssue,
 }: MemberSidebarItemProps) {
-  const issueId = useIssueId();
-  const currentUserId = getUserIdForIssue(issueId);
   const isCurrentUser = currentUserId === id;
+
+  // 이슈 페이지 여부
+  const isIssuePage = !!issueId;
+
+  const showNameLength = isQuickIssue ? 12 : 7;
 
   const isProjectOwner = role === MEMBER_ROLE.OWNER && profile;
   const isIssueOwner = role === MEMBER_ROLE.OWNER && !profile;
+
+  const {
+    isEditing,
+    editName,
+    setEditName,
+    startEditing,
+    cancelEditing,
+    saveEditing,
+    handleKeyDown,
+  } = useMemberNicknameEdit({
+    issueId,
+    userId: id,
+    initialName: name,
+  });
 
   return (
     <S.SidebarListItem>
@@ -48,9 +71,53 @@ export default function MemberSidebarItem({
               style={{ borderRadius: '50%' }}
             />
           )}
-          <span>{name}</span>
-          {isCurrentUser && <MemberS.CurrentUserLabel>me</MemberS.CurrentUserLabel>}
-          {isProjectOwner && (
+
+          {isEditing ? (
+            <MemberS.EditInput
+              value={editName}
+              onChange={(e) => setEditName(e.target.value)}
+              onClick={(e) => e.stopPropagation()}
+              onKeyDown={handleKeyDown}
+              onBlur={() => cancelEditing()}
+              autoFocus
+            />
+          ) : (
+            <span>
+              {name.length > showNameLength ? name.slice(0, showNameLength) + '...' : name}
+            </span>
+          )}
+
+          {!isIssuePage && isCurrentUser && <MemberS.CurrentUserLabel>me</MemberS.CurrentUserLabel>}
+
+          {isCurrentUser && isIssuePage && (
+            <MemberS.ActionContainer>
+              {isEditing ? (
+                <>
+                  <MemberS.IconButton
+                    onClick={saveEditing}
+                    onMouseDown={(e) => e.preventDefault()}
+                    title="저장"
+                  >
+                    저장
+                  </MemberS.IconButton>
+                </>
+              ) : (
+                <MemberS.IconButton
+                  onClick={startEditing}
+                  title="닉네임 수정"
+                >
+                  <Image
+                    src="/edit-gray.svg"
+                    alt="닉네임 수정"
+                    width={14}
+                    height={14}
+                  />
+                </MemberS.IconButton>
+              )}
+            </MemberS.ActionContainer>
+          )}
+
+          {isProjectOwner && !isEditing && (
             <MemberS.OwnerBadge>
               <Image
                 src="/yellow-crown.svg"

@@ -1,5 +1,8 @@
+import { getServerSession } from 'next-auth';
 import { NextRequest } from 'next/server';
+import { authOptions } from '@/lib/auth';
 import { findTopicById } from '@/lib/repositories/topic.repository';
+import { topicService } from '@/lib/services/topic.service';
 import { createErrorResponse, createSuccessResponse } from '@/lib/utils/api-helpers';
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ topicId: string }> }) {
@@ -26,5 +29,69 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ topi
   } catch (error) {
     console.error('토픽 조회 실패:', error);
     return createErrorResponse('TOPIC_FETCH_FAILED', 500);
+  }
+}
+
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ topicId: string }> },
+) {
+  const { topicId } = await params;
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) return createErrorResponse('UNAUTHORIZED', 401);
+
+  try {
+    const { title } = await req.json();
+
+    const topic = await topicService.updateTopicTitle({
+      topicId,
+      title,
+      userId: session.user.id,
+    });
+
+    return createSuccessResponse(topic);
+  } catch (error: unknown) {
+    console.error('토픽 수정 실패:', error);
+
+    if (error instanceof Error) {
+      if (error.message === 'TOPIC_NOT_FOUND') {
+        return createErrorResponse('TOPIC_NOT_FOUND', 404);
+      }
+      if (error.message === 'PERMISSION_DENIED') {
+        return createErrorResponse('PERMISSION_DENIED', 403);
+      }
+      return createErrorResponse(error.message, 500);
+    }
+
+    return createErrorResponse('TOPIC_UPDATE_FAILED', 500);
+  }
+}
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ topicId: string }> },
+) {
+  const { topicId } = await params;
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) return createErrorResponse('UNAUTHORIZED', 401);
+
+  try {
+    const topic = await topicService.deleteTopic(topicId, session.user.id);
+
+    return createSuccessResponse(topic);
+  } catch (error: unknown) {
+    console.error('토픽 삭제 실패:', error);
+
+    if (error instanceof Error) {
+      if (error.message === 'TOPIC_NOT_FOUND') {
+        return createErrorResponse('TOPIC_NOT_FOUND', 404);
+      }
+      if (error.message === 'PERMISSION_DENIED') {
+        return createErrorResponse('PERMISSION_DENIED', 403);
+      }
+      return createErrorResponse(error.message, 500);
+    }
+
+    return createErrorResponse('TOPIC_DELETE_FAILED', 500);
   }
 }

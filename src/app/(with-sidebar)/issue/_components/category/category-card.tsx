@@ -7,6 +7,7 @@ import CategoryCardHeader from './category-card-header';
 import { ChildrenWrapper, StyledCategoryCard } from './category-card.styles';
 import { useCategoryCard } from './use-category-card';
 import { useCategoryDnd } from './use-category-dnd';
+import { IssueStatus } from '@/types/issue';
 
 interface CategoryCardProps {
   id: string;
@@ -16,6 +17,7 @@ interface CategoryCardProps {
   isMuted?: boolean;
   children?: React.ReactNode;
   hasActiveComment?: boolean;
+  status: IssueStatus;
   onRemove?: () => void;
   onPositionChange?: (id: string, position: Position) => void;
   onDrag?: (id: string, position: Position, delta: { dx: number; dy: number }) => void;
@@ -33,6 +35,7 @@ export default function CategoryCard({
   isMuted = false,
   children,
   hasActiveComment = false,
+  status,
   onRemove,
   onPositionChange,
   onDrag,
@@ -83,6 +86,7 @@ export default function CategoryCard({
       style={cardStyle}
     >
       <CategoryCardHeader
+        status={status}
         curTitle={curTitle}
         draftTitle={draftTitle}
         isEditing={isEditing}

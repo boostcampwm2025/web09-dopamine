@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
+import { MAX_ISSUE_TITLE_LENGTH } from '@/constants/issue';
 import { useQuickStartMutation } from '@/hooks/issue';
 import { generateRandomNickname } from '@/lib/utils/nickname';
 import { useModalStore } from '../use-modal-store';
@@ -23,6 +24,10 @@ export default function CreateIssueModal() {
   const handleQuickStart = useCallback(async () => {
     if (!title.trim() || !ownerNickname.trim()) {
       toast.error('이슈 제목과 닉네임을 입력해주세요.');
+      return;
+    }
+    if (title.length > MAX_ISSUE_TITLE_LENGTH) {
+      toast.error(`이슈 제목은 ${MAX_ISSUE_TITLE_LENGTH}자 이내로 입력해주세요.`);
       return;
     }
 
@@ -51,19 +56,27 @@ export default function CreateIssueModal() {
         <S.InfoContainer>
           <S.InputWrapper>
             <S.InputTitle>이슈 제목</S.InputTitle>
-            <S.Input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="예시) 서비스 홍보 방안"
-            />
+            <S.Input>
+              <S.InputField
+                value={title}
+                onChange={(e) => setTitle(e.target.value.slice(0, MAX_ISSUE_TITLE_LENGTH))}
+                placeholder={`예시) 서비스 홍보 방안 (${MAX_ISSUE_TITLE_LENGTH}자 이내)`}
+                maxLength={MAX_ISSUE_TITLE_LENGTH}
+              />
+              <S.CharCount $isOverLimit={title.length > MAX_ISSUE_TITLE_LENGTH}>
+                {title.length}/{MAX_ISSUE_TITLE_LENGTH}
+              </S.CharCount>
+            </S.Input>
           </S.InputWrapper>
           <S.InputWrapper>
             <S.InputTitle>표시될 닉네임</S.InputTitle>
-            <S.Input
-              value={ownerNickname}
-              onChange={(e) => setOwnerNickname(e.target.value)}
-              placeholder="예시) 생각하는 단무지"
-            />
+            <S.Input>
+              <S.InputField
+                value={ownerNickname}
+                onChange={(e) => setOwnerNickname(e.target.value)}
+                placeholder="예시) 생각하는 단무지"
+              />
+            </S.Input>
           </S.InputWrapper>
         </S.InfoContainer>
       </S.Container>

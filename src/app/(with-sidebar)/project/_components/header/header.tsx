@@ -4,25 +4,28 @@ import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import HeaderButton from '@/app/(with-sidebar)/issue/_components/header/header-button';
 import { useInviteProjectModal } from '@/components/modal/invite-project-modal/use-invite-project-modal';
+import { CircleSkeleton, TextSkeleton, TitleSkeleton } from '@/components/skeleton/skeleton';
 import { useProjectQuery } from '@/hooks/project';
+import { useSmartLoading } from '@/hooks/use-smart-loading';
 import * as S from './header.styles';
-import { useRouter } from 'next/navigation';
 
 const ProjectHeader = () => {
   const params = useParams<{ id: string }>();
-  const projectId = params.id || 'default';
+  const projectId = params.id;
   const router = useRouter();
 
-  const { data: session } = useSession();
-  const { data: projectData } = useProjectQuery(projectId);
+  const { data: session, status: sessionStatus } = useSession();
+  const { data: projectData, isLoading } = useProjectQuery(projectId || '');
+  const showLoading = useSmartLoading(isLoading);
+  const showSessionLoading = useSmartLoading(sessionStatus === 'loading');
 
   const { openInviteProjectModal } = useInviteProjectModal();
 
-  const userName = session?.user?.name || '사용자';
-  const userImage = session?.user?.image || '/profile.svg';
-  const projectTitle = projectData?.title || '로딩 중...';
+  const userName = session?.user?.displayName;
+  const userImage = session?.user?.image;
 
   const handleProfileClick = () => {
     router.push('/mypage');
@@ -41,25 +44,36 @@ const ProjectHeader = () => {
           />
         </Link>
         <S.Divider />
-        {projectTitle}
+        {showLoading ? <TitleSkeleton width="200px" /> : projectData?.title}
       </S.LeftSection>
       <S.RightSection>
         <HeaderButton
           imageSrc="/people.svg"
           alt="팀원 초대"
           text="팀원 초대"
-          onClick={(e) => openInviteProjectModal(projectId, projectTitle, e)}
+          onClick={(e) => openInviteProjectModal(projectId, projectData?.title || '', e)}
         />
         <S.Divider />
         <S.Profile onClick={handleProfileClick}>
-          {userName}
-          <Image
-            src={userImage}
-            alt="프로필"
-            width={38}
-            height={38}
-            style={{ borderRadius: '50%'}}
-          />
+          {showSessionLoading ? (
+            <>
+              <TextSkeleton width="42px" />
+              <CircleSkeleton size="38px" />
+            </>
+          ) : (
+            <>
+              {userName}
+              {userImage && (
+                <Image
+                  src={userImage}
+                  alt="프로필"
+                  width={38}
+                  height={38}
+                  style={{ borderRadius: '50%' }}
+                />
+              )}
+            </>
+          )}
         </S.Profile>
       </S.RightSection>
     </S.HeaderContainer>

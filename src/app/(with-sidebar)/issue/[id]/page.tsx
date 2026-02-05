@@ -2,14 +2,16 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSession } from 'next-auth/react';
-import { useParams, usePathname, useRouter } from 'next/navigation';
+import { notFound, useParams, usePathname, useRouter } from 'next/navigation';
 import { DndContext, DragOverlay } from '@dnd-kit/core';
 import { useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import Canvas from '@/app/(with-sidebar)/issue/_components/canvas/canvas';
 import CategoryCard from '@/app/(with-sidebar)/issue/_components/category/category-card';
+import CommentWindow from '@/app/(with-sidebar)/issue/_components/comment/comment-window';
 import FilterPanel from '@/app/(with-sidebar)/issue/_components/filter-panel/filter-panel';
 import IdeaCard from '@/app/(with-sidebar)/issue/_components/idea-card/idea-card';
+import { Wrapper } from '@/app/(with-sidebar)/issue/_components/idea-card/idea-card.styles';
 import { useCanvasStore } from '@/app/(with-sidebar)/issue/store/use-canvas-store';
 import { ErrorPage } from '@/components/error/error';
 import LoadingOverlay from '@/components/loading-overlay/loading-overlay';
@@ -85,6 +87,10 @@ const IssuePage = () => {
     return members.some((member) => member.id === session.user.id);
   }, [session?.user?.id, members]);
 
+  // 프로젝트 멤버이지만 이슈 미참여 + 종료된 이슈 → Summary 읽기 전용
+  const isReadOnlySummaryView =
+    isProjectMember && !isLoggedInUserMember && status === ISSUE_STATUS.CLOSE;
+
   // 토픽 내 이슈 접근 권한 검증
   // 1. 로딩 상태인지 먼저 확인
   const isPageLoading =
@@ -112,9 +118,7 @@ const IssuePage = () => {
       if (isQuickIssue) return;
       if (!issueId || isLoading || sessionStatus === 'loading' || !session?.user?.id) return;
       if (projectId && (isProjectsLoading || !isProjectMember)) return;
-
-      // 이미 참여한 경우 스킵
-      if (isLoggedInUserMember) return;
+      if (status === ISSUE_STATUS.CLOSE) return;
 
       try {
         await joinIssueAsLoggedInUser(issueId, connectionId);
@@ -130,7 +134,6 @@ const IssuePage = () => {
     isLoading,
     sessionStatus,
     session?.user?.id,
-    isLoggedInUserMember,
     isQuickIssue,
     projectId,
     isProjectsLoading,
@@ -147,7 +150,7 @@ const IssuePage = () => {
     if (!isQuickIssue) return;
 
     // 빠른 이슈 + localStorage에 userId 없음 -> 참여 모달
-    if (!issueUserId) {
+    if (!issueUserId && status !== ISSUE_STATUS.CLOSE) {
       hasOpenedModal.current = true;
       openModal({
         title: '이슈 참여',
@@ -165,13 +168,16 @@ const IssuePage = () => {
     }
   }, [status, issueId, router]);
 
-  // SSE 연결
-  // 빠른 이슈는 localStorage userId, 토픽 이슈는 로그인 userId 기준으로 연결
-  const shouldConnectSSE = !isPageLoading && !!currentUserId && !isAuthError && !isMemberError;
+  // SSE 연결: 토픽 이슈는 읽기 전용이 아닐 때만(프로젝트 멤버 + 이슈 멤버 X + 이슈 종료됨)
+  const hasSseConnectionCondition =
+    !isPageLoading && !!currentUserId && !isAuthError && !isMemberError;
+  const isSseEnabled = isQuickIssue
+    ? hasSseConnectionCondition
+    : hasSseConnectionCondition && !isReadOnlySummaryView;
   useIssueEvents({
     issueId,
     userId: currentUserId,
-    enabled: shouldConnectSSE,
+    enabled: isSseEnabled,
     topicId: issue?.topicId,
   });
 
@@ -256,8 +262,15 @@ const IssuePage = () => {
   // 에러 여부 확인
   const hasError = isIssueError || isIdeasError || isCategoryError;
 
+  // 존재하지 않는 이슈 id → not-found 표시 (이슈만 404일 때, 아이디어/카테고리 에러는 ErrorPage 유지)
+  useEffect(() => {
+    if (!isLoading && isIssueError) {
+      notFound();
+    }
+  }, [isLoading, isIssueError]);
+
   if (isAuthError || isMemberError) {
-    return null; // 리다이렉트 될 때까지 화면을 비워둠 (정보 노출 차단)
+    return null;
   }
 
   return (
@@ -295,31 +308,44 @@ const IssuePage = () => {
                   key={category.id}
                   {...category}
                   issueId={issueId}
+                  status={status}
                   hasActiveComment={hasActiveComment}
-                  isMuted={category.title === '기타'}
                   onPositionChange={handleCategoryPositionChange}
                   checkCollision={checkCategoryOverlap}
                   onRemove={() => handleDeleteCategory(category.id)}
                   onDropIdea={(ideaId) => handleMoveIdeaToCategory(ideaId, category.id)}
                 >
-                  {categoryIdeas.map((idea) => (
-                    <IdeaCard
-                      key={idea.id}
-                      {...idea}
-                      author={idea.author}
-                      userId={idea.userId}
-                      issueId={issueId}
-                      position={null}
-                      isSelected={idea.id === selectedIdeaId}
-                      status={getIdeaStatus(idea.id)}
-                      isHotIdea={activeDiscussionIdeaIds.has(idea.id)}
-                      isVoteButtonVisible={isVoteButtonVisible}
-                      isVoteDisabled={isVoteDisabled}
-                      onSave={(content) => handleSaveIdea(idea.id, content)}
-                      onDelete={() => handleDeleteIdea(idea.id)}
-                      onClick={() => handleSelectIdea(idea.id)}
-                    />
-                  ))}
+                  {categoryIdeas.map((idea) => {
+                    const isCommentOpen = activeCommentId === idea.id;
+
+                    return (
+                      <Wrapper key={idea.id}>
+                        <IdeaCard
+                          {...idea}
+                          author={idea.author}
+                          userId={idea.userId}
+                          issueId={issueId}
+                          position={null}
+                          isSelected={idea.id === selectedIdeaId}
+                          status={getIdeaStatus(idea.id)}
+                          isHotIdea={activeDiscussionIdeaIds.has(idea.id)}
+                          isVoteButtonVisible={isVoteButtonVisible}
+                          isVoteDisabled={isVoteDisabled}
+                          onSave={handleSaveIdea}
+                          onDelete={handleDeleteIdea}
+                          onClick={handleSelectIdea}
+                        />
+                        {isCommentOpen && (
+                          <CommentWindow
+                            issueId={issueId}
+                            ideaId={idea.id}
+                            userId={currentUserId}
+                            onClose={closeComment}
+                          />
+                        )}
+                      </Wrapper>
+                    );
+                  })}
                 </CategoryCard>
               );
             })}
@@ -339,8 +365,8 @@ const IssuePage = () => {
                   isVoteButtonVisible={isVoteButtonVisible}
                   isVoteDisabled={isVoteDisabled}
                   onPositionChange={handleIdeaPositionChange}
-                  onSave={(content) => handleSaveIdea(idea.id, content)}
-                  onDelete={() => handleDeleteIdea(idea.id)}
+                  onSave={handleSaveIdea}
+                  onDelete={handleDeleteIdea}
                   disableAnimation={!!draggingPositions[idea.id]}
                 />
               ))}

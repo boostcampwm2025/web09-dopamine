@@ -58,6 +58,7 @@ const ids = {
   projectMemberCharlie: '00000000-0000-0000-0000-000000000902',
   issueOwnerAlice: '00000000-0000-0000-0000-000000000903',
   issueMemberBob: '00000000-0000-0000-0000-000000000904',
+  issueOwnerAliceVote: '00000000-0000-0000-0000-000000000905',
 };
 
 const upsertById = async (delegate, record) => {
@@ -77,7 +78,7 @@ async function main() {
       name: 'Alice',
       displayName: 'alice',
       provider: 'github',
-      avatarUrl: 'https://example.com/avatar/alice.png',
+      image: 'https://example.com/avatar/alice.png',
     },
     {
       id: ids.userBob,
@@ -85,7 +86,7 @@ async function main() {
       name: 'Bob',
       displayName: 'bob',
       provider: 'google',
-      avatarUrl: 'https://example.com/avatar/bob.png',
+      image: 'https://example.com/avatar/bob.png',
     },
     {
       id: ids.userCharlie,
@@ -93,7 +94,7 @@ async function main() {
       name: 'Charlie',
       displayName: 'charlie',
       provider: 'kakao',
-      avatarUrl: 'https://example.com/avatar/charlie.png',
+      image: 'https://example.com/avatar/charlie.png',
     },
   ];
 
@@ -109,6 +110,11 @@ async function main() {
   });
 
   const projectMembers = [
+    {
+      id: '00000000-0000-0000-0000-000000000900',
+      userId: ids.userAlice,
+      projectId: ids.projectAlpha,
+    },
     {
       id: ids.projectMemberBob,
       userId: ids.userBob,
@@ -163,8 +169,8 @@ async function main() {
 
   await upsertById(prisma.issueConnection, {
     id: ids.issueLink,
-    issueAId: ids.issueRetention,
-    issueBId: ids.issueActivation,
+    sourceIssueId: ids.issueRetention,
+    targetIssueId: ids.issueActivation,
   });
 
   const issueMembers = [
@@ -172,18 +178,37 @@ async function main() {
       id: ids.issueOwnerAlice,
       issueId: ids.issueRetention,
       userId: ids.userAlice,
+      nickname: 'Alice',
       role: 'OWNER',
     },
     {
       id: ids.issueMemberBob,
       issueId: ids.issueActivation,
       userId: ids.userBob,
+      nickname: 'Bob',
       role: 'MEMBER',
+    },
+    {
+      id: ids.issueOwnerAliceVote,
+      issueId: ids.issueActivation,
+      userId: ids.userAlice,
+      nickname: 'Alice',
+      role: 'OWNER',
     },
   ];
 
   for (const member of issueMembers) {
-    await upsertById(prisma.issueMember, member);
+    const { issueId, userId, ...data } = member;
+    await prisma.issueMember.upsert({
+      where: {
+        issueId_userId: {
+          issueId,
+          userId,
+        },
+      },
+      update: data,
+      create: member,
+    });
   }
 
   const categories = [

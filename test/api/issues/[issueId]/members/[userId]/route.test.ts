@@ -61,3 +61,47 @@ describe('GET /api/issues/[issueId]/members/[userId]', () => {
     await expectErrorResponse(response, 500, 'MEMBER_FETCH_FAILED');
   });
 });
+
+describe('PATCH /api/issues/[issueId]/members/[userId]', () => {
+  const issueId = 'issue-1';
+  const userId = 'user-1';
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  const { PATCH } = require('@/app/api/issues/[issueId]/members/[userId]/route');
+
+  it('닉네임을 성공적으로 수정한다', async () => {
+    const body = { nickname: 'New Nickname' };
+
+    // 1. 존재 여부 확인 (본인)
+    (issueMemberRepository.findMemberByUserId as jest.Mock).mockResolvedValue({
+      userId,
+      nickname: 'Old Nickname',
+    });
+    // 2. 업데이트
+    (issueMemberRepository.updateNickname as jest.Mock).mockResolvedValue({ count: 1 });
+
+    const req = createMockGetRequest();
+    req.json = jest.fn().mockResolvedValue(body);
+
+    const params = createMockParams({ issueId, userId });
+
+    const response = await PATCH(req, params);
+    await expectSuccessResponse(response, 200);
+
+    expect(issueMemberRepository.updateNickname).toHaveBeenCalledWith(issueId, userId, 'New Nickname');
+  });
+
+  it('닉네임이 없으면 400 에러를 반환한다', async () => {
+    const body = { nickname: '' };
+
+    const req = createMockGetRequest();
+    req.json = jest.fn().mockResolvedValue(body);
+    const params = createMockParams({ issueId, userId });
+
+    const response = await PATCH(req, params);
+    await expectErrorResponse(response, 400, 'NICKNAME_REQUIRED');
+  });
+});

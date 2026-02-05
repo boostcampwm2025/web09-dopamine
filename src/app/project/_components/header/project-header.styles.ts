@@ -5,11 +5,13 @@ import { theme } from '@/styles/theme';
 
 export const HeaderContainer = styled.div`
   height: 56px;
-  padding-inline: 144px;
+  max-width: 1200px;
+  width: 100%;
   background-color: white;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  align-self: center;
 `;
 
 export const LeftSection = styled.div`

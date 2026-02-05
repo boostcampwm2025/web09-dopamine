@@ -3,3 +3,5 @@ export const EDGE_STYLE = {
   stroke: '#b1b1b7',
   strokeWidth: 3,
 } as const;
+
+export const MAX_TOPIC_TITLE_LENGTH = 30;

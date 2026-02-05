@@ -1,4 +1,4 @@
-import { IssueStatus } from '@prisma/client';
+import { IssueRole, IssueStatus } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { PrismaTransaction } from '@/types/prisma';
 
@@ -6,6 +6,24 @@ type PrismaClientOrTx = PrismaTransaction | typeof prisma;
 
 export async function createIssue(tx: PrismaTransaction, title: string, topicId?: string) {
   if (topicId) {
+    const lastNode = await tx.issueNode.findFirst({
+      where: {
+        deletedAt: null,
+        issue: {
+          topicId,
+          deletedAt: null,
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        positionX: true,
+        positionY: true,
+      },
+    });
+
+    const baseX = lastNode ? lastNode.positionX + 280 : 500;
+    const baseY = lastNode ? lastNode.positionY : 400;
+
     // 이슈랑 이슈노드 함께 만들기
     return tx.issue.create({
       data: {
@@ -13,8 +31,8 @@ export async function createIssue(tx: PrismaTransaction, title: string, topicId?
         topicId,
         issueNode: {
           create: {
-            positionX: 500,
-            positionY: 400,
+            positionX: baseX,
+            positionY: baseY,
           },
         },
       },
@@ -75,6 +93,76 @@ export async function updateIssueStatus(
       id: true,
       status: true,
     },
+  });
+}
+
+export async function findIssueWithPermissionData(issueId: string, userId: string) {
+  return await prisma.issue.findUnique({
+    where: { id: issueId, deletedAt: null },
+    select: {
+      topicId: true,
+      issueMembers: {
+        where: { userId, role: IssueRole.OWNER },
+        select: { id: true },
+      },
+      topic: {
+        select: {
+          project: {
+            select: {
+              projectMembers: {
+                where: { userId },
+                select: { id: true },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+}
+
+export async function updateIssueTitle(issueId: string, title: string) {
+  return await prisma.issue.update({
+    where: { id: issueId },
+    data: { title },
+    select: { id: true, title: true, topicId: true },
+  });
+}
+
+export async function softDeleteIssue(issueId: string) {
+  const now = new Date();
+
+  return await prisma.$transaction(async (tx) => {
+    // 아이디어 삭제
+    await tx.idea.updateMany({
+      where: { issueId, deletedAt: null },
+      data: { deletedAt: now },
+    });
+
+    // 카테고리 삭제
+    await tx.category.updateMany({
+      where: { issueId, deletedAt: null },
+      data: { deletedAt: now },
+    });
+
+    // 이슈 멤버 삭제
+    await tx.issueMember.updateMany({
+      where: { issueId, deletedAt: null },
+      data: { deletedAt: now },
+    });
+
+    // 이슈 노드 삭제
+    await tx.issueNode.updateMany({
+      where: { issueId, deletedAt: null },
+      data: { deletedAt: now },
+    });
+
+    // 이슈 삭제
+    return await tx.issue.update({
+      where: { id: issueId },
+      data: { deletedAt: now },
+      select: { id: true, topicId: true },
+    });
   });
 }
 

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useSession } from 'next-auth/react';
 import { useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
@@ -22,6 +23,7 @@ export function useTopicEvents({
   topicId,
   enabled = true,
 }: UseTopicEventsParams): UseTopicEventsReturn {
+  const { data: session } = useSession();
   const queryClient = useQueryClient();
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState<Event | null>(null);
@@ -31,9 +33,15 @@ export function useTopicEvents({
 
   useEffect(() => {
     if (!enabled || !topicId) return;
-    
+
     const eventSource = new EventSource(SSE_REQ_URL);
     eventSourceRef.current = eventSource;
+
+    // 새로고침 시 연결 정리를 위한 beforeunload 핸들러
+    const handleBeforeUnload = () => {
+      eventSource.close();
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
 
     eventSource.onopen = () => {
       setIsConnected(true);
@@ -46,13 +54,13 @@ export function useTopicEvents({
     };
 
     // 기본 메시지 핸들러 (connected 이벤트)
-    eventSource.onmessage = (event) => {
-      const data = JSON.parse(event.data);
+    // eventSource.onmessage = (event) => {
+    //   const data = JSON.parse(event.data);
 
-      if (data.type === 'connected') {
-        toast.success('토픽에 연결되었습니다');
-      }
-    };
+    //   if (data.type === 'connected') {
+    //     toast.success('토픽에 연결되었습니다');
+    //   }
+    // };
 
     // 이슈 상태 변경 이벤트 핸들러
     eventSource.addEventListener(SSE_EVENT_TYPES.ISSUE_STATUS_CHANGED, (event) => {
@@ -65,7 +73,24 @@ export function useTopicEvents({
       }
     });
 
+    eventSource.addEventListener(SSE_EVENT_TYPES.ISSUE_DELETED, (event) => {
+      const data = JSON.parse((event as MessageEvent).data);
+
+      if (data.actorId === session?.user.id) {
+        return;
+      }
+
+      queryClient.invalidateQueries({ queryKey: ['topics', topicId] });
+
+      if (data.issueId) {
+        queryClient.invalidateQueries({ queryKey: ['issues', data.issueId] });
+      }
+
+      toast.error('이슈가 삭제되었습니다.');
+    });
+
     return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
       eventSource.close();
       eventSourceRef.current = null;
     };

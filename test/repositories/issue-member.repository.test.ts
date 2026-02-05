@@ -8,6 +8,7 @@ jest.mock('@/lib/prisma', () => ({
     issueMember: {
       findMany: jest.fn(),
       findFirst: jest.fn(),
+      updateMany: jest.fn(),
     },
   },
 }));
@@ -45,43 +46,27 @@ describe('Issue Member Repository 테스트', () => {
   });
 
   it('이슈 ID로 삭제되지 않은 멤버 목록을 조회한다', async () => {
-    // 역할: UI 멤버 리스트에 탈퇴/삭제 멤버가 섞이지 않도록 필터링 조건을 검증한다.
-    mockedIssueMember.findMany.mockResolvedValue([{ role: IssueRole.MEMBER }] as any);
+    const issueId = 'issue-1';
 
-    await issueMemberRepository.findMembersByIssueId('issue-1');
+    // 실행
+    await issueMemberRepository.findMembersByIssueId(issueId);
 
+    // 검증
     expect(mockedIssueMember.findMany).toHaveBeenCalledWith({
       where: {
-        issueId: 'issue-1',
+        issueId: issueId,
         deletedAt: null,
       },
       select: {
         userId: true,
-        role: true,
         nickname: true,
-      },
-    });
-  });
-
-  it('닉네임으로 이슈 멤버 존재 여부를 확인한다', async () => {
-    // 역할: 닉네임 중복 체크가 정확해야 초대/가입 로직이 안정적으로 동작한다.
-    mockedIssueMember.findFirst.mockResolvedValue({ id: 'member-1' } as any);
-
-    await issueMemberRepository.findMemberByNickname('issue-1', '닉네임');
-
-    expect(mockedIssueMember.findFirst).toHaveBeenCalledWith({
-      where: {
-        issueId: 'issue-1',
-        deletedAt: null,
+        role: true,
+        // 💡 추가된 부분: 유저의 프로필 이미지를 가져오는 select 문 반영
         user: {
-          OR: [
-            { displayName: '닉네임' },
-            { name: '닉네임' },
-          ],
+          select: {
+            image: true,
+          },
         },
-      },
-      select: {
-        id: true,
       },
     });
   });
@@ -102,6 +87,25 @@ describe('Issue Member Repository 테스트', () => {
         userId: true,
         nickname: true,
         role: true,
+      },
+    });
+  });
+
+  it('이슈 멤버의 닉네임을 수정한다', async () => {
+    // 역할: 닉네임 수정 기능이 예상대로 DB 업데이트를 수행하는지 검증한다.
+    // 먼저 멤버가 존재하는지 확인하는 로직이 있으므로 findFirst 모킹 필요
+    mockedIssueMember.findFirst.mockResolvedValue({ role: IssueRole.MEMBER } as any);
+    mockedIssueMember.updateMany.mockResolvedValue({ count: 1 });
+
+    await issueMemberRepository.updateNickname('issue-1', 'user-1', 'New Nickname');
+
+    expect(mockedIssueMember.updateMany).toHaveBeenCalledWith({
+      where: {
+        issueId: 'issue-1',
+        userId: 'user-1',
+      },
+      data: {
+        nickname: 'New Nickname',
       },
     });
   });

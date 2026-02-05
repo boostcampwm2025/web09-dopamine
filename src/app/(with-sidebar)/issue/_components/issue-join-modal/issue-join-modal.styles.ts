@@ -28,13 +28,20 @@ export const InputTitle = styled.label`
   color: ${theme.colors.gray[900]};
 `;
 
-export const Input = styled.input`
-  padding: 12px 16px;
+export const Input = styled.div`
+  position: relative;
+  width: 100%;
+`;
+
+export const InputField = styled.input`
+  width: 100%;
+  padding: 12px 44px 12px 16px;
   border: 1px solid ${theme.colors.gray[200]};
   border-radius: ${theme.radius.medium};
   font-size: ${theme.font.size.medium};
   color: ${theme.colors.gray[900]};
   background-color: ${theme.colors.white};
+  box-sizing: border-box;
 
   &:focus {
     outline: none;
@@ -49,6 +56,17 @@ export const Input = styled.input`
   &::placeholder {
     color: ${theme.colors.gray[400]};
   }
+`;
+
+export const CharCount = styled.span<{ $isOverLimit?: boolean }>`
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: ${theme.font.size.small};
+  font-weight: ${theme.font.weight.semibold};
+  color: ${({ $isOverLimit }) => ($isOverLimit ? theme.colors.red[500] : theme.colors.gray[600])};
+  pointer-events: none;
 `;
 
 export const Footer = styled.div`

@@ -1,28 +1,20 @@
-import { issueMemberRepository } from '../repositories/issue-member.repository';
 import { generateRandomNickname } from '../utils/nickname';
+import { issueMemberRepository } from '@/lib/repositories/issue-member.repository';
 
 export const issueMemberService = {
-  async checkNicknameDuplicate(issueId: string, nickname: string) {
-    const existingMember = await issueMemberRepository.findMemberByNickname(issueId, nickname);
-
-    return !!existingMember; // 존재하면 true, 존재하지 않으면 false
+  async createUniqueNickname() {
+    return generateRandomNickname();
   },
-
-  async createUniqueNickname(issueId: string) {
-    let nickname = generateRandomNickname();
-    let retryCount = 0;
-
-    while (await this.checkNicknameDuplicate(issueId, nickname)) {
-      nickname = generateRandomNickname();
-      retryCount++;
-
-      // 무한 루프 방지용 안전장치. retry 횟수가 10번 이상이면 닉네임 뒤에 랜덤 숫자를 붙여서 강제 리턴
-      if (retryCount > 10) {
-        nickname += `_${Math.floor(Math.random() * 1000)}`;
-        break;
-      }
+  async checkNicknameExists(issueId: string, nickname: string) {
+    return issueMemberRepository.findMemberByUserId(issueId, nickname);
+  },
+  async updateNickname(issueId: string, userId: string, nickname: string) {
+    // 닉네임 유효성 검사
+    if (!nickname || nickname.trim().length === 0) {
+      throw new Error('INVALID_NICKNAME');
     }
 
-    return nickname;
+    // 닉네임 업데이트
+    return issueMemberRepository.updateNickname(issueId, userId, nickname);
   },
 };

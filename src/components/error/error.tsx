@@ -5,6 +5,8 @@ import * as S from './error.styles';
 
 interface ErrorPageProps {
   fullScreen?: boolean;
+  title?: string;
+  message?: string;
 }
 
 const AlertCircleIcon = (
@@ -38,7 +40,7 @@ const AlertCircleIcon = (
   </svg>
 );
 
-export function ErrorPage({ fullScreen = true }: ErrorPageProps) {
+export function ErrorPage({ fullScreen = true, title, message }: ErrorPageProps) {
   const router = useRouter();
 
   const handleRetry = () => {
@@ -60,9 +62,9 @@ export function ErrorPage({ fullScreen = true }: ErrorPageProps) {
           </S.IconWrapper>
 
           <S.MessageSection>
-            <S.Title>앗! 문제가 발생했어요</S.Title>
+            <S.Title>{title || '앗! 문제가 발생했어요'}</S.Title>
             <S.Description>
-              알 수 없는 에러가 발생했습니다.
+              {message || '알 수 없는 에러가 발생했습니다.'}
               <br />
               잠시 후 다시 시도해주세요.
             </S.Description>
