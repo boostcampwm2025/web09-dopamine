@@ -24,6 +24,7 @@ export const Sidebar = styled.aside`
   background-color: ${theme.colors.white};
   color: ${theme.colors.gray[400]};
   box-shadow: 2px 0 2px -1px rgba(0, 0, 0, 0.1);
+  border-right: 1px solid ${theme.colors.gray[200]};
   overflow-x: visible;
   overflow-y: hidden;
 `;
