@@ -19,7 +19,7 @@ export const topicService = {
     const isProjectMember = projectMembers.length > 0;
 
     if (!isProjectMember) {
-      throw new Error('FORBIDDEN');
+      throw new Error('PERMISSION_DENIED');
     }
   },
 

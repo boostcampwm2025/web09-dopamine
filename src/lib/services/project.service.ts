@@ -20,7 +20,7 @@ export async function checkProjectAccess(projectId: string, userId: string): Pro
 
   const isMember = await projectRepository.isProjectMember(projectId, userId);
   if (!isMember) {
-    throw new Error('FORBIDDEN');
+    throw new Error('PERMISSION_DENIED');
   }
 }
 
