@@ -32,7 +32,7 @@ export function useHeader({ issueId }: UseHeaderParams) {
   const { handleAIStructure } = useAIStructuringMutation(issueId);
 
   const isOwner = currentMember?.role === MEMBER_ROLE.OWNER;
-  const { ideas, hasEditingIdea, tempIdea, deleteTempIdea } = useIdeasWithTemp(issueId);
+  const { ideas, hasEditingIdea } = useIdeasWithTemp(issueId);
   const scale = useCanvasStore((state) => state.scale);
   const { categories, handleAddCategory } = useCategoryOperations(issueId, ideas, scale);
 
@@ -81,16 +81,8 @@ export function useHeader({ issueId }: UseHeaderParams) {
         toast.error('최소 1개 이상의 아이디어를 제출해야합니다.');
         throw new Error('아이디어가 존재하지 않습니다.');
       }
-      if (hasEditingIdea) {
-        toast.error('입력 중인 아이디어가 있습니다.');
-        throw new Error('입력 중인 아이디어가 있습니다.');
-      }
     }
     if (issue?.status === ISSUE_STATUS.CATEGORIZE) {
-      if (tempIdea) {
-        deleteTempIdea();
-      }
-
       if (categories.length === 0) {
         toast.error('카테고리가 없습니다.');
         throw new Error('카테고리가 없습니다.');
