@@ -31,11 +31,11 @@ export default function NormalList({ normalRankings }: NormalListProps) {
 
   return (
     <>
-      {visibleItems.map((item) => (
+      {visibleItems.map((item, index) => (
         <S.Item
           key={item.id}
           highlighted={item.rank === 1}
-          isTop={item.rank === 1}
+          isTop={index === 0}
           isSelected={item.isSelected}
         >
           <S.ItemLeft>
@@ -87,16 +87,16 @@ export default function NormalList({ normalRankings }: NormalListProps) {
           </S.ItemRight>
         </S.Item>
       ))}
-      {hasMore && (
-        <S.Footer>
+      <S.Footer>
+        {hasMore && (
           <S.MoreButton
             type="button"
             onClick={() => setShowAll((prev) => !prev)}
           >
             {showAll ? '접기' : '더보기'}
           </S.MoreButton>
-        </S.Footer>
-      )}
+        )}
+      </S.Footer>
       {dialogContent && (
         <DS.DialogOverlay onClick={closeDialog}>
           <DS.Dialog

@@ -18,11 +18,17 @@ export const Item = styled.div<{ highlighted?: boolean; isTop?: boolean; isSelec
   gap: 12px;
   padding: 14px 16px;
   border-bottom: 1px solid ${theme.colors.gray[100]};
-  background: ${({ highlighted }) => (highlighted ? theme.colors.gray[50] : 'transparent')};
+  background: ''transparent';
   border-radius: ${({ isTop }) =>
     isTop ? theme.radius.medium + ' ' + theme.radius.medium + ' 0 0' : '0'};
+
+  &first-of-type {
+    border-top-left-radius: ${theme.radius.medium};
+
   &:last-of-type {
     border-bottom: none;
+        border-top-left-radius: ${theme.radius.medium};
+
   }
 `;
 
