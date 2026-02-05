@@ -86,6 +86,7 @@ export default function IssueSidebar() {
                   isConnected={isOnline}
                   currentUserId={currentUserId}
                   issueId={issueId}
+                  isQuickIssue={isQuickIssue}
                 />
               );
             })}

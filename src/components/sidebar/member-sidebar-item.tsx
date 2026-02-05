@@ -13,6 +13,7 @@ interface MemberSidebarItemProps {
   isConnected?: boolean;
   currentUserId?: string;
   issueId?: string;
+  isQuickIssue?: boolean;
 }
 
 export default function MemberSidebarItem({
@@ -23,11 +24,14 @@ export default function MemberSidebarItem({
   isConnected,
   currentUserId,
   issueId,
+  isQuickIssue,
 }: MemberSidebarItemProps) {
   const isCurrentUser = currentUserId === id;
 
   // 이슈 페이지 여부
   const isIssuePage = !!issueId;
+
+  const showNameLength = isQuickIssue ? 12 : 7;
 
   const isProjectOwner = role === MEMBER_ROLE.OWNER && profile;
   const isIssueOwner = role === MEMBER_ROLE.OWNER && !profile;
@@ -78,7 +82,9 @@ export default function MemberSidebarItem({
               autoFocus
             />
           ) : (
-            <span>{name.length > 7 ? name.slice(0, 6) + '...' : name}</span>
+            <span>
+              {name.length > showNameLength ? name.slice(0, showNameLength) + '...' : name}
+            </span>
           )}
 
           {!isIssuePage && isCurrentUser && <MemberS.CurrentUserLabel>me</MemberS.CurrentUserLabel>}
