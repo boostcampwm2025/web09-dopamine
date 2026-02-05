@@ -58,7 +58,6 @@ export async function POST(
         type: SSE_EVENT_TYPES.COMMENT_CREATED,
         data: {
           ideaId,
-          commentId: comment.id,
           commentCount,
         },
       },
