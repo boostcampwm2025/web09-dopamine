@@ -25,13 +25,16 @@ export const StyledCategoryCard = styled.section<{
 }>`
   display: flex;
   flex-direction: column;
+  align-items: center;
+  min-width: 33em;
+  max-width: 33em;
   min-height: 200px;
   gap: 25px;
   background: ${({ isMuted, theme }) =>
-    isMuted ? color(theme, 'surfaceMuted', '#fafafa') : color(theme, 'surface', '#f0fdf4')};
+    isMuted ? color(theme, 'surfaceMuted', '#fafafa') : color(theme, 'surface', '#d4eddc')};
   border: 2px dashed
     ${({ isMuted, theme }) =>
-      isMuted ? color(theme, 'borderMuted', '#e5e7eb') : color(theme, 'border', '#bbf7d0')};
+      isMuted ? color(theme, 'borderMuted', '#e5e7eb') : color(theme, 'border', '#7fc196')};
   border-radius: 24px;
   padding: 16px;
   /* width와 height는 inline style로 동적 설정 */
@@ -55,6 +58,7 @@ export const Header = styled.header<{ isMuted?: boolean; theme?: Theme }>`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 100%;
   gap: 12px;
   color: ${({ isMuted, theme }) =>
     isMuted ? color(theme, 'textMuted', '#9a9a9a') : color(theme, 'text', '#222222')};
