@@ -1,6 +1,6 @@
 import { getServerSession } from 'next-auth';
 import Image from 'next/image';
-import { redirect } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { authOptions } from '@/lib/auth';
 import { getProjectWithTopicsForUser } from '@/lib/services/project.service';
 import CreateTopicButton from '../_components/create-topic-button/create-topic-button';
@@ -32,7 +32,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
   }
 
   if (!projectData) {
-    redirect('/');
+    notFound();
   }
 
   const { title, description, topics, created_at } = projectData;

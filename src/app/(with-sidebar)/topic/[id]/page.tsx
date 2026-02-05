@@ -1,6 +1,7 @@
 import { getServerSession } from 'next-auth';
-import { redirect } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { authOptions } from '@/lib/auth';
+import { findTopicById } from '@/lib/repositories/topic.repository';
 import { topicService } from '@/lib/services/topic.service';
 import TopicPageClient from './topic-page-client';
 
@@ -11,6 +12,11 @@ export default async function TopicPage({ params }: { params: Promise<{ id: stri
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     redirect('/');
+  }
+
+  const topic = await findTopicById(topicId);
+  if (!topic) {
+    notFound();
   }
 
   // 토픽 접근 권한 확인
