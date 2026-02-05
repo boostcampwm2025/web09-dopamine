@@ -20,10 +20,37 @@ export function useCanvasControls({
   const { scale, offset, setScale, setOffset, reset } = useCanvasStore();
   const [isPanning, setIsPanning] = useState(false);
   const [panStart, setPanStart] = useState(DEFAULT_OFFSET);
+  const [isSpacePressed, setIsSpacePressed] = useState(false);
 
   // 드래그 판별을 위한 Ref
   const isBackgroundClickRef = useRef(false);
   const { handlePointerDown, handleClick } = useStaticClick(onCanvasClick);
+
+  // Space 키 이벤트 리스너
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.code === 'Space' && !e.repeat) {
+        e.preventDefault();
+        setIsSpacePressed(true);
+      }
+    };
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.code === 'Space') {
+        e.preventDefault();
+        setIsSpacePressed(false);
+        setIsPanning(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, []);
 
   // passive 이벤트 리스너 문제를 해결하기 위해 직접 등록
   useEffect(() => {
@@ -77,13 +104,13 @@ export function useCanvasControls({
         isBackgroundClickRef.current = true;
       }
 
-      if (e.button === 1 || (e.button === 0 && e.shiftKey)) {
+      if (e.button === 1 || (e.button === 0 && isSpacePressed)) {
         e.preventDefault();
         setIsPanning(true);
         setPanStart({ x: e.clientX - offset.x, y: e.clientY - offset.y });
       }
     },
-    [offset],
+    [offset, isSpacePressed, handlePointerDown],
   );
 
   const handleMouseMove = useCallback(
