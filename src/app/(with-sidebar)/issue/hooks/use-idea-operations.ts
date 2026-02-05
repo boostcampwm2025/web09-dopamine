@@ -12,6 +12,7 @@ export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) 
   // 통합된 아이디어 목록 (서버 + temp)
   const {
     ideas,
+    tempIdea,
     hasEditingIdea,
     addTempIdea,
     deleteTempIdea,
@@ -44,6 +45,13 @@ export function useIdeaOperations(issueId: string, isCreateIdeaActive: boolean) 
   useEffect(() => {
     ideasRef.current = ideas;
   }, [ideas]);
+
+  // 단계가 바뀌면 로컬 temp 아이디어 제거 (SSE 누락 대비)
+  useEffect(() => {
+    if (status !== ISSUE_STATUS.BRAINSTORMING && tempIdea) {
+      deleteTempIdea();
+    }
+  }, [status, tempIdea, deleteTempIdea]);
 
   const handleCreateIdea = useCallback(async (position: Position) => {
     if (!isCreateIdeaActive) return;
