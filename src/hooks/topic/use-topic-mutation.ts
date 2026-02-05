@@ -48,8 +48,7 @@ export const useUpdateTopicTitleMutation = (topicId: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: { title: string; userId: string }) =>
-      updateTopicTitle(topicId, data.title, data.userId),
+    mutationFn: (data: { title: string }) => updateTopicTitle(topicId, data.title),
 
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -76,6 +75,9 @@ export const useDeleteTopicMutation = (topicId: string) => {
     onSuccess: async (data) => {
       await queryClient.cancelQueries({ queryKey: ['topics', topicId] });
       queryClient.removeQueries({ queryKey: ['topics', topicId] });
+      queryClient.invalidateQueries({
+        queryKey: ['project', data.projectId],
+      });
 
       toast.success('토픽이 삭제되었습니다.');
 

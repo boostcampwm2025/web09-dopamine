@@ -11,10 +11,9 @@ import { useDeleteTopicMutation, useUpdateTopicTitleMutation } from '@/hooks';
 export interface EditTopicProps {
   topicId: string;
   currentTitle?: string;
-  userId: string;
 }
 
-export default function EditTopicModal({ topicId, currentTitle, userId }: EditTopicProps) {
+export default function EditTopicModal({ topicId, currentTitle }: EditTopicProps) {
   const [title, setTitle] = useState(currentTitle || '');
   const { setIsPending, isOpen, closeModal } = useModalStore();
   const { mutate: updateIssue, isPending: isUpdatePending } = useUpdateTopicTitleMutation(topicId);
@@ -42,7 +41,7 @@ export default function EditTopicModal({ topicId, currentTitle, userId }: EditTo
     }
 
     updateIssue(
-      { title, userId },
+      { title },
       {
         onSuccess: () => {
           closeModal();

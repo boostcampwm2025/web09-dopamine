@@ -31,14 +31,14 @@ export function createTopic(title: string, projectId: string) {
   });
 }
 
-export function updateTopicTitle(topicId: string, title: string, userId: string) {
+export function updateTopicTitle(topicId: string, title: string) {
   return getAPIResponseData<{ id: string; title: string }>({
     url: `/api/topics/${topicId}`,
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ title, userId }),
+    body: JSON.stringify({ title }),
   });
 }
 

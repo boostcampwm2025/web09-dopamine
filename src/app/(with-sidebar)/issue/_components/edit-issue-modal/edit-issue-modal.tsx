@@ -12,10 +12,9 @@ import * as MS from './edit-issue-modal.styles';
 export interface EditIssueProps {
   issueId: string;
   currentTitle?: string;
-  userId: string;
 }
 
-export default function EditIssueModal({ issueId, currentTitle, userId }: EditIssueProps) {
+export default function EditIssueModal({ issueId, currentTitle }: EditIssueProps) {
   const [title, setTitle] = useState(currentTitle || '');
   const { setIsPending, isOpen, closeModal } = useModalStore();
   const { mutate: updateIssue, isPending: isUpdatePending } = useUpdateIssueTitleMutation(issueId);
@@ -43,7 +42,7 @@ export default function EditIssueModal({ issueId, currentTitle, userId }: EditIs
     }
 
     updateIssue(
-      { title, userId, connectionId },
+      { title, connectionId },
       {
         onSuccess: () => {
           closeModal();
@@ -61,7 +60,7 @@ export default function EditIssueModal({ issueId, currentTitle, userId }: EditIs
       return;
     }
     deleteIssue(
-      { userId, connectionId },
+      { connectionId },
       {
         onSuccess: () => {
           closeModal();

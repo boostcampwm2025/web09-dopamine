@@ -57,28 +57,20 @@ export function updateIssueStatus(
   });
 }
 
-export function updateIssueTitle(
-  issueId: string,
-  title: string,
-  userId: string,
-  connectionId?: string,
-) {
+export function updateIssueTitle(issueId: string, title: string, connectionId?: string) {
   return getAPIResponseData<{ id: string }>({
     url: `/api/issues/${issueId}`,
     method: 'PATCH',
     headers: withSseHeader({ 'Content-Type': 'application/json' }, connectionId),
-    body: JSON.stringify({ title, userId }),
+    body: JSON.stringify({ title }),
   });
 }
 
-export function deleteIssue(issueId: string, userId: string, connectionId?: string) {
+export function deleteIssue(issueId: string, connectionId?: string) {
   return getAPIResponseData<{ id: string; topicId: string | null }>({
     url: `/api/issues/${issueId}`,
     method: 'DELETE',
-    headers: withSseHeader(
-      { 'Content-Type': 'application/json', 'x-user-id': userId },
-      connectionId,
-    ),
+    headers: withSseHeader(undefined, connectionId),
   });
 }
 
