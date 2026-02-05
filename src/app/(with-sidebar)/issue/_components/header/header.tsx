@@ -107,12 +107,6 @@ const Header = () => {
         )}
 
         {renderActionButtons()}
-
-        <HeaderButton
-          imageSrc="/timer.svg"
-          imageSize={16}
-          alt="타이머"
-        />
         <HeaderButton
           imageSrc="/share.svg"
           alt="공유하기"
