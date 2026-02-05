@@ -10,7 +10,7 @@ export const HeaderContainer = styled.div`
   display: grid;
   grid-template-columns: 1fr 2fr 1.2fr;
   align-items: center;
-  border-bottom: 1px solid ${theme.colors.gray[100]};
+  border-bottom: 1px solid ${theme.colors.gray[200]};
   min-width: 1200px;
 `;
 

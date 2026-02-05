@@ -20,10 +20,37 @@ export function useCanvasControls({
   const { scale, offset, setScale, setOffset, reset } = useCanvasStore();
   const [isPanning, setIsPanning] = useState(false);
   const [panStart, setPanStart] = useState(DEFAULT_OFFSET);
+  const [isSpacePressed, setIsSpacePressed] = useState(false);
 
   // 드래그 판별을 위한 Ref
   const isBackgroundClickRef = useRef(false);
   const { handlePointerDown, handleClick } = useStaticClick(onCanvasClick);
+
+  // Space 키 이벤트 리스너
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.code === 'Space' && !e.repeat) {
+        e.preventDefault();
+        setIsSpacePressed(true);
+      }
+    };
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.code === 'Space') {
+        e.preventDefault();
+        setIsSpacePressed(false);
+        setIsPanning(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, []);
 
   // passive 이벤트 리스너 문제를 해결하기 위해 직접 등록
   useEffect(() => {
@@ -35,7 +62,22 @@ export function useCanvasControls({
         e.preventDefault();
         const delta = -e.deltaY * 0.001;
         const newScale = Math.min(Math.max(0.3, scale + delta), 3);
+
+        // 마우스 커서 위치를 기준으로 줌
+        const rect = canvas.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+
+        // 줌 전 마우스가 가리키는 캔버스 내 실제 좌표
+        const pointX = (mouseX - offset.x) / scale;
+        const pointY = (mouseY - offset.y) / scale;
+
+        // 줌 후에도 같은 점을 가리키도록 offset 조정
+        const newOffsetX = mouseX - pointX * newScale;
+        const newOffsetY = mouseY - pointY * newScale;
+
         setScale(newScale);
+        setOffset({ x: newOffsetX, y: newOffsetY });
       } else {
         setOffset({
           x: offset.x - e.deltaX,
@@ -62,13 +104,13 @@ export function useCanvasControls({
         isBackgroundClickRef.current = true;
       }
 
-      if (e.button === 1 || (e.button === 0 && e.shiftKey)) {
+      if (e.button === 1 || (e.button === 0 && isSpacePressed)) {
         e.preventDefault();
         setIsPanning(true);
         setPanStart({ x: e.clientX - offset.x, y: e.clientY - offset.y });
       }
     },
-    [offset],
+    [offset, isSpacePressed, handlePointerDown],
   );
 
   const handleMouseMove = useCallback(

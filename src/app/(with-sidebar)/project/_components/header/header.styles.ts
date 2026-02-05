@@ -10,7 +10,7 @@ export const HeaderContainer = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid ${theme.colors.gray[100]};
+  border-bottom: 1px solid ${theme.colors.gray[200]};
 `;
 
 export const LeftSection = styled.div`
