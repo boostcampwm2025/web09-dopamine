@@ -1,187 +1,170 @@
 /**
  * @jest-environment jsdom
  */
+import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
-import { useCreateTopicMutation, useUpdateTopicTitleMutation } from '@/hooks';
-import { createTopic, updateTopicTitle } from '@/lib/api/topic';
+import {
+  useCreateTopicMutation,
+  useDeleteTopicMutation,
+  useUpdateTopicTitleMutation,
+} from '@/hooks';
+import * as topicApi from '@/lib/api/topic';
 import { act, renderHook, waitFor } from '../../utils/test-utils';
 
-// 1. 외부 의존성 모킹 (API, Toast)
 jest.mock('@/lib/api/topic');
 jest.mock('react-hot-toast');
-
-// 2. React Query의 useQueryClient만 부분 모킹 (invalidateQueries 감시용)
-// useMutation은 실제 로직을 써야 하므로 requireActual로 가져옵니다.
+jest.mock('next/navigation');
 jest.mock('@tanstack/react-query', () => {
   const original = jest.requireActual('@tanstack/react-query');
-  return {
-    ...original,
-    useQueryClient: jest.fn(),
-  };
+  return { ...original, useQueryClient: jest.fn() };
 });
 
 describe('useTopicMutation', () => {
+  const mockRouter = { push: jest.fn() };
+  const mockQueryClient = {
+    setQueryData: jest.fn(),
+    invalidateQueries: jest.fn(),
+    cancelQueries: jest.fn(),
+    removeQueries: jest.fn(),
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (useQueryClient as jest.Mock).mockReturnValue(mockQueryClient);
+    (useRouter as jest.Mock).mockReturnValue(mockRouter);
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
   describe('useCreateTopicMutation', () => {
-    const mockCreateTopic = createTopic as jest.Mock;
-    const mockToastError = toast.error as jest.Mock;
-    const mockInvalidateQueries = jest.fn();
+    const mockCreateTopic = topicApi.createTopic as jest.Mock;
 
-    beforeEach(() => {
-      jest.clearAllMocks();
-
-      // useQueryClient가 호출되면 우리가 만든 스파이 함수(mockInvalidateQueries)를 가진 객체를 반환하도록 설정
-      (useQueryClient as jest.Mock).mockReturnValue({
-        invalidateQueries: mockInvalidateQueries,
-      });
-    });
-
-    test('토픽 생성 성공 시 API를 호출하고 쿼리를 무효화해야 한다', async () => {
-      // Given: API가 성공한다고 가정
-      const mockData = { id: 1, title: 'New Topic' };
+    test('성공 시 setQueryData를 통해 캐시에 토픽을 추가해야 한다 (기존 데이터 있음)', async () => {
+      const mockData = { id: 't-1', title: 'New Topic' };
+      const projectId = 'p-1';
       mockCreateTopic.mockResolvedValue(mockData);
 
       const { result } = renderHook(() => useCreateTopicMutation());
-
-      // When: 뮤테이션 실행 (act로 감싸야 함)
       act(() => {
-        result.current.mutate({ title: '새 토픽', projectId: 'proj-123' });
+        result.current.mutate({ title: 'New Topic', projectId });
       });
 
-      // Then: 성공 상태가 될 때까지 기다림
       await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
-      // 1. API가 올바른 인자로 호출되었는지 확인
-      expect(mockCreateTopic).toHaveBeenCalledWith('새 토픽', 'proj-123');
+      const updater = mockQueryClient.setQueryData.mock.calls[0][1];
+      const prevData = { topics: [{ id: 'old-1', title: 'Old' }] };
 
-      // 2. invalidateQueries가 정확한 키로 호출되었는지 확인
-      expect(mockInvalidateQueries).toHaveBeenCalledWith({ queryKey: ['topics'] });
-      expect(mockInvalidateQueries).toHaveBeenCalledWith({ queryKey: ['project'] });
+      const nextData = updater(prevData);
+      expect(nextData.topics).toHaveLength(2);
+      expect(nextData.topics[0].id).toBe('t-1');
     });
 
-    test('토픽 생성 실패 시 에러 토스트를 띄워야 한다', async () => {
-      // Given: API가 실패한다고 가정
-      const errorMessage = '이미 존재하는 이름입니다.';
-      mockCreateTopic.mockRejectedValue(new Error(errorMessage));
-
+    test('이미 존재하는 ID일 경우 캐시를 업데이트하지 않아야 한다 (Duplicate Branch)', async () => {
+      mockCreateTopic.mockResolvedValue({ id: 't-1', title: 'New' });
       const { result } = renderHook(() => useCreateTopicMutation());
-
-      // When
       act(() => {
-        result.current.mutate({ title: '중복 토픽', projectId: 'proj-123' });
+        result.current.mutate({ title: 'New', projectId: 'p-1' });
       });
 
-      // Then: 에러 상태가 될 때까지 기다림
-      await waitFor(() => expect(result.current.isError).toBe(true));
+      await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
-      // 1. Toast 에러 메시지가 호출되었는지 확인
-      expect(mockToastError).toHaveBeenCalledWith(errorMessage);
+      const updater = mockQueryClient.setQueryData.mock.calls[0][1];
+      const prevData = { topics: [{ id: 't-1', title: 'Existing' }] };
 
-      // 2. 실패했을 때는 쿼리 무효화가 일어나지 않아야 함
-      expect(mockInvalidateQueries).not.toHaveBeenCalled();
+      const nextData = updater(prevData);
+      expect(nextData).toEqual(prevData); // 변화 없음
     });
 
-    test('에러 메시지가 없는 경우 기본 메시지를 띄워야 한다', async () => {
-      // Given: 메시지 없는 에러 객체
-      mockCreateTopic.mockRejectedValue(new Error(''));
-
+    test('기존 캐시 데이터가 없으면(null) 그대로 null을 반환해야 한다 (Null Branch)', async () => {
+      mockCreateTopic.mockResolvedValue({ id: 't-1' });
       const { result } = renderHook(() => useCreateTopicMutation());
-
       act(() => {
-        result.current.mutate({ title: '테스트', projectId: '1' });
+        result.current.mutate({ title: 'T', projectId: 'p-1' });
+      });
+
+      await waitFor(() => expect(result.current.isSuccess).toBe(true));
+      const updater = mockQueryClient.setQueryData.mock.calls[0][1];
+      expect(updater(null)).toBeNull();
+    });
+
+    test('실패 시 에러 메시지가 없으면 기본 메시지를 출력해야 한다 (Error Branch)', async () => {
+      mockCreateTopic.mockRejectedValue(new Error('')); // 빈 메시지
+      const { result } = renderHook(() => useCreateTopicMutation());
+      act(() => {
+        result.current.mutate({ title: 'Fail', projectId: '1' });
       });
 
       await waitFor(() => expect(result.current.isError).toBe(true));
-
-      // 기본 메시지 확인 ('토픽 생성에 실패했습니다.')
-      expect(mockToastError).toHaveBeenCalledWith('토픽 생성에 실패했습니다.');
+      expect(toast.error).toHaveBeenCalledWith('토픽 생성에 실패했습니다.');
     });
   });
 
-  describe('useUpdateTopicMutation', () => {
-    const topicId = 'topic-123';
-    const mockUpdateTopicTitle = updateTopicTitle as jest.Mock;
-    const mockToastSuccess = toast.success as jest.Mock;
-    const mockToastError = toast.error as jest.Mock;
+  // --- 2. useUpdateTopicTitleMutation ---
+  describe('useUpdateTopicTitleMutation', () => {
+    const topicId = 't-1';
+    const mockUpdate = topicApi.updateTopicTitle as jest.Mock;
 
-    // QueryClient Spy 설정
-    const mockQueryClient = {
-      invalidateQueries: jest.fn(),
-    };
-
-    beforeEach(() => {
-      jest.clearAllMocks();
-      (useQueryClient as jest.Mock).mockReturnValue(mockQueryClient);
-
-      // console.error 모킹 (테스트 로그 오염 방지)
-      jest.spyOn(console, 'error').mockImplementation(() => {});
-    });
-
-    test('성공 시 토픽 제목을 수정하고 해당 토픽의 캐시를 무효화해야 한다', async () => {
-      // Given
-      const updateData = { title: '수정된 토픽명', userId: 'user-1' };
-      mockUpdateTopicTitle.mockResolvedValue({ id: topicId, title: updateData.title });
-
+    test('성공 시 토픽 캐시를 무효화하고 성공 토스트를 띄운다', async () => {
+      mockUpdate.mockResolvedValue({});
       const { result } = renderHook(() => useUpdateTopicTitleMutation(topicId));
-
-      // When
       act(() => {
-        result.current.mutate(updateData);
+        result.current.mutate({ title: 'Updated' });
       });
 
-      // Then
       await waitFor(() => expect(result.current.isSuccess).toBe(true));
-
-      // API 호출 확인: topicId와 함께 전달된 데이터 확인
-      expect(mockUpdateTopicTitle).toHaveBeenCalledWith(
-        topicId,
-        updateData.title,
-        updateData.userId,
-      );
-
-      // 캐시 무효화 확인: 작성하신 ['topics', topicId] 키가 호출되어야 함
       expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({
         queryKey: ['topics', topicId],
       });
-
-      // 성공 토스트 확인
-      expect(mockToastSuccess).toHaveBeenCalledWith('토픽을 수정했습니다!');
+      expect(toast.success).toHaveBeenCalledWith('토픽을 수정했습니다!');
     });
 
-    test('실패 시 에러 토스트를 띄우고 콘솔에 에러를 기록해야 한다', async () => {
-      // Given
-      const error = new Error('네트워크 오류');
-      mockUpdateTopicTitle.mockRejectedValue(error);
-
+    test('실패 시 에러 토스트를 띄운다', async () => {
+      mockUpdate.mockRejectedValue(new Error('Update Fail'));
       const { result } = renderHook(() => useUpdateTopicTitleMutation(topicId));
-
-      // When
       act(() => {
-        result.current.mutate({ title: '실패 테스트', userId: 'user-1' });
+        result.current.mutate({ title: 'Fail' });
       });
 
-      // Then
       await waitFor(() => expect(result.current.isError).toBe(true));
+      expect(toast.error).toHaveBeenCalledWith('Update Fail');
+    });
+  });
 
-      // 에러 피드백 확인
-      expect(mockToastError).toHaveBeenCalledWith('네트워크 오류');
-      expect(console.error).toHaveBeenCalledWith('토픽 수정 실패:', error);
+  describe('useDeleteTopicMutation', () => {
+    const topicId = 't-1';
+    const mockDelete = topicApi.deleteTopic as jest.Mock;
+
+    test('성공 시 캐시를 삭제/무효화하고 프로젝트 페이지로 이동한다', async () => {
+      const projectId = 'p-123';
+      mockDelete.mockResolvedValue({ projectId });
+
+      const { result } = renderHook(() => useDeleteTopicMutation(topicId));
+      act(() => {
+        result.current.mutate();
+      });
+
+      await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+      // 삭제 프로세스 순서 검증
+      expect(mockQueryClient.cancelQueries).toHaveBeenCalledWith({ queryKey: ['topics', topicId] });
+      expect(mockQueryClient.removeQueries).toHaveBeenCalledWith({ queryKey: ['topics', topicId] });
+      expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({
+        queryKey: ['project', projectId],
+      });
+      expect(mockRouter.push).toHaveBeenCalledWith(`/project/${projectId}`);
+      expect(toast.success).toHaveBeenCalledWith('토픽이 삭제되었습니다.');
     });
 
-    test('에러 메시지가 없을 경우 기본 에러 메시지를 띄워야 한다', async () => {
-      // Given: 메시지가 없는 에러
-      mockUpdateTopicTitle.mockRejectedValue(new Error());
-
-      const { result } = renderHook(() => useUpdateTopicTitleMutation(topicId));
-
-      // When
+    test('실패 시 기본 에러 메시지를 띄우고 페이지를 이동하지 않는다', async () => {
+      mockDelete.mockRejectedValue(new Error(''));
+      const { result } = renderHook(() => useDeleteTopicMutation(topicId));
       act(() => {
-        result.current.mutate({ title: '실패 테스트', userId: 'user-1' });
+        result.current.mutate();
       });
 
-      // Then
       await waitFor(() => expect(result.current.isError).toBe(true));
-      expect(mockToastError).toHaveBeenCalledWith('토픽 수정에 실패했습니다.');
+      expect(toast.error).toHaveBeenCalledWith('토픽 삭제에 실패했습니다.');
+      expect(mockRouter.push).not.toHaveBeenCalled();
     });
   });
 });

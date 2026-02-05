@@ -5,6 +5,7 @@ import {
   findIssueById,
   findIssueWithPermissionData,
   findIssuesWithMapDataByTopicId,
+  softDeleteIssue,
   updateIssueStatus,
   updateIssueTitle,
 } from '@/lib/repositories/issue.repository';
@@ -12,6 +13,7 @@ import { PrismaTransaction } from '@/types/prisma';
 
 jest.mock('@/lib/prisma', () => ({
   prisma: {
+    $transaction: jest.fn(),
     issue: {
       create: jest.fn(),
       findFirst: jest.fn(),
@@ -19,9 +21,11 @@ jest.mock('@/lib/prisma', () => ({
       update: jest.fn(),
       findUnique: jest.fn(),
     },
-    issueConnection: {
-      findMany: jest.fn(),
-    },
+    idea: { updateMany: jest.fn() },
+    category: { updateMany: jest.fn() },
+    issueMember: { updateMany: jest.fn() },
+    issueNode: { updateMany: jest.fn() },
+    issueConnection: { findMany: jest.fn() },
   },
 }));
 
@@ -415,6 +419,52 @@ describe('Issue Repository', () => {
         select: { id: true, title: true, topicId: true },
       });
       expect(result).toEqual(mockUpdatedResult);
+    });
+  });
+
+  describe('softDeleteIssue', () => {
+    const mockIssueId = 'issue-123';
+
+    it('트랜잭션을 사용하여 이슈와 관련된 모든 데이터(Idea, Category, Member, Node)를 soft delete한다', async () => {
+      const mockTx = {
+        idea: { updateMany: jest.fn().mockResolvedValue({ count: 2 }) },
+        category: { updateMany: jest.fn().mockResolvedValue({ count: 1 }) },
+        issueMember: { updateMany: jest.fn().mockResolvedValue({ count: 3 }) },
+        issueNode: { updateMany: jest.fn().mockResolvedValue({ count: 1 }) },
+        issue: {
+          update: jest.fn().mockResolvedValue({ id: mockIssueId, topicId: 'topic-1' }),
+        },
+      };
+
+      (prisma.$transaction as jest.Mock).mockImplementation(async (callback) => {
+        return await callback(mockTx);
+      });
+
+      const result = await softDeleteIssue(mockIssueId);
+
+      const expectedUpdateMany = {
+        where: { issueId: mockIssueId, deletedAt: null },
+        data: { deletedAt: expect.any(Date) },
+      };
+
+      expect(mockTx.idea.updateMany).toHaveBeenCalledWith(expectedUpdateMany);
+      expect(mockTx.category.updateMany).toHaveBeenCalledWith(expectedUpdateMany);
+      expect(mockTx.issueMember.updateMany).toHaveBeenCalledWith(expectedUpdateMany);
+      expect(mockTx.issueNode.updateMany).toHaveBeenCalledWith(expectedUpdateMany);
+
+      expect(mockTx.issue.update).toHaveBeenCalledWith({
+        where: { id: mockIssueId },
+        data: { deletedAt: expect.any(Date) },
+        select: { id: true, topicId: true },
+      });
+
+      expect(result.id).toBe(mockIssueId);
+    });
+
+    it('트랜잭션 도중 에러가 발생하면 상위로 에러를 던져야 한다', async () => {
+      (prisma.$transaction as jest.Mock).mockRejectedValue(new Error('Transaction Failed'));
+
+      await expect(softDeleteIssue(mockIssueId)).rejects.toThrow('Transaction Failed');
     });
   });
 });
