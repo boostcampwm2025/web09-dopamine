@@ -18,10 +18,11 @@ export const CanvasContainer = styled.div<CanvasContainerProps>`
     showGrid &&
     `
     background:
-      linear-gradient(90deg, ${theme.colors.gray[50]} 1px, transparent 1px),
-      linear-gradient(${theme.colors.gray[50]} 1px, transparent 1px);
+      linear-gradient(90deg, ${theme.colors.gray[100]} 1px, transparent 1px),
+      linear-gradient(${theme.colors.gray[100]} 1px, transparent 1px);
     background-size: 40px 40px;
     background-position: 0 0;
+    background-color : ${theme.colors.gray[50]};
   `}
 `;
 
