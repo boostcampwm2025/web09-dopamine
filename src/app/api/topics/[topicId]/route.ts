@@ -62,3 +62,33 @@ export async function PATCH(
     return createErrorResponse('TOPIC_UPDATE_FAILED', 500);
   }
 }
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ topicId: string }> },
+) {
+  const { topicId } = await params;
+
+  try {
+    const topic = await topicService.deleteTopic(topicId);
+
+    return createSuccessResponse(topic);
+  } catch (error: unknown) {
+    console.error('토픽 삭제 실패:', error);
+
+    if (error instanceof Error) {
+      if (error.message === 'TOPIC_NOT_FOUND') {
+        return createErrorResponse('TOPIC_NOT_FOUND', 404);
+      }
+      if (error.message === 'PERMISSION_DENIED') {
+        return createErrorResponse('PERMISSION_DENIED', 403);
+      }
+      if (error.message === 'UNAUTHORIZED') {
+        return createErrorResponse('UNAUTHORIZED', 401);
+      }
+      return createErrorResponse(error.message, 500);
+    }
+
+    return createErrorResponse('TOPIC_DELETE_FAILED', 500);
+  }
+}
