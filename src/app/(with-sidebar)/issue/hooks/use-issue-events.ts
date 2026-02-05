@@ -4,12 +4,13 @@ import { useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import CloseIssueModal from '@/app/(with-sidebar)/issue/_components/close-issue-modal/close-issue-modal';
 import { useModalStore } from '@/components/modal/use-modal-store';
-import { MEMBER_ROLE } from '@/constants/issue';
+import { ISSUE_STATUS, MEMBER_ROLE } from '@/constants/issue';
 import { SSE_EVENT_TYPES } from '@/constants/sse-events';
 import { selectedIdeaQueryKey, useIssueMemberQuery } from '@/hooks/issue';
 import { deleteCloseModal } from '@/lib/api/issue';
 import { useIssueStore } from '../store/use-issue-store';
 import { useSseConnectionStore } from '../store/use-sse-connection-store';
+import { useIdeasWithTemp } from './use-ideas-with-temp';
 import type { IdeaWithPosition } from '../types/idea';
 
 interface UseIssueEventsParams {
@@ -41,6 +42,7 @@ export function useIssueEvents({
   const { setIsAIStructuring } = useIssueStore((state) => state.actions);
   const { setOnlineMemberIds } = useIssueStore((state) => state.actions);
   const setConnectionId = useSseConnectionStore((state) => state.setConnectionId);
+  const { deleteTempIdea } = useIdeasWithTemp(issueId);
 
   const { data: members = [] } = useIssueMemberQuery(issueId, enabled);
   const currentMember = members.find((member) => member.id === userId);
@@ -220,6 +222,9 @@ export function useIssueEvents({
     eventSource.addEventListener(SSE_EVENT_TYPES.ISSUE_STATUS_CHANGED, (event) => {
       const data = JSON.parse((event as MessageEvent).data);
       queryClient.invalidateQueries({ queryKey: ['issues', issueId] });
+      if (data.status === ISSUE_STATUS.CATEGORIZE) {
+        deleteTempIdea();
+      }
       // 사이드바 이슈 목록도 갱신
       const targetTopicId = data.topicId || topicId;
       if (targetTopicId) {
