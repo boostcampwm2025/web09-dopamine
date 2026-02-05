@@ -12,7 +12,6 @@ import {
 } from '@/hooks/issue';
 import { IssueStatus } from '@/types/issue';
 import { useCategoryOperations, useIdeasWithTemp, useIssueIdentity } from '../../hooks';
-import { useIdeaEditingStore } from '../../store/use-idea-editing-store';
 
 interface UseHeaderParams {
   issueId: string;
@@ -33,8 +32,7 @@ export function useHeader({ issueId }: UseHeaderParams) {
   const { handleAIStructure } = useAIStructuringMutation(issueId);
 
   const isOwner = currentMember?.role === MEMBER_ROLE.OWNER;
-  const { ideas, tempIdea, deleteTempIdea } = useIdeasWithTemp(issueId);
-  const hasEditingIdea = useIdeaEditingStore(issueId, (state) => state.editingIds.length > 0);
+  const { ideas, hasEditingIdea, tempIdea, deleteTempIdea } = useIdeasWithTemp(issueId);
   const scale = useCanvasStore((state) => state.scale);
   const { categories, handleAddCategory } = useCategoryOperations(issueId, ideas, scale);
 
