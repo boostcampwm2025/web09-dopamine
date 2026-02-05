@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSession } from 'next-auth/react';
-import { useParams, usePathname, useRouter } from 'next/navigation';
+import { notFound, useParams, usePathname, useRouter } from 'next/navigation';
 import { DndContext, DragOverlay } from '@dnd-kit/core';
 import { useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
@@ -262,8 +262,15 @@ const IssuePage = () => {
   // 에러 여부 확인
   const hasError = isIssueError || isIdeasError || isCategoryError;
 
+  // 존재하지 않는 이슈 id → not-found 표시 (이슈만 404일 때, 아이디어/카테고리 에러는 ErrorPage 유지)
+  useEffect(() => {
+    if (!isLoading && isIssueError) {
+      notFound();
+    }
+  }, [isLoading, isIssueError]);
+
   if (isAuthError || isMemberError) {
-    return null; // 리다이렉트 될 때까지 화면을 비워둠 (정보 노출 차단)
+    return null;
   }
 
   return (

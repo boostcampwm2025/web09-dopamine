@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { getTopicConnections, getTopicIssues, getTopicNodes } from '@/lib/api/issue-map';
 import { getTopic } from '@/lib/api/topic';
+import { ApiError } from '@/lib/utils/api-response';
 import type { IssueConnection, IssueMapData, IssueNode } from '@/types/issue';
 
 // 초기 데이터는 서버 컴포넌트에서 주입하고, 필요 시 API로 갱신
@@ -45,6 +46,9 @@ export const useTopicDetailQuery = (topicId: string) => {
     queryKey: ['topics', topicId],
     queryFn: () => getTopic(topicId),
     staleTime: 1000 * 10,
-    enabled: !!topicId,
+    retry: (failureCount, error) => {
+      if (error instanceof ApiError && error.code === 'TOPIC_NOT_FOUND') return false;
+      return failureCount < 3;
+    },
   });
 };

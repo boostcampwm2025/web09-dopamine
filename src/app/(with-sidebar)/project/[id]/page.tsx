@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { redirect } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import * as projectRepository from '@/lib/repositories/project.repository';
 import CreateTopicButton from '../_components/create-topic-button/create-topic-button';
 import EditProjectButton from '../_components/edit-project-button/edit-project-button';
@@ -17,7 +17,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
   const projectData = await projectRepository.getProjectWithTopics(id);
 
   if (!projectData) {
-    redirect('/project');
+    notFound();
   }
 
   const { title, description, topics, created_at } = projectData;
