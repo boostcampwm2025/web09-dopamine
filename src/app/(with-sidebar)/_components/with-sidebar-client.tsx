@@ -7,6 +7,7 @@ import styled from '@emotion/styled';
 import IssueHeader from '@/app/(with-sidebar)/issue/_components/header/header';
 import IssueSidebar from '@/app/(with-sidebar)/issue/_components/layout/issue-sidebar';
 import TopicHeader from '@/app/(with-sidebar)/topic/_components/header/topic-header';
+import TopicSidebar from '@/app/(with-sidebar)/topic/_components/layout/topic-sidebar';
 import {
   SIDEBAR_TOGGLE_BORDER_RADIUS,
   SIDEBAR_TOGGLE_HEIGHT,
@@ -14,7 +15,6 @@ import {
   SIDEBAR_WIDTH,
 } from '@/constants/sidebar';
 import { theme } from '@/styles/theme';
-import TopicSidebar from '@/app/(with-sidebar)/topic/_components/layout/topic-sidebar';
 import ProjectHeader from '../project/_components/header/header';
 import ProjectSidebar from '../project/_components/sidebar/project-sidebar';
 
@@ -58,7 +58,7 @@ const SidebarToggle = styled.button<{ $isOpen: boolean }>`
   border: none;
   border-radius: 0 ${SIDEBAR_TOGGLE_BORDER_RADIUS}px ${SIDEBAR_TOGGLE_BORDER_RADIUS}px 0;
 
-  background-color: ${theme.colors.gray[100]};
+  background-color: ${theme.colors.gray[200]};
   color: ${theme.colors.gray[500]};
   cursor: pointer;
   z-index: 10;
