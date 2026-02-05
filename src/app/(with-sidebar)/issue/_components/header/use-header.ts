@@ -32,7 +32,7 @@ export function useHeader({ issueId }: UseHeaderParams) {
   const { handleAIStructure } = useAIStructuringMutation(issueId);
 
   const isOwner = currentMember?.role === MEMBER_ROLE.OWNER;
-  const { ideas, hasEditingIdea } = useIdeasWithTemp(issueId);
+  const { ideas } = useIdeasWithTemp(issueId);
   const scale = useCanvasStore((state) => state.scale);
   const { categories, handleAddCategory } = useCategoryOperations(issueId, ideas, scale);
 
@@ -105,7 +105,7 @@ export function useHeader({ issueId }: UseHeaderParams) {
     }
 
     return true;
-  }, [issue?.status, ideas, hasEditingIdea, categories]);
+  }, [issue?.status, ideas, categories]);
 
   // 다음 단계로 이동
   const handleNextStep = useCallback(() => {
