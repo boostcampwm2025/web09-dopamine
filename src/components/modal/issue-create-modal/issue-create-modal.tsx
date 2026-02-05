@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
+import { MAX_ISSUE_TITLE_LENGTH } from '@/constants/issue';
 import { useQuickStartMutation } from '@/hooks/issue';
 import { generateRandomNickname } from '@/lib/utils/nickname';
 import { useModalStore } from '../use-modal-store';
@@ -25,8 +26,8 @@ export default function CreateIssueModal() {
       toast.error('이슈 제목과 닉네임을 입력해주세요.');
       return;
     }
-    if (title.length > 15) {
-      toast.error('이슈 제목은 15자 이내로 입력해주세요.');
+    if (title.length > MAX_ISSUE_TITLE_LENGTH) {
+      toast.error(`이슈 제목은 ${MAX_ISSUE_TITLE_LENGTH}자 이내로 입력해주세요.`);
       return;
     }
 
@@ -58,11 +59,13 @@ export default function CreateIssueModal() {
             <S.Input>
               <S.InputField
                 value={title}
-                onChange={(e) => setTitle(e.target.value.slice(0, 15))}
-                placeholder="예시) 서비스 홍보 방안 (15자 이내)"
-                maxLength={20}
+                onChange={(e) => setTitle(e.target.value.slice(0, MAX_ISSUE_TITLE_LENGTH))}
+                placeholder={`예시) 서비스 홍보 방안 (${MAX_ISSUE_TITLE_LENGTH}자 이내)`}
+                maxLength={MAX_ISSUE_TITLE_LENGTH}
               />
-              <S.CharCount $isOverLimit={title.length > 15}>{title.length}/15</S.CharCount>
+              <S.CharCount $isOverLimit={title.length > MAX_ISSUE_TITLE_LENGTH}>
+                {title.length}/{MAX_ISSUE_TITLE_LENGTH}
+              </S.CharCount>
             </S.Input>
           </S.InputWrapper>
           <S.InputWrapper>

@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import * as S from '@/app/(with-sidebar)/issue/_components/issue-join-modal/issue-join-modal.styles';
 import { useModalStore } from '@/components/modal/use-modal-store';
+import { MAX_ISSUE_TITLE_LENGTH } from '@/constants/issue';
 import { useDeleteIssueMutation, useUpdateIssueTitleMutation } from '@/hooks';
 import { useSseConnectionStore } from '../../store/use-sse-connection-store';
 import * as MS from './edit-issue-modal.styles';
@@ -36,8 +37,8 @@ export default function EditIssueModal({ issueId, currentTitle, userId }: EditIs
       toast.error('이슈 제목을 입력해주세요.');
       return;
     }
-    if (title.length > 15) {
-      toast.error('이슈 제목은 15자 이내로 입력해주세요.');
+    if (title.length > MAX_ISSUE_TITLE_LENGTH) {
+      toast.error(`이슈 제목은 ${MAX_ISSUE_TITLE_LENGTH}자 이내로 입력해주세요.`);
       return;
     }
 
@@ -78,7 +79,7 @@ export default function EditIssueModal({ issueId, currentTitle, userId }: EditIs
   }, [isOpen, handleUpdate]);
 
   const onChangeTitle = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.slice(0, 15);
+    const value = e.target.value.slice(0, MAX_ISSUE_TITLE_LENGTH);
     setTitle(value);
   };
 
@@ -91,12 +92,14 @@ export default function EditIssueModal({ issueId, currentTitle, userId }: EditIs
             <S.InputField
               value={title}
               onChange={onChangeTitle}
-              placeholder="제목을 입력하세요 (15자 이내)"
-              maxLength={20}
+              placeholder={`제목을 입력하세요 (${MAX_ISSUE_TITLE_LENGTH}자 이내)`}
+              maxLength={MAX_ISSUE_TITLE_LENGTH}
               autoFocus
               disabled={isPending}
             />
-            <S.CharCount $isOverLimit={title.length > 15}>{title.length}/15</S.CharCount>
+            <S.CharCount $isOverLimit={title.length > MAX_ISSUE_TITLE_LENGTH}>
+              {title.length}/{MAX_ISSUE_TITLE_LENGTH}
+            </S.CharCount>
           </S.Input>
         </S.InputWrapper>
         <MS.DeleteButton onClick={handleDelete}>삭제하기</MS.DeleteButton>

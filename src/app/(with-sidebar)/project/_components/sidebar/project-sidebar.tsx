@@ -1,16 +1,15 @@
 'use client';
 
-import { useParams } from 'next/navigation';
+import { useSession } from 'next-auth/react';
+import Image from 'next/image';
 import MemberSidebarItem from '@/components/sidebar/member-sidebar-item';
 import Sidebar from '@/components/sidebar/sidebar';
 import SidebarFilter from '@/components/sidebar/sidebar-filter';
 import SidebarItem from '@/components/sidebar/sidebar-item';
 import * as S from '@/components/sidebar/sidebar.styles';
 import { CircleSkeleton, TextSkeleton } from '@/components/skeleton/skeleton';
-import { useProjectQuery } from '@/hooks/project';
 import { useSmartLoading } from '@/hooks/use-smart-loading';
 import * as ProjectS from './projcet-sidebar.styles';
-import { useSession } from 'next-auth/react';
 import { useProjectSidebar } from './use-project-sidebar';
 
 const ProjectSidebar = () => {
@@ -21,16 +20,13 @@ const ProjectSidebar = () => {
     handleSearchChange,
     searchTarget,
     setSearchTarget,
+    handleRefresh,
+    isRefreshing,
+    isLoading,
   } = useProjectSidebar();
-  const params = useParams();
-  const projectId = params.id as string;
   const { data: session } = useSession(); // 현재 로그인한 사용자 세션
 
-  const { data: projectData, isLoading } = useProjectQuery(projectId);
   const showLoading = useSmartLoading(isLoading);
-
-  const topics = showLoading ? [] : projectData?.topics || [];
-  const members = showLoading ? [] : projectData?.members || [];
 
   return (
     <Sidebar
@@ -85,7 +81,21 @@ const ProjectSidebar = () => {
         <ProjectS.Divider />
 
         <ProjectS.MemberSectionWrapper>
-          <S.SidebarTitle>MEMBER LIST</S.SidebarTitle>
+          <S.SidebarTitle>
+            MEMBER LIST
+            <button
+              type="button"
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+            >
+              <Image
+                src="/refresh.svg"
+                width={12}
+                height={12}
+                alt="refresh"
+              />
+            </button>
+          </S.SidebarTitle>
           <ProjectS.ScrollableSection>
             <S.SidebarList>
               {showLoading ? (

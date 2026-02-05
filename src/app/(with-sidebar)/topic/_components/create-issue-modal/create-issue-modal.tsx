@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import * as S from '@/app/(with-sidebar)/issue/_components/issue-join-modal/issue-join-modal.styles';
 import { useModalStore } from '@/components/modal/use-modal-store';
+import { MAX_ISSUE_TITLE_LENGTH } from '@/constants/issue';
 import { useCreateIssueInTopicMutation, useTopicId } from '@/hooks';
 
 export default function CreateIssueModal() {
@@ -73,9 +74,11 @@ export default function CreateIssueModal() {
               placeholder="제목을 입력하세요"
               autoFocus
               disabled={isPending}
-              maxLength={20}
+              maxLength={MAX_ISSUE_TITLE_LENGTH}
             />
-            <S.CharCount $isOverLimit={issueTitle.length > 15}>{issueTitle.length}/15</S.CharCount>
+            <S.CharCount $isOverLimit={issueTitle.length > MAX_ISSUE_TITLE_LENGTH}>
+              {issueTitle.length}/{MAX_ISSUE_TITLE_LENGTH}
+            </S.CharCount>
           </S.Input>
         </S.InputWrapper>
       </S.InfoContainer>

@@ -14,6 +14,7 @@ export const useProjectQuery = (projectId: string) => {
     queryKey: ['project', projectId],
     queryFn: () => getProject(projectId),
     enabled: !!projectId,
-    staleTime: 1000 * 10,
+    staleTime: 1000 * 30,
+    refetchOnWindowFocus: true,
   });
 };
