@@ -52,9 +52,6 @@ export class SSEManager {
           }
         }
         for (const staleClient of staleClients) {
-          console.log(
-            `[SSE] ${label} 기존 연결 종료 - ${keyName}: ${key}, User: ${userId}, ConnectionId: ${staleClient.connectionId}`,
-          );
           existingClients.delete(staleClient);
           try {
             staleClient.controller.close();
@@ -65,11 +62,6 @@ export class SSEManager {
 
         // 현재 컨트롤러를 연결 목록에 추가
         existingClients.add({ userId, connectionId, controller });
-
-        console.log(
-          `[SSE] ${label} 클라이언트 연결됨 - ${keyName}: ${key}, User: ${userId}, ConnectionId: ${connectionId}`,
-        );
-
         // 연결 확인 메시지
         const connectMessage = `data: ${JSON.stringify({
           type: 'connected',
@@ -112,9 +104,6 @@ export class SSEManager {
 
         // 연결 종료 처리
         signal.addEventListener('abort', () => {
-          console.log(
-            `[SSE] ${label} 클라이언트 연결 종료됨 - ${keyName}: ${key}, User: ${userId}`,
-          );
           clearInterval(heartbeatInterval);
 
           const clients = map.get(key);
@@ -153,17 +142,12 @@ export class SSEManager {
     excludeConnectionId?: string,
   ): void {
     if (!clients || clients.size === 0) {
-      console.log(`[SSE] ${label}에 연결된 유저가 없습니다 ID: ${id}`);
       return;
     }
 
     const encoder = new TextEncoder();
     const message = `event: ${event.type}\ndata: ${JSON.stringify(event.data)}\n\n`;
     const encoded = encoder.encode(message);
-
-    console.log(
-      `[SSE] ${clients.size}개의 ${label} client에게 브로드캐스팅 - ID: ${id}, Event: ${event.type}`,
-    );
 
     clients.forEach((client) => {
       // 제외할 커넥션 ID(보낸 사람 자신)일경우 skip

@@ -1,14 +1,12 @@
 'use client';
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import * as S from '@/app/(with-sidebar)/issue/_components/issue-join-modal/issue-join-modal.styles';
 import { useModalStore } from '@/components/modal/use-modal-store';
 import { useCreateIssueInTopicMutation, useTopicId } from '@/hooks';
 
 export default function CreateIssueModal() {
-  const router = useRouter();
   const [issueTitle, setIssueTitle] = useState('');
   const issueTitleRef = useRef(issueTitle);
   const setIsPending = useModalStore((state) => state.setIsPending);
@@ -46,11 +44,10 @@ export default function CreateIssueModal() {
       {
         onSuccess: () => {
           closeModal();
-          router.refresh();
         },
       },
     );
-  }, [topicId, mutate, closeModal, router]);
+  }, [topicId, mutate, closeModal]);
 
   useEffect(() => {
     if (isOpen) {

@@ -325,3 +325,16 @@ export const updateProject = async (
     },
   });
 };
+
+// 사용자가 프로젝트의 멤버인지 확인
+export const isProjectMember = async (projectId: string, userId: string): Promise<boolean> => {
+  const member = await prisma.projectMember.findFirst({
+    where: {
+      projectId,
+      userId,
+      deletedAt: null,
+    },
+  });
+
+  return !!member;
+};

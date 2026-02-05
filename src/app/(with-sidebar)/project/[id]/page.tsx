@@ -1,6 +1,8 @@
+import { getServerSession } from 'next-auth';
 import Image from 'next/image';
 import { notFound, redirect } from 'next/navigation';
-import * as projectRepository from '@/lib/repositories/project.repository';
+import { authOptions } from '@/lib/auth';
+import { getProjectWithTopicsForUser } from '@/lib/services/project.service';
 import CreateTopicButton from '../_components/create-topic-button/create-topic-button';
 import EditProjectButton from '../_components/edit-project-button/edit-project-button';
 import TopicList from '../_components/topic-list/topic-list';
@@ -14,7 +16,20 @@ interface ProjectPageProps {
 
 export default async function ProjectPage({ params }: ProjectPageProps) {
   const { id } = await params;
-  const projectData = await projectRepository.getProjectWithTopics(id);
+
+  // 세션 확인
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    redirect('/');
+  }
+
+  // 프로젝트 데이터 조회 (권한 확인 포함)
+  let projectData;
+  try {
+    projectData = await getProjectWithTopicsForUser(id, session.user.id);
+  } catch (error) {
+    redirect('/');
+  }
 
   if (!projectData) {
     notFound();

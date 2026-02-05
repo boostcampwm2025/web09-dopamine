@@ -4,7 +4,6 @@ import { memo, useMemo } from 'react';
 import { MarkerType, ReactFlow } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { EDGE_STYLE } from '@/constants/topic';
-import { useTopicEvents } from '@/hooks/topic/use-topic-events';
 import { theme } from '@/styles/theme';
 import { IssueConnection, IssueMapData, IssueNode } from '@/types/issue';
 import TopicEdge from '../issue-connection/Issue-edge';
@@ -35,9 +34,6 @@ const defaultEdgeOptions = {
 };
 
 function TopicCanvas({ topicId, issues, nodes: issueNodes, connections }: TopicCanvasProps) {
-  // 토픽 실시간 이벤트 수신
-  useTopicEvents({ topicId });
-
   const {
     nodes,
     edges,
