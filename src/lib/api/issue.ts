@@ -75,8 +75,10 @@ export function deleteIssue(issueId: string, userId: string, connectionId?: stri
   return getAPIResponseData<{ id: string; topicId: string | null }>({
     url: `/api/issues/${issueId}`,
     method: 'DELETE',
-    headers: withSseHeader({ 'Content-Type': 'application/json' }, connectionId),
-    body: JSON.stringify({ userId }),
+    headers: withSseHeader(
+      { 'Content-Type': 'application/json', 'x-user-id': userId },
+      connectionId,
+    ),
   });
 }
 
