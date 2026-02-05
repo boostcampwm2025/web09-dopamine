@@ -41,3 +41,10 @@ export function updateTopicTitle(topicId: string, title: string, userId: string)
     body: JSON.stringify({ title, userId }),
   });
 }
+
+export function deleteTopic(topicId: string) {
+  return getAPIResponseData<{ id: string; projectId: string }>({
+    url: `/api/topics/${topicId}`,
+    method: 'DELETE',
+  });
+}

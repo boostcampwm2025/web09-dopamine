@@ -45,5 +45,6 @@ export const useTopicDetailQuery = (topicId: string) => {
     queryKey: ['topics', topicId],
     queryFn: () => getTopic(topicId),
     staleTime: 1000 * 10,
+    enabled: !!topicId,
   });
 };
