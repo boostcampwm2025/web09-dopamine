@@ -18,7 +18,7 @@ export const Item = styled.div<{ highlighted?: boolean; isTop?: boolean; isSelec
   gap: 12px;
   padding: 14px 16px;
   border-bottom: 1px solid ${theme.colors.gray[100]};
-  background: ''transparent';
+  background: 'transparent';
   border-radius: ${({ isTop }) =>
     isTop ? theme.radius.medium + ' ' + theme.radius.medium + ' 0 0' : '0'};
 
